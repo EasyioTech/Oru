@@ -304,8 +304,33 @@ async function ensureProcurementForeignKeys(client) {
       END IF;
     END $$;
   `);
-  
-  console.log('[SQL] ✅ Procurement foreign keys ensured');
+
+  // Add purchase_orders FK to inventory
+  await client.query(`
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name IN ('purchase_orders', 'inventory')
+        HAVING COUNT(*) = 2
+      ) THEN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.table_constraints 
+          WHERE constraint_schema = 'public' 
+          AND table_name = 'inventory' 
+          AND constraint_name = 'inventory_purchase_order_id_fkey'
+        ) THEN
+          ALTER TABLE public.inventory 
+          ADD CONSTRAINT inventory_purchase_order_id_fkey 
+          FOREIGN KEY (purchase_order_id) 
+          REFERENCES public.purchase_orders(id);
+        END IF;
+      END IF;
+    END $$;
+  `);
+
+  console.log('[SQL] Procurement foreign keys ensured');
 }
 
 /**
@@ -314,6 +339,9 @@ async function ensureProcurementForeignKeys(client) {
  */
 async function ensureAllUpdatedAtTriggers(client) {
   const tablesWithUpdatedAt = [
+    // Main database tables
+    'agency_settings', 'system_settings', 'agency_provisioning_jobs',
+    // Agency database tables
     'chart_of_accounts', 'quotations', 'quotation_templates', 'quotation_line_items',
     'tasks', 'task_assignments', 'task_comments', 'task_time_tracking',
     'leave_types', 'leave_requests', 'payroll_periods', 'payroll',
@@ -329,7 +357,8 @@ async function ensureAllUpdatedAtTriggers(client) {
     'asset_maintenance', 'asset_disposals',
     'workflows', 'workflow_steps', 'workflow_instances', 'workflow_approvals', 
     'automation_rules',
-    'integrations', 'integration_logs', 'api_keys'
+    'integrations', 'integration_logs', 'api_keys',
+    'purchase_orders', 'serial_numbers', 'batches'
   ];
 
   await ensureUpdatedAtTriggers(client, tablesWithUpdatedAt);
