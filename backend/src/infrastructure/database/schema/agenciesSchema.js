@@ -234,7 +234,54 @@ async function migrateToNormalizedSchema(client) {
 }
 
 /**
- * Ensure all agency-related tables (normalized structure)
+ * Ensure agency_provisioning_jobs table exists (async agency creation)
+ * @param {Object} client - PostgreSQL client
+ */
+async function ensureAgencyProvisioningJobsTable(client) {
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS public.agency_provisioning_jobs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        idempotency_key TEXT UNIQUE,
+        status TEXT NOT NULL DEFAULT 'pending'
+            CHECK (status IN ('pending', 'running', 'completed', 'failed')),
+        domain TEXT NOT NULL,
+        agency_name TEXT NOT NULL,
+        payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+        result JSONB,
+        error TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        completed_at TIMESTAMPTZ
+    );
+  `);
+
+  // Create indexes
+  await client.query(`
+    CREATE INDEX IF NOT EXISTS idx_agency_provisioning_jobs_status ON public.agency_provisioning_jobs(status);
+  `);
+  
+  await client.query(`
+    CREATE INDEX IF NOT EXISTS idx_agency_provisioning_jobs_idempotency_key ON public.agency_provisioning_jobs(idempotency_key) WHERE idempotency_key IS NOT NULL;
+  `);
+  
+  await client.query(`
+    CREATE INDEX IF NOT EXISTS idx_agency_provisioning_jobs_created_at ON public.agency_provisioning_jobs(created_at);
+  `);
+
+  // Create updated_at trigger
+  await client.query(`
+    DROP TRIGGER IF EXISTS update_agency_provisioning_jobs_updated_at ON public.agency_provisioning_jobs;
+    CREATE TRIGGER update_agency_provisioning_jobs_updated_at
+      BEFORE UPDATE ON public.agency_provisioning_jobs
+      FOR EACH ROW
+      EXECUTE FUNCTION public.update_updated_at_column();
+  `);
+
+  console.log('[SQL] ✅ Agency provisioning jobs table ensured');
+}
+
+/**
+ * Ensure agencies schema (main database tables)
  * @param {Object} client - PostgreSQL client
  */
 async function ensureAgenciesSchema(client) {
@@ -251,6 +298,9 @@ async function ensureAgenciesSchema(client) {
   await ensureAgencyFinancialSettingsSchema(client);
   await ensureAgencyPreferencesSchema(client);
   
+  // Ensure agency provisioning jobs table
+  await ensureAgencyProvisioningJobsTable(client);
+  
   // Migrate data from legacy columns if they exist
   await migrateToNormalizedSchema(client);
   
@@ -260,5 +310,6 @@ async function ensureAgenciesSchema(client) {
 module.exports = {
   ensureAgenciesSchema,
   ensureAgencySettingsTable,
+  ensureAgencyProvisioningJobsTable,
   migrateToNormalizedSchema,
 };
