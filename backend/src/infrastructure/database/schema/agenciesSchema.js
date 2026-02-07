@@ -234,6 +234,7 @@ async function migrateToNormalizedSchema(client) {
 }
 
 /**
+<<<<<<< HEAD
  * Ensure system_settings table exists (main database)
  * @param {Object} client - PostgreSQL client
  */
@@ -273,6 +274,8 @@ async function ensureSystemSettingsTable(client) {
 }
 
 /**
+=======
+>>>>>>> 9834a76d4fce6638fd3b9ba6a3aecb51d990783d
  * Ensure agency_provisioning_jobs table exists (async agency creation)
  * @param {Object} client - PostgreSQL client
  */
@@ -352,7 +355,10 @@ async function ensureAgenciesSchema(client) {
 module.exports = {
   ensureAgenciesSchema,
   ensureAgencySettingsTable,
+<<<<<<< HEAD
   ensureSystemSettingsTable,
+=======
+>>>>>>> 9834a76d4fce6638fd3b9ba6a3aecb51d990783d
   ensureAgencyProvisioningJobsTable,
   migrateToNormalizedSchema,
 };

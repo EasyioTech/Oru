@@ -1,7 +1,11 @@
 # ============================================================================
 # BuildFlow / Oru ERP - Production Docker Compose
 # ============================================================================
-# Single command deployment: docker compose up -d --build
+# Deployment Commands (run these in order):
+# 1. docker compose -f docker-compose.prod.yml down --remove-orphans --volumes
+# 2. docker system prune -f
+# 3. docker compose -f docker-compose.prod.yml build --no-cache  
+# 4. docker compose -f docker-compose.prod.yml up -d
 # Uses .env.vps environment variables
 # ============================================================================
 
