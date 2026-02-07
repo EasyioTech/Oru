@@ -1,0 +1,45 @@
+{
+  "name": "oru-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Oru ERP - Enterprise Resource Planning System",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=frontend",
+    "build:backend": "echo 'Backend is Node.js, no build required'",
+    "test": "npm run test --workspace=frontend",
+    "test:backend": "npm run test --workspace=backend",
+    "lint": "npm run lint --workspace=frontend",
+    "docker:dev": "docker-compose -f docker/docker-compose.dev.yml up",
+    "docker:dev:build": "docker-compose -f docker/docker-compose.dev.yml up --build",
+    "docker:dev:down": "docker-compose -f docker/docker-compose.dev.yml down",
+    "docker:prod": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:prod:build": "docker-compose -f docker/docker-compose.yml up --build -d",
+    "docker:prod:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f",
+    "db:migrate": "echo 'Run migrations from database/migrations/'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/oru-erp.git"
+  },
+  "keywords": [
+    "erp",
+    "enterprise",
+    "management",
+    "agency",
+    "saas"
+  ],
+  "author": "Oru Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

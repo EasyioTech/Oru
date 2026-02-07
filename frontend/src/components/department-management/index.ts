@@ -1,0 +1,1 @@
+export { DepartmentBreadcrumb } from './DepartmentBreadcrumb';

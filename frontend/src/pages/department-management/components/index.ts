@@ -1,0 +1,10 @@
+export { DepartmentFormDialog } from './DepartmentFormDialog';
+export { DepartmentHierarchyView } from './DepartmentHierarchy';
+export { DepartmentStatsCards } from './DepartmentStatsCards';
+export { DepartmentFilters } from './DepartmentFilters';
+export { DepartmentActionsMenu } from './DepartmentActionsMenu';
+export { DepartmentTable } from './DepartmentTable';
+export { DepartmentListView } from './DepartmentListView';
+export { DepartmentCardView } from './DepartmentCardView';
+export { DepartmentDetailsDialog } from './DepartmentDetailsDialog';
+export type { Department, ViewMode, SortField, SortDirection, DepartmentStats } from './types';
