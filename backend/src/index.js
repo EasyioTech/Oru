@@ -409,26 +409,46 @@ async function initializeMainDatabase() {
       }
       
       // Ensure other critical tables exist (run migrations if needed)
-      await runMigrationIfExists(client, '10_page_catalog_schema.sql');
-      await runMigrationIfExists(client, '11_seed_page_catalog.sql');
-      await runMigrationIfExists(client, '12_system_settings_schema.sql');
-      await runMigrationIfExists(client, '09_system_health_metrics.sql');
-      await runMigrationIfExists(client, '16_agency_provisioning_jobs.sql');
+      try {
+        await runMigrationIfExists(client, '10_page_catalog_schema.sql');
+        await runMigrationIfExists(client, '11_seed_page_catalog.sql');
+        await runMigrationIfExists(client, '12_system_settings_schema.sql');
+        await runMigrationIfExists(client, '09_system_health_metrics.sql');
+        await runMigrationIfExists(client, '16_agency_provisioning_jobs.sql');
+      } catch (migrationError) {
+        logger.error('Migration failed', {
+          error: migrationError.message,
+          migration: migrationError.stack
+        });
+        // Continue with other migrations - don't crash
+      }
       
       // Ensure page_catalog has data
-      const catalogCount = await client.query('SELECT COUNT(*) as count FROM public.page_catalog');
-      logger.info('✅ page_catalog table verified');
+      try {
+        const catalogCount = await client.query('SELECT COUNT(*) as count FROM public.page_catalog');
+        logger.info('✅ page_catalog table verified');
+      } catch (catalogError) {
+        logger.warn('page_catalog table not accessible, skipping verification', {
+          error: catalogError.message
+        });
+      }
       
       // Ensure system_settings has data
-      const settingsCount = await client.query('SELECT COUNT(*) as count FROM public.system_settings');
-      if (parseInt(settingsCount.rows[0].count) === 0) {
-        await client.query(`
-          INSERT INTO public.system_settings (system_name, system_tagline, system_description)
-          VALUES ('Oru ERP', 'Complete Business Management Solution', 'Comprehensive ERP system')
-        `);
-        logger.info('✅ Default system settings created');
-      } else {
-        logger.info('✅ system_settings table verified');
+      try {
+        const settingsCount = await client.query('SELECT COUNT(*) as count FROM public.system_settings');
+        if (parseInt(settingsCount.rows[0].count) === 0) {
+          await client.query(`
+            INSERT INTO public.system_settings (system_name, system_tagline, system_description)
+            VALUES ('Oru ERP', 'Complete Business Management Solution', 'Comprehensive ERP system')
+          `);
+          logger.info('✅ Default system settings created');
+        } else {
+          logger.info('✅ system_settings table verified');
+        }
+      } catch (settingsError) {
+        logger.warn('system_settings table not accessible, skipping verification', {
+          error: settingsError.message
+        });
       }
       
       // Ensure super admin exists
