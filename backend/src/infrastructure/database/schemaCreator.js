@@ -255,82 +255,9 @@ async function verifyUnifiedEmployeesView(client) {
  * @param {Object} client - PostgreSQL client
  */
 async function ensureProcurementForeignKeys(client) {
-  // Add purchase_orders FK to serial_numbers
-  await client.query(`
-    DO $$
-    BEGIN
-      IF EXISTS (
-        SELECT 1 FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name IN ('purchase_orders', 'serial_numbers')
-        HAVING COUNT(*) = 2
-      ) THEN
-        IF NOT EXISTS (
-          SELECT 1 FROM information_schema.table_constraints 
-          WHERE constraint_schema = 'public' 
-          AND table_name = 'serial_numbers' 
-          AND constraint_name = 'serial_numbers_purchase_order_id_fkey'
-        ) THEN
-          ALTER TABLE public.serial_numbers 
-          ADD CONSTRAINT serial_numbers_purchase_order_id_fkey 
-          FOREIGN KEY (purchase_order_id) 
-          REFERENCES public.purchase_orders(id);
-        END IF;
-      END IF;
-    END $$;
-  `);
-
-  // Add purchase_orders FK to batches
-  await client.query(`
-    DO $$
-    BEGIN
-      IF EXISTS (
-        SELECT 1 FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name IN ('purchase_orders', 'batches')
-        HAVING COUNT(*) = 2
-      ) THEN
-        IF NOT EXISTS (
-          SELECT 1 FROM information_schema.table_constraints 
-          WHERE constraint_schema = 'public' 
-          AND table_name = 'batches' 
-          AND constraint_name = 'batches_purchase_order_id_fkey'
-        ) THEN
-          ALTER TABLE public.batches 
-          ADD CONSTRAINT batches_purchase_order_id_fkey 
-          FOREIGN KEY (purchase_order_id) 
-          REFERENCES public.purchase_orders(id);
-        END IF;
-      END IF;
-    END $$;
-  `);
-
-  // Add purchase_orders FK to inventory
-  await client.query(`
-    DO $$
-    BEGIN
-      IF EXISTS (
-        SELECT 1 FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name IN ('purchase_orders', 'inventory')
-        HAVING COUNT(*) = 2
-      ) THEN
-        IF NOT EXISTS (
-          SELECT 1 FROM information_schema.table_constraints 
-          WHERE constraint_schema = 'public' 
-          AND table_name = 'inventory' 
-          AND constraint_name = 'inventory_purchase_order_id_fkey'
-        ) THEN
-          ALTER TABLE public.inventory 
-          ADD CONSTRAINT inventory_purchase_order_id_fkey 
-          FOREIGN KEY (purchase_order_id) 
-          REFERENCES public.purchase_orders(id);
-        END IF;
-      END IF;
-    END $$;
-  `);
-
-  console.log('[SQL] Procurement foreign keys ensured');
+  // Foreign keys for procurement tables are now handled in inventory schema
+  // This function is kept for compatibility but doesn't create duplicate constraints
+  console.log('[Schema] Procurement foreign keys already handled in inventory schema');
 }
 
 /**
