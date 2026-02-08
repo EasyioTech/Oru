@@ -67,6 +67,6 @@ DOCKER_*.md
 package-lock.json
 bun.lockb
 
-# Explicitly include frontend directory for Vercel build
-!frontend/
-
+# Re-include frontend build output
+!frontend/dist/
+!frontend/dist/**
