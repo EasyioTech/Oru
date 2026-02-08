@@ -1,12 +1,21 @@
 -- ============================================================================
--- BuildFlow ERP - Add Missing Department Columns Migration
+-- BuildFlow ERP - Create Departments Table and Add Missing Columns
 -- ============================================================================
--- This migration adds missing columns to the departments table:
+-- This migration creates the departments table and adds missing columns:
 -- - manager_id: Reference to profiles.user_id for department manager
 -- - parent_department_id: Reference to departments.id for hierarchy
 -- - budget: Department budget amount
 -- - agency_id: Multi-tenant agency reference
 -- ============================================================================
+
+-- Create departments table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.departments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
 -- Add manager_id column (references profiles.user_id)
 ALTER TABLE public.departments ADD COLUMN IF NOT EXISTS manager_id UUID REFERENCES public.profiles(user_id) ON DELETE SET NULL;

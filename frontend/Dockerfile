@@ -51,8 +51,8 @@ RUN npm run build
 # Stage 2: Production stage - minimal nginx image
 FROM nginx:alpine
 
-# Install gettext for envsubst (needed for environment variable substitution)
-RUN apk add --no-cache gettext
+# Install envsubst for environment variable substitution
+RUN apk add --no-cache envsubst
 
 # Copy built static files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html

@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 COMMENT ON TABLE public.profiles IS 'Extended user profiles with agency association';
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_agency_id ON public.profiles(agency_id);
 
 -- ============================================================================
