@@ -1,8 +1,8 @@
-# Docker Setup Guide for BuildFlow ERP System
+# Docker Setup Guide for Oru ERP System
 
 ## 🐳 Overview
 
-This guide explains how to use Docker for the BuildFlow ERP system. Docker provides:
+This guide explains how to use Docker for the Oru ERP system. Docker provides:
 - **Consistent environments** across development, staging, and production
 - **Easy deployment** with a single command
 - **Isolated services** (PostgreSQL, Redis, Backend, Frontend)
@@ -68,7 +68,7 @@ Create a `.env` file in the project root (or use `.env.example`):
 
 ```env
 # Database (already configured in docker-compose.yml)
-VITE_DATABASE_URL=postgresql://postgres:admin@postgres:5432/buildflow_db
+VITE_DATABASE_URL=postgresql://postgres:admin@postgres:5432/oru_erp
 
 # JWT Secret (change in production!)
 VITE_JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -94,10 +94,10 @@ In Docker, services communicate using service names:
 
 ```bash
 # Connect via Docker
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Or from host (if PostgreSQL client installed)
-psql -h localhost -U postgres -d buildflow_db
+psql -h localhost -U postgres -d oru_erp
 # Password: admin
 ```
 
@@ -109,10 +109,10 @@ Migrations in `database/migrations/` are automatically executed on first startup
 
 ```bash
 # Create backup
-docker compose exec postgres pg_dump -U postgres buildflow_db > backup.sql
+docker compose exec postgres pg_dump -U postgres oru_erp > backup.sql
 
 # Restore backup
-docker compose exec -T postgres psql -U postgres buildflow_db < backup.sql
+docker compose exec -T postgres psql -U postgres oru_erp < backup.sql
 ```
 
 ### Reset Database
@@ -146,7 +146,7 @@ docker compose logs -f postgres
 docker compose exec backend sh
 
 # PostgreSQL container
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Frontend container
 docker compose exec frontend sh

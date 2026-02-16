@@ -4,7 +4,7 @@ This document provides a comprehensive security-focused analysis of all authenti
 
 Executive Summary
 
-The BuildFlow ERP system uses a sophisticated multi-tenant architecture with complete database isolation per agency. However, the authentication and authorization system has critical security vulnerabilities that could lead to unauthorized access, data breaches, compliance violations, and audit trail gaps. These issues are particularly dangerous in an ERP context where financial data, employee information, and business-critical operations are at stake.
+The Oru ERP system uses a sophisticated multi-tenant architecture with complete database isolation per agency. However, the authentication and authorization system has critical security vulnerabilities that could lead to unauthorized access, data breaches, compliance violations, and audit trail gaps. These issues are particularly dangerous in an ERP context where financial data, employee information, and business-critical operations are at stake.
 
 Risk Level: CRITICAL
 Affected Systems: All authentication flows, role-based access control, agency isolation, audit logging

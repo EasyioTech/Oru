@@ -1,4 +1,4 @@
-# BuildFlow ERP - Production Docker Setup
+# Oru ERP - Production Docker Setup
 
 This directory now contains a complete production-ready Docker setup with all the files you need.
 

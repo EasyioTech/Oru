@@ -118,7 +118,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 ### Backup Database
 ```bash
 # Backup will be saved to ./database/backups/
-docker exec Oru-postgres pg_dump -U postgres buildflow_db > database/backups/backup_$(date +%Y%m%d_%H%M%S).sql
+docker exec Oru-postgres pg_dump -U postgres oru_erp > database/backups/backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
 ## Health Checks

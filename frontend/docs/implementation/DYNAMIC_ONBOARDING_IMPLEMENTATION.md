@@ -143,8 +143,8 @@ To apply the migrations:
 
 ```bash
 # Run migrations in order
-psql -U postgres -d buildflow_db -f database/migrations/10_page_catalog_schema.sql
-psql -U postgres -d buildflow_db -f database/migrations/11_seed_page_catalog.sql
+psql -U postgres -d oru_erp -f database/migrations/10_page_catalog_schema.sql
+psql -U postgres -d oru_erp -f database/migrations/11_seed_page_catalog.sql
 ```
 
 The seeding script will:

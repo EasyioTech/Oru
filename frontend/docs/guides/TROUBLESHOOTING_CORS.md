@@ -24,7 +24,7 @@ npm run dev
 You should see:
 ```
 🚀 Server running on port 3000
-📊 Database: localhost:5432/buildflow_db
+📊 Database: localhost:5432/oru_erp
 ✅ Redis cache initialized
 ```
 
@@ -75,7 +75,7 @@ CORS_ORIGINS=http://localhost:8080,http://localhost:5173
 ### Issue: Server Crashes on Startup
 
 **Check:**
-1. Database is running: `psql -U postgres -d buildflow_db -c "SELECT 1;"`
+1. Database is running: `psql -U postgres -d oru_erp -c "SELECT 1;"`
 2. All dependencies installed: `cd server && npm install`
 3. Check server logs for specific error messages
 

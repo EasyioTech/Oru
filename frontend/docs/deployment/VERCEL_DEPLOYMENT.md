@@ -30,7 +30,7 @@ This guide will help you deploy the BuildFlow frontend to Vercel.
 
    **Required:**
    ```
-   VITE_DATABASE_URL=postgresql://postgres:admin@your-db-host:5432/buildflow_db
+   VITE_DATABASE_URL=postgresql://postgres:admin@your-db-host:5432/oru_erp
    VITE_API_URL=https://your-api-domain.com/api
    ```
 

@@ -1,4 +1,4 @@
-# BuildFlow ERP - VPS Deployment Guide
+# Oru ERP - VPS Deployment Guide
 
 ## Quick Deployment Commands
 

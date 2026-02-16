@@ -46,13 +46,13 @@ If you want to run the migration manually in Docker:
 
 ```bash
 # Connect to PostgreSQL container
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Or run migration file directly
-docker compose exec -T postgres psql -U postgres -d buildflow_db -f /docker-entrypoint-initdb.d/12_system_settings_schema.sql
+docker compose exec -T postgres psql -U postgres -d oru_erp -f /docker-entrypoint-initdb.d/12_system_settings_schema.sql
 
 # Or from host machine
-docker compose exec postgres psql -U postgres -d buildflow_db < database/migrations/12_system_settings_schema.sql
+docker compose exec postgres psql -U postgres -d oru_erp < database/migrations/12_system_settings_schema.sql
 ```
 
 ## 🚀 Deployment Steps
@@ -74,10 +74,10 @@ docker compose -f docker-compose.hostinger-ready.yml logs -f backend
 
 ```bash
 # Check if table exists
-docker compose exec postgres psql -U postgres -d buildflow_db -c "\d public.system_settings"
+docker compose exec postgres psql -U postgres -d oru_erp -c "\d public.system_settings"
 
 # Check if default settings exist
-docker compose exec postgres psql -U postgres -d buildflow_db -c "SELECT system_name, system_tagline FROM public.system_settings;"
+docker compose exec postgres psql -U postgres -d oru_erp -c "SELECT system_name, system_tagline FROM public.system_settings;"
 ```
 
 ### 3. Access Settings

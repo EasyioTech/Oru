@@ -35,8 +35,8 @@ Create a `.env` file in the root directory:
 
 ```env
 # Database Connection
-DATABASE_URL=postgresql://postgres:admin@localhost:5432/buildflow_db
-VITE_DATABASE_URL=postgresql://postgres:admin@localhost:5432/buildflow_db
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/oru_erp
+VITE_DATABASE_URL=postgresql://postgres:admin@localhost:5432/oru_erp
 
 # API Configuration
 VITE_API_URL=http://localhost:3000/api
@@ -54,7 +54,7 @@ VITE_APP_ENVIRONMENT=development
 
 1. **Create Database:**
 ```sql
-CREATE DATABASE buildflow_db;
+CREATE DATABASE oru_erp;
 ```
 
 2. **Run Migrations:**
@@ -62,7 +62,7 @@ Check `database/migrations/` for SQL migration files.
 
 3. **Verify Connection:**
 ```bash
-psql -U postgres -d buildflow_db -c "SELECT version();"
+psql -U postgres -d oru_erp -c "SELECT version();"
 ```
 
 ## Project Structure
@@ -235,7 +235,7 @@ export function NewFeature() {
 
 ```bash
 # Connect to database
-psql -U postgres -d buildflow_db
+psql -U postgres -d oru_erp
 
 # Check tables
 \dt

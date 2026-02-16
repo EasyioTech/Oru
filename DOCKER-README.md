@@ -1,4 +1,4 @@
-# BuildFlow ERP - Docker Setup
+# Oru ERP - Docker Setup
 
 ## 📁 Docker Files Structure
 

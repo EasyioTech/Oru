@@ -2,7 +2,7 @@
 
 ## 🚀 Multi-Tenant ERP System - Production Setup
 
-This guide covers deploying the BuildFlow ERP system to production with complete multi-tenant database isolation.
+This guide covers deploying the Oru ERP system to production with complete multi-tenant database isolation.
 
 ## 📋 Prerequisites
 
@@ -59,7 +59,7 @@ CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
 
 The system uses **isolated databases per agency**:
 
-- **Main Database** (`buildflow_db`): Stores agency metadata
+- **Main Database** (`oru_erp`): Stores agency metadata
 - **Agency Databases** (`agency_*`): One isolated database per agency
 
 ### 2.2 How It Works
@@ -83,7 +83,7 @@ The system uses **isolated databases per agency**:
 
 ```bash
 # Connect to PostgreSQL
-docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d buildflow_db
+docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d oru_erp
 
 # List all databases (main + agencies)
 \l
@@ -136,7 +136,7 @@ Migrations in `database/migrations/` run automatically on first startup.
 
 ```bash
 # Run migrations on main database
-docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d buildflow_db -f /docker-entrypoint-initdb.d/01_core_schema.sql
+docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d oru_erp -f /docker-entrypoint-initdb.d/01_core_schema.sql
 
 # For agency databases, migrations run automatically when created
 ```
@@ -154,7 +154,7 @@ docker compose -f docker-compose.prod.yml --profile backup up -d db-backup
 
 ```bash
 # Backup main database
-docker compose -f docker-compose.prod.yml exec postgres pg_dump -U postgres buildflow_db > backup_main_$(date +%Y%m%d).sql
+docker compose -f docker-compose.prod.yml exec postgres pg_dump -U postgres oru_erp > backup_main_$(date +%Y%m%d).sql
 
 # Backup all agency databases
 ./scripts/backup-database.sh
@@ -164,7 +164,7 @@ docker compose -f docker-compose.prod.yml exec postgres pg_dump -U postgres buil
 
 ```bash
 # Restore main database
-docker compose -f docker-compose.prod.yml exec -T postgres psql -U postgres buildflow_db < backup_main_20250101.sql
+docker compose -f docker-compose.prod.yml exec -T postgres psql -U postgres oru_erp < backup_main_20250101.sql
 
 # Restore agency database
 docker compose -f docker-compose.prod.yml exec -T postgres psql -U postgres agency_company_12345678 < backup_agency.sql
@@ -287,7 +287,7 @@ This will:
 GET /api/agencies
 
 # Direct database query
-docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d buildflow_db -c "SELECT id, name, database_name FROM agencies;"
+docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d oru_erp -c "SELECT id, name, database_name FROM agencies;"
 ```
 
 ### 8.3 Verify Agency Database Isolation
@@ -332,7 +332,7 @@ docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -c "SEL
 docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
 
 # Check slow queries
-docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d buildflow_db -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"
+docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d oru_erp -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"
 ```
 
 ## 📈 Scaling

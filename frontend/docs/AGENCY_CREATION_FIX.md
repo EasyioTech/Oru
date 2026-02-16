@@ -81,7 +81,7 @@ After these fixes, agency creation should:
 
 ## Database Connection Details (Per Rules)
 
-- **Database**: `buildflow_db` (main), `agency_*` (isolated)
+- **Database**: `oru_erp` (main), `agency_*` (isolated)
 - **User**: `postgres`
 - **Password**: `admin`
 - **Host**: `localhost`

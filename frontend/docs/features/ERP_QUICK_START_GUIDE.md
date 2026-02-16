@@ -161,7 +161,7 @@ const cron = require('node-cron');
 // Daily backup at 2 AM
 cron.schedule('0 2 * * *', () => {
   const backupFile = `backup_${Date.now()}.sql`;
-  const command = `pg_dump -U postgres -d buildflow_db > backups/${backupFile}`;
+  const command = `pg_dump -U postgres -d oru_erp > backups/${backupFile}`;
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error('Backup failed:', error);
@@ -439,7 +439,7 @@ touch database/migrations/XX_add_inventory_tables.sql
 
 # Write migration
 # Test migration
-psql -U postgres -d buildflow_db -f database/migrations/XX_add_inventory_tables.sql
+psql -U postgres -d oru_erp -f database/migrations/XX_add_inventory_tables.sql
 
 # Rollback if needed
 ```

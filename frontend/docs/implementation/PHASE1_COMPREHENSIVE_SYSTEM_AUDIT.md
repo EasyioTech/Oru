@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive audit of the BuildFlow ERP system, identifying:
+This document provides a comprehensive audit of the Oru ERP system, identifying:
 - All 59 existing pages and their current state
 - Integration gaps between modules
 - Missing pages and features

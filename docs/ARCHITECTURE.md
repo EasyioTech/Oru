@@ -2,7 +2,7 @@
 
 ## Multi-tenant model
 
-- **Main database (`buildflow_db`)**: Control plane only. 12 tables: tenant catalog (agencies), platform config (system_settings, page_catalog, agency_page_assignments), system identity (users, profiles, user_roles for super_admin), audit_logs, notifications, system_health_metrics.
+- **Main database (`oru_erp`)**: Control plane only. 12 tables: tenant catalog (agencies), platform config (system_settings, page_catalog, agency_page_assignments), system identity (users, profiles, user_roles for super_admin), audit_logs, notifications, system_health_metrics.
 - **Agency databases**: One PostgreSQL database per agency. All ERP data and agency users live in that agency’s DB. Schema created by `backend/src/utils/schemaCreator.js` (53 tables per agency).
 
 ## Routing and auth

@@ -17,7 +17,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: buildflow_db
+      POSTGRES_DB: oru_erp
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -63,7 +63,7 @@ services:
     container_name: buildflow-backend
     environment:
       # Database
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT:-5432}/buildflow_db
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT:-5432}/oru_erp
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       

@@ -2,12 +2,12 @@
 
 ## Connection Details
 
-- **Database:** `buildflow_db`
+- **Database:** `oru_erp`
 - **User:** `postgres`
 - **Password:** `admin`
 - **Host:** `localhost`
 - **Port:** `5432`
-- **Connection String:** `postgresql://postgres:admin@localhost:5432/buildflow_db`
+- **Connection String:** `postgresql://postgres:admin@localhost:5432/oru_erp`
 
 ## Database Structure
 

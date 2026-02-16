@@ -86,7 +86,7 @@ The repair process adds all missing tables:
 4. **Restart backend server** to clear schema check cache
 
 ### "Agencies table does not exist" Error
-The `agencies` table is in the **main database** (buildflow_db), not in agency databases. This is expected - agencies are queried from the main database.
+The `agencies` table is in the **main database** (oru_erp), not in agency databases. This is expected - agencies are queried from the main database.
 
 ### Repair Takes Too Long?
 - First repair may take 10-30 seconds

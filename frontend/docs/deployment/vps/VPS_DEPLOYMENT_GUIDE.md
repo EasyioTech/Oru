@@ -139,7 +139,7 @@ curl http://localhost:3000/health
 curl http://localhost/health
 
 # Database connection
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "SELECT version();"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "SELECT version();"
 ```
 
 ## Quick Update Script
@@ -225,7 +225,7 @@ docker system prune -a
 
 ```bash
 # Check database
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "\dt"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "\dt"
 
 # Check database logs
 docker compose -f docker-compose.prod.yml logs postgres

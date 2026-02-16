@@ -108,13 +108,13 @@ console.log('Agency ID:', agencyId);
 ### Test Database Connection
 
 ```bash
-psql -U postgres -d buildflow_db -c "SELECT COUNT(*) FROM agencies;"
+psql -U postgres -d oru_erp -c "SELECT COUNT(*) FROM agencies;"
 ```
 
 ## Environment Variables
 
 ```env
-DATABASE_URL=postgresql://postgres:admin@localhost:5432/buildflow_db
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/oru_erp
 VITE_API_URL=http://localhost:3000/api
 VITE_JWT_SECRET=your-secret-key
 ```
@@ -143,13 +143,13 @@ npm run dev
 cd server && node index.js
 
 # Connect to database
-psql -U postgres -d buildflow_db
+psql -U postgres -d oru_erp
 
 # List tables
-psql -U postgres -d buildflow_db -c "\dt"
+psql -U postgres -d oru_erp -c "\dt"
 
 # Check agency data
-psql -U postgres -d buildflow_db -c "SELECT * FROM agencies;"
+psql -U postgres -d oru_erp -c "SELECT * FROM agencies;"
 ```
 
 ## Troubleshooting

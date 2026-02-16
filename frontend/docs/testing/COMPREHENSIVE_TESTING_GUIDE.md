@@ -39,7 +39,7 @@ npm run dev
 
 ```bash
 # Verify migration was applied
-psql -U postgres -d buildflow_db -c "\d users"
+psql -U postgres -d oru_erp -c "\d users"
 
 # Should show:
 # - two_factor_secret (text)
@@ -163,8 +163,8 @@ curl -X POST http://localhost:3000/api/auth/login \
 
 ```bash
 # Verify encrypted columns exist
-psql -U postgres -d buildflow_db -c "\d employee_details"
-psql -U postgres -d buildflow_db -c "\d employee_salary_details"
+psql -U postgres -d oru_erp -c "\d employee_details"
+psql -U postgres -d oru_erp -c "\d employee_salary_details"
 
 # Should show encrypted columns
 ```
@@ -373,7 +373,7 @@ curl -X POST http://localhost:3000/api/backups/create \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Agency-Database: $AGENCY_DB" \
   -H "Content-Type: application/json" \
-  -d '{"databaseName":"buildflow_db","backupType":"full"}'
+  -d '{"databaseName":"oru_erp","backupType":"full"}'
 ```
 
 **Expected Results:**

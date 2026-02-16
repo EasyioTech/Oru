@@ -16,7 +16,7 @@
   - `two_factor_verified_at` (TIMESTAMP) - Last verification timestamp
 - ✅ Created index on `two_factor_enabled` for performance
 
-**Migration Status:** ✅ Applied to main database (`buildflow_db`)
+**Migration Status:** ✅ Applied to main database (`oru_erp`)
 
 **⚠️ Note:** This migration needs to be applied to each agency database. The migration should be run when creating new agencies, or applied manually to existing agency databases.
 
@@ -198,7 +198,7 @@
 ## ⚠️ Important Notes
 
 ### Agency Database Migration
-The 2FA migration was applied to the main database (`buildflow_db`), but **each agency database also needs this migration**. 
+The 2FA migration was applied to the main database (`oru_erp`), but **each agency database also needs this migration**. 
 
 **Options:**
 1. Apply migration when creating new agencies (update `createAgencySchema`)

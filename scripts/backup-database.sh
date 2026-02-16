@@ -8,7 +8,7 @@ set -e
 BACKUP_DIR="/backups"
 RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-MAIN_DB=${POSTGRES_DB:-buildflow_db}
+MAIN_DB=${POSTGRES_DB:-oru_erp}
 PGUSER=${POSTGRES_USER:-postgres}
 PGPASSWORD=${POSTGRES_PASSWORD:-admin}
 PGHOST=${PGHOST:-postgres}

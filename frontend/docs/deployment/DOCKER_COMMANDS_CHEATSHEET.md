@@ -1,4 +1,4 @@
-# 🚀 Docker Commands Cheat Sheet - BuildFlow ERP
+# 🚀 Docker Commands Cheat Sheet - Oru ERP
 
 **Quick reference for daily Docker operations**
 
@@ -98,7 +98,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 ```bash
 # Connect to main database
-docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp
 
 # Connect to agency database
 docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d agency_company_12345678
@@ -107,13 +107,13 @@ docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d agenc
 docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -c "\l"
 
 # List all agencies
-docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db -c "SELECT name, database_name FROM agencies;"
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp -c "SELECT name, database_name FROM agencies;"
 
 # Backup main database
-docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > backup_$(date +%Y%m%d).sql
+docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > backup_$(date +%Y%m%d).sql
 
 # Restore main database
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres buildflow_db < backup.sql
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres oru_erp < backup.sql
 
 # Check if PostgreSQL is ready
 docker compose -f docker-compose.dev.yml exec postgres pg_isready -U postgres
@@ -306,7 +306,7 @@ docker compose -f docker-compose.dev.yml up -d
 
 | Service | User | Password | Database |
 |---------|------|----------|----------|
-| PostgreSQL | postgres | admin | buildflow_db |
+| PostgreSQL | postgres | admin | oru_erp |
 | Redis | - | (none) | - |
 
 **⚠️ Change these in production!**

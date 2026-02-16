@@ -5,7 +5,7 @@
 Your ERP system uses **complete database isolation** for each agency:
 
 ```
-Main Database (buildflow_db)
+Main Database (oru_erp)
 ├── agencies table (metadata)
 ├── users table (global users)
 └── subscription_plans (shared)
@@ -43,7 +43,7 @@ cp .env.production.example .env.production
 docker compose -f docker-compose.prod.yml ps
 
 # Verify multi-tenant isolation
-docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d buildflow_db -c "SELECT name, database_name FROM agencies;"
+docker compose -f docker-compose.prod.yml exec postgres psql -U postgres -d oru_erp -c "SELECT name, database_name FROM agencies;"
 ```
 
 ## 📋 Production Checklist
@@ -89,7 +89,7 @@ docker compose -f docker-compose.prod.yml --profile backup up -d db-backup
 ./scripts/backup-database.sh
 
 # Single database
-docker compose -f docker-compose.prod.yml exec postgres pg_dump -U postgres buildflow_db > backup.sql
+docker compose -f docker-compose.prod.yml exec postgres pg_dump -U postgres oru_erp > backup.sql
 ```
 
 ## 🔍 Monitoring

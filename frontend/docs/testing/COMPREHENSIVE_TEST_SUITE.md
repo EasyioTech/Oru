@@ -269,7 +269,7 @@ All tests should pass with:
 ### Environment Variables
 ```env
 NODE_ENV=test
-DATABASE_URL=postgresql://postgres:admin@localhost:5432/buildflow_db
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/oru_erp
 ENCRYPTION_KEY=test-encryption-key-32-chars-long!!
 JWT_SECRET=test-jwt-secret
 REDIS_URL=redis://localhost:6379

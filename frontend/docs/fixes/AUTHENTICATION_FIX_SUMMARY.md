@@ -20,7 +20,7 @@ The `requireRole` function was only checking roles in the **agency database**, b
 ## Solution Implemented
 
 ### 1. Added `getUserRolesFromMainDb` Function
-- Checks roles in the main database (buildflow_db)
+- Checks roles in the main database (oru_erp)
 - Used for system-level role verification
 - Falls back to agency database if no roles found in main DB
 
@@ -95,7 +95,7 @@ After restart:
 
 ## Database Structure Expected
 
-### Main Database (buildflow_db):
+### Main Database (oru_erp):
 - `public.users` table with `id` and optionally `role` column
 - `public.user_roles` table with `user_id` and `role` columns (preferred)
 

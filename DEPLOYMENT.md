@@ -1,4 +1,4 @@
-# BuildFlow ERP - Production Deployment Guide
+# Oru ERP - Production Deployment Guide
 
 ## Quick Start
 
@@ -200,15 +200,15 @@ sudo crontab -e
 ### Database Backups
 ```bash
 # Create backup
-docker exec buildflow-postgres pg_dump -U postgres buildflow_db > backup.sql
+docker exec buildflow-postgres pg_dump -U postgres oru_erp > backup.sql
 
 # Restore backup
-docker exec -i buildflow-postgres psql -U postgres buildflow_db < backup.sql
+docker exec -i buildflow-postgres psql -U postgres oru_erp < backup.sql
 
 # Automated backup script
 #!/bin/bash
 DATE=$(date +%Y%m%d_%H%M%S)
-docker exec buildflow-postgres pg_dump -U postgres buildflow_db > /backups/backup_$DATE.sql
+docker exec buildflow-postgres pg_dump -U postgres oru_erp > /backups/backup_$DATE.sql
 find /backups -name "backup_*.sql" -mtime +7 -delete
 ```
 
@@ -261,7 +261,7 @@ docker stats
 docker compose -f docker-compose.prod.yml logs postgres
 
 # Test database connection
-docker exec buildflow-postgres psql -U postgres -d buildflow_db -c "SELECT 1;"
+docker exec buildflow-postgres psql -U postgres -d oru_erp -c "SELECT 1;"
 
 # Reset database
 docker compose -f docker-compose.prod.yml down -v

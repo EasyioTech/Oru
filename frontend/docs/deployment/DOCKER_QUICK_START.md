@@ -100,7 +100,7 @@ docker compose up -d
 docker compose ps
 
 # Access database
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Access backend container
 docker compose exec backend sh
@@ -120,8 +120,8 @@ The Docker setup uses environment variables from:
 
 ### Database Connection
 
-- **From your host machine**: `postgresql://postgres:admin@localhost:5432/buildflow_db`
-- **From containers**: `postgresql://postgres:admin@postgres:5432/buildflow_db`
+- **From your host machine**: `postgresql://postgres:admin@localhost:5432/oru_erp`
+- **From containers**: `postgresql://postgres:admin@postgres:5432/oru_erp`
 
 ## 🗄️ Database Management
 
@@ -129,23 +129,23 @@ The Docker setup uses environment variables from:
 
 ```bash
 # Via Docker
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Or from host (if psql installed)
-psql -h localhost -U postgres -d buildflow_db
+psql -h localhost -U postgres -d oru_erp
 # Password: admin
 ```
 
 ### Backup Database
 
 ```bash
-docker compose exec postgres pg_dump -U postgres buildflow_db > backup.sql
+docker compose exec postgres pg_dump -U postgres oru_erp > backup.sql
 ```
 
 ### Restore Database
 
 ```bash
-docker compose exec -T postgres psql -U postgres buildflow_db < backup.sql
+docker compose exec -T postgres psql -U postgres oru_erp < backup.sql
 ```
 
 ### Reset Database (⚠️ Deletes all data)

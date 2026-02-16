@@ -15,7 +15,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: buildflow_db
+      POSTGRES_DB: oru_erp
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
@@ -62,14 +62,14 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${BACKEND_PORT:-3001}
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT:-5432}/buildflow_db
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT:-5432}/oru_erp
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       REDIS_HOST: redis
       REDIS_PORT: ${REDIS_PORT:-6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       REDIS_DB: ${REDIS_DB:-0}
-      APP_NAME: ${VITE_APP_NAME:-BuildFlow ERP}
+      APP_NAME: ${VITE_APP_NAME:-Oru ERP}
       APP_VERSION: ${VITE_APP_VERSION:-1.0.0}
       API_URL: ${API_URL}
       FRONTEND_URL: ${FRONTEND_URL}
@@ -105,14 +105,14 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
-        VITE_APP_NAME: ${VITE_APP_NAME:-BuildFlow ERP}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Oru ERP}
         VITE_APP_VERSION: ${VITE_APP_VERSION:-1.0.0}
         VITE_APP_ENVIRONMENT: ${VITE_APP_ENVIRONMENT:-development}
     image: buildflow-frontend:dev
     container_name: buildflow-frontend-dev
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
-      VITE_APP_NAME: ${VITE_APP_NAME:-BuildFlow ERP}
+      VITE_APP_NAME: ${VITE_APP_NAME:-Oru ERP}
       VITE_APP_VERSION: ${VITE_APP_VERSION:-1.0.0}
       VITE_APP_ENVIRONMENT: ${VITE_APP_ENVIRONMENT:-development}
     volumes:

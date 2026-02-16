@@ -1,4 +1,4 @@
-# 🐳 Docker Master Guide for BuildFlow ERP System
+# 🐳 Docker Master Guide for Oru ERP System
 
 ## Complete Command Reference & Beginner's Guide
 
@@ -501,7 +501,7 @@ docker compose -f docker-compose.prod.yml ps
 
 ### Connecting to Database
 
-#### Command: `docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db`
+#### Command: `docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp`
 
 **What it does:** Opens PostgreSQL command line inside the database container
 
@@ -514,7 +514,7 @@ docker compose -f docker-compose.prod.yml ps
 **How to use:**
 ```bash
 # Connect to main database
-docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp
 
 # Once connected, you can run SQL:
 # SELECT * FROM agencies;
@@ -524,13 +524,13 @@ docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d build
 
 **Example session:**
 ```sql
-buildflow_db=# SELECT COUNT(*) FROM agencies;
+oru_erp=# SELECT COUNT(*) FROM agencies;
  count 
 -------
      2
 (1 row)
 
-buildflow_db=# \dt
+oru_erp=# \dt
                     List of relations
  Schema |         Name          | Type  |  Owner   
 --------+-----------------------+-------+----------
@@ -538,14 +538,14 @@ buildflow_db=# \dt
  public | users                 | table | postgres
  ...
 
-buildflow_db=# \q
+oru_erp=# \q
 ```
 
 ---
 
 ### Database Backup Commands
 
-#### Command: `docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > backup.sql`
+#### Command: `docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > backup.sql`
 
 **What it does:** Creates a backup of your main database
 
@@ -558,7 +558,7 @@ buildflow_db=# \q
 **How to use:**
 ```bash
 # Backup main database
-docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > backup_$(date +%Y%m%d).sql
+docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > backup_$(date +%Y%m%d).sql
 
 # Backup specific agency database
 docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres agency_company_12345678 > backup_agency.sql
@@ -575,7 +575,7 @@ docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres agenc
 
 ---
 
-#### Command: `docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres buildflow_db < backup.sql`
+#### Command: `docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres oru_erp < backup.sql`
 
 **What it does:** Restores database from backup file
 
@@ -588,7 +588,7 @@ docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres agenc
 **How to use:**
 ```bash
 # Restore main database
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres buildflow_db < backup_20250119.sql
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres oru_erp < backup_20250119.sql
 
 # Restore agency database
 docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres agency_company_12345678 < backup_agency.sql
@@ -621,7 +621,7 @@ docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -c "\l"
                                   List of databases
    Name    |  Owner   | Encoding |  Collate   |   Ctype    |   Access privileges   
 -----------+----------+----------+------------+------------+-----------------------
- buildflow_db | postgres | UTF8     | en_US.utf8 | en_US.utf8 | 
+ oru_erp | postgres | UTF8     | en_US.utf8 | en_US.utf8 | 
  agency_company1_12345678 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | 
  agency_company2_87654321 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | 
  postgres  | postgres | UTF8     | en_US.utf8 | en_US.utf8 | 
@@ -629,7 +629,7 @@ docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -c "\l"
 
 ---
 
-#### Command: `docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db -c "SELECT name, database_name FROM agencies;"`
+#### Command: `docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp -c "SELECT name, database_name FROM agencies;"`
 
 **What it does:** Lists all agencies and their database names
 
@@ -640,7 +640,7 @@ docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -c "\l"
 
 **How to use:**
 ```bash
-docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db -c "SELECT id, name, database_name FROM agencies;"
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp -c "SELECT id, name, database_name FROM agencies;"
 ```
 
 ---
@@ -768,7 +768,7 @@ docker compose -f docker-compose.dev.yml exec postgres pg_isready -U postgres
 **How to use:**
 ```bash
 # 1. Backup first (if you have data you want to keep)
-docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > backup_before_reset.sql
+docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > backup_before_reset.sql
 
 # 2. Remove everything
 docker compose -f docker-compose.dev.yml down -v
@@ -1058,7 +1058,7 @@ docker compose -f docker-compose.dev.yml up -d backend
 docker compose -f docker-compose.dev.yml restart postgres
 
 # Or run manually:
-docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d buildflow_db -f /path/to/migration.sql
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -d oru_erp -f /path/to/migration.sql
 ```
 
 ---
@@ -1291,10 +1291,10 @@ docker compose -f docker-compose.dev.yml restart backend
 docker compose -f docker-compose.dev.yml build
 
 # Database backup
-docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > backup.sql
+docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > backup.sql
 
 # Database restore
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres buildflow_db < backup.sql
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres oru_erp < backup.sql
 ```
 
 ---
@@ -1322,7 +1322,7 @@ docker compose -f docker-compose.dev.yml up -d
 
 ```bash
 # 1. Backup what you can
-docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > corrupted_backup.sql
+docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > corrupted_backup.sql
 
 # 2. Stop PostgreSQL
 docker compose -f docker-compose.dev.yml stop postgres
@@ -1334,7 +1334,7 @@ docker volume rm buildsite-flow_postgres_data_dev
 docker compose -f docker-compose.dev.yml up -d postgres
 
 # 5. Restore from backup (if you have one)
-docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres buildflow_db < backup.sql
+docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres oru_erp < backup.sql
 ```
 
 ---
