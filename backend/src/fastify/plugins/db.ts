@@ -5,6 +5,11 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../infrastructure/database/schema.js';
 
 declare module 'fastify' {
+    interface FastifyInstance {
+        db: typeof db;
+        getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof schema>>;
+    }
+
     interface FastifyRequest {
         db: typeof db;
         getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof schema>>;
@@ -12,8 +17,11 @@ declare module 'fastify' {
 }
 
 const dbPlugin: FastifyPluginAsync = async (fastify) => {
-    // Decorate the request object with the Main database instance
-    // and the agency database switcher
+    // Decorate FastifyInstance with db
+    fastify.decorate('db', db);
+    fastify.decorate('getAgencyDb', getAgencyDb);
+
+    // Also decorate request for convenience
     fastify.decorateRequest('db', {
         getter: () => db
     });

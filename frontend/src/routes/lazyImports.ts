@@ -50,7 +50,7 @@ export const PageCatalogManagement = React.lazy(() => import("../pages/super-adm
 export const SuperAdminAnalytics = React.lazy(() => import("../pages/super-admin/Analytics"));
 export const SuperAdminLayout = React.lazy(() => import("../components/super-admin/SuperAdminLayout").then(m => ({ default: m.SuperAdminLayout })));
 export const SystemDashboard = React.lazy(() => import("../pages/dashboards/system"));
-export const SystemHealth = React.lazy(() => import("../pages/dashboards/system-health"));
+export const SystemHealth = React.lazy(() => import("../pages/super-admin/SystemHealth"));
 
 // Employee Management
 export const EmployeeManagement = React.lazy(() => import("../pages/employees"));

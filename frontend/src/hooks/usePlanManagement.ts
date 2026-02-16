@@ -17,6 +17,8 @@ export interface PlanFeature {
   description: string;
   feature_key: string;
   enabled: boolean;
+  is_active?: boolean;
+  is_system?: boolean;
 }
 
 export interface SubscriptionPlan {

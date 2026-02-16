@@ -58,7 +58,7 @@ async function parseJson<T>(response: Response): Promise<T> {
 }
 
 export async function fetchPlans(): Promise<SubscriptionPlan[]> {
-  const endpoint = getApiEndpoint('/system/plans');
+  const endpoint = getApiEndpoint('/plans');
   const response = await fetch(endpoint, {
     method: 'GET',
     headers: authHeaders(),
@@ -71,7 +71,7 @@ export async function fetchPlans(): Promise<SubscriptionPlan[]> {
 }
 
 export async function fetchFeatures(): Promise<PlanFeature[]> {
-  const endpoint = getApiEndpoint('/system/features');
+  const endpoint = getApiEndpoint('/plans/features');
   const response = await fetch(endpoint, {
     method: 'GET',
     headers: authHeaders(),
@@ -86,7 +86,7 @@ export async function fetchFeatures(): Promise<PlanFeature[]> {
 export async function createPlanApi(
   payload: Omit<SubscriptionPlan, 'id'>
 ): Promise<SubscriptionPlan> {
-  const endpoint = getApiEndpoint('/system/plans');
+  const endpoint = getApiEndpoint('/plans');
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: authHeaders(),
@@ -100,7 +100,7 @@ export async function updatePlanApi(
   planId: string,
   updates: Partial<SubscriptionPlan>
 ): Promise<SubscriptionPlan> {
-  const endpoint = getApiEndpoint(`/system/plans/${encodeURIComponent(planId)}`);
+  const endpoint = getApiEndpoint(`/plans/${encodeURIComponent(planId)}`);
   const response = await fetch(endpoint, {
     method: 'PUT',
     headers: authHeaders(),
@@ -111,7 +111,7 @@ export async function updatePlanApi(
 }
 
 export async function deactivatePlanApi(planId: string): Promise<void> {
-  const endpoint = getApiEndpoint(`/system/plans/${encodeURIComponent(planId)}`);
+  const endpoint = getApiEndpoint(`/plans/${encodeURIComponent(planId)}`);
   const response = await fetch(endpoint, {
     method: 'DELETE',
     headers: authHeaders(),
@@ -122,7 +122,7 @@ export async function deactivatePlanApi(planId: string): Promise<void> {
 export async function createFeatureApi(
   payload: Omit<PlanFeature, 'id' | 'enabled'>
 ): Promise<PlanFeature> {
-  const endpoint = getApiEndpoint('/system/features');
+  const endpoint = getApiEndpoint('/plans/features');
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: authHeaders(),
@@ -137,7 +137,7 @@ export async function updateFeatureApi(
   updates: Partial<Omit<PlanFeature, 'id' | 'enabled'>>
 ): Promise<PlanFeature> {
   const endpoint = getApiEndpoint(
-    `/system/features/${encodeURIComponent(featureId)}`
+    `/plans/features/${encodeURIComponent(featureId)}`
   );
   const response = await fetch(endpoint, {
     method: 'PUT',
@@ -150,7 +150,7 @@ export async function updateFeatureApi(
 
 export async function deleteFeatureApi(featureId: string): Promise<void> {
   const endpoint = getApiEndpoint(
-    `/system/features/${encodeURIComponent(featureId)}`
+    `/plans/features/${encodeURIComponent(featureId)}`
   );
   const response = await fetch(endpoint, {
     method: 'DELETE',

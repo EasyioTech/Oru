@@ -28,7 +28,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
     total: 0,
     totalPages: 0
   });
-  
+
   // Prevent multiple simultaneous requests
   const fetchingRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -69,7 +69,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       if (options.limit) params.append('limit', String(options.limit));
 
       const response = await fetch(
-        `${getApiBaseUrl()}/api/system/page-catalog?${params.toString()}`,
+        `${getApiBaseUrl()}/api/catalog?${params.toString()}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -91,7 +91,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
 
       const data = await response.json();
       if (data.success) {
-        setPages(data.data || []);
+        setPages(data.data.items || []);
         if (data.pagination) {
           setPagination(data.pagination);
         }
@@ -103,9 +103,9 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       if (error.name === 'AbortError') {
         return;
       }
-      
+
       console.error('Error fetching pages:', error);
-      
+
       // Only show toast for non-aborted errors
       if (error.message) {
         toast({
@@ -122,7 +122,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
 
   useEffect(() => {
     fetchPages();
-    
+
     // Cleanup: abort request on unmount
     return () => {
       if (abortControllerRef.current) {
@@ -138,7 +138,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
     }
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/system/page-catalog`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/catalog`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -185,7 +185,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
     }
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/system/page-catalog/${id}`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/catalog/${id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -232,7 +232,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
     }
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/system/page-catalog/${id}`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/catalog/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -281,7 +281,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
 
     try {
       const response = await fetch(
-        `${getApiBaseUrl()}/api/system/page-catalog/${pageId}/recommendation-rules`,
+        `${getApiBaseUrl()}/api/catalog/${pageId}/recommendation-rules`,
         {
           method: 'POST',
           headers: {
