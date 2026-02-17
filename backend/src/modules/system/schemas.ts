@@ -4,15 +4,56 @@ import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
 import { systemSettings, agencies } from '../../infrastructure/database/schema.js';
 import { mapToCamelCase, mapToSnakeCase } from '../../utils/case-transform.js';
 
+// --- Email Schema ---
+export const emailTestRequestSchema = z.object({
+    to: z.string().email(),
+});
+
+export const emailTestResponseSchema = z.object({
+    messageId: z.string(),
+    smtpResponse: z.string(),
+});
+
 // --- System Settings Schemas ---
-export const systemSettingsSchema = createSelectSchema(systemSettings);
+const baseSystemSettingsSchema = createSelectSchema(systemSettings);
+
+// Extend with virtual fields for secrets (masked)
+export const systemSettingsSchema = baseSystemSettingsSchema.extend({
+    // Virtual fields that frontend expects (will be mapped to snake_case)
+    smtpPassword: z.string().optional(),
+    sendgridApiKey: z.string().optional(),
+    mailgunApiKey: z.string().optional(),
+    awsSesAccessKey: z.string().optional(),
+    awsSesSecretKey: z.string().optional(),
+    resendApiKey: z.string().optional(),
+    postmarkApiKey: z.string().optional(),
+    captchaSecretKey: z.string().optional(),
+    awsS3AccessKey: z.string().optional(),
+    awsS3SecretKey: z.string().optional(),
+    sentryDsn: z.string().optional(),
+});
 
 // Create the insert schema, but preprocess inputs to transform snake_case to camelCase
 const baseUpdateSettingsSchema = createInsertSchema(systemSettings).partial();
 
+// Allow virtual fields in update
+const updateSettingsWithVirtuals = baseUpdateSettingsSchema.extend({
+    smtpPassword: z.string().optional(),
+    sendgridApiKey: z.string().optional(),
+    mailgunApiKey: z.string().optional(),
+    awsSesAccessKey: z.string().optional(),
+    awsSesSecretKey: z.string().optional(),
+    resendApiKey: z.string().optional(),
+    postmarkApiKey: z.string().optional(),
+    captchaSecretKey: z.string().optional(),
+    awsS3AccessKey: z.string().optional(),
+    awsS3SecretKey: z.string().optional(),
+    sentryDsn: z.string().optional(),
+});
+
 export const updateSystemSettingsSchema = z.preprocess(
     (data) => mapToCamelCase(data),
-    baseUpdateSettingsSchema
+    updateSettingsWithVirtuals
 );
 
 // --- Agency Summary Schema ---

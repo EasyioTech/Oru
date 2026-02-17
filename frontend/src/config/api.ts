@@ -14,10 +14,10 @@ function getEnvApiUrl(): URL | null {
   try {
     const raw = env.VITE_API_URL;
     if (!raw || typeof raw !== 'string') return null;
-    
+
     // Validate the string is not empty
     if (raw.trim() === '') return null;
-    
+
     try {
       const url = new URL(raw);
       // Validate the URL object was created correctly
@@ -68,11 +68,11 @@ export function getApiRoot(): string {
     if (browserIsLocalhost) {
       // Always use localhost with backend port when browser is on localhost
       // This ensures local development works regardless of VITE_API_URL setting
-      const backendPort = typeof process !== 'undefined' && process.env?.PORT 
-        ? process.env.PORT 
+      const backendPort = typeof process !== 'undefined' && process.env?.PORT
+        ? process.env.PORT
         : typeof process !== 'undefined' && process.env?.BACKEND_PORT
-        ? process.env.BACKEND_PORT
-        : '3000';
+          ? process.env.BACKEND_PORT
+          : '5001';
       return `${protocol}//localhost:${backendPort}/api`;
     }
 
@@ -86,12 +86,12 @@ export function getApiRoot(): string {
           // If VITE_API_URL doesn't end with /api, add it
           apiUrl = `${apiUrl}${apiUrl.endsWith('/') ? '' : '/'}api`;
         }
-        
+
         // Log in development for debugging
         if (import.meta.env.DEV || hostname === 'localhost') {
           console.log('[API Config] Using VITE_API_URL:', apiUrl);
         }
-        
+
         return apiUrl;
       } catch (urlError) {
         console.warn('[API Config] Error converting URL to string:', urlError);
@@ -102,11 +102,11 @@ export function getApiRoot(): string {
     // VITE_API_URL is missing or invalid, but browser is on a real domain.
     // Use same-origin when nginx proxies /api to backend (multi-domain deployment).
     const sameOriginRoot = `${window.location.origin.replace(/\/$/, '')}/api`;
-    
+
     if (import.meta.env.PROD && !envIsValid) {
       console.log('[API Config] VITE_API_URL not set, using same-origin:', sameOriginRoot);
     }
-    
+
     return sameOriginRoot.replace(/\/$/, '');
   }
 
@@ -125,11 +125,11 @@ export function getApiRoot(): string {
   }
 
   // Last-resort default - use environment variable or fallback to 3000
-  const backendPort = typeof process !== 'undefined' && process.env?.PORT 
-    ? process.env.PORT 
+  const backendPort = typeof process !== 'undefined' && process.env?.PORT
+    ? process.env.PORT
     : typeof process !== 'undefined' && process.env?.BACKEND_PORT
-    ? process.env.BACKEND_PORT
-    : '3000';
+      ? process.env.BACKEND_PORT
+      : '5001';
   return `http://localhost:${backendPort}/api`;
 }
 

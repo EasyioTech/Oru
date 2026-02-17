@@ -33,15 +33,50 @@ const server = Fastify({
 });
 
 // --- Plugins ---
-await server.register(dbPlugin);
-await server.register(authPlugin);
-await server.register(caslPlugin);
+await server.register(cors, {
+    origin: (origin, cb) => {
+        const defaultOrigins = [
+            'http://localhost:5173',
+            'http://localhost:5001',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:5001',
+            'https://orutest.site',
+            'https://www.orutest.site'
+        ];
+
+        const envOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
+        const allowedOrigins = [...defaultOrigins, ...envOrigins];
+
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return cb(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            cb(null, true);
+        } else {
+            // Log blocked origin for debugging
+            server.log.warn(`Blocked CORS request from origin: ${origin}`);
+            cb(new Error("Not allowed by CORS"), false);
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Agency-Database', 'Accept', 'Origin', 'X-Requested-With'],
+    exposedHeaders: ['Content-Length', 'X-Request-Id'],
+});
 await server.register(helmet);
+await server.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+});
 await server.register(multipart, {
     limits: {
         fileSize: 10 * 1024 * 1024, // 10MB limit
     }
 });
+
+await server.register(dbPlugin);
+await server.register(authPlugin);
+await server.register(caslPlugin);
 
 // --- Swagger Documentation ---
 await server.register(swaggerPlugin);
@@ -52,38 +87,6 @@ await server.register(autoLoad, {
     options: { prefix: '/api' },
     indexPattern: /^routes\.[jt]s$/,
     ignorePattern: /schemas\.ts$|service\.ts$|abilities\.ts$/,
-});
-
-await server.register(cors, {
-    origin: (origin, cb) => {
-        const allowedOrigins = [
-            'http://localhost:5173',
-            'http://localhost:3000',
-            'https://orutest.site',
-            'https://www.orutest.site'
-        ];
-        if (!origin || allowedOrigins.includes(origin)) {
-            cb(null, true);
-        } else {
-            cb(null, true); // Allow all in development
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'x-agency-database',
-        'X-Agency-Database',
-        'Accept',
-        'Origin',
-        'X-Requested-With'
-    ],
-    exposedHeaders: ['Content-Length', 'X-Request-Id'],
-});
-await server.register(rateLimit, {
-    max: 100,
-    timeWindow: '1 minute',
 });
 
 // --- Global Error Handler ---

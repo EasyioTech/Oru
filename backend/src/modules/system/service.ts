@@ -1,6 +1,6 @@
 
 import { db } from '../../infrastructure/database/index.js';
-import { systemSettings, agencies, users, systemHealthMetrics, profiles, tickets, systemFeatures } from '../../infrastructure/database/schema.js';
+import { systemSettings, agencies, users, systemHealthMetrics, profiles, tickets, systemFeatures, userRoles } from '../../infrastructure/database/schema.js';
 import { eq, sql, desc, count, isNotNull, and } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { AppError, NotFoundError } from '../../utils/errors.js';
@@ -108,7 +108,23 @@ export class SystemService {
             settings = newSettings;
         }
 
-        return settings;
+        // Mask sensitive fields for frontend
+        const maskedSettings = {
+            ...settings,
+            smtpPassword: settings.smtpPasswordEncrypted ? '***' : '',
+            sendgridApiKey: settings.sendgridApiKeyEncrypted ? '***' : '',
+            mailgunApiKey: settings.mailgunApiKeyEncrypted ? '***' : '',
+            awsSesAccessKey: settings.awsSesAccessKeyEncrypted ? '***' : '',
+            awsSesSecretKey: settings.awsSesSecretKeyEncrypted ? '***' : '',
+            resendApiKey: settings.resendApiKeyEncrypted ? '***' : '',
+            postmarkApiKey: settings.postmarkApiKeyEncrypted ? '***' : '',
+            captchaSecretKey: settings.captchaSecretKeyEncrypted ? '***' : '',
+            awsS3AccessKey: settings.awsS3AccessKeyEncrypted ? '***' : '',
+            awsS3SecretKey: settings.awsS3SecretKeyEncrypted ? '***' : '',
+            sentryDsn: settings.sentryDsnEncrypted ? '***' : '',
+        };
+
+        return maskedSettings;
     }
 
     async updateSettings(updates: any) {
@@ -131,7 +147,34 @@ export class SystemService {
                 return await this.getSettings();
             }
 
-            let settings = await this.getSettings();
+            // Encrypt sensitive fields
+            const sensitiveFields = {
+                smtpPassword: 'smtpPasswordEncrypted',
+                sendgridApiKey: 'sendgridApiKeyEncrypted',
+                mailgunApiKey: 'mailgunApiKeyEncrypted',
+                awsSesAccessKey: 'awsSesAccessKeyEncrypted',
+                awsSesSecretKey: 'awsSesSecretKeyEncrypted',
+                resendApiKey: 'resendApiKeyEncrypted',
+                postmarkApiKey: 'postmarkApiKeyEncrypted',
+                captchaSecretKey: 'captchaSecretKeyEncrypted',
+                awsS3AccessKey: 'awsS3AccessKeyEncrypted',
+                awsS3SecretKey: 'awsS3SecretKeyEncrypted',
+                sentryDsn: 'sentryDsnEncrypted',
+            };
+
+            for (const [field, dbField] of Object.entries(sensitiveFields)) {
+                if (cleanUpdates[field]) {
+                    // Only update if value is provided and not the masked placeholder
+                    if (cleanUpdates[field] !== '***') {
+                        const { encrypt } = await import('../../utils/encryption.js');
+                        cleanUpdates[dbField] = encrypt(cleanUpdates[field]);
+                    }
+                    // Always remove the virtual field so it doesn't try to save to DB
+                    delete cleanUpdates[field];
+                }
+            }
+
+            let settings = await db.select().from(systemSettings).limit(1).then(res => res[0]);
 
             const [updatedSettings] = await db.update(systemSettings)
                 .set({
@@ -141,7 +184,8 @@ export class SystemService {
                 .where(eq(systemSettings.id, settings.id))
                 .returning();
 
-            return updatedSettings || settings;
+            // Return masked settings
+            return await this.getSettings();
         } catch (error) {
             this.app.log.error({ error, context: 'updateSettings', updates });
             // Return current settings on error
@@ -342,5 +386,52 @@ export class SystemService {
             throw new AppError('Failed to deactivate system feature');
         }
     }
+    async getAgencyData(agencyId: string) {
+        try {
+            // Get Agency Users with Roles
+            const agencyUsers = await db
+                .select({
+                    id: users.id,
+                    full_name: profiles.fullName,
+                    email: users.email,
+                    role: userRoles.role,
+                    is_active: users.status, // user status (active/inactive) mapping
+                    created_at: users.createdAt,
+                })
+                .from(profiles)
+                .innerJoin(users, eq(profiles.userId, users.id))
+                .leftJoin(userRoles, and(
+                    eq(userRoles.userId, profiles.userId),
+                    eq(userRoles.agencyId, profiles.agencyId)
+                ))
+                .where(eq(profiles.agencyId, agencyId));
+
+            // Map user status to boolean for frontend consistency (if needed)
+            const formattedUsers = agencyUsers.map(u => ({
+                ...u,
+                is_active: u.is_active === 'active',
+            }));
+
+            // TODO: Implement other modules (Projects, Clients, Invoices, Inventory) once schemas are available
+            // Returning empty arrays for now to prevent frontend crash
+            return {
+                users: formattedUsers,
+                clients: [],
+                projects: [],
+                invoices: [],
+                inventory: [],
+            };
+        } catch (error) {
+            this.app.log.error({ error, context: 'getAgencyData', agencyId });
+            return {
+                users: [],
+                clients: [],
+                projects: [],
+                invoices: [],
+                inventory: [],
+            };
+        }
+    }
 }
+
 

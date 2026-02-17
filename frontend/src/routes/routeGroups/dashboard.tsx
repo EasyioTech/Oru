@@ -154,4 +154,15 @@ export const DashboardRoutes = () => [
       </ProtectedRoute>
     }
   />,
+  <Route
+    key="/system-email"
+    path="/system-email"
+    element={
+      <ProtectedRoute requiredRole="super_admin">
+        <Pages.SuperAdminLayout>
+          <SuspenseRoute><Pages.SystemEmailPage /></SuspenseRoute>
+        </Pages.SuperAdminLayout>
+      </ProtectedRoute>
+    }
+  />,
 ];

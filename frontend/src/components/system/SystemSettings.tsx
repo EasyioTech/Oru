@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, RefreshCw, Settings, Search, Tag, Megaphone, Mail, Globe, Shield, Lock, Database, HardDrive, Code, FileText, Server, Archive } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Save, RefreshCw, Settings, Search, Tag, Megaphone, Mail, Globe, Shield, Lock, Database, HardDrive, Code, FileText, Server, Archive, Key } from 'lucide-react';
 import { fetchSystemSettings, updateSystemSettings, type SystemSettings } from '@/services/api/system';
 import { IdentityTab, BrandingTab } from './settings-tabs';
 
@@ -261,36 +262,201 @@ export function SystemSettings() {
 
             {/* Email Tab */}
             <TabsContent value="email" className="space-y-4">
-              <div className="rounded-md bg-blue-50 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <Mail className="h-5 w-5 text-blue-400" aria-hidden="true" />
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800">Email Configuration</h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                      <p>
-                        Email settings are managed via environment variables for security and reliability.
-                      </p>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Email Service Provider</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="email_provider">Provider</Label>
+                  <Select
+                    value={formData.email_provider || 'smtp'}
+                    onValueChange={(value) => handleChange('email_provider', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select email provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="smtp">SMTP Server</SelectItem>
+                      <SelectItem value="sendgrid">SendGrid</SelectItem>
+                      <SelectItem value="mailgun">Mailgun</SelectItem>
+                      <SelectItem value="aws_ses">AWS SES</SelectItem>
+                      <SelectItem value="resend">Resend</SelectItem>
+                      <SelectItem value="postmark">Postmark</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formData.email_provider === 'smtp' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_host">SMTP Host</Label>
+                      <Input
+                        id="smtp_host"
+                        value={formData.smtp_host || ''}
+                        onChange={(e) => handleChange('smtp_host', e.target.value)}
+                        placeholder="smtp.example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_port">SMTP Port</Label>
+                      <Input
+                        id="smtp_port"
+                        type="number"
+                        value={formData.smtp_port || 587}
+                        onChange={(e) => handleChange('smtp_port', parseInt(e.target.value) || 587)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_user">SMTP User</Label>
+                      <Input
+                        id="smtp_user"
+                        value={formData.smtp_user || ''}
+                        onChange={(e) => handleChange('smtp_user', e.target.value)}
+                        placeholder="user@example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_password">SMTP Password</Label>
+                      <Input
+                        id="smtp_password"
+                        type="password"
+                        value={formData.smtp_password || ''}
+                        onChange={(e) => handleChange('smtp_password', e.target.value)}
+                        placeholder={formData.smtp_password === '***' ? '••••••••' : 'Enter password'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_from">From Email</Label>
+                      <Input
+                        id="smtp_from"
+                        value={formData.smtp_from || ''}
+                        onChange={(e) => handleChange('smtp_from', e.target.value)}
+                        placeholder="noreply@example.com"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 pt-8">
+                      <Switch
+                        id="smtp_secure"
+                        checked={formData.smtp_secure || false}
+                        onCheckedChange={(checked) => handleChange('smtp_secure', checked)}
+                      />
+                      <Label htmlFor="smtp_secure">Use SSL/TLS</Label>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className="space-y-4 border rounded-lg p-4 bg-muted/30">
-                <h3 className="text-lg font-semibold">Active Configuration</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Provider</Label>
-                    <div className="p-2 bg-background border rounded-md">SMTP / SendGrid / Resend (Env)</div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Status</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                      <span className="text-sm">Configured via Server</span>
+                )}
+
+                {formData.email_provider === 'sendgrid' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="sendgrid_api_key">SendGrid API Key</Label>
+                      <Input
+                        id="sendgrid_api_key"
+                        type="password"
+                        value={formData.sendgrid_api_key || ''}
+                        onChange={(e) => handleChange('sendgrid_api_key', e.target.value)}
+                        placeholder={formData.sendgrid_api_key === '***' ? '••••••••' : 'Enter API Key'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sendgrid_from">From Email</Label>
+                      <Input
+                        id="sendgrid_from"
+                        value={formData.sendgrid_from || ''}
+                        onChange={(e) => handleChange('sendgrid_from', e.target.value)}
+                        placeholder="noreply@example.com"
+                      />
                     </div>
                   </div>
-                </div>
+                )}
+
+                {formData.email_provider === 'mailgun' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="mailgun_api_key">Mailgun API Key</Label>
+                      <Input
+                        id="mailgun_api_key"
+                        type="password"
+                        value={formData.mailgun_api_key || ''}
+                        onChange={(e) => handleChange('mailgun_api_key', e.target.value)}
+                        placeholder={formData.mailgun_api_key === '***' ? '••••••••' : 'Enter API Key'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="mailgun_domain">Mailgun Domain</Label>
+                      <Input
+                        id="mailgun_domain"
+                        value={formData.mailgun_domain || ''}
+                        onChange={(e) => handleChange('mailgun_domain', e.target.value)}
+                        placeholder="mg.example.com"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.email_provider === 'aws_ses' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_ses_region">AWS Region</Label>
+                        <Input
+                          id="aws_ses_region"
+                          value={formData.aws_ses_region || ''}
+                          onChange={(e) => handleChange('aws_ses_region', e.target.value)}
+                          placeholder="us-east-1"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_access_key_id">Access Key ID</Label>
+                        <Input
+                          id="aws_access_key_id"
+                          value={formData.aws_access_key_id || ''}
+                          onChange={(e) => handleChange('aws_access_key_id', e.target.value)}
+                          placeholder={formData.aws_access_key_id === '***' ? '••••••••' : 'Enter Access Key'}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_secret_access_key">Secret Access Key</Label>
+                        <Input
+                          id="aws_secret_access_key"
+                          type="password"
+                          value={formData.aws_secret_access_key || ''}
+                          onChange={(e) => handleChange('aws_secret_access_key', e.target.value)}
+                          placeholder={formData.aws_secret_access_key === '***' ? '••••••••' : 'Enter Secret Key'}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.email_provider === 'resend' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="resend_api_key">Resend API Key</Label>
+                      <Input
+                        id="resend_api_key"
+                        type="password"
+                        value={formData.resend_api_key || ''}
+                        onChange={(e) => handleChange('resend_api_key', e.target.value)}
+                        placeholder={formData.resend_api_key === '***' ? '••••••••' : 'Enter API Key'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="resend_from">From Email</Label>
+                      <Input
+                        id="resend_from"
+                        value={formData.resend_from || ''}
+                        onChange={(e) => handleChange('resend_from', e.target.value)}
+                        placeholder="onboarding@resend.dev"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.email_provider === 'postmark' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    {/* Add postmark fields if needed */}
+                    <p className="text-sm text-muted-foreground">Postmark configuration not yet fully implemented in UI.</p>
+                  </div>
+                )}
+
               </div>
             </TabsContent>
 
@@ -461,20 +627,101 @@ export function SystemSettings() {
 
             {/* Storage Tab */}
             <TabsContent value="storage" className="space-y-4">
-              <div className="rounded-md bg-blue-50 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <HardDrive className="h-5 w-5 text-blue-400" aria-hidden="true" />
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">File Storage Provider</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="file_storage_provider">Provider</Label>
+                  <Select
+                    value={formData.file_storage_provider || 'local'}
+                    onValueChange={(value) => handleChange('file_storage_provider', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select storage provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="local">Local Filesystem</SelectItem>
+                      <SelectItem value="aws_s3">AWS S3</SelectItem>
+                      <SelectItem value="r2">Cloudflare R2</SelectItem>
+                      <SelectItem value="minio">MinIO (S3 Compatible)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formData.file_storage_provider === 'local' && (
+                  <div className="space-y-2 border rounded-md p-4">
+                    <Label htmlFor="file_storage_path">Storage Path</Label>
+                    <Input
+                      id="file_storage_path"
+                      value={formData.file_storage_path || '/app/storage'}
+                      onChange={(e) => handleChange('file_storage_path', e.target.value)}
+                      placeholder="/app/storage"
+                    />
+                    <p className="text-xs text-muted-foreground">Absolute path on the server filesystem.</p>
                   </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800">Storage Configuration</h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                      <p>
-                        Storage credentials (AWS S3 / Cloudflare R2) are managed via environment variables to prevent exposing secrets.
-                      </p>
+                )}
+
+                {(formData.file_storage_provider === 'aws_s3' || formData.file_storage_provider === 'r2' || formData.file_storage_provider === 'minio') && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_bucket">Bucket Name</Label>
+                        <Input
+                          id="aws_s3_bucket"
+                          value={formData.aws_s3_bucket || ''}
+                          onChange={(e) => handleChange('aws_s3_bucket', e.target.value)}
+                          placeholder="my-bucket"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_region">Region</Label>
+                        <Input
+                          id="aws_s3_region"
+                          value={formData.aws_s3_region || 'auto'}
+                          onChange={(e) => handleChange('aws_s3_region', e.target.value)}
+                          placeholder="us-east-1 or auto"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_access_key_id">Access Key ID</Label>
+                        <Input
+                          id="aws_s3_access_key_id"
+                          value={formData.aws_s3_access_key_id || ''}
+                          onChange={(e) => handleChange('aws_s3_access_key_id', e.target.value)}
+                          placeholder={formData.aws_s3_access_key_id === '***' ? '••••••••' : 'Enter Access Key'}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_secret_access_key">Secret Access Key</Label>
+                        <Input
+                          id="aws_s3_secret_access_key"
+                          type="password"
+                          value={formData.aws_s3_secret_access_key || ''}
+                          onChange={(e) => handleChange('aws_s3_secret_access_key', e.target.value)}
+                          placeholder={formData.aws_s3_secret_access_key === '***' ? '••••••••' : 'Enter Secret Key'}
+                        />
+                      </div>
+                      {(formData.file_storage_provider === 'r2' || formData.file_storage_provider === 'minio') && (
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="aws_s3_endpoint">Custom Endpoint URL</Label>
+                          <Input
+                            id="aws_s3_endpoint"
+                            // Note: The frontend interface might not have aws_s3_endpoint mapped yet, assuming public_url for now or need to add it
+                            // Using custom_settings or similar if schema doesn't support it directly yet?
+                            // Checking schema: logic used `process.env.AWS_S3_ENDPOINT`.
+                            // We haven't added `aws_s3_endpoint` to DB schema.
+                            // For now, let's omit or just show a warning that endpoint must be set via ENV or add to DB later.
+                            // Wait, I can use `aws_s3_public_url` as a proxy for endpoint in some contexts? No.
+                            // Let's rely on standard S3 config for now and assume AWS or auto-region for R2.
+                            disabled
+                            placeholder="To configure custom endpoints (R2/MinIO), please use ENV variables for now."
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
+
               </div>
 
               <div className="space-y-2">

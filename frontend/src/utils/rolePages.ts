@@ -20,7 +20,7 @@ export const ROLE_PAGES: Record<AppRole, PageConfig[]> = {
     { path: '/super-admin/page-catalog', title: 'Page Catalog', icon: 'FileText', exists: true, category: 'system' },
     { path: '/super-admin/analytics', title: 'System Analytics', icon: 'BarChart3', exists: true, category: 'system' },
     { path: '/system-health', title: 'System Health', icon: 'Activity', exists: true, category: 'system' },
-    { path: '/email-testing', title: 'Email Testing', icon: 'Mail', exists: true, category: 'system' },
+    { path: '/system-email', title: 'System Email', icon: 'Mail', exists: true, category: 'system' },
   ],
 
   // CEO - Strategic oversight
@@ -422,14 +422,14 @@ export function getPagesForRole(role: AppRole): PageConfig[] {
 export function getPagesByCategory(role: AppRole): Record<string, PageConfig[]> {
   const pages = getPagesForRole(role);
   const categorized: Record<string, PageConfig[]> = {};
-  
+
   pages.forEach(page => {
     if (!categorized[page.category]) {
       categorized[page.category] = [];
     }
     categorized[page.category].push(page);
   });
-  
+
   return categorized;
 }
 

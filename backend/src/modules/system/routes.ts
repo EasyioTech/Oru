@@ -4,13 +4,35 @@ import { PlansService } from '../plans/service.js';
 import { CatalogService } from '../catalog/service.js';
 import { listPlansResponseSchema } from '../plans/schemas.js';
 import { listPageCatalogResponseSchema } from '../catalog/schemas.js';
-import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema } from './schemas.js';
+import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema } from './schemas.js';
+import { sendSystemEmail } from '../../infrastructure/email/index.js';
 import { ForbiddenError } from '../../utils/errors.js';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
 
 
 const systemRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new SystemService(fastify);
+
+    // GET /agencies/:id/data
+    fastify.get('/agencies/:id/data', {
+        onRequest: [fastify.authenticate],
+    }, async (request, reply) => {
+        const { id } = request.params as { id: string };
+        try {
+            if (!request.ability.can('read', 'System')) {
+                throw new ForbiddenError('Super Admin access required');
+            }
+
+            const rawData = await service.getAgencyData(id);
+            // No strict response schema for now as it's a dynamic/heavy object, but should follow standard envelope
+            // Ideally mapToSnakeCase here if the service doesn't do it, but service returns fields like full_name already snake/mixed.
+            // Let's use mapToSnakeCase to be safe.
+            return { success: true, data: mapToSnakeCase(rawData) };
+        } catch (error) {
+            request.log.error(error);
+            throw error;
+        }
+    });
 
     // GET /metrics
     fastify.get('/metrics', {
@@ -61,6 +83,29 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
             const rawData = await service.updateSettings(validatedBody);
             const response = getSettingsResponseSchema.parse({ settings: rawData });
             return { success: true, data: response };
+        } catch (error) {
+            request.log.error(error);
+            throw error;
+        }
+    });
+
+    // POST /email/test
+    fastify.post('/email/test', {
+        onRequest: [fastify.authenticate],
+    }, async (request, reply) => {
+        try {
+            if (!request.ability.can('create', 'System')) {
+                throw new ForbiddenError('Super Admin access required');
+            }
+
+            const { to } = emailTestRequestSchema.parse(request.body);
+            const info = await sendSystemEmail(to, 'Oru ERP - System Test Email', `
+                <h1>System Email Test</h1>
+                <p>This is a test email from your Oru ERP System Dashboard.</p>
+                <p>Time: ${new Date().toISOString()}</p>
+            `);
+
+            return { success: true, data: { messageId: info.messageId } };
         } catch (error) {
             request.log.error(error);
             throw error;

@@ -67,7 +67,7 @@ const menuItems = [
   {
     title: "Email Testing",
     icon: Mail,
-    path: "/email-testing",
+    path: "/system-email",
   },
 ];
 
@@ -90,9 +90,9 @@ export function SuperAdminNav() {
             <SidebarMenu>
               {menuItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname === item.path || 
+                const isActive = location.pathname === item.path ||
                   (item.path !== "/super-admin" && location.pathname.startsWith(item.path));
-                
+
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton

@@ -13,7 +13,7 @@ const mainPool = new Pool({
     connectionString: process.env.DATABASE_URL || 'postgres://postgres:admin@localhost:5432/oru',
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
 });
 
 // The Main Drizzle instance (Used for agencies, settings, etc.)
