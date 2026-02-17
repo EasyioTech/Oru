@@ -2,13 +2,13 @@
 
 ## Overview
 
-BuildFlow ERP uses **complete database isolation** for multi-tenancy. Each agency gets its own isolated PostgreSQL database with a complete schema.
+Oru ERP uses **complete database isolation** for multi-tenancy. Each agency gets its own isolated PostgreSQL database with a complete schema.
 
 ## Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Main Database (buildflow_db)              │
+│                    Main Database (oru_erp)              │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │  agencies table                                      │   │
 │  │  - id (UUID)                                        │   │
@@ -187,7 +187,7 @@ if (token.agencyDatabase !== req.headers['x-agency-database']) {
 
 ```bash
 # Main database
-pg_dump buildflow_db > backup_main.sql
+pg_dump oru_erp > backup_main.sql
 
 # All agency databases
 for db in $(psql -l -t | grep '^agency_' | awk '{print $1}'); do
@@ -199,7 +199,7 @@ done
 
 ```bash
 # Restore main database
-psql buildflow_db < backup_main.sql
+psql oru_erp < backup_main.sql
 
 # Restore agency database
 psql agency_company_12345678 < backup_agency_company_12345678.sql

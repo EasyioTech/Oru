@@ -10,13 +10,14 @@ interface ThemeLogoProps {
   className?: string;
 }
 
-export function ThemeLogo({ alt = 'Oru Logo', className }: ThemeLogoProps) {
-  const { logoLight, logoDark } = useBranding();
+export function ThemeLogo({ alt, className }: ThemeLogoProps) {
+  const { logoLight, logoDark, systemName } = useBranding();
+  const effectiveAlt = alt || systemName || 'Oru Logo';
   return (
     <>
       <img
         src={logoLight}
-        alt={alt}
+        alt={effectiveAlt}
         className={cn('dark:hidden', className)}
       />
       <img

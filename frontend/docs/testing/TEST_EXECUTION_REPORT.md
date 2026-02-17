@@ -75,7 +75,7 @@
 
 ### Prerequisites
 1. PostgreSQL running on localhost:5432
-2. Database: `buildflow_db`
+2. Database: `oru_erp`
 3. Redis (optional - tests will use in-memory fallback)
 
 ### Run All Tests

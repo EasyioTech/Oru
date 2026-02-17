@@ -18,7 +18,7 @@ scripts\create_super_admin.bat
 
 ```bash
 # Connect to database
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Run migration
 \i database/migrations/13_create_super_admin.sql
@@ -37,7 +37,7 @@ docker compose exec postgres psql -U postgres -d buildflow_db
 
 1. **`users`** - System-level user accounts
    - Stores super admin and system users
-   - Located in `buildflow_db` (main database)
+   - Located in `oru_erp` (main database)
 
 2. **`user_roles`** - Role assignments
    - `super_admin` role with `agency_id = NULL` = system-level admin
@@ -149,7 +149,7 @@ docker compose up -d
 docker compose ps
 
 # Verify super admin was created
-docker compose exec postgres psql -U postgres -d buildflow_db -c "SELECT email, is_active FROM users WHERE email = 'super@buildflow.local';"
+docker compose exec postgres psql -U postgres -d oru_erp -c "SELECT email, is_active FROM users WHERE email = 'super@buildflow.local';"
 ```
 
 ### Create Super Admin Manually
@@ -168,12 +168,12 @@ scripts\create_super_admin.bat
 
 **Connection String:**
 ```
-postgresql://postgres:admin@localhost:5432/buildflow_db
+postgresql://postgres:admin@localhost:5432/oru_erp
 ```
 
 **From Docker:**
 ```bash
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 ```
 
 ## Verification
@@ -233,7 +233,7 @@ SELECT * FROM public.system_settings LIMIT 1;
 
 1. **Check authentication**: Ensure you're logged in
 2. **Check role**: Verify `super_admin` role exists in `user_roles` table
-3. **Check database**: Make sure you're using `buildflow_db`, not an agency database
+3. **Check database**: Make sure you're using `oru_erp`, not an agency database
 4. **Clear browser cache**: Clear localStorage and cookies
 
 ### System Settings Not Saving
@@ -258,12 +258,12 @@ SELECT * FROM public.system_settings LIMIT 1;
 ./scripts/create_super_admin.sh
 
 # Check if super admin exists
-docker compose exec postgres psql -U postgres -d buildflow_db -c "SELECT email FROM users WHERE email = 'super@buildflow.local';"
+docker compose exec postgres psql -U postgres -d oru_erp -c "SELECT email FROM users WHERE email = 'super@buildflow.local';"
 
 # View all super admins
-docker compose exec postgres psql -U postgres -d buildflow_db -c "SELECT u.email, ur.role FROM users u JOIN user_roles ur ON u.id = ur.user_id WHERE ur.role = 'super_admin' AND ur.agency_id IS NULL;"
+docker compose exec postgres psql -U postgres -d oru_erp -c "SELECT u.email, ur.role FROM users u JOIN user_roles ur ON u.id = ur.user_id WHERE ur.role = 'super_admin' AND ur.agency_id IS NULL;"
 
 # Reset super admin password
-docker compose exec postgres psql -U postgres -d buildflow_db -c "UPDATE users SET password_hash = crypt('super123', gen_salt('bf')) WHERE email = 'super@buildflow.local';"
+docker compose exec postgres psql -U postgres -d oru_erp -c "UPDATE users SET password_hash = crypt('super123', gen_salt('bf')) WHERE email = 'super@buildflow.local';"
 ```
 

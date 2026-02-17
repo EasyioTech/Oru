@@ -160,7 +160,7 @@ Time: 2-5 minutes
 │ Step 1: Check Database Size                            │
 │   docker compose -f docker-compose.dev.yml exec postgres │
 │     psql -U postgres -c "SELECT pg_size_pretty(          │
-│       pg_database_size('buildflow_db'));"                │
+│       pg_database_size('oru_erp'));"                │
 │                                                          │
 │   Purpose: Know how long backup will take               │
 └─────────────────────────────────────────────────────────┘
@@ -169,7 +169,7 @@ Time: 2-5 minutes
 ┌─────────────────────────────────────────────────────────┐
 │ Step 2: Create Backup                                   │
 │   docker compose -f docker-compose.dev.yml exec postgres │
-│     pg_dump -U postgres buildflow_db >                  │
+│     pg_dump -U postgres oru_erp >                  │
 │     backup_$(date +%Y%m%d_%H%M%S).sql                   │
 │                                                          │
 │   What happens:                                          │
@@ -220,7 +220,7 @@ Time: 30 seconds - 5 minutes (depending on database size)
 ┌─────────────────────────────────────────────────────────┐
 │ Step 2: Backup Current State (Safety First!)           │
 │   docker compose -f docker-compose.dev.yml exec postgres │
-│     pg_dump -U postgres buildflow_db >                   │
+│     pg_dump -U postgres oru_erp >                   │
 │     backup_before_restore_$(date +%Y%m%d).sql            │
 │                                                          │
 │   Why: In case restore fails, you have current data      │
@@ -238,7 +238,7 @@ Time: 30 seconds - 5 minutes (depending on database size)
 ┌─────────────────────────────────────────────────────────┐
 │ Step 4: Restore Database                               │
 │   docker compose -f docker-compose.dev.yml exec -T postgres │
-│     psql -U postgres buildflow_db < backup_20250119.sql │
+│     psql -U postgres oru_erp < backup_20250119.sql │
 │                                                          │
 │   What happens:                                          │
 │   ✓ Reads SQL file                                       │
@@ -251,7 +251,7 @@ Time: 30 seconds - 5 minutes (depending on database size)
 ┌─────────────────────────────────────────────────────────┐
 │ Step 5: Verify Restore                                  │
 │   docker compose -f docker-compose.dev.yml exec postgres │
-│     psql -U postgres -d buildflow_db -c                  │
+│     psql -U postgres -d oru_erp -c                  │
 │     "SELECT COUNT(*) FROM agencies;"                    │
 │                                                          │
 │   Check: Should match expected data count                │
@@ -432,7 +432,7 @@ Total Time: 5-10 minutes (updates)
                         ▼
 ┌─────────────────────────────────────────────────────────┐
 │ Step 2: Backend Creates Agency Record                  │
-│   - Inserts into main database (buildflow_db)          │
+│   - Inserts into main database (oru_erp)          │
 │   - Creates agency record in agencies table             │
 │   - Generates database name: agency_newcompany_12345678 │
 └─────────────────────────────────────────────────────────┘
@@ -491,7 +491,7 @@ Total Time: 30 seconds - 2 minutes
 ┌─────────────────────────────────────────────────────────┐
 │ Step 1: Backup Current Production                       │
 │   docker compose -f docker-compose.prod.yml exec postgres │
-│     pg_dump -U postgres buildflow_db >                  │
+│     pg_dump -U postgres oru_erp >                  │
 │     backup_before_update_$(date +%Y%m%d).sql            │
 │                                                          │
 │   Why: Safety net in case update fails                  │
@@ -601,7 +601,7 @@ Downtime: 5-30 seconds
 ┌─────────────────────────────────────────────────────────┐
 │ Step 4: Check Database Health                           │
 │   docker compose -f docker-compose.dev.yml exec postgres │
-│     psql -U postgres -d buildflow_db -c                  │
+│     psql -U postgres -d oru_erp -c                  │
 │     "SELECT COUNT(*) FROM agencies;"                    │
 │                                                          │
 │   Verify: Database is accessible and responding          │
@@ -645,7 +645,7 @@ Downtime: 5-30 seconds
 → `docker compose -f docker-compose.dev.yml up -d backend`
 
 **Backup database:**
-→ `docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres buildflow_db > backup.sql`
+→ `docker compose -f docker-compose.dev.yml exec postgres pg_dump -U postgres oru_erp > backup.sql`
 
 **Deploy to production:**
 → `docker compose -f docker-compose.prod.yml build`

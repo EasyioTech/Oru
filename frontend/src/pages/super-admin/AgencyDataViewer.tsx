@@ -27,7 +27,7 @@ const AgencyDataViewer = ({ agencyId: propAgencyId }: AgencyDataViewerProps) => 
   const navigate = useNavigate();
   const { user, userRole, isSystemSuperAdmin } = useAuth();
   const { toast } = useToast();
-  
+
   const [selectedAgency, setSelectedAgency] = useState<string>(agencyId || '');
   const [agencies, setAgencies] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,15 +70,15 @@ const AgencyDataViewer = ({ agencyId: propAgencyId }: AgencyDataViewerProps) => 
 
   const fetchAgencyData = async (id: string) => {
     if (!id) return;
-    
+
     setLoading(true);
     try {
-      const response = await fetch(`/api/super-admin/agencies/${id}/data`, {
+      const response = await fetch(`/api/system/agencies/${id}/data`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         setData(result.data || {});
@@ -126,7 +126,7 @@ const AgencyDataViewer = ({ agencyId: propAgencyId }: AgencyDataViewerProps) => 
               Back to Agencies
             </Button>
           </div>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Select Agency</CardTitle>

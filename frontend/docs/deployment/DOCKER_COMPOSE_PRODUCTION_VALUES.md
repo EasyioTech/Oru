@@ -12,7 +12,7 @@ Here's what you need to configure in your `docker-compose.yml` for production de
 ```yaml
 POSTGRES_USER: postgres          # ✅ OK for production
 POSTGRES_PASSWORD: admin         # ⚠️ CHANGE THIS - Use strong password!
-POSTGRES_DB: buildflow_db        # ✅ OK
+POSTGRES_DB: oru_erp        # ✅ OK
 ```
 
 ### Redis
@@ -254,8 +254,8 @@ echo "FRONTEND_PORT=80"
 backend:
   environment:
     # Database - Use .env variable
-    DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/buildflow_db
-    VITE_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/buildflow_db
+    DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/oru_erp
+    VITE_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/oru_erp
     
     # API - Use your domain
     VITE_API_URL: ${VITE_API_URL:-http://dezignbuild.site:3000/api}
@@ -284,7 +284,7 @@ postgres:
   environment:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # ← Use .env variable
-    POSTGRES_DB: buildflow_db
+    POSTGRES_DB: oru_erp
 ```
 
 ---

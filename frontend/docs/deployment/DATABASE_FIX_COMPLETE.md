@@ -85,7 +85,7 @@ Response: Success with recommendations data
 ## Architecture Reminder
 
 ```
-Main Database (buildflow_db):
+Main Database (oru_erp):
 ├── agencies (multi-tenant registry)
 ├── users (super admin users)
 ├── page_catalog (system-wide page catalog)
@@ -105,13 +105,13 @@ Agency Databases (agency_*):
 
 ### Check Database State:
 ```bash
-docker compose exec postgres psql -U postgres -d buildflow_db -c "\dt public.*"
+docker compose exec postgres psql -U postgres -d oru_erp -c "\dt public.*"
 ```
 
 ### Run Migrations:
 ```bash
 cd /docker/buildflow
-docker compose exec -T postgres psql -U postgres -d buildflow_db < database/migrations/XX_migration.sql
+docker compose exec -T postgres psql -U postgres -d oru_erp < database/migrations/XX_migration.sql
 ```
 
 ### Restart Backend:

@@ -147,10 +147,21 @@ export const DashboardRoutes = () => [
     key="/system-health"
     path="/system-health"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
-        <DashboardLayout>
+      <ProtectedRoute requiredRole="super_admin">
+        <Pages.SuperAdminLayout>
           <SuspenseRoute><Pages.SystemHealth /></SuspenseRoute>
-        </DashboardLayout>
+        </Pages.SuperAdminLayout>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key="/system-email"
+    path="/system-email"
+    element={
+      <ProtectedRoute requiredRole="super_admin">
+        <Pages.SuperAdminLayout>
+          <SuspenseRoute><Pages.SystemEmailPage /></SuspenseRoute>
+        </Pages.SuperAdminLayout>
       </ProtectedRoute>
     }
   />,

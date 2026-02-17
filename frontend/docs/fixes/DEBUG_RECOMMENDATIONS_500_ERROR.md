@@ -52,7 +52,7 @@ The recommendations service checks for `page_catalog` and `page_recommendation_r
 
 ```bash
 # Connect to database and check tables
-docker compose exec postgres psql -U postgres -d buildflow_db -c "
+docker compose exec postgres psql -U postgres -d oru_erp -c "
 SELECT table_name 
 FROM information_schema.tables 
 WHERE table_schema = 'public' 
@@ -80,7 +80,7 @@ Verify database connection string is correct:
 docker compose exec backend env | grep DATABASE_URL
 
 # Should show:
-# DATABASE_URL=postgresql://postgres:...@postgres:5432/buildflow_db
+# DATABASE_URL=postgresql://postgres:...@postgres:5432/oru_erp
 ```
 
 ## Common Causes
@@ -106,7 +106,7 @@ docker compose exec backend env | grep DATABASE_URL
 - Run database migrations
 - Check if migrations have been applied:
   ```bash
-  docker compose exec postgres psql -U postgres -d buildflow_db -c "\dt"
+  docker compose exec postgres psql -U postgres -d oru_erp -c "\dt"
   ```
 
 ### 3. Database Query Error
@@ -154,7 +154,7 @@ The code has been updated to:
 
 3. **Verify tables exist**:
    ```bash
-   docker compose exec postgres psql -U postgres -d buildflow_db -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'page%';"
+   docker compose exec postgres psql -U postgres -d oru_erp -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'page%';"
    ```
 
 4. **Test endpoint directly** to see error response:

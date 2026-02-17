@@ -32,7 +32,7 @@ Backend is source of truth; frontend subset is for instant UX. When changing rul
 
 Run through these after setup to verify the full flow:
 
-1. **Database**: From `backend/` run `npm run db:create` (or ensure `buildflow_db` exists). Start backend; confirm main DB tables and migrations apply (including `agency_provisioning_jobs`), and super admin is created (logs: "Super admin user created" or "verified").
+1. **Database**: From `backend/` run `npm run db:create` (or ensure `oru_erp` exists). Start backend; confirm main DB tables and migrations apply (including `agency_provisioning_jobs`), and super admin is created (logs: "Super admin user created" or "verified").
 2. **Super admin login**: Open app → Login with `super@buildflow.local` / `super123` (leave Workspace empty). Expect redirect to dashboard.
 3. **Agency creation (async)**: As super admin, start agency onboarding → Step 1: enter agency name and workspace URL → validation (reserved words, length). Submit; expect 202 then polling "Provisioning agency..." until completion; then auto sign-in with workspace domain and redirect to agency dashboard.
 4. **Idempotency**: Retry same agency create (same domain/email); expect either 200 with same agency (idempotent) or 202 with same jobId if still running.

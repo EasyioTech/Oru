@@ -90,7 +90,7 @@ The app will be available at `http://localhost:5173` (or next available port).
 
 This system uses **isolated databases per agency** for complete data isolation:
 
-- **Main Database** (`buildflow_db`): Stores agency metadata and configuration
+- **Main Database** (`oru_erp`): Stores agency metadata and configuration
 - **Agency Databases** (`agency_*`): One isolated database per agency with complete schema
 
 ### Quick Production Setup
@@ -287,15 +287,15 @@ The application comes with pre-configured test accounts:
 
 ### Database Connection
 
-- **Database:** `buildflow_db`
+- **Database:** `oru_erp`
 - **User:** `postgres`
 - **Password:** `admin`
-- **Connection:** `postgresql://postgres:admin@localhost:5432/buildflow_db`
+- **Connection:** `postgresql://postgres:admin@localhost:5432/oru_erp`
 
 ### Verify Database
 
 ```bash
-psql -U postgres -d buildflow_db -c "\dt"
+psql -U postgres -d oru_erp -c "\dt"
 ```
 
 ### Database Tables (93+ Tables)
@@ -617,8 +617,8 @@ VITE_APP_VERSION=1.0.0
 VITE_APP_ENVIRONMENT=development
 
 # Database
-VITE_DATABASE_URL=postgresql://postgres:admin@localhost:5432/buildflow_db
-DATABASE_URL=postgresql://postgres:admin@localhost:5432/buildflow_db
+VITE_DATABASE_URL=postgresql://postgres:admin@localhost:5432/oru_erp
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/oru_erp
 POSTGRES_PASSWORD=admin
 POSTGRES_PORT=5432
 

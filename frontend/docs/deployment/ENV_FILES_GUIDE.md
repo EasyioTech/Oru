@@ -77,13 +77,13 @@ SMTP_FROM=noreply@your-domain.com
 
 **Local Development:**
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/buildflow_db
+DATABASE_URL=postgresql://postgres:password@localhost:5432/oru_erp
 REDIS_HOST=localhost
 ```
 
 **Docker/Production:**
 ```env
-DATABASE_URL=postgresql://postgres:password@postgres:5432/buildflow_db
+DATABASE_URL=postgresql://postgres:password@postgres:5432/oru_erp
 REDIS_HOST=redis
 ```
 

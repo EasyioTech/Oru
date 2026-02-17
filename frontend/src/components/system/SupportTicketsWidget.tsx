@@ -48,17 +48,21 @@ export const SupportTicketsWidget = () => {
     try {
       setLoading(true);
       const data = await fetchTicketSummary();
-      setStats(data.stats);
-      setRecentTickets(data.recentTickets);
-      
+      setStats(data.stats || null);
+      setRecentTickets(Array.isArray(data.recentTickets) ? data.recentTickets : []);
+
       // Also load all tickets for the list view
       const tickets = await fetchTickets({ limit: 100 });
-      setAllTickets(tickets);
+      setAllTickets(Array.isArray(tickets) ? tickets : []);
     } catch (error: any) {
-      console.error('Error fetching ticket stats:', error);
+      // Set safe defaults on error to prevent crashes
+      setStats(null);
+      setRecentTickets([]);
+      setAllTickets([]);
+
       toast({
         title: 'Error loading ticket data',
-        description: error.message,
+        description: error.message || 'Failed to load tickets',
         variant: 'destructive',
       });
     } finally {

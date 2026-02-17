@@ -4,7 +4,7 @@ This document provides a thorough analysis of all UI, layout, responsive design,
 
 Executive Summary
 
-The BuildFlow ERP system has a modern React-based frontend with Tailwind CSS, but suffers from inconsistent layout patterns, responsive design gaps, component overflow issues, and lack of standardized design rules. These issues create a poor user experience, reduce productivity, and can lead to functional problems where users cannot access or interact with critical ERP features. In an enterprise ERP context, layout issues directly impact business operations and user efficiency.
+The Oru ERP system has a modern React-based frontend with Tailwind CSS, but suffers from inconsistent layout patterns, responsive design gaps, component overflow issues, and lack of standardized design rules. These issues create a poor user experience, reduce productivity, and can lead to functional problems where users cannot access or interact with critical ERP features. In an enterprise ERP context, layout issues directly impact business operations and user efficiency.
 
 Risk Level: HIGH
 Affected Areas: All dashboard pages, management interfaces, forms, tables, dialogs, mobile experience

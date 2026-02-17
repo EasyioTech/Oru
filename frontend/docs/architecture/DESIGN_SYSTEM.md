@@ -1,8 +1,8 @@
-# BuildFlow ERP Design System
+# Oru ERP Design System
 
 ## Overview
 
-This document defines the professional design system for BuildFlow ERP. All design decisions follow enterprise-grade standards and ensure consistency, accessibility, and professionalism across the entire application.
+This document defines the professional design system for Oru ERP. All design decisions follow enterprise-grade standards and ensure consistency, accessibility, and professionalism across the entire application.
 
 ## Design Principles
 

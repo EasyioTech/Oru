@@ -331,7 +331,7 @@ docker compose -f docker-compose.hostinger.yml up -d
 
 ```bash
 # Manual backup
-docker compose -f docker-compose.hostinger.yml exec postgres pg_dump -U postgres buildflow_db > backup_$(date +%Y%m%d_%H%M%S).sql
+docker compose -f docker-compose.hostinger.yml exec postgres pg_dump -U postgres oru_erp > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Automated backups are configured via BACKUP_SCHEDULE in .env.hostinger
 ```

@@ -1,162 +1,46 @@
-# BuildFlow API Server
+# Backend Implementation Guide
 
-Modular Express.js API server for BuildFlow - Multi-tenant SaaS ERP platform.
-
-## Project Structure
-
-```
-server/
-├── index.js                 # Main entry point (~50 lines)
-├── config/                  # Configuration files
-│   ├── constants.js         # Environment variables and constants
-│   ├── database.js          # Database pool configuration
-│   └── middleware.js        # Express middleware setup
-├── middleware/              # Express middleware
-│   └── errorHandler.js      # Centralized error handling
-├── routes/                  # API route handlers
-│   ├── health.js            # Health check routes
-│   ├── files.js             # File serving routes
-│   ├── database.js          # Database query/transaction routes
-│   ├── auth.js              # Authentication routes
-│   └── agencies.js          # Agency management routes
-├── services/                # Business logic services
-│   ├── databaseService.js   # Database operations
-│   ├── agencyService.js     # Agency-related business logic
-│   └── authService.js       # Authentication business logic
-└── utils/                   # Utility functions
-    ├── schemaCreator.js      # Schema creation orchestrator
-    ├── schema/               # Modular schema modules
-    │   ├── sharedFunctions.js      # Database extensions, types, functions
-    │   ├── authSchema.js           # Authentication and authorization
-    │   ├── agenciesSchema.js       # Agency settings
-    │   ├── departmentsSchema.js    # Departments and teams
-    │   ├── hrSchema.js             # HR and employee management
-    │   ├── projectsTasksSchema.js  # Projects and tasks
-    │   ├── clientsFinancialSchema.js # Clients and financial
-    │   ├── crmSchema.js            # CRM
-    │   ├── gstSchema.js            # GST compliance
-    │   ├── reimbursementSchema.js   # Expense and reimbursement
-    │   ├── miscSchema.js           # Miscellaneous tables
-    │   └── indexesAndFixes.js      # Indexes and backward compatibility
-    ├── schemaValidator.js    # Schema validation and repair
-    └── poolManager.js       # Database pool management utilities
-```
-
-## Architecture
-
-### Multi-Tenant Database Architecture
-
-- **Main database (`buildflow_db`)**: Control plane only. Tenant catalog (agencies table: domain → database_name), platform config (system_settings, page_catalog), system identity (users, profiles, user_roles for super_admin). 12 tables total. See `database/README.md` and plan in `.cursor/plans/`.
-- **Agency databases**: One PostgreSQL database per agency (e.g. `agency_acme_a1b2c3d4`). All ERP data and agency users live here (53 tables via `schemaCreator.js`).
-- **Routing**: domain → single lookup on `agencies` (indexed) → `getAgencyPool(database_name)`. No full table scan.
-- **Auth**: Domain-first. Super admin: no domain, checked in main DB only. Agency users: must send `domain` in login body; one main-DB lookup + one agency-DB lookup (no O(n) scan).
-- **Pool caching**: Per-agency pools cached with LRU; `MAX_AGENCY_POOLS` and `MAX_CONNECTIONS_PER_POOL` in env.
-
-### Key Features
-
-1. **Modular Structure**: Each module has a single responsibility
-2. **Separation of Concerns**: Routes, services, and utilities are separated
-3. **Error Handling**: Centralized error handling middleware
-4. **Schema Management**: Automatic schema validation and repair
-5. **Connection Pooling**: Efficient database connection management
-
-## API Endpoints
-
-### Health Check
-- `GET /health` - Verify database connectivity
-
-### Files
-- `GET /api/files/:bucket/:path(*)` - File serving endpoint
-
-### Database
-- `POST /api/database/query` - Execute a single database query
-- `POST /api/database/transaction` - Execute multiple queries in a transaction
-
-### Authentication
-- `POST /api/auth/login` - Login. Body: `email`, `password`, optional `domain`. Super admin: omit domain. Agency users: send workspace domain (e.g. `acme` or `acme.app`).
-
-### Agencies
-- `GET /api/agencies/validation-rules` - Get domain/name constraints for frontend
-- `POST /api/agencies/validate-name` - Validate agency name; returns `valid`, `error?`, `suggestedSlug`
-- `GET /api/agencies/check-domain?domain=` - Check domain availability (format + DB); returns `available`, `error?`, `code?`; never throws
-- `GET /api/agencies/check-setup` - Check agency setup status
-- `POST /api/agencies/complete-setup` - Complete agency setup
-- `POST /api/agencies/create` - Create new agency with isolated database
-- `POST /api/agencies/repair-database` - Repair agency database schema
-
-## Database Configuration
-
-Default connection:
-- Database: `buildflow_db`
-- User: `postgres`
-- Password: `admin`
-- Host: `localhost`
-- Port: `5432`
-
-Can be overridden with environment variables:
-- `DATABASE_URL` or `VITE_DATABASE_URL`
-
-## Running the Server
-
+## Setup
 ```bash
-# Development
+npm install
+npm run db:push
 npm run dev
-
-# Production
-npm start
 ```
 
-## Environment Variables
+## Stack
+- **Fastify** - Web framework
+- **Drizzle ORM** - Database
+- **Zod** - Validation
+- **CASL** - Authorization
+- **BullMQ** - Jobs
+- **Sentry** - Monitoring
 
-- `PORT` - Server port (default: 3000)
-- `DATABASE_URL` - PostgreSQL connection string
-- `VITE_DATABASE_URL` - Alternative database URL
+## Structure
+```
+src/
+├── infrastructure/  # DB, Redis, S3
+├── modules/        # Features (auth, agencies, etc)
+├── plugins/        # Fastify plugins
+├── utils/          # Helpers
+├── jobs/           # Background jobs
+└── server.ts       # Entry point
+```
 
-## Code Organization Principles
+## Rules
+See `AI_RULES.md` for strict development guidelines.
 
-1. **Single Responsibility**: Each file has one clear purpose
-2. **Dependency Injection**: Services receive dependencies as parameters
-3. **Error Handling**: All async routes use `asyncHandler` wrapper
-4. **Code Reusability**: Common patterns extracted to utilities
-5. **Maintainability**: Each file is ideally < 500 lines
+## Environment
+```env
+DATABASE_URL=postgres://postgres:admin@localhost:5432/oru
+DATABASE_URL_TEMPLATE=postgres://postgres:admin@localhost:5432/{db}
+JWT_SECRET=<64-char-secret>
+REDIS_URL=redis://localhost:6379
+SENTRY_DSN=<your-dsn>
+```
 
-## Schema Creation
-
-The `createAgencySchema` function creates 53 tables by orchestrating modular schema modules:
-
-### Modular Schema Structure
-
-The schema creation has been refactored from a monolithic 2,152-line function into 12 domain-specific modules:
-
-- **sharedFunctions.js** - Database extensions, types, functions, triggers, views
-- **authSchema.js** - Users, profiles, roles, audit logs, permissions
-- **agenciesSchema.js** - Agency settings
-- **departmentsSchema.js** - Departments, team assignments, hierarchy
-- **hrSchema.js** - Employee management, attendance, leave, payroll
-- **projectsTasksSchema.js** - Projects, tasks, assignments, time tracking
-- **clientsFinancialSchema.js** - Clients, invoices, quotations, chart of accounts, journal entries, jobs
-- **crmSchema.js** - Leads, CRM activities, sales pipeline
-- **gstSchema.js** - GST settings, returns, transactions
-- **reimbursementSchema.js** - Expense categories, reimbursement requests, receipts
-- **miscSchema.js** - Notifications, holidays, events, reports
-- **indexesAndFixes.js** - All indexes and backward compatibility fixes
-
-### Benefits
-
-1. **Easier to Understand**: Each module focuses on a specific domain
-2. **Safer Changes**: Financial changes only touch `clientsFinancialSchema.js`
-3. **Better for AI Tools**: Smaller, focused files are easier to modify safely
-4. **Maintainable**: Future schema changes are localized to relevant modules
-5. **Testable**: Each module can be tested independently
-
-See `server/utils/schema/README.md` for detailed documentation.
-
-## Migration from Monolithic Structure
-
-The original `index.js` (3947 lines) has been refactored into:
-- Main entry point: ~50 lines
-- Route files: < 300 lines each
-- Service files: < 500 lines each
-- Schema creation: Modular structure (12 focused modules)
-
-All functionality has been preserved while improving maintainability and testability.
+## Commands
+- `npm run dev` - Development
+- `npm run build` - Production build
+- `npm run db:push` - Sync schema
+- `npm test` - Run tests
+- `npm run typecheck` - Type check

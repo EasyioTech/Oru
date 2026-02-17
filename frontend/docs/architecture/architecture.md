@@ -15,12 +15,12 @@ BuildFlow is a **multi-tenant SaaS ERP platform** designed for construction and 
 
 ### 2. Backend API (Express.js)
 - **Server:** Node.js with Express
-- **Database:** PostgreSQL (buildflow_db)
+- **Database:** PostgreSQL (oru_erp)
 - **Authentication:** JWT tokens with bcrypt password hashing
 - **API Routing:** RESTful endpoints with agency-specific database routing
 
 ### 3. Database Layer
-- **Primary Database:** PostgreSQL (buildflow_db)
+- **Primary Database:** PostgreSQL (oru_erp)
 - **Multi-Tenancy:** Each agency has isolated data via `agency_id` column
 - **Connection:** Direct PostgreSQL connection with connection pooling
 
@@ -28,7 +28,7 @@ BuildFlow is a **multi-tenant SaaS ERP platform** designed for construction and 
 
 ### How It Works
 
-1. **Main Database (buildflow_db)**
+1. **Main Database (oru_erp)**
    - Stores agency metadata in `agencies` table
    - Each agency has a unique `id` (UUID) and `database_name`
    - Tracks subscription plans and settings

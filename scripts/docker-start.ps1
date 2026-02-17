@@ -7,7 +7,7 @@ param(
     [string]$Mode = "dev"
 )
 
-Write-Host "🐳 Starting BuildFlow ERP System with Docker..." -ForegroundColor Cyan
+Write-Host "🐳 Starting Oru ERP System with Docker..." -ForegroundColor Cyan
 
 if ($Mode -eq "dev") {
     Write-Host "📦 Starting Development Environment (with hot reload)..." -ForegroundColor Yellow

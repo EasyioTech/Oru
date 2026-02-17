@@ -8,29 +8,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Save, Trash2, DollarSign, Settings, Loader2, Edit, X } from 'lucide-react';
+import { Plus, Save, Trash2, Settings, Loader2, Edit, X, IndianRupee, Search, Edit2, Check, Users, Building2, Database, Shield, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePlanManagement, type SubscriptionPlan, type PlanFeature } from '@/hooks/usePlanManagement';
 
 const PlanManagement = () => {
   const { toast } = useToast();
-  const { 
-    plans, 
-    availableFeatures, 
-    loading, 
-    updatePlan, 
-    createPlan, 
+  const {
+    plans,
+    availableFeatures,
+    loading,
+    updatePlan,
+    createPlan,
     deletePlan,
     createFeature,
     updateFeature,
     deleteFeature,
     refreshFeatures
   } = usePlanManagement();
-  
+
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<SubscriptionPlan>>({});
-  
+
   // Feature Management state
   const [isFeatureDialogOpen, setIsFeatureDialogOpen] = useState(false);
   const [editingFeature, setEditingFeature] = useState<PlanFeature | null>(null);
@@ -42,13 +42,13 @@ const PlanManagement = () => {
 
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
-    
+
     // Merge plan features with all available features
     const allFeatures = (availableFeatures || []).map(af => {
       const planFeature = plan.features.find(pf => pf.id === af.id);
       return planFeature || { ...af, enabled: false };
     });
-    
+
     setEditForm({
       name: plan.name,
       description: plan.description,
@@ -109,7 +109,7 @@ const PlanManagement = () => {
     setEditForm(prev => ({
       ...prev,
       features: (prev.features || []).map(feature =>
-        feature.id === featureId 
+        feature.id === featureId
           ? { ...feature, enabled: !feature.enabled }
           : feature
       )
@@ -121,7 +121,7 @@ const PlanManagement = () => {
       name: 'New Plan',
       description: 'Plan description',
       price: 0,
-      currency: 'usd',
+      currency: 'inr',
       interval: 'month',
       is_active: false,
       max_users: 5,
@@ -132,7 +132,7 @@ const PlanManagement = () => {
         enabled: false
       })) || []
     };
-    
+
     setSelectedPlan(null);
     setEditForm(newPlanForm);
     setIsEditing(true);
@@ -140,7 +140,7 @@ const PlanManagement = () => {
 
   const handleCreateNewPlan = async () => {
     if (!editForm) return;
-    
+
     // Validation
     if (!editForm.name || editForm.name.trim() === '') {
       toast({
@@ -168,7 +168,7 @@ const PlanManagement = () => {
       });
       return;
     }
-    
+
     try {
       await createPlan(editForm as Omit<SubscriptionPlan, 'id'>);
       setIsEditing(false);
@@ -220,11 +220,10 @@ const PlanManagement = () => {
         <TabsContent value="plans" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {plans && plans.length > 0 ? plans.map((plan) => (
-              <Card 
-                key={plan.id} 
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedPlan?.id === plan.id ? 'ring-2 ring-primary' : ''
-                }`}
+              <Card
+                key={plan.id}
+                className={`cursor-pointer transition-all hover:shadow-md ${selectedPlan?.id === plan.id ? 'ring-2 ring-primary' : ''
+                  }`}
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
@@ -251,7 +250,7 @@ const PlanManagement = () => {
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-bold">
-                      ${plan.price}
+                      ₹{plan.price}
                     </span>
                     <span className="text-muted-foreground">/{plan.interval}</span>
                   </div>
@@ -262,18 +261,17 @@ const PlanManagement = () => {
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                      <DollarSign className="w-4 h-4 text-green-500" />
+                      <IndianRupee className="w-4 h-4 text-green-500" />
                       <span>Max {plan.max_users} users</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <DollarSign className="w-4 h-4 text-blue-500" />
+                      <IndianRupee className="w-4 h-4 text-blue-500" />
                       <span>{plan.max_storage_gb}GB storage</span>
                     </div>
                     {(plan.features || []).slice(0, 3).map((feature) => (
                       <div key={feature.id} className="flex items-center gap-2 text-sm">
-                        <div className={`w-2 h-2 rounded-full ${
-                          feature.enabled ? 'bg-green-500' : 'bg-gray-300'
-                        }`} />
+                        <div className={`w-2 h-2 rounded-full ${feature.enabled ? 'bg-green-500' : 'bg-gray-300'
+                          }`} />
                         <span className={feature.enabled ? 'text-foreground' : 'text-muted-foreground'}>
                           {feature.name}
                         </span>
@@ -314,7 +312,7 @@ const PlanManagement = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="planPrice">Price (USD)</Label>
+                    <Label htmlFor="planPrice">Price (INR)</Label>
                     <Input
                       id="planPrice"
                       type="number"

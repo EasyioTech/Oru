@@ -19,8 +19,8 @@ All test failures are documented in: `docs/TEST_FAILURES_DOCUMENTATION.md`
 ### **Key Information:**
 
 1. **Database Connection:**
-   - **Connection String:** `postgresql://postgres:admin@localhost:5432/buildflow_db`
-   - **Database:** buildflow_db
+   - **Connection String:** `postgresql://postgres:admin@localhost:5432/oru_erp`
+   - **Database:** oru_erp
    - **User:** postgres
    - **Password:** admin
 

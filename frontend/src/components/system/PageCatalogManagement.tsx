@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Save, Trash2, DollarSign, Settings, Loader2, Edit, X, Search, Filter } from 'lucide-react';
+import { Plus, Save, Trash2, IndianRupee, Settings, Loader2, Edit, X, Search, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePageCatalog } from '@/hooks/usePageCatalog';
 import type { PageCatalog, PageCategory } from '@/types/pageCatalog';
@@ -29,14 +29,14 @@ const CATEGORIES: PageCategory[] = [
 export default function PageCatalogManagement() {
   const { toast } = useToast();
   const { pages, loading, createPage, updatePage, deletePage, createRecommendationRule } = usePageCatalog();
-  
+
   const [selectedPage, setSelectedPage] = useState<PageCatalog | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRuleDialogOpen, setIsRuleDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterActive, setFilterActive] = useState<string>('all');
-  
+
   const [pageForm, setPageForm] = useState<Partial<PageCatalog>>({
     path: '',
     title: '',
@@ -50,16 +50,16 @@ export default function PageCatalogManagement() {
   });
 
   const filteredPages = pages.filter(page => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       page.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (page.description && page.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     const matchesCategory = filterCategory === 'all' || page.category === filterCategory;
-    const matchesActive = filterActive === 'all' || 
+    const matchesActive = filterActive === 'all' ||
       (filterActive === 'active' && page.is_active) ||
       (filterActive === 'inactive' && !page.is_active);
-    
+
     return matchesSearch && matchesCategory && matchesActive;
   });
 
@@ -246,7 +246,10 @@ export default function PageCatalogManagement() {
                             <Badge variant="outline">{page.category}</Badge>
                           </TableCell>
                           <TableCell>
-                            ${page.base_cost.toFixed(2)}
+                            <div className="flex items-center gap-1">
+                              <IndianRupee className="h-4 w-4 text-muted-foreground" />
+                              ₹{page.base_cost.toFixed(2)}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge variant={page.is_active ? 'default' : 'secondary'}>
@@ -293,12 +296,12 @@ export default function PageCatalogManagement() {
               {selectedPage ? 'Edit Page' : 'Create New Page'}
             </DialogTitle>
             <DialogDescription>
-              {selectedPage 
+              {selectedPage
                 ? 'Update page information and settings'
                 : 'Add a new page to the catalog'}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -363,7 +366,7 @@ export default function PageCatalogManagement() {
             </div>
 
             <div>
-              <Label htmlFor="base_cost">Base Cost ($)</Label>
+              <Label htmlFor="base_cost">Base Cost (₹)</Label>
               <Input
                 id="base_cost"
                 type="number"

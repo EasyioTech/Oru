@@ -1,37 +1,14 @@
-/**
- * Branding Image Upload - Upload or enter URL for logos, favicons, etc.
- * Supports PNG, JPG, SVG, ICO. Max 2MB for favicon, 5MB for logos.
- */
-
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { X, Upload, Link2 } from 'lucide-react';
-import { compressImage } from '@/utils/imageCompression';
+import { X, Upload, Link2, Loader2 } from 'lucide-react';
 import { validateFileSize } from '@/pages/settings/utils/settingsValidation';
 import { useToast } from '@/hooks/use-toast';
-const ACCEPT = 'image/png,image/jpeg,image/jpg,image/svg+xml,image/x-icon,.png,.jpg,.jpeg,.svg,.ico';
-const FAVICON_MAX_MB = 2;
-const LOGO_MAX_MB = 5;
+import { useState } from 'react';
+import { uploadFile } from '@/services/api/storage';
 
-async function fileToDataUrl(file: File): Promise<string> {
-  const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
-  if (isSvg) {
-    const text = await file.text();
-    const base64 = btoa(unescape(encodeURIComponent(text)));
-    return `data:image/svg+xml;base64,${base64}`;
-  }
-  const isIco = file.type === 'image/x-icon' || file.name.toLowerCase().endsWith('.ico');
-  if (isIco) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error('Failed to read ICO file'));
-      reader.readAsDataURL(file);
-    });
-  }
-  return compressImage(file, 800, 800, 0.8);
-}
+const ACCEPT = 'image/png,image/jpeg,image/jpg,image/svg+xml,image/x-icon,.png,.jpg,.jpeg,.svg,.ico';
+const LOGO_MAX_MB = 5;
 
 interface BrandingImageUploadProps {
   label: string;
@@ -51,10 +28,14 @@ export function BrandingImageUpload({
   maxSizeMB = LOGO_MAX_MB,
 }: BrandingImageUploadProps) {
   const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Reset input so same file can be selected again
+    e.target.value = '';
 
     const validation = validateFileSize(file, maxSizeMB);
     if (!validation.valid) {
@@ -77,16 +58,23 @@ export function BrandingImageUpload({
     }
 
     try {
-      const dataUrl = await fileToDataUrl(file);
-      onChange(dataUrl);
+      setUploading(true);
+      const result = await uploadFile(file, 'branding');
+      onChange(result.url);
+      toast({
+        title: 'Success',
+        description: 'Image uploaded successfully',
+      });
     } catch (err: unknown) {
+      console.error(err);
       toast({
         title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to process image',
+        description: err instanceof Error ? err.message : 'Failed to upload image',
         variant: 'destructive',
       });
+    } finally {
+      setUploading(false);
     }
-    e.target.value = '';
   };
 
   const handleRemove = () => onChange('');
@@ -102,14 +90,15 @@ export function BrandingImageUpload({
             placeholder={value.startsWith('data:') ? 'Image uploaded (use Remove to clear)' : placeholder}
             className="flex-1"
           />
-          <label className="flex items-center gap-2 px-4 py-2 border rounded-md bg-muted/50 hover:bg-muted cursor-pointer text-sm whitespace-nowrap">
-            <Upload className="h-4 w-4" />
-            Upload
+          <label className={`flex items-center gap-2 px-4 py-2 border rounded-md bg-muted/50 hover:bg-muted cursor-pointer text-sm whitespace-nowrap ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {uploading ? 'Uploading...' : 'Upload'}
             <input
               type="file"
               accept={ACCEPT}
               onChange={handleFileChange}
               className="sr-only"
+              disabled={uploading}
             />
           </label>
         </div>

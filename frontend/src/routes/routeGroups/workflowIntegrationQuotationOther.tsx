@@ -272,17 +272,7 @@ export const OtherFeatureRoutes = () => [
       </ProtectedRoute>
     }
   />,
-  <Route
-    key="/email-testing"
-    path="/email-testing"
-    element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.EmailTesting /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
+
   <Route
     key="/view-as-user"
     path="/view-as-user"

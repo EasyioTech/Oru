@@ -25,7 +25,7 @@ scripts\create_super_admin.bat
 
 #### Method C: SQL Migration
 ```bash
-docker compose exec -T postgres psql -U postgres -d buildflow_db -f database/migrations/13_create_super_admin.sql
+docker compose exec -T postgres psql -U postgres -d oru_erp -f database/migrations/13_create_super_admin.sql
 ```
 
 ### 2. Login
@@ -87,7 +87,7 @@ docker compose exec -T postgres psql -U postgres -d buildflow_db -f database/mig
 4. Configure any tab (Identity, Branding, SEO, Analytics, Ads, Other)
 5. Click **Save Changes**
 
-All changes are saved to `system_settings` table in `buildflow_db` and automatically applied throughout the ERP system.
+All changes are saved to `system_settings` table in `oru_erp` and automatically applied throughout the ERP system.
 
 ## 🔍 Verify Super Admin
 
@@ -112,17 +112,17 @@ Should show:
 ## 📝 Database Connection
 
 ```
-postgresql://postgres:admin@localhost:5432/buildflow_db
+postgresql://postgres:admin@localhost:5432/oru_erp
 ```
 
 ## ⚠️ Important Notes
 
-1. **Super admin uses buildflow_db** (main database), NOT agency databases
-2. **System settings** are stored in `buildflow_db.system_settings`
+1. **Super admin uses oru_erp** (main database), NOT agency databases
+2. **System settings** are stored in `oru_erp.system_settings`
 3. **Changes apply system-wide** to all agencies
 4. **Change default password** in production!
 
 ## 📚 Full Documentation
 
-See `docs/SUPER_ADMIN_GUIDE.md` and `docs/BUILDFLOW_DB_SUPER_ADMIN_SETUP.md` for detailed information.
+See `docs/SUPER_ADMIN_GUIDE.md` and `docs/oru_erp_SUPER_ADMIN_SETUP.md` for detailed information.
 

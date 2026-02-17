@@ -7,9 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, RefreshCw, Settings, Search, Tag, Megaphone, Mail, Globe, Shield, Lock, Database, HardDrive, Code, FileText, Server, Archive } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Save, RefreshCw, Settings, Search, Tag, Megaphone, Mail, Globe, Shield, Lock, Database, HardDrive, Code, FileText, Server, Archive, Key } from 'lucide-react';
 import { fetchSystemSettings, updateSystemSettings, type SystemSettings } from '@/services/api/system';
 import { IdentityTab, BrandingTab } from './settings-tabs';
+import { useBranding } from '@/contexts/BrandingContext';
 
 export function SystemSettings() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
@@ -17,6 +19,7 @@ export function SystemSettings() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<SystemSettings>>({});
   const { toast } = useToast();
+  const { refreshBranding } = useBranding();
 
   useEffect(() => {
     loadSettings();
@@ -45,6 +48,10 @@ export function SystemSettings() {
       const updated = await updateSystemSettings(formData);
       setSettings(updated);
       setFormData(updated);
+
+      // Refresh branding context to update logo/title immediately
+      await refreshBranding();
+
       toast({
         title: 'Settings Saved',
         description: 'System settings have been updated successfully.',
@@ -116,16 +123,14 @@ export function SystemSettings() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="identity" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 lg:grid-cols-10 gap-1">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
               <TabsTrigger value="identity">Identity</TabsTrigger>
               <TabsTrigger value="branding">Branding</TabsTrigger>
               <TabsTrigger value="seo">SEO</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="advertising">Ads</TabsTrigger>
               <TabsTrigger value="email">Email</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="storage">Storage</TabsTrigger>
-              <TabsTrigger value="api">API</TabsTrigger>
               <TabsTrigger value="other">Other</TabsTrigger>
             </TabsList>
 
@@ -258,238 +263,206 @@ export function SystemSettings() {
                   placeholder="123456789012345"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="custom_tracking_code">Custom Tracking Code</Label>
-                <Textarea
-                  id="custom_tracking_code"
-                  value={formData.custom_tracking_code || ''}
-                  onChange={(e) => handleChange('custom_tracking_code', e.target.value)}
-                  placeholder="Paste your custom tracking code here (HTML/JavaScript)"
-                  rows={5}
-                />
-              </div>
             </TabsContent>
 
-            {/* Advertising Tab */}
-            <TabsContent value="advertising" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="ad_network_enabled">Enable Advertisement Network</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Enable third-party advertisement network integration
-                  </p>
+
+            {/* Email Tab */}
+            <TabsContent value="email" className="space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Email Service Provider</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="email_provider">Provider</Label>
+                  <Select
+                    value={formData.email_provider || 'smtp'}
+                    onValueChange={(value) => handleChange('email_provider', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select email provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="smtp">SMTP Server</SelectItem>
+                      <SelectItem value="sendgrid">SendGrid</SelectItem>
+                      <SelectItem value="mailgun">Mailgun</SelectItem>
+                      <SelectItem value="aws_ses">AWS SES</SelectItem>
+                      <SelectItem value="resend">Resend</SelectItem>
+                      <SelectItem value="postmark">Postmark</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Switch
-                  id="ad_network_enabled"
-                  checked={formData.ad_network_enabled || false}
-                  onCheckedChange={(checked) => handleChange('ad_network_enabled', checked)}
-                />
-              </div>
-              {formData.ad_network_enabled && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="ad_network_code">Advertisement Network Code</Label>
-                    <Textarea
-                      id="ad_network_code"
-                      value={formData.ad_network_code || ''}
-                      onChange={(e) => handleChange('ad_network_code', e.target.value)}
-                      placeholder="Paste your advertisement network code here"
-                      rows={5}
-                    />
+
+                {formData.email_provider === 'smtp' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_host">SMTP Host</Label>
+                      <Input
+                        id="smtp_host"
+                        value={formData.smtp_host || ''}
+                        onChange={(e) => handleChange('smtp_host', e.target.value)}
+                        placeholder="smtp.example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_port">SMTP Port</Label>
+                      <Input
+                        id="smtp_port"
+                        type="number"
+                        value={formData.smtp_port || 587}
+                        onChange={(e) => handleChange('smtp_port', parseInt(e.target.value) || 587)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_user">SMTP User</Label>
+                      <Input
+                        id="smtp_user"
+                        value={formData.smtp_user || ''}
+                        onChange={(e) => handleChange('smtp_user', e.target.value)}
+                        placeholder="user@example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_password">SMTP Password</Label>
+                      <Input
+                        id="smtp_password"
+                        type="password"
+                        value={formData.smtp_password || ''}
+                        onChange={(e) => handleChange('smtp_password', e.target.value)}
+                        placeholder={formData.smtp_password === '***' ? '••••••••' : 'Enter password'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="smtp_from">From Email</Label>
+                      <Input
+                        id="smtp_from"
+                        value={formData.smtp_from || ''}
+                        onChange={(e) => handleChange('smtp_from', e.target.value)}
+                        placeholder="noreply@example.com"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 pt-8">
+                      <Switch
+                        id="smtp_secure"
+                        checked={formData.smtp_secure || false}
+                        onCheckedChange={(checked) => handleChange('smtp_secure', checked)}
+                      />
+                      <Label htmlFor="smtp_secure">Use SSL/TLS</Label>
+                    </div>
                   </div>
-                  <div className="space-y-4">
-                    <Label>Advertisement Placement</Label>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="ad_placement_header" className="cursor-pointer">
-                          Header Placement
-                        </Label>
-                        <Switch
-                          id="ad_placement_header"
-                          checked={formData.ad_placement_header || false}
-                          onCheckedChange={(checked) => handleChange('ad_placement_header', checked)}
+                )}
+
+                {formData.email_provider === 'sendgrid' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="sendgrid_api_key">SendGrid API Key</Label>
+                      <Input
+                        id="sendgrid_api_key"
+                        type="password"
+                        value={formData.sendgrid_api_key || ''}
+                        onChange={(e) => handleChange('sendgrid_api_key', e.target.value)}
+                        placeholder={formData.sendgrid_api_key === '***' ? '••••••••' : 'Enter API Key'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sendgrid_from">From Email</Label>
+                      <Input
+                        id="sendgrid_from"
+                        value={formData.sendgrid_from || ''}
+                        onChange={(e) => handleChange('sendgrid_from', e.target.value)}
+                        placeholder="noreply@example.com"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.email_provider === 'mailgun' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="mailgun_api_key">Mailgun API Key</Label>
+                      <Input
+                        id="mailgun_api_key"
+                        type="password"
+                        value={formData.mailgun_api_key || ''}
+                        onChange={(e) => handleChange('mailgun_api_key', e.target.value)}
+                        placeholder={formData.mailgun_api_key === '***' ? '••••••••' : 'Enter API Key'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="mailgun_domain">Mailgun Domain</Label>
+                      <Input
+                        id="mailgun_domain"
+                        value={formData.mailgun_domain || ''}
+                        onChange={(e) => handleChange('mailgun_domain', e.target.value)}
+                        placeholder="mg.example.com"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.email_provider === 'aws_ses' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_ses_region">AWS Region</Label>
+                        <Input
+                          id="aws_ses_region"
+                          value={formData.aws_ses_region || ''}
+                          onChange={(e) => handleChange('aws_ses_region', e.target.value)}
+                          placeholder="us-east-1"
                         />
                       </div>
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="ad_placement_sidebar" className="cursor-pointer">
-                          Sidebar Placement
-                        </Label>
-                        <Switch
-                          id="ad_placement_sidebar"
-                          checked={formData.ad_placement_sidebar || false}
-                          onCheckedChange={(checked) => handleChange('ad_placement_sidebar', checked)}
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_access_key_id">Access Key ID</Label>
+                        <Input
+                          id="aws_access_key_id"
+                          value={formData.aws_access_key_id || ''}
+                          onChange={(e) => handleChange('aws_access_key_id', e.target.value)}
+                          placeholder={formData.aws_access_key_id === '***' ? '••••••••' : 'Enter Access Key'}
                         />
                       </div>
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="ad_placement_footer" className="cursor-pointer">
-                          Footer Placement
-                        </Label>
-                        <Switch
-                          id="ad_placement_footer"
-                          checked={formData.ad_placement_footer || false}
-                          onCheckedChange={(checked) => handleChange('ad_placement_footer', checked)}
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_secret_access_key">Secret Access Key</Label>
+                        <Input
+                          id="aws_secret_access_key"
+                          type="password"
+                          value={formData.aws_secret_access_key || ''}
+                          onChange={(e) => handleChange('aws_secret_access_key', e.target.value)}
+                          placeholder={formData.aws_secret_access_key === '***' ? '••••••••' : 'Enter Secret Key'}
                         />
                       </div>
                     </div>
                   </div>
-                </>
-              )}
-            </TabsContent>
+                )}
 
-            {/* Email Tab */}
-            <TabsContent value="email" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email_provider">Email Provider</Label>
-                <select
-                  id="email_provider"
-                  value={formData.email_provider || 'smtp'}
-                  onChange={(e) => handleChange('email_provider', e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="smtp">SMTP</option>
-                  <option value="sendgrid">SendGrid</option>
-                  <option value="mailgun">Mailgun</option>
-                  <option value="aws_ses">AWS SES</option>
-                  <option value="resend">Resend</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="smtp_host">SMTP Host</Label>
-                  <Input
-                    id="smtp_host"
-                    value={formData.smtp_host || ''}
-                    onChange={(e) => handleChange('smtp_host', e.target.value)}
-                    placeholder="smtp.example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="smtp_port">SMTP Port</Label>
-                  <Input
-                    id="smtp_port"
-                    type="number"
-                    value={formData.smtp_port ?? 587}
-                    onChange={(e) => handleChange('smtp_port', parseInt(e.target.value, 10) || 587)}
-                    min={1}
-                    max={65535}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="smtp_user">SMTP User</Label>
-                  <Input
-                    id="smtp_user"
-                    value={formData.smtp_user || ''}
-                    onChange={(e) => handleChange('smtp_user', e.target.value)}
-                    placeholder="user@example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="smtp_password">SMTP Password</Label>
-                  <Input
-                    id="smtp_password"
-                    type="password"
-                    value={formData.smtp_password === '***' ? '' : (formData.smtp_password || '')}
-                    onChange={(e) => handleChange('smtp_password', e.target.value)}
-                    placeholder="Leave blank to keep current"
-                    autoComplete="new-password"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="smtp_from">From Address</Label>
-                  <Input
-                    id="smtp_from"
-                    type="email"
-                    value={formData.smtp_from || ''}
-                    onChange={(e) => handleChange('smtp_from', e.target.value)}
-                    placeholder="noreply@example.com"
-                  />
-                </div>
-                <div className="flex items-center space-x-2 pt-8">
-                  <input
-                    type="checkbox"
-                    id="smtp_secure"
-                    checked={formData.smtp_secure || false}
-                    onChange={(e) => handleChange('smtp_secure', e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="smtp_secure">Use TLS/SSL</Label>
-                </div>
-              </div>
-              <div className="border-t pt-4 space-y-4">
-                <h4 className="text-sm font-medium">SendGrid</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sendgrid_api_key">API Key</Label>
-                    <Input
-                      id="sendgrid_api_key"
-                      type="password"
-                      value={formData.sendgrid_api_key === '***' ? '' : (formData.sendgrid_api_key || '')}
-                      onChange={(e) => handleChange('sendgrid_api_key', e.target.value)}
-                      placeholder="Leave blank to keep current"
-                    />
+                {formData.email_provider === 'resend' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="resend_api_key">Resend API Key</Label>
+                      <Input
+                        id="resend_api_key"
+                        type="password"
+                        value={formData.resend_api_key || ''}
+                        onChange={(e) => handleChange('resend_api_key', e.target.value)}
+                        placeholder={formData.resend_api_key === '***' ? '••••••••' : 'Enter API Key'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="resend_from">From Email</Label>
+                      <Input
+                        id="resend_from"
+                        value={formData.resend_from || ''}
+                        onChange={(e) => handleChange('resend_from', e.target.value)}
+                        placeholder="onboarding@resend.dev"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="sendgrid_from">From Email</Label>
-                    <Input
-                      id="sendgrid_from"
-                      type="email"
-                      value={formData.sendgrid_from || ''}
-                      onChange={(e) => handleChange('sendgrid_from', e.target.value)}
-                    />
+                )}
+
+                {formData.email_provider === 'postmark' && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    {/* Add postmark fields if needed */}
+                    <p className="text-sm text-muted-foreground">Postmark configuration not yet fully implemented in UI.</p>
                   </div>
-                </div>
-              </div>
-              <div className="border-t pt-4 space-y-4">
-                <h4 className="text-sm font-medium">Mailgun</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="mailgun_api_key">API Key</Label>
-                    <Input
-                      id="mailgun_api_key"
-                      type="password"
-                      value={formData.mailgun_api_key === '***' ? '' : (formData.mailgun_api_key || '')}
-                      onChange={(e) => handleChange('mailgun_api_key', e.target.value)}
-                      placeholder="Leave blank to keep current"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="mailgun_domain">Domain</Label>
-                    <Input
-                      id="mailgun_domain"
-                      value={formData.mailgun_domain || ''}
-                      onChange={(e) => handleChange('mailgun_domain', e.target.value)}
-                      placeholder="mg.example.com"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="border-t pt-4 space-y-4">
-                <h4 className="text-sm font-medium">Resend</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="resend_api_key">API Key</Label>
-                    <Input
-                      id="resend_api_key"
-                      type="password"
-                      value={formData.resend_api_key === '***' ? '' : (formData.resend_api_key || '')}
-                      onChange={(e) => handleChange('resend_api_key', e.target.value)}
-                      placeholder="Leave blank to keep current"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="resend_from">From Email</Label>
-                    <Input
-                      id="resend_from"
-                      type="email"
-                      value={formData.resend_from || ''}
-                      onChange={(e) => handleChange('resend_from', e.target.value)}
-                    />
-                  </div>
-                </div>
+                )}
+
               </div>
             </TabsContent>
 
@@ -660,136 +633,128 @@ export function SystemSettings() {
 
             {/* Storage Tab */}
             <TabsContent value="storage" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="file_storage_provider">Storage Provider</Label>
-                <select
-                  id="file_storage_provider"
-                  value={formData.file_storage_provider || 'local'}
-                  onChange={(e) => handleChange('file_storage_provider', e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="local">Local</option>
-                  <option value="s3">AWS S3</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">File Storage Provider</h3>
                 <div className="space-y-2">
-                  <Label htmlFor="file_storage_path">Storage path</Label>
-                  <Input
-                    id="file_storage_path"
-                    value={formData.file_storage_path || '/app/storage'}
-                    onChange={(e) => handleChange('file_storage_path', e.target.value)}
-                    placeholder="/app/storage"
-                  />
+                  <Label htmlFor="file_storage_provider">Provider</Label>
+                  <Select
+                    value={formData.file_storage_provider || 'local'}
+                    onValueChange={(value) => handleChange('file_storage_provider', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select storage provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="local">Local Filesystem</SelectItem>
+                      <SelectItem value="aws_s3">AWS S3</SelectItem>
+                      <SelectItem value="r2">Cloudflare R2</SelectItem>
+                      <SelectItem value="minio">MinIO (S3 Compatible)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="max_file_size_mb">Max file size (MB)</Label>
-                  <Input
-                    id="max_file_size_mb"
-                    type="number"
-                    value={formData.max_file_size_mb ?? 10}
-                    onChange={(e) => handleChange('max_file_size_mb', parseInt(e.target.value, 10) || 10)}
-                    min={1}
-                    max={1024}
-                  />
-                </div>
+
+                {formData.file_storage_provider === 'local' && (
+                  <div className="space-y-2 border rounded-md p-4">
+                    <Label htmlFor="file_storage_path">Storage Path</Label>
+                    <Input
+                      id="file_storage_path"
+                      value={formData.file_storage_path || '/app/storage'}
+                      onChange={(e) => handleChange('file_storage_path', e.target.value)}
+                      placeholder="/app/storage"
+                    />
+                    <p className="text-xs text-muted-foreground">Absolute path on the server filesystem.</p>
+                  </div>
+                )}
+
+                {(formData.file_storage_provider === 'aws_s3' || formData.file_storage_provider === 'r2' || formData.file_storage_provider === 'minio') && (
+                  <div className="space-y-4 border rounded-md p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_bucket">Bucket Name</Label>
+                        <Input
+                          id="aws_s3_bucket"
+                          value={formData.aws_s3_bucket || ''}
+                          onChange={(e) => handleChange('aws_s3_bucket', e.target.value)}
+                          placeholder="my-bucket"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_region">Region</Label>
+                        <Input
+                          id="aws_s3_region"
+                          value={formData.aws_s3_region || 'auto'}
+                          onChange={(e) => handleChange('aws_s3_region', e.target.value)}
+                          placeholder="us-east-1 or auto"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_access_key_id">Access Key ID</Label>
+                        <Input
+                          id="aws_s3_access_key_id"
+                          value={formData.aws_s3_access_key_id || ''}
+                          onChange={(e) => handleChange('aws_s3_access_key_id', e.target.value)}
+                          placeholder={formData.aws_s3_access_key_id === '***' ? '••••••••' : 'Enter Access Key'}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aws_s3_secret_access_key">Secret Access Key</Label>
+                        <Input
+                          id="aws_s3_secret_access_key"
+                          type="password"
+                          value={formData.aws_s3_secret_access_key || ''}
+                          onChange={(e) => handleChange('aws_s3_secret_access_key', e.target.value)}
+                          placeholder={formData.aws_s3_secret_access_key === '***' ? '••••••••' : 'Enter Secret Key'}
+                        />
+                      </div>
+                      {(formData.file_storage_provider === 'r2' || formData.file_storage_provider === 'minio') && (
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="aws_s3_endpoint">Custom Endpoint URL</Label>
+                          <Input
+                            id="aws_s3_endpoint"
+                            // Note: The frontend interface might not have aws_s3_endpoint mapped yet, assuming public_url for now or need to add it
+                            // Using custom_settings or similar if schema doesn't support it directly yet?
+                            // Checking schema: logic used `process.env.AWS_S3_ENDPOINT`.
+                            // We haven't added `aws_s3_endpoint` to DB schema.
+                            // For now, let's omit or just show a warning that endpoint must be set via ENV or add to DB later.
+                            // Wait, I can use `aws_s3_public_url` as a proxy for endpoint in some contexts? No.
+                            // Let's rely on standard S3 config for now and assume AWS or auto-region for R2.
+                            disabled
+                            placeholder="To configure custom endpoints (R2/MinIO), please use ENV variables for now."
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="allowed_file_types">Allowed file types (comma-separated)</Label>
+                <Label htmlFor="allowed_file_types">Allowed file types</Label>
                 <Input
                   id="allowed_file_types"
                   value={formData.allowed_file_types || 'jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,zip'}
                   onChange={(e) => handleChange('allowed_file_types', e.target.value)}
                   placeholder="jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,zip"
                 />
+                <p className="text-sm text-muted-foreground">Extensions separated by comma</p>
               </div>
-              <div className="border-t pt-4 space-y-4">
-                <h4 className="text-sm font-medium">AWS S3</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="aws_s3_bucket">Bucket</Label>
-                    <Input
-                      id="aws_s3_bucket"
-                      value={formData.aws_s3_bucket || ''}
-                      onChange={(e) => handleChange('aws_s3_bucket', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="aws_s3_region">Region</Label>
-                    <Input
-                      id="aws_s3_region"
-                      value={formData.aws_s3_region || ''}
-                      onChange={(e) => handleChange('aws_s3_region', e.target.value)}
-                      placeholder="us-east-1"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="aws_s3_access_key_id">Access Key ID</Label>
-                    <Input
-                      id="aws_s3_access_key_id"
-                      type="password"
-                      value={formData.aws_s3_access_key_id === '***' ? '' : (formData.aws_s3_access_key_id || '')}
-                      onChange={(e) => handleChange('aws_s3_access_key_id', e.target.value)}
-                      placeholder="Leave blank to keep current"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="aws_s3_secret_access_key">Secret Access Key</Label>
-                    <Input
-                      id="aws_s3_secret_access_key"
-                      type="password"
-                      value={formData.aws_s3_secret_access_key === '***' ? '' : (formData.aws_s3_secret_access_key || '')}
-                      onChange={(e) => handleChange('aws_s3_secret_access_key', e.target.value)}
-                      placeholder="Leave blank to keep current"
-                    />
-                  </div>
-                </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="max_file_size_mb">Max Upload Size (MB)</Label>
+                <Input
+                  id="max_file_size_mb"
+                  type="number"
+                  value={formData.max_file_size_mb ?? 10}
+                  onChange={(e) => handleChange('max_file_size_mb', parseInt(e.target.value, 10) || 10)}
+                  min={1}
+                  max={100}
+                />
+                <p className="text-sm text-muted-foreground">Server validation limit</p>
               </div>
             </TabsContent>
 
-            {/* API Tab */}
-            <TabsContent value="api" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="api_rate_limit_enabled" className="cursor-pointer">Enable API rate limiting</Label>
-                <Switch
-                  id="api_rate_limit_enabled"
-                  checked={formData.api_rate_limit_enabled ?? true}
-                  onCheckedChange={(c) => handleChange('api_rate_limit_enabled', c)}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="api_rate_limit_requests_per_minute">Requests per minute</Label>
-                  <Input
-                    id="api_rate_limit_requests_per_minute"
-                    type="number"
-                    value={formData.api_rate_limit_requests_per_minute ?? 100}
-                    onChange={(e) => handleChange('api_rate_limit_requests_per_minute', parseInt(e.target.value, 10) || 100)}
-                    min={1}
-                    max={10000}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="api_timeout_seconds">Timeout (seconds)</Label>
-                  <Input
-                    id="api_timeout_seconds"
-                    type="number"
-                    value={formData.api_timeout_seconds ?? 30}
-                    onChange={(e) => handleChange('api_timeout_seconds', parseInt(e.target.value, 10) || 30)}
-                    min={1}
-                    max={300}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="enable_api_documentation" className="cursor-pointer">Enable API documentation</Label>
-                <Switch
-                  id="enable_api_documentation"
-                  checked={formData.enable_api_documentation ?? true}
-                  onCheckedChange={(c) => handleChange('enable_api_documentation', c)}
-                />
-              </div>
-            </TabsContent>
 
             {/* Other Settings Tab */}
             <TabsContent value="other" className="space-y-4">
@@ -1070,70 +1035,6 @@ export function SystemSettings() {
                 )}
               </div>
 
-              {/* Docker/Environment Info (Read-only) */}
-              <div className="space-y-4 border rounded-lg p-4 bg-muted/30">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Server className="h-5 w-5" />
-                  Docker & Environment Information
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  These values are read-only and reflect your current Docker environment configuration.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Node.js Version</Label>
-                    <Input
-                      value={formData.node_version || import.meta.env.VITE_NODE_VERSION || 'N/A'}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>PostgreSQL Version</Label>
-                    <Input
-                      value={formData.postgres_version || import.meta.env.VITE_POSTGRES_VERSION || 'N/A'}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Docker Compose Version</Label>
-                    <Input
-                      value={formData.docker_compose_version || 'N/A'}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Redis Enabled</Label>
-                    <Input
-                      value={formData.redis_enabled ? 'Yes' : 'No'}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                  {formData.redis_enabled && (
-                    <>
-                      <div className="space-y-2">
-                        <Label>Redis Host</Label>
-                        <Input
-                          value={formData.redis_host || import.meta.env.VITE_REDIS_HOST || 'redis'}
-                          disabled
-                          className="bg-muted"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Redis Port</Label>
-                        <Input
-                          value={formData.redis_port?.toString() || import.meta.env.VITE_REDIS_PORT || '6379'}
-                          disabled
-                          className="bg-muted"
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

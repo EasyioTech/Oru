@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { CheckCircle2, XCircle, Clock, Search, DollarSign } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Search, IndianRupee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getApiBaseUrl } from '@/config/api';
 import { useAuth } from '@/hooks/useAuth';
@@ -54,7 +54,7 @@ export default function PageRequestManagement() {
 
   const fetchRequests = async () => {
     if (!user) return;
-    
+
     const token = getAuthToken();
     if (!token) {
       console.warn('[PageRequestManagement] No authentication token found');
@@ -335,8 +335,8 @@ export default function PageRequestManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        ${request.base_cost.toFixed(2)}/mo
+                        <IndianRupee className="h-4 w-4 text-muted-foreground" />
+                        ₹{request.base_cost.toFixed(2)}/mo
                       </div>
                     </TableCell>
                     <TableCell>{request.requested_by_email}</TableCell>
@@ -405,7 +405,7 @@ export default function PageRequestManagement() {
                   min="0"
                   value={costOverride}
                   onChange={(e) => setCostOverride(e.target.value)}
-                  placeholder={`Default: $${selectedRequest?.base_cost.toFixed(2)}/mo`}
+                  placeholder={`Default: ₹${selectedRequest?.base_cost.toFixed(2)}/mo`}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Leave empty to use default page cost

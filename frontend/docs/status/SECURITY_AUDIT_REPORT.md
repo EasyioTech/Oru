@@ -1,4 +1,4 @@
-# 🔒 BuildFlow ERP System - Comprehensive Security, Performance & Code Quality Audit
+# 🔒 Oru ERP System - Comprehensive Security, Performance & Code Quality Audit
 
 **Date:** 2024-12-19  
 **Auditor:** Senior Systems Architect & Security Auditor  
@@ -9,7 +9,7 @@
 
 ## 📋 Executive Summary
 
-This audit identified **47 critical security vulnerabilities**, **23 high-priority performance issues**, and **31 code quality concerns** across the BuildFlow ERP system. The system uses a modern stack (Node.js, React, PostgreSQL, Redis) but requires immediate attention to security hardening, database query optimization, and Docker configuration improvements.
+This audit identified **47 critical security vulnerabilities**, **23 high-priority performance issues**, and **31 code quality concerns** across the Oru ERP system. The system uses a modern stack (Node.js, React, PostgreSQL, Redis) but requires immediate attention to security hardening, database query optimization, and Docker configuration improvements.
 
 ### Risk Assessment
 - **Critical Issues:** 47 (Fix Immediately)
@@ -874,7 +874,7 @@ router.get('/items', asyncHandler(async (req, res) => {
 
 1. **Backup Current System**
    ```bash
-   docker compose exec postgres pg_dump -U postgres buildflow_db > backup_$(date +%Y%m%d).sql
+   docker compose exec postgres pg_dump -U postgres oru_erp > backup_$(date +%Y%m%d).sql
    ```
 
 2. **Fix SQL Injection**
@@ -1003,7 +1003,7 @@ router.get('/items', asyncHandler(async (req, res) => {
 2. **Database Rollback**
    ```bash
    # Restore from backup
-   docker compose exec postgres psql -U postgres buildflow_db < backup.sql
+   docker compose exec postgres psql -U postgres oru_erp < backup.sql
    ```
 
 3. **Configuration Rollback**
@@ -1015,7 +1015,7 @@ router.get('/items', asyncHandler(async (req, res) => {
 
 ## Conclusion
 
-The BuildFlow ERP system has a solid foundation but requires immediate security hardening before production deployment. The most critical issues are SQL injection vulnerabilities and default secrets. With focused effort, all critical issues can be addressed within 1 week, and the system can be production-ready within 1 month.
+The Oru ERP system has a solid foundation but requires immediate security hardening before production deployment. The most critical issues are SQL injection vulnerabilities and default secrets. With focused effort, all critical issues can be addressed within 1 week, and the system can be production-ready within 1 month.
 
 **Recommended Timeline:**
 - **Week 1:** Critical security fixes

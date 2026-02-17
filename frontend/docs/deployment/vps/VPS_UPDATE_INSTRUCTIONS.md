@@ -115,7 +115,7 @@ curl http://localhost:3000/health
 curl http://localhost/health
 
 # Check database
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "SELECT COUNT(*) FROM public.agencies;"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "SELECT COUNT(*) FROM public.agencies;"
 ```
 
 ## Complete Update Checklist

@@ -608,7 +608,7 @@ After implementing each fix:
 
 1. **Backup Everything**
    ```bash
-   docker compose exec postgres pg_dump -U postgres buildflow_db > backup_$(date +%Y%m%d_%H%M%S).sql
+   docker compose exec postgres pg_dump -U postgres oru_erp > backup_$(date +%Y%m%d_%H%M%S).sql
    ```
 
 2. **Update Code**
@@ -653,7 +653,7 @@ docker compose down
 git checkout <previous-commit>
 
 # 3. Restore database (if needed)
-docker compose exec postgres psql -U postgres buildflow_db < backup.sql
+docker compose exec postgres psql -U postgres oru_erp < backup.sql
 
 # 4. Restart
 docker compose up -d

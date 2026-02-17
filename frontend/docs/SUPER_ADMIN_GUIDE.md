@@ -2,11 +2,11 @@
 
 ## Overview
 
-The Super Admin Dashboard is the central control panel for managing the entire BuildFlow ERP platform. It's accessible only to users with the `super_admin` role in the main database (`buildflow_db`).
+The Super Admin Dashboard is the central control panel for managing the entire Oru ERP platform. It's accessible only to users with the `super_admin` role in the main database (`oru_erp`).
 
-## Database: buildflow_db
+## Database: oru_erp
 
-The super admin dashboard uses the **main database** (`buildflow_db`), not agency databases. This database contains:
+The super admin dashboard uses the **main database** (`oru_erp`), not agency databases. This database contains:
 
 ### Key Tables for Super Admin
 
@@ -69,17 +69,17 @@ scripts\create_super_admin.bat
 
 ```bash
 # Connect to PostgreSQL container
-docker compose exec postgres psql -U postgres -d buildflow_db
+docker compose exec postgres psql -U postgres -d oru_erp
 
 # Or run migration file
-docker compose exec -T postgres psql -U postgres -d buildflow_db -f database/migrations/13_create_super_admin.sql
+docker compose exec -T postgres psql -U postgres -d oru_erp -f database/migrations/13_create_super_admin.sql
 ```
 
 #### Method 3: Manual SQL
 
 ```sql
--- Connect to buildflow_db
-\c buildflow_db
+-- Connect to oru_erp
+\c oru_erp
 
 -- Create super admin user
 INSERT INTO public.users (email, password_hash, email_confirmed, email_confirmed_at, is_active)
@@ -215,7 +215,7 @@ services:
   postgres:
     # ... existing config ...
     environment:
-      - POSTGRES_DB=buildflow_db
+      - POSTGRES_DB=oru_erp
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
     volumes:
@@ -228,7 +228,7 @@ services:
 ### Cannot Access System Dashboard
 
 1. **Check user role**: Ensure you have `super_admin` role in `user_roles` table with `agency_id = NULL`
-2. **Check database**: Make sure you're authenticated against `buildflow_db`, not an agency database
+2. **Check database**: Make sure you're authenticated against `oru_erp`, not an agency database
 3. **Check authentication**: Verify JWT token includes super_admin role
 
 ### User Not Found

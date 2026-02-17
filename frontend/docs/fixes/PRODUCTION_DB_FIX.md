@@ -39,10 +39,10 @@ After restarting with fresh database:
 
 ```bash
 # Check agencies table exists
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "\dt public.agencies"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "\dt public.agencies"
 
 # Check table structure
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "\d public.agencies"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "\d public.agencies"
 
 # Check backend logs for initialization
 docker compose -f docker-compose.prod.yml logs backend | grep -i "schema\|agencies"

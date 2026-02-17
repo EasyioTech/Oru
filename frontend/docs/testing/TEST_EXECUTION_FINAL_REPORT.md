@@ -47,7 +47,7 @@
 ### API Integration Tests (9 suites)
 
 These tests require:
-1. **PostgreSQL Database** - `buildflow_db` and test agency databases
+1. **PostgreSQL Database** - `oru_erp` and test agency databases
 2. **Database Schema** - All tables created
 3. **Test Data** - Users, agencies, etc.
 

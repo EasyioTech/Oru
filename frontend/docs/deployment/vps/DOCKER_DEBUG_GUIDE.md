@@ -141,7 +141,7 @@ docker stats
 
 ```bash
 # Test database connection
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "SELECT version();"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "SELECT version();"
 
 # Test backend health
 curl http://localhost:3000/health
@@ -218,7 +218,7 @@ docker ps | grep postgres
 docker logs Oru-postgres
 
 # Test connection
-docker exec Oru-postgres psql -U postgres -d buildflow_db -c "\dt"
+docker exec Oru-postgres psql -U postgres -d oru_erp -c "\dt"
 
 # Check database is ready
 docker exec Oru-postgres pg_isready -U postgres

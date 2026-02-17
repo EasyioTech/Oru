@@ -7,7 +7,7 @@ param(
     [string]$Mode = "dev"
 )
 
-Write-Host "🛑 Stopping BuildFlow ERP System..." -ForegroundColor Yellow
+Write-Host "🛑 Stopping Oru ERP System..." -ForegroundColor Yellow
 
 if ($Mode -eq "dev") {
     docker compose -f docker-compose.dev.yml down
