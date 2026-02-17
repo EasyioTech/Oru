@@ -23,7 +23,11 @@ const storageRoutes: FastifyPluginAsync = async (fastify) => {
 
             const context = (request.query as any).context || 'general';
 
-            const result = await service.uploadFile(data, context);
+            // Construct base URL from request to ensure correct absolute URL return
+            // This handles localhost:5001 vs production domains automatically
+            const baseUrl = `${request.protocol}://${request.host}`;
+
+            const result = await service.uploadFile(data, context, baseUrl);
 
             return {
                 success: true,
@@ -33,9 +37,10 @@ const storageRoutes: FastifyPluginAsync = async (fastify) => {
         } catch (error) {
             fastify.log.error(error);
             // Return error response structure per AI_RULES
-            reply.status(500).send({
+            const status = error instanceof AppError ? error.statusCode : 500;
+            reply.status(status).send({
                 success: false,
-                error: 'UploadError',
+                error: (error as AppError).code || 'UploadError',
                 message: (error as Error).message || 'File upload failed'
             });
         }

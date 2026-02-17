@@ -34,7 +34,13 @@ export const systemSettingsSchema = baseSystemSettingsSchema.extend({
 });
 
 // Create the insert schema, but preprocess inputs to transform snake_case to camelCase
-const baseUpdateSettingsSchema = createInsertSchema(systemSettings).partial();
+const baseUpdateSettingsSchema = createInsertSchema(systemSettings).omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    createdBy: true,
+    updatedBy: true,
+}).partial();
 
 // Allow virtual fields in update
 const updateSettingsWithVirtuals = baseUpdateSettingsSchema.extend({
@@ -49,6 +55,17 @@ const updateSettingsWithVirtuals = baseUpdateSettingsSchema.extend({
     awsS3AccessKey: z.string().optional(),
     awsS3SecretKey: z.string().optional(),
     sentryDsn: z.string().optional(),
+
+    // Social & Legal fields (mapped to JSONB in service)
+    facebookUrl: z.string().optional(),
+    twitterUrl: z.string().optional(),
+    linkedinUrl: z.string().optional(),
+    instagramUrl: z.string().optional(),
+    youtubeUrl: z.string().optional(),
+    termsOfServiceUrl: z.string().optional(),
+    privacyPolicyUrl: z.string().optional(),
+    cookiePolicyUrl: z.string().optional(),
+    supportAddress: z.string().optional(),
 });
 
 export const updateSystemSettingsSchema = z.preprocess(

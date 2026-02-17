@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import dotenv from 'dotenv';
 import path from 'path';
 import { db, closeAllPools } from './infrastructure/database/index.js';
@@ -30,6 +31,7 @@ const server = Fastify({
             },
         },
     },
+    trustProxy: true,
 });
 
 // --- Plugins ---
@@ -63,7 +65,9 @@ await server.register(cors, {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Agency-Database', 'Accept', 'Origin', 'X-Requested-With'],
     exposedHeaders: ['Content-Length', 'X-Request-Id'],
 });
-await server.register(helmet);
+await server.register(helmet, {
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+});
 await server.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
@@ -72,6 +76,13 @@ await server.register(multipart, {
     limits: {
         fileSize: 10 * 1024 * 1024, // 10MB limit
     }
+});
+
+// Serve uploaded files statically
+await server.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false // Avoid conflict if already decorated by something else (though usually safe)
 });
 
 await server.register(dbPlugin);

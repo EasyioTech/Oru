@@ -108,6 +108,11 @@ export class SystemService {
             settings = newSettings;
         }
 
+        // Unpack JSONB fields for frontend
+        const socialLinks = settings.socialLinks as Record<string, string> || {};
+        const legalLinks = settings.legalLinks as Record<string, string> || {};
+        const supportAddress = settings.supportAddress as Record<string, string> || {};
+
         // Mask sensitive fields for frontend
         const maskedSettings = {
             ...settings,
@@ -122,6 +127,21 @@ export class SystemService {
             awsS3AccessKey: settings.awsS3AccessKeyEncrypted ? '***' : '',
             awsS3SecretKey: settings.awsS3SecretKeyEncrypted ? '***' : '',
             sentryDsn: settings.sentryDsnEncrypted ? '***' : '',
+
+            // Unpack Social Links
+            facebookUrl: socialLinks.facebook,
+            twitterUrl: socialLinks.twitter,
+            linkedinUrl: socialLinks.linkedin,
+            instagramUrl: socialLinks.instagram,
+            youtubeUrl: socialLinks.youtube,
+
+            // Unpack Legal Links
+            termsOfServiceUrl: legalLinks.termsOfService,
+            privacyPolicyUrl: legalLinks.privacyPolicy,
+            cookiePolicyUrl: legalLinks.cookiePolicy,
+
+            // Unpack Support Address
+            supportAddress: supportAddress.text || '',
         };
 
         return maskedSettings;
@@ -174,14 +194,70 @@ export class SystemService {
                 }
             }
 
-            let settings = await db.select().from(systemSettings).limit(1).then(res => res[0]);
+            // --- Map Flat Fields to JSONB Columns ---
+
+            // Get current settings to merge with existing JSONB data
+            let currentSettings = await db.select().from(systemSettings).limit(1).then(res => res[0]);
+
+            // Social Links
+            const socialFields = {
+                facebookUrl: 'facebook',
+                twitterUrl: 'twitter',
+                linkedinUrl: 'linkedin',
+                instagramUrl: 'instagram',
+                youtubeUrl: 'youtube'
+            };
+            const currentSocial = currentSettings.socialLinks as Record<string, string> || {};
+            const newSocial = { ...currentSocial };
+            let hasSocialUpdates = false;
+
+            for (const [flatKey, jsonKey] of Object.entries(socialFields)) {
+                if (flatKey in cleanUpdates) {
+                    newSocial[jsonKey] = cleanUpdates[flatKey];
+                    delete cleanUpdates[flatKey]; // Remove flat field
+                    hasSocialUpdates = true;
+                }
+            }
+            if (hasSocialUpdates) {
+                cleanUpdates.socialLinks = newSocial;
+            }
+
+            // Legal Links
+            const legalFields = {
+                termsOfServiceUrl: 'termsOfService',
+                privacyPolicyUrl: 'privacyPolicy',
+                cookiePolicyUrl: 'cookiePolicy'
+            };
+            const currentLegal = currentSettings.legalLinks as Record<string, string> || {};
+            const newLegal = { ...currentLegal };
+            let hasLegalUpdates = false;
+
+            for (const [flatKey, jsonKey] of Object.entries(legalFields)) {
+                if (flatKey in cleanUpdates) {
+                    newLegal[jsonKey] = cleanUpdates[flatKey];
+                    delete cleanUpdates[flatKey]; // Remove flat field
+                    hasLegalUpdates = true;
+                }
+            }
+            if (hasLegalUpdates) {
+                cleanUpdates.legalLinks = newLegal;
+            }
+
+            // Support Address
+            if ('supportAddress' in cleanUpdates) {
+                cleanUpdates.supportAddress = { text: cleanUpdates.supportAddress };
+                // 'supportAddress' key in cleanUpdates is now the JSON object, which matches DB column name (if schema uses same name)
+                // Schema uses 'supportAddress' (camelCase via drizzle-orm mappings usually, let's verify)
+                // Drizzle schema: supportAddress: jsonb('support_address')
+                // So cleanUpdates.supportAddress is correct.
+            }
 
             const [updatedSettings] = await db.update(systemSettings)
                 .set({
                     ...cleanUpdates,
                     updatedAt: new Date()
                 })
-                .where(eq(systemSettings.id, settings.id))
+                .where(eq(systemSettings.id, currentSettings.id))
                 .returning();
 
             // Return masked settings
@@ -208,10 +284,28 @@ export class SystemService {
         return {
             systemName: settings.systemName,
             systemTagline: settings.systemTagline,
+            systemDescription: settings.systemDescription,
             logoUrl: settings.logoUrl,
             logoLightUrl: settings.logoLightUrl,
             logoDarkUrl: settings.logoDarkUrl,
             faviconUrl: settings.faviconUrl,
+
+            // Contact
+            supportEmail: settings.supportEmail,
+            supportPhone: settings.supportPhone,
+            supportAddress: settings.supportAddress, // This is the flattened string from getSettings
+
+            // Social
+            facebookUrl: settings.facebookUrl,
+            twitterUrl: settings.twitterUrl,
+            linkedinUrl: settings.linkedinUrl,
+            instagramUrl: settings.instagramUrl,
+            youtubeUrl: settings.youtubeUrl,
+
+            // Legal
+            termsOfServiceUrl: settings.termsOfServiceUrl,
+            privacyPolicyUrl: settings.privacyPolicyUrl,
+            cookiePolicyUrl: settings.cookiePolicyUrl,
         };
     }
 

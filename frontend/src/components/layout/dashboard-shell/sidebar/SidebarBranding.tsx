@@ -3,6 +3,7 @@
  */
 
 import { useAgencySettings } from '@/hooks/useAgencySettings';
+import { useBranding } from '@/contexts/BrandingContext';
 import { ThemeLogo } from '@/components/shared/ThemeLogo';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +14,7 @@ interface SidebarBrandingProps {
 
 export function SidebarBranding({ collapsed, isMobile }: SidebarBrandingProps) {
   const { settings: agencySettings } = useAgencySettings();
+  const { systemName, systemTagline } = useBranding();
 
   return (
     <div
@@ -34,7 +36,7 @@ export function SidebarBranding({ collapsed, isMobile }: SidebarBrandingProps) {
         </div>
       ) : (
         <ThemeLogo
-          alt="Oru Logo"
+          alt={systemName || "System Logo"}
           className={cn(
             'rounded-lg object-contain flex-shrink-0',
             collapsed && !isMobile ? 'h-10 w-10' : 'h-10 w-10 sm:h-12 sm:w-12'
@@ -44,10 +46,10 @@ export function SidebarBranding({ collapsed, isMobile }: SidebarBrandingProps) {
       {(!collapsed || isMobile) && (
         <div className="flex flex-col min-w-0 flex-1 justify-center">
           <span className="text-sm font-semibold text-sidebar-foreground truncate tracking-tight">
-            {agencySettings?.agency_name || 'Oru'}
+            {agencySettings?.agency_name || systemName}
           </span>
           <span className="text-[10px] text-sidebar-foreground/70 truncate">
-            Enterprise ERP
+            {systemTagline}
           </span>
         </div>
       )}

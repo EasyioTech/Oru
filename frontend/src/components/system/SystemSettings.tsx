@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, Save, RefreshCw, Settings, Search, Tag, Megaphone, Mail, Globe, Shield, Lock, Database, HardDrive, Code, FileText, Server, Archive, Key } from 'lucide-react';
 import { fetchSystemSettings, updateSystemSettings, type SystemSettings } from '@/services/api/system';
 import { IdentityTab, BrandingTab } from './settings-tabs';
+import { useBranding } from '@/contexts/BrandingContext';
 
 export function SystemSettings() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
@@ -18,6 +19,7 @@ export function SystemSettings() {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<SystemSettings>>({});
   const { toast } = useToast();
+  const { refreshBranding } = useBranding();
 
   useEffect(() => {
     loadSettings();
@@ -46,6 +48,10 @@ export function SystemSettings() {
       const updated = await updateSystemSettings(formData);
       setSettings(updated);
       setFormData(updated);
+
+      // Refresh branding context to update logo/title immediately
+      await refreshBranding();
+
       toast({
         title: 'Settings Saved',
         description: 'System settings have been updated successfully.',
