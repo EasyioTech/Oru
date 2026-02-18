@@ -8,16 +8,16 @@ import { GlowOrb } from '../fragments';
 export const CTA = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  
+
   return (
     <section ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden">
       <div className="absolute inset-0 bg-zinc-950" />
-      
-      <GlowOrb color="blue" size="2xl" position={{ top: '20%', left: '10%' }} blur="3xl" />
-      <GlowOrb color="emerald" size="xl" position={{ bottom: '20%', right: '10%' }} blur="3xl" />
-      
+
+      <GlowOrb color="blue" size={800} position={{ top: '20%', left: '10%' }} blur={100} />
+      <GlowOrb color="emerald" size={600} position={{ bottom: '20%', right: '10%' }} blur={100} />
+
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
-      
+
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -29,27 +29,27 @@ export const CTA = () => {
             Start your free trial today
           </span>
         </motion.div>
-        
+
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-white tracking-tight leading-tight"
         >
-          Ready to transform how
+          Your Agency's Best Year
           <br />
-          <span className="text-zinc-500">your agency operates?</span>
+          <span className="text-zinc-500">Starts Here.</span>
         </motion.h2>
-        
+
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto"
         >
-          Join 500+ agencies already using Oru to streamline operations, delight clients, and grow faster.
+          Stop letting inefficiency eat your profits. Join the 500+ founders who switched to Oru and never looked back.
         </motion.p>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -57,20 +57,20 @@ export const CTA = () => {
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link to="/auth">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="relative group bg-white text-zinc-900 hover:bg-zinc-100 font-medium px-8 h-12 text-base rounded-xl transition-all duration-300"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Start Free Trial
+                Start Your 14-Day Free Trial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>
           </Link>
-          
+
           <Link to="/contact">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               variant="outline"
               className="group border-white/[0.12] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.2] text-white font-medium px-8 h-12 text-base rounded-xl transition-all duration-300"
             >
@@ -78,7 +78,7 @@ export const CTA = () => {
             </Button>
           </Link>
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
@@ -87,7 +87,7 @@ export const CTA = () => {
         >
           {[
             { icon: Clock, text: '14-day free trial' },
-            { icon: Shield, text: 'No credit card required' },
+            { icon: Shield, text: 'No Credit Card. No Lock-in. Just Results.' },
             { icon: Zap, text: 'Setup in 5 minutes' },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-2 text-sm text-zinc-500">
@@ -96,7 +96,7 @@ export const CTA = () => {
             </div>
           ))}
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -105,7 +105,7 @@ export const CTA = () => {
         >
           <div className="flex -space-x-3">
             {['bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-orange-500'].map((color, i) => (
-              <div 
+              <div
                 key={i}
                 className={`w-10 h-10 rounded-full ${color} ring-2 ring-zinc-900 flex items-center justify-center text-xs font-medium text-white`}
               >

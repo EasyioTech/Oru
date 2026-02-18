@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const TextReveal = ({ children, delay = 0 }: { children: string; delay?: number }) => {
   const words = children.split(' ');
-  
+
   return (
     <span className="inline">
       {words.map((word, i) => (
@@ -39,7 +39,7 @@ const ShimmerBadge = () => (
     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
     <Sparkles className="w-4 h-4 text-emerald-400" />
     <span className="text-sm font-medium text-zinc-300">
-      Trusted by 500+ agencies worldwide
+      The Secret Weapon of 500+ High-Growth Agencies
     </span>
     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
   </motion.div>
@@ -53,7 +53,7 @@ const DashboardPreview = () => (
     className="relative mt-16 lg:mt-24"
   >
     <div className="absolute -inset-4 bg-gradient-to-b from-blue-500/20 via-transparent to-transparent rounded-3xl blur-3xl opacity-40" />
-    
+
     <div className="relative rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-sm overflow-hidden shadow-2xl shadow-black/50">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06] bg-zinc-900/50">
         <div className="flex gap-1.5">
@@ -67,10 +67,10 @@ const DashboardPreview = () => (
           </div>
         </div>
       </div>
-      
+
       <div className="p-6 lg:p-8">
         <div className="grid grid-cols-12 gap-4 lg:gap-6">
-          <motion.div 
+          <motion.div
             className="col-span-12 lg:col-span-8 rounded-xl bg-zinc-900/60 border border-white/[0.06] p-5"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -92,8 +92,8 @@ const DashboardPreview = () => (
               ))}
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="col-span-12 lg:col-span-4 space-y-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -103,18 +103,18 @@ const DashboardPreview = () => (
               <div className="text-xs text-zinc-500 mb-1">Active Projects</div>
               <div className="text-2xl font-semibold text-white font-display tracking-tight">147</div>
               <div className="mt-2 flex gap-1">
-                {[1,2,3,4,5].map(i => (
+                {[1, 2, 3, 4, 5].map(i => (
                   <div key={i} className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 -ml-2 first:ml-0" />
                 ))}
                 <span className="ml-1 text-xs text-zinc-500 self-center">+12 more</span>
               </div>
             </div>
-            
+
             <div className="rounded-xl bg-zinc-900/60 border border-white/[0.06] p-4">
               <div className="text-xs text-zinc-500 mb-1">Team Performance</div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
                     initial={{ width: 0 }}
                     animate={{ width: '87%' }}
@@ -125,8 +125,8 @@ const DashboardPreview = () => (
               </div>
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="col-span-12 grid grid-cols-3 gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -149,7 +149,7 @@ const DashboardPreview = () => (
         </div>
       </div>
     </div>
-    
+
     <motion.div
       className="absolute -right-4 top-1/4 px-3 py-2 rounded-lg bg-zinc-900 border border-white/[0.08] shadow-xl"
       initial={{ opacity: 0, x: 20, scale: 0.9 }}
@@ -161,7 +161,7 @@ const DashboardPreview = () => (
         <span className="text-xs text-zinc-400">Live sync enabled</span>
       </div>
     </motion.div>
-    
+
     <motion.div
       className="absolute -left-4 bottom-1/3 px-3 py-2 rounded-lg bg-zinc-900 border border-white/[0.08] shadow-xl"
       initial={{ opacity: 0, x: -20, scale: 0.9 }}
@@ -182,32 +182,32 @@ export const Hero = () => {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16 overflow-hidden">
       <GridPattern />
-      <GlowOrb color="blue" size="xl" position={{ top: '10%', left: '20%' }} blur="3xl" />
-      <GlowOrb color="emerald" size="lg" position={{ bottom: '20%', right: '15%' }} blur="3xl" />
-      
+      <GlowOrb color="blue" size={600} position={{ top: '10%', left: '20%' }} blur={100} />
+      <GlowOrb color="emerald" size={400} position={{ bottom: '20%', right: '15%' }} blur={100} />
+
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
-      
+
       <div className="relative z-10 max-w-6xl mx-auto text-center">
         <ShimmerBadge />
-        
+
         <h1 className="mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-white leading-[1.1] tracking-[-0.02em]">
-          <TextReveal delay={0.2}>The operating system for</TextReveal>
+          <TextReveal delay={0.2}>Stop Managing Chaos.</TextReveal>
           <br />
           <span className="text-zinc-500">
-            <TextReveal delay={0.6}>modern agencies</TextReveal>
+            <TextReveal delay={0.6}>Start Scaling Your Agency.</TextReveal>
           </span>
         </h1>
-        
+
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
           className="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed"
         >
-          Manage projects, track finances, automate workflows, and scale your agency 
-          with one powerful platform built for the way you work.
+          Oru is the ruthless efficiency engine that replaces your scattered tools.
+          One platform to track every rupee, deadline, and deliverable—so you can focus on growth, not firefighting.
         </motion.p>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -215,19 +215,19 @@ export const Hero = () => {
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link to="/auth">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="relative group bg-white text-zinc-900 hover:bg-zinc-100 font-medium px-8 h-12 text-base rounded-xl transition-all duration-300"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Start Free Trial
+                Start Your 14-Day Free Trial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>
           </Link>
-          
-          <Button 
-            size="lg" 
+
+          <Button
+            size="lg"
             variant="outline"
             className="group border-white/[0.12] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.2] text-white font-medium px-8 h-12 text-base rounded-xl transition-all duration-300"
           >
@@ -235,7 +235,7 @@ export const Hero = () => {
             Watch Demo
           </Button>
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -263,7 +263,7 @@ export const Hero = () => {
             <span>Cancel anytime</span>
           </div>
         </motion.div>
-        
+
         <DashboardPreview />
       </div>
     </section>

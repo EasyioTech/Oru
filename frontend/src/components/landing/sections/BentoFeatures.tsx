@@ -1,9 +1,9 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { 
-  FolderKanban, 
-  Users, 
-  TrendingUp, 
+import {
+  FolderKanban,
+  Users,
+  TrendingUp,
   IndianRupee,
   BarChart3,
   ArrowUpRight,
@@ -15,23 +15,29 @@ import { SectionTitle } from '../fragments';
 
 const KanbanPreview = () => {
   const columns = [
-    { name: 'To Do', color: 'bg-zinc-600', tasks: [
-      { title: 'Brand Guidelines', tag: 'Design', priority: 'high' },
-      { title: 'User Research', tag: 'Research', priority: 'medium' },
-    ]},
-    { name: 'In Progress', color: 'bg-blue-500', tasks: [
-      { title: 'Landing Page', tag: 'Dev', priority: 'high' },
-    ]},
-    { name: 'Done', color: 'bg-emerald-500', tasks: [
-      { title: 'Logo Design', tag: 'Design', priority: 'low' },
-      { title: 'Wireframes', tag: 'Design', priority: 'medium' },
-    ]},
+    {
+      name: 'To Do', color: 'bg-zinc-600', tasks: [
+        { title: 'Brand Guidelines', tag: 'Design', priority: 'high' },
+        { title: 'User Research', tag: 'Research', priority: 'medium' },
+      ]
+    },
+    {
+      name: 'In Progress', color: 'bg-blue-500', tasks: [
+        { title: 'Landing Page', tag: 'Dev', priority: 'high' },
+      ]
+    },
+    {
+      name: 'Done', color: 'bg-emerald-500', tasks: [
+        { title: 'Logo Design', tag: 'Design', priority: 'low' },
+        { title: 'Wireframes', tag: 'Design', priority: 'medium' },
+      ]
+    },
   ];
-  
+
   return (
     <div className="flex gap-2 h-full p-3">
       {columns.map((col, colIdx) => (
-        <motion.div 
+        <motion.div
           key={col.name}
           className="flex-1 flex flex-col gap-2"
           initial={{ opacity: 0, y: 10 }}
@@ -44,7 +50,7 @@ const KanbanPreview = () => {
             <span className="text-[10px] font-medium text-zinc-400">{col.name}</span>
             <span className="text-[9px] text-zinc-600 ml-auto">{col.tasks.length}</span>
           </div>
-          
+
           {col.tasks.map((task, taskIdx) => (
             <motion.div
               key={task.title}
@@ -58,14 +64,13 @@ const KanbanPreview = () => {
               <div className="text-[10px] font-medium text-zinc-300 mb-1.5">{task.title}</div>
               <div className="flex items-center gap-1">
                 <span className="text-[8px] px-1.5 py-0.5 rounded bg-zinc-700/50 text-zinc-500">{task.tag}</span>
-                <div className={`w-1.5 h-1.5 rounded-full ml-auto ${
-                  task.priority === 'high' ? 'bg-red-400' : 
-                  task.priority === 'medium' ? 'bg-yellow-400' : 'bg-zinc-500'
-                }`} />
+                <div className={`w-1.5 h-1.5 rounded-full ml-auto ${task.priority === 'high' ? 'bg-red-400' :
+                    task.priority === 'medium' ? 'bg-yellow-400' : 'bg-zinc-500'
+                  }`} />
               </div>
             </motion.div>
           ))}
-          
+
           {col.name === 'To Do' && (
             <div className="p-2 rounded-lg border border-dashed border-zinc-700/50 flex items-center justify-center opacity-50">
               <Plus className="w-3 h-3 text-zinc-600" />
@@ -80,7 +85,7 @@ const KanbanPreview = () => {
 const FinancePreview = () => {
   const data = [35, 48, 42, 68, 55, 78, 82, 75, 92];
   const maxVal = Math.max(...data);
-  
+
   return (
     <div className="h-full p-3 flex flex-col">
       <div className="flex items-center justify-between mb-3">
@@ -93,7 +98,7 @@ const FinancePreview = () => {
           <span className="text-[10px] font-medium">+23%</span>
         </div>
       </div>
-      
+
       <div className="flex-1 flex items-end gap-1">
         {data.map((val, i) => (
           <motion.div
@@ -106,7 +111,7 @@ const FinancePreview = () => {
           />
         ))}
       </div>
-      
+
       <div className="flex justify-between mt-2 text-[8px] text-zinc-600">
         <span>Jan</span>
         <span>Sep</span>
@@ -122,14 +127,14 @@ const TeamPreview = () => {
     { name: 'Anna', role: 'Design', status: 'away', color: 'bg-purple-500' },
     { name: 'John', role: 'PM', status: 'online', color: 'bg-orange-500' },
   ];
-  
+
   return (
     <div className="h-full p-3">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[10px] text-zinc-500">Team Members</span>
         <span className="text-[10px] text-zinc-400">4 online</span>
       </div>
-      
+
       <div className="space-y-2">
         {members.map((member, i) => (
           <motion.div
@@ -144,9 +149,8 @@ const TeamPreview = () => {
               <div className={`w-7 h-7 rounded-full ${member.color} flex items-center justify-center text-[10px] font-medium text-white`}>
                 {member.name[0]}
               </div>
-              <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-zinc-900 ${
-                member.status === 'online' ? 'bg-emerald-400' : 'bg-yellow-400'
-              }`} />
+              <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-zinc-900 ${member.status === 'online' ? 'bg-emerald-400' : 'bg-yellow-400'
+                }`} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[10px] font-medium text-zinc-300">{member.name}</div>
@@ -166,14 +170,14 @@ const SalesPreview = () => {
     { name: 'Proposal', count: 34, width: '35%', color: 'bg-blue-500' },
     { name: 'Won', count: 18, width: '20%', color: 'bg-emerald-500' },
   ];
-  
+
   return (
     <div className="h-full p-3 flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[10px] text-zinc-500">Sales Pipeline</span>
         <span className="text-[10px] text-emerald-400">₹12.4L potential</span>
       </div>
-      
+
       <div className="flex-1 flex flex-col justify-center gap-2">
         {stages.map((stage, i) => (
           <motion.div
@@ -205,7 +209,7 @@ const SalesPreview = () => {
 
 const ReportsPreview = () => {
   const [activeTab, setActiveTab] = useState(0);
-  
+
   return (
     <div className="h-full p-3 flex flex-col">
       <div className="flex gap-1 mb-3">
@@ -213,17 +217,16 @@ const ReportsPreview = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(i)}
-            className={`text-[9px] px-2 py-1 rounded transition-colors ${
-              activeTab === i 
-                ? 'bg-zinc-700 text-zinc-200' 
+            className={`text-[9px] px-2 py-1 rounded transition-colors ${activeTab === i
+                ? 'bg-zinc-700 text-zinc-200'
                 : 'text-zinc-500 hover:text-zinc-400'
-            }`}
+              }`}
           >
             {tab}
           </button>
         ))}
       </div>
-      
+
       <div className="flex-1 grid grid-cols-2 gap-2">
         {[
           { label: 'Completed', value: '94%', icon: CheckCircle2, color: 'text-emerald-400' },
@@ -253,7 +256,7 @@ const features = [
   {
     id: 'projects',
     title: 'Project Management',
-    description: 'Kanban boards, timelines, and task tracking that adapts to how your team works.',
+    description: 'Ship Faster. Miss Nothing.',
     icon: FolderKanban,
     color: 'blue',
     preview: KanbanPreview,
@@ -262,7 +265,7 @@ const features = [
   {
     id: 'finance',
     title: 'Finance & Billing',
-    description: 'Track revenue, send invoices, and manage expenses in one place.',
+    description: 'Get Paid Faster. Predict Cashflow.',
     icon: IndianRupee,
     color: 'emerald',
     preview: FinancePreview,
@@ -271,7 +274,7 @@ const features = [
   {
     id: 'team',
     title: 'Team Hub',
-    description: 'Real-time collaboration with presence, chat, and activity feeds.',
+    description: 'Sync Your Tribe. Kill Silos.',
     icon: Users,
     color: 'purple',
     preview: TeamPreview,
@@ -280,7 +283,7 @@ const features = [
   {
     id: 'sales',
     title: 'Sales Pipeline',
-    description: 'Visual pipeline to track deals from lead to close.',
+    description: 'Close More Deals. Never Drop a Lead.',
     icon: TrendingUp,
     color: 'orange',
     preview: SalesPreview,
@@ -289,7 +292,7 @@ const features = [
   {
     id: 'reports',
     title: 'Analytics & Reports',
-    description: 'Insights that help you make better decisions faster.',
+    description: 'Decisions Backed by Data, Not Guesswork.',
     icon: BarChart3,
     color: 'cyan',
     preview: ReportsPreview,
@@ -298,32 +301,32 @@ const features = [
 ];
 
 const colorMap: Record<string, { bg: string; border: string; icon: string; glow: string }> = {
-  blue: { 
-    bg: 'bg-blue-500/10', 
+  blue: {
+    bg: 'bg-blue-500/10',
     border: 'group-hover:border-blue-500/30',
     icon: 'text-blue-400',
     glow: 'group-hover:shadow-blue-500/5'
   },
-  emerald: { 
-    bg: 'bg-emerald-500/10', 
+  emerald: {
+    bg: 'bg-emerald-500/10',
     border: 'group-hover:border-emerald-500/30',
     icon: 'text-emerald-400',
     glow: 'group-hover:shadow-emerald-500/5'
   },
-  purple: { 
-    bg: 'bg-purple-500/10', 
+  purple: {
+    bg: 'bg-purple-500/10',
     border: 'group-hover:border-purple-500/30',
     icon: 'text-purple-400',
     glow: 'group-hover:shadow-purple-500/5'
   },
-  orange: { 
-    bg: 'bg-orange-500/10', 
+  orange: {
+    bg: 'bg-orange-500/10',
     border: 'group-hover:border-orange-500/30',
     icon: 'text-orange-400',
     glow: 'group-hover:shadow-orange-500/5'
   },
-  cyan: { 
-    bg: 'bg-cyan-500/10', 
+  cyan: {
+    bg: 'bg-cyan-500/10',
     border: 'group-hover:border-cyan-500/30',
     icon: 'text-cyan-400',
     glow: 'group-hover:shadow-cyan-500/5'
@@ -335,19 +338,18 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: n
   const isInView = useInView(ref, { once: true, margin: '-50px' });
   const colors = colorMap[feature.color];
   const Preview = feature.preview;
-  
+
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={`group relative rounded-2xl border border-white/[0.06] bg-zinc-950/50 backdrop-blur-sm overflow-hidden transition-all duration-500 ${colors.border} ${colors.glow} hover:shadow-2xl cursor-pointer ${
-        feature.size === 'large' ? 'md:col-span-2 md:row-span-2' : ''
-      }`}
+      className={`group relative rounded-2xl border border-white/[0.06] bg-zinc-950/50 backdrop-blur-sm overflow-hidden transition-all duration-500 ${colors.border} ${colors.glow} hover:shadow-2xl cursor-pointer ${feature.size === 'large' ? 'md:col-span-2 md:row-span-2' : ''
+        }`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
+
       <div className={`p-5 ${feature.size === 'large' ? 'md:p-6' : ''}`}>
         <div className="flex items-start gap-3 mb-3">
           <div className={`p-2 rounded-xl ${colors.bg}`}>
@@ -359,10 +361,9 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: n
           </div>
           <ArrowUpRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
         </div>
-        
-        <div className={`rounded-xl bg-zinc-900/60 border border-white/[0.04] overflow-hidden ${
-          feature.size === 'large' ? 'h-[280px]' : 'h-[160px]'
-        }`}>
+
+        <div className={`rounded-xl bg-zinc-900/60 border border-white/[0.04] overflow-hidden ${feature.size === 'large' ? 'h-[280px]' : 'h-[160px]'
+          }`}>
           <Preview />
         </div>
       </div>
@@ -372,18 +373,18 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: n
 
 export const BentoFeatures = () => {
   const ref = useRef(null);
-  
+
   return (
     <section id="features" ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.05),transparent_50%)]" />
-      
+
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionTitle
           badge="Features"
-          title="Everything you need to run your agency"
-          description="A complete toolkit designed for modern agencies, from project kickoff to final invoice."
+          title="Your Agency, On Autopilot"
+          description="Ditch the spreadsheet hell. Oru unifies your entire operation into a single source of truth."
         />
-        
+
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
           {features.map((feature, index) => (
             <FeatureCard key={feature.id} feature={feature} index={index} />
