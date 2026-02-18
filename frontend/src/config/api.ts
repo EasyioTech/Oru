@@ -19,17 +19,20 @@ function getEnvApiUrl(): URL | null {
     if (raw.trim() === '') return null;
 
     try {
-      const url = new URL(raw);
-      // Validate the URL object was created correctly
-      if (!url || typeof url !== 'object') return null;
-      // Ensure searchParams exists (some environments might have issues)
-      if (url.searchParams === undefined) {
-        console.warn('[API Config] URL object missing searchParams, using fallback');
-        return null;
+      // Handle relative paths (e.g., "/api")
+      if (raw.startsWith('/')) {
+        const base = (typeof window !== 'undefined' && window.location)
+          ? window.location.origin
+          : 'http://localhost';
+        return new URL(raw, base);
       }
+
+      const url = new URL(raw);
+      // Validate the URL object
+      if (!url || typeof url !== 'object') return null;
       return url;
     } catch (urlError) {
-      // Invalid URL format - will fall back to default
+      // Invalid URL format
       if (typeof window !== 'undefined' && window.console) {
         console.warn('[API Config] Invalid VITE_API_URL value:', raw, urlError);
       }
