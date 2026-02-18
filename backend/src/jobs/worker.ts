@@ -20,6 +20,12 @@ export function initWorkers(logger?: FastifyBaseLogger) {
         },
     });
 
+    agencyWorker.on('ready', () => {
+        if (logger) {
+            logger.info({ queue: QUEUES.AGENCY_PROVISIONING }, 'Worker ready and connected to Redis');
+        }
+    });
+
     agencyWorker.on('completed', (job) => {
         if (logger) {
             logger.info({ jobId: job.id, queue: QUEUES.AGENCY_PROVISIONING }, 'Job completed successfully');
@@ -28,12 +34,22 @@ export function initWorkers(logger?: FastifyBaseLogger) {
 
     agencyWorker.on('failed', (job, err) => {
         if (logger) {
-            logger.error({ jobId: job?.id, queue: QUEUES.AGENCY_PROVISIONING, err: err.message }, 'Job failed');
+            logger.error({ jobId: job?.id, queue: QUEUES.AGENCY_PROVISIONING, err: err.message, stack: err.stack }, 'Job failed');
+        }
+    });
+
+    agencyWorker.on('error', (err) => {
+        if (logger) {
+            logger.error({ queue: QUEUES.AGENCY_PROVISIONING, err: err.message }, 'Worker error');
         }
     });
 
     if (logger) {
-        logger.info('👷 Job Workers Initialized');
+        logger.info({
+            msg: '👷 Job Workers Initializing',
+            redisHost: connection.host,
+            redisPort: connection.port
+        });
     }
 
     return [agencyWorker];

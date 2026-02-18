@@ -62,8 +62,13 @@ export async function processAgencyProvisioning(job: Job<AgencyProvisioningPaylo
 
         let migrationsFolder = path.join(process.cwd(), 'drizzle');
         if (!fs.existsSync(migrationsFolder)) {
+            logger(`Warning: Migrations folder not found at ${migrationsFolder}, falling back to 'drizzle'`);
             migrationsFolder = 'drizzle';
         }
+
+        logger(`Using migrations folder: ${migrationsFolder}`);
+        const files = fs.readdirSync(migrationsFolder);
+        logger(`Found ${files.length} files in migrations folder: ${files.join(', ')}`);
 
         await migrate(agencyDb, { migrationsFolder });
         logger('Migrations completed.');
