@@ -43,5 +43,5 @@
 
 ## 5. Next Steps
 - **Monitoring**: Consider adding Prometheus/Grafana or a dedicated monitoring service if in-app metrics (from SystemService) are insufficient.
-- **Websockets**: Real-time push notifications can be integrated into `NotificationsService` (currently TODO).
-- **Search Optimization**: As data grows, consider migrating search to Full Text Search (tsvector) or Elasticsearch.
+- **Search Optimization**: As data issues, consider migrating search to Full Text Search (tsvector) or Elasticsearch.
+- **Websockets**: Removed per user request. Real-time updates should use polling or SSE if needed in future.
