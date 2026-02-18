@@ -34,9 +34,23 @@ export async function getAgencyDb(databaseName: string) {
     }
 
     // Create a new pool for this specific agency
-    const connectionString = process.env.DATABASE_URL_TEMPLATE
-        ? process.env.DATABASE_URL_TEMPLATE.replace('{db}', databaseName)
-        : `postgres://postgres:admin@localhost:5432/${databaseName}`;
+    let connectionString: string;
+
+    if (process.env.DATABASE_URL_TEMPLATE) {
+        connectionString = process.env.DATABASE_URL_TEMPLATE.replace('{db}', databaseName);
+    } else if (process.env.DATABASE_URL) {
+        try {
+            // Derive connection string from main DATABASE_URL but switch database
+            const url = new URL(process.env.DATABASE_URL);
+            url.pathname = `/${databaseName}`;
+            connectionString = url.toString();
+        } catch (error) {
+            // Fallback if URL parsing fails
+            connectionString = `postgres://postgres:admin@localhost:5432/${databaseName}`;
+        }
+    } else {
+        connectionString = `postgres://postgres:admin@localhost:5432/${databaseName}`;
+    }
 
     const pool = new Pool({
         connectionString,
