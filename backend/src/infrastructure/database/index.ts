@@ -40,7 +40,7 @@ export async function getAgencyDb(databaseName: string) {
 
     const pool = new Pool({
         connectionString,
-        max: 10, // Small limit per agency to allow thousands of total pools
+        max: 5, // Reduced limit per agency to allow thousands of total pools
         idleTimeoutMillis: 30000,
     });
 

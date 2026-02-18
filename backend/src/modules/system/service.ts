@@ -1,9 +1,10 @@
 
 import { db } from '../../infrastructure/database/index.js';
-import { systemSettings, agencies, users, systemHealthMetrics, profiles, tickets, systemFeatures, userRoles } from '../../infrastructure/database/schema.js';
+import { systemSettings, agencies, users, systemHealthMetrics, profiles, tickets, systemFeatures, userRoles, userSessions } from '../../infrastructure/database/schema.js';
 import { eq, sql, desc, count, isNotNull, and } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { AppError, NotFoundError } from '../../utils/errors.js';
+import { UpdateSystemSettingsInput, TicketsQueryInput, CreateFeatureInput, UpdateFeatureInput } from './schemas.js';
 
 export class SystemService {
     constructor(private readonly app: FastifyInstance) { }
@@ -99,19 +100,37 @@ export class SystemService {
     }
 
     async getSettings() {
+        // Optimistic check: insert if missing (ON CONFLICT DO NOTHING)
+        // This ensures a row exists without race conditions causing standard insert errors
+        await db.insert(systemSettings).values({
+            systemName: 'BuildFlow ERP',
+        }).onConflictDoNothing();
+
         let [settings] = await db.select().from(systemSettings).limit(1);
 
+        // Double check if something really weird happened (like DB failure during insert but select succeeds empty?)
         if (!settings) {
+            // Should be rare/impossible unless transaction rollback or connection issue
+            // We can try one more time or just throw
             const [newSettings] = await db.insert(systemSettings).values({
                 systemName: 'BuildFlow ERP',
-            }).returning();
+            }).onConflictDoNothing().returning();
             settings = newSettings;
+
+            if (!settings) {
+                // Final fallback attempt to fetch
+                [settings] = await db.select().from(systemSettings).limit(1);
+            }
+        }
+
+        if (!settings) {
+            throw new AppError('Failed to initialize system settings');
         }
 
         // Unpack JSONB fields for frontend
-        const socialLinks = settings.socialLinks as Record<string, string> || {};
-        const legalLinks = settings.legalLinks as Record<string, string> || {};
-        const supportAddress = settings.supportAddress as Record<string, string> || {};
+        const socialLinks = (settings.socialLinks as Record<string, string>) || {};
+        const legalLinks = (settings.legalLinks as Record<string, string>) || {};
+        const supportAddress = (settings.supportAddress as Record<string, string>) || {};
 
         // Mask sensitive fields for frontend
         const maskedSettings = {
@@ -147,7 +166,7 @@ export class SystemService {
         return maskedSettings;
     }
 
-    async updateSettings(updates: any) {
+    async updateSettings(updates: UpdateSystemSettingsInput) {
         try {
             // Validate that updates is an object
             if (!updates || typeof updates !== 'object') {
@@ -155,12 +174,13 @@ export class SystemService {
             }
 
             // Remove any undefined or null values
-            const cleanUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
+            // Type-safe reduction
+            const cleanUpdates: Partial<UpdateSystemSettingsInput> = Object.entries(updates).reduce((acc, [key, value]) => {
                 if (value !== undefined && value !== null) {
-                    acc[key] = value;
+                    (acc as any)[key] = value;
                 }
                 return acc;
-            }, {} as any);
+            }, {} as Partial<UpdateSystemSettingsInput>);
 
             // If no valid updates, return current settings
             if (Object.keys(cleanUpdates).length === 0) {
@@ -182,15 +202,19 @@ export class SystemService {
                 sentryDsn: 'sentryDsnEncrypted',
             };
 
+            // Prepare DB updates object (mapped keys)
+            const dbUpdates: Record<string, any> = { ...cleanUpdates };
+
             for (const [field, dbField] of Object.entries(sensitiveFields)) {
-                if (cleanUpdates[field]) {
+                if (field in cleanUpdates) {
+                    const val = (cleanUpdates as any)[field];
                     // Only update if value is provided and not the masked placeholder
-                    if (cleanUpdates[field] !== '***') {
+                    if (val !== '***') {
                         const { encrypt } = await import('../../utils/encryption.js');
-                        cleanUpdates[dbField] = encrypt(cleanUpdates[field]);
+                        dbUpdates[dbField] = encrypt(val);
                     }
                     // Always remove the virtual field so it doesn't try to save to DB
-                    delete cleanUpdates[field];
+                    delete dbUpdates[field];
                 }
             }
 
@@ -207,19 +231,19 @@ export class SystemService {
                 instagramUrl: 'instagram',
                 youtubeUrl: 'youtube'
             };
-            const currentSocial = currentSettings.socialLinks as Record<string, string> || {};
+            const currentSocial = (currentSettings?.socialLinks as Record<string, string>) || {};
             const newSocial = { ...currentSocial };
             let hasSocialUpdates = false;
 
             for (const [flatKey, jsonKey] of Object.entries(socialFields)) {
                 if (flatKey in cleanUpdates) {
-                    newSocial[jsonKey] = cleanUpdates[flatKey];
-                    delete cleanUpdates[flatKey]; // Remove flat field
+                    newSocial[jsonKey] = (cleanUpdates as any)[flatKey];
+                    delete dbUpdates[flatKey]; // Remove flat field
                     hasSocialUpdates = true;
                 }
             }
             if (hasSocialUpdates) {
-                cleanUpdates.socialLinks = newSocial;
+                dbUpdates.socialLinks = newSocial;
             }
 
             // Legal Links
@@ -228,33 +252,29 @@ export class SystemService {
                 privacyPolicyUrl: 'privacyPolicy',
                 cookiePolicyUrl: 'cookiePolicy'
             };
-            const currentLegal = currentSettings.legalLinks as Record<string, string> || {};
+            const currentLegal = (currentSettings?.legalLinks as Record<string, string>) || {};
             const newLegal = { ...currentLegal };
             let hasLegalUpdates = false;
 
             for (const [flatKey, jsonKey] of Object.entries(legalFields)) {
                 if (flatKey in cleanUpdates) {
-                    newLegal[jsonKey] = cleanUpdates[flatKey];
-                    delete cleanUpdates[flatKey]; // Remove flat field
+                    newLegal[jsonKey] = (cleanUpdates as any)[flatKey];
+                    delete dbUpdates[flatKey]; // Remove flat field
                     hasLegalUpdates = true;
                 }
             }
             if (hasLegalUpdates) {
-                cleanUpdates.legalLinks = newLegal;
+                dbUpdates.legalLinks = newLegal;
             }
 
             // Support Address
-            if ('supportAddress' in cleanUpdates) {
-                cleanUpdates.supportAddress = { text: cleanUpdates.supportAddress };
-                // 'supportAddress' key in cleanUpdates is now the JSON object, which matches DB column name (if schema uses same name)
-                // Schema uses 'supportAddress' (camelCase via drizzle-orm mappings usually, let's verify)
-                // Drizzle schema: supportAddress: jsonb('support_address')
-                // So cleanUpdates.supportAddress is correct.
+            if ('supportAddress' in cleanUpdates && cleanUpdates.supportAddress) {
+                dbUpdates.supportAddress = { text: cleanUpdates.supportAddress };
             }
 
             const [updatedSettings] = await db.update(systemSettings)
                 .set({
-                    ...cleanUpdates,
+                    ...dbUpdates,
                     updatedAt: new Date()
                 })
                 .where(eq(systemSettings.id, currentSettings.id))
@@ -310,16 +330,25 @@ export class SystemService {
     }
 
     async getRealtimeUsage() {
-        // This would normally come from Redis/Websockets
+        const now = new Date();
+        const [sessionCount] = await db.select({ count: count() })
+            .from(userSessions)
+            .where(and(eq(userSessions.isActive, true), sql`${userSessions.expiresAt} > ${now}`));
+
+        // Count distinct users with active sessions
+        const [userCount] = await db.select({ count: count(sql`DISTINCT ${userSessions.userId}`) })
+            .from(userSessions)
+            .where(and(eq(userSessions.isActive, true), sql`${userSessions.expiresAt} > ${now}`));
+
         return {
-            activeUsers: Math.floor(Math.random() * 50),
-            activeSessions: Math.floor(Math.random() * 100),
-            requestsPerSecond: Math.floor(Math.random() * 20),
+            activeUsers: userCount.count,
+            activeSessions: sessionCount.count,
+            requestsPerSecond: 0, // Requires middleware tracking
             timestamp: new Date().toISOString(),
         };
     }
 
-    async getTickets(params?: { status?: string; priority?: string; limit?: number; offset?: number }) {
+    async getTickets(params?: TicketsQueryInput) {
         try {
             const limit = params?.limit || 100;
             const offset = params?.offset || 0;
@@ -389,13 +418,20 @@ export class SystemService {
                     sql`${tickets.resolvedAt} >= ${today}`
                 ));
 
+            // Calculate Average Resolution Time
+            const [avgResult] = await db.select({
+                seconds: sql<number>`AVG(EXTRACT(EPOCH FROM (${tickets.resolvedAt} - ${tickets.createdAt})))`
+            }).from(tickets).where(isNotNull(tickets.resolvedAt));
+
+            const avgResolutionTime = avgResult?.seconds ? Math.round(Number(avgResult.seconds) / 60) : 0;
+
             return {
                 stats: {
                     total: totalResult.count,
                     open: openResult.count,
                     inProgress: inProgressResult.count,
                     resolved: resolvedResult.count,
-                    avgResolutionTime: 0, // TODO: Calculate actual average
+                    avgResolutionTime: avgResolutionTime,
                     newToday: newTodayResult.count,
                     resolvedToday: resolvedTodayResult.count,
                 },
@@ -439,7 +475,7 @@ export class SystemService {
         }
     }
 
-    async createFeature(input: any) {
+    async createFeature(input: CreateFeatureInput) {
         try {
             const [feature] = await db.insert(systemFeatures).values({
                 ...input,
@@ -451,7 +487,7 @@ export class SystemService {
         }
     }
 
-    async updateFeature(id: string, input: any) {
+    async updateFeature(id: string, input: UpdateFeatureInput) {
         try {
             const [feature] = await db.update(systemFeatures)
                 .set({ ...input, updatedAt: new Date() })
@@ -527,5 +563,3 @@ export class SystemService {
         }
     }
 }
-
-

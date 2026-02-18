@@ -1,7 +1,7 @@
 
-import { db } from './src/infrastructure/database/index.js';
-import { users, userRoles, profiles } from './src/infrastructure/database/schema.js';
-import { hashPassword } from './src/utils/password.js';
+import { db } from '../backend/src/infrastructure/database/index.js';
+import { users, userRoles, profiles } from '../backend/src/infrastructure/database/schema.js';
+import { hashPassword } from '../backend/src/utils/password.js';
 
 async function seedSuperAdmin() {
     const email = 'admin@oru.com';

@@ -30,7 +30,7 @@ export function useSetupStatus() {
 
         if (response.ok) {
           const result = await response.json();
-          if (result.setupComplete) {
+          if (result.success && result.data?.setupComplete) {
             setSetupComplete(true);
             navigate('/dashboard');
             return;

@@ -4,7 +4,7 @@ import { PlansService } from '../plans/service.js';
 import { CatalogService } from '../catalog/service.js';
 import { listPlansResponseSchema } from '../plans/schemas.js';
 import { listPageCatalogResponseSchema } from '../catalog/schemas.js';
-import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema } from './schemas.js';
+import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema, ticketsQuerySchema, createFeatureSchema, updateFeatureSchema } from './schemas.js';
 import { sendSystemEmail } from '../../infrastructure/email/index.js';
 import { ForbiddenError } from '../../utils/errors.js';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
@@ -148,7 +148,8 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
     // GET /tickets - List tickets with query params
     fastify.get('/tickets', { onRequest: [fastify.authenticate] }, async (request) => {
         try {
-            const data = await service.getTickets(request.query as any);
+            const query = ticketsQuerySchema.parse(request.query);
+            const data = await service.getTickets(query);
             return { success: true, data: mapToSnakeCase(data) };
         } catch (error) {
             fastify.log.error({ error, context: 'GET /system/tickets' });
@@ -182,7 +183,8 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post('/features', { onRequest: [fastify.authenticate] }, async (request, reply) => {
         try {
             if (!request.ability.can('create', 'System')) throw new ForbiddenError();
-            const feature = await service.createFeature(request.body);
+            const validated = createFeatureSchema.parse(request.body);
+            const feature = await service.createFeature(validated);
             return reply.code(201).send({ success: true, data: { feature: mapToSnakeCase(feature) } });
         } catch (error) {
             fastify.log.error({ error, context: 'POST /system/features' });
@@ -195,7 +197,8 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         try {
             if (!request.ability.can('update', 'System')) throw new ForbiddenError();
             const { id } = request.params as { id: string };
-            const feature = await service.updateFeature(id, request.body);
+            const validated = updateFeatureSchema.parse(request.body);
+            const feature = await service.updateFeature(id, validated);
             return { success: true, data: { feature: mapToSnakeCase(feature) } };
         } catch (error) {
             fastify.log.error({ error, context: 'PUT /system/features' });

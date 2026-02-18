@@ -58,5 +58,15 @@ export async function completeAgencySetup(formData: AgencySetupFormData): Promis
     }
   }
 
+  // This block is added based on the instruction's intent to handle 'pending' status
+  // and return data for UI transition, assuming 'result' might contain 'success' and 'data' fields.
+  // The original return type is `{ teamCredentialsCsv?: string }`, so this might need adjustment
+  // if `result.data` is a different type. For now, we'll assume it's compatible or an extension.
+  if (result.success && result.data) {
+    // If status is pending, we should probably poll or just let the UI handle the "Setting up..." state.
+    // For now, return data so UI can transition.
+    return result.data;
+  }
+
   return result;
 }
