@@ -23,11 +23,14 @@ export const userSessions = pgTable('user_sessions', {
     isActive: boolean('is_active').default(true).notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
     revokedReason: text('revoked_reason'),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
     tokenHashIdx: uniqueIndex('idx_user_sessions_token_hash').on(table.tokenHash).where(sql`is_active = true AND revoked_at IS NULL`),
     userIdIdx: index('idx_user_sessions_user_id').on(table.userId).where(sql`is_active = true`),
     expiresAtIdx: index('idx_user_sessions_expires_at').on(table.expiresAt).where(sql`is_active = true`),
+    refreshTokenHashIdx: index('idx_user_sessions_refresh_token_hash').on(table.refreshTokenHash).where(sql`refresh_token_hash IS NOT NULL AND is_active = true AND revoked_at IS NULL`),
 }));
 
 /**
@@ -74,8 +77,6 @@ export const profiles = pgTable('profiles', {
     agencyId: uuid('agency_id').references(() => agencies.id, { onDelete: 'cascade' }),
     fullName: text('full_name'),
     displayName: text('display_name'),
-    phone: text('phone'),
-    phoneExtension: text('phone_extension'),
     department: text('department'),
     position: text('position'),
     employeeCode: text('employee_code'),
@@ -100,7 +101,7 @@ export const profiles = pgTable('profiles', {
 }, (table) => ({
     userIdIdx: uniqueIndex('idx_profiles_user_id').on(table.userId).where(isNull(table.deletedAt)),
     agencyIdIdx: index('idx_profiles_agency_id').on(table.agencyId).where(isNull(table.deletedAt)),
-    employeeCodeIdx: index('idx_profiles_employee_code').on(table.employeeCode).where(sql`employee_code IS NOT NULL AND deleted_at IS NULL`),
+    employeeCodeAgencyIdx: uniqueIndex('idx_profiles_employee_code_agency').on(table.employeeCode, table.agencyId).where(sql`employee_code IS NOT NULL AND agency_id IS NOT NULL AND deleted_at IS NULL`),
     fullNameIdx: index('idx_profiles_full_name').on(table.fullName).where(isNull(table.deletedAt)),
     isActiveIdx: index('idx_profiles_is_active').on(table.isActive).where(isNull(table.deletedAt)),
 }));
@@ -124,6 +125,9 @@ export const userRoles = pgTable('user_roles', {
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
     revokedBy: uuid('revoked_by').references(() => users.id),
     metadata: jsonb('metadata').default({}).notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
     activeUniqueIdx: uniqueIndex('idx_user_roles_active_unique').on(table.userId, table.role, table.agencyId).where(sql`is_active = true AND revoked_at IS NULL`),
     userIdIdx: index('idx_user_roles_user_id').on(table.userId),

@@ -27,7 +27,7 @@ export async function getAgencyId(
       return null;
     }
   }
-  
+
   // First try from profile (for backward compatibility)
   if (profile?.agency_id) {
     return profile.agency_id;
@@ -61,7 +61,7 @@ export async function getAgencyId(
       return null; // Super admin doesn't need agency_id
     }
   }
-  
+
   try {
     const agencySettings = await selectOne('agency_settings', {});
     if (agencySettings?.agency_id) {
@@ -82,22 +82,9 @@ export async function getAgencyId(
   }
 
   // Try to get from agencies table by database name
-  if (typeof window !== 'undefined') {
-    const agencyDatabase = window.localStorage.getItem('agency_database');
-    if (agencyDatabase) {
-      try {
-        // Query main database for agency_id
-        const result = await queryMainDatabase(`
-          SELECT id FROM public.agencies WHERE database_name = $1
-        `, [agencyDatabase]);
-        if (result.rows && result.rows.length > 0 && result.rows[0].id) {
-          return result.rows[0].id;
-        }
-      } catch (error) {
-        // Ignore
-      }
-    }
-  }
+  // REMOVED: raw query to main database is restricted to super_admin
+  // and causes 403 errors for regular admins.
+  // The agency context should be provided by the login response.
 
   // Last resort: In new architecture, we don't need agency_id for isolation
   // But GST tables require it, so return a consistent placeholder
@@ -118,7 +105,7 @@ export async function getAgencyIdWithRetry(
   retries: number = 1
 ): Promise<string | null> {
   let agencyId = await getAgencyId(profile, userId);
-  
+
   // Retry if not found and we have retries left
   if (!agencyId && retries > 0 && userId) {
     // Wait a bit before retry

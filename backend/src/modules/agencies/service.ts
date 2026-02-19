@@ -1,10 +1,10 @@
 
 import { db } from '../../infrastructure/database/index.js';
 import { agencies } from '../../infrastructure/database/schema.js';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { FastifyBaseLogger } from 'fastify';
 import { AppError, NotFoundError } from '../../utils/errors.js';
-import { createAgencySchema, updateAgencySchema, agencySchema, CreateAgencyInput, UpdateAgencyInput, CompleteAgencySetupInput, ProvisionAgencyInput } from './schemas.js';
+import { createAgencySchema, updateAgencySchema, CreateAgencyInput, UpdateAgencyInput, CompleteAgencySetupInput, ProvisionAgencyInput } from './schemas.js';
 
 export class AgenciesService {
     constructor(private logger: FastifyBaseLogger) { }
@@ -40,10 +40,9 @@ export class AgenciesService {
     }
 
     /**
-     * Create a new agency
+     * Create a new agency (Super Admin / Internal)
      */
     async createAgency(input: CreateAgencyInput) {
-
         try {
             const validated = createAgencySchema.parse(input);
             const [agency] = await db.insert(agencies).values({
@@ -52,55 +51,21 @@ export class AgenciesService {
                 isActive: true,
             }).returning();
 
-            // Trigger provisioning job here via BullMQ
-            if (validated.status === 'pending') {
-                const { agencyProvisioningJobs, users } = await import('../../infrastructure/database/schema.js');
-                const { agencyProvisioningQueue } = await import('../../jobs/queues.js');
+            // We use the same completeAgencySetup logic but adapted for internal use
+            const { hashPassword } = await import('../../utils/password.js');
+            const defaultPassword = 'OruPassword123!';
+            const hashedPassword = await hashPassword(defaultPassword);
 
-                // If we have an owner, fetch details
-                let ownerDetails = { email: validated.contactEmail || 'admin@example.com', passwordHash: '', firstName: 'Admin', lastName: 'User' };
+            const result = await this.completeAgencySetup({
+                companyName: agency.name,
+                subdomain: agency.databaseName.replace('agency_', '').replace('_db', ''),
+                adminEmail: agency.contactEmail || 'admin@example.com',
+                password: defaultPassword,
+                plan: agency.subscriptionPlan as any,
+                id: agency.id
+            });
 
-                if (validated.ownerUserId) {
-                    const [user] = await db.select().from(users).where(eq(users.id, validated.ownerUserId));
-                    if (user) {
-                        ownerDetails.email = user.email;
-                        ownerDetails.passwordHash = user.passwordHash;
-                    }
-                }
-
-                // Create Job
-                const [job] = await db.insert(agencyProvisioningJobs).values({
-                    domain: validated.domain,
-                    databaseName: validated.databaseName,
-                    agencyName: validated.name,
-                    ownerEmail: ownerDetails.email,
-                    subscriptionPlan: validated.subscriptionPlan || 'trial',
-                    requestedBy: validated.ownerUserId,
-                    agencyId: agency.id,
-                    status: 'pending',
-                    payload: { ...validated, password: '***' },
-                }).returning();
-
-                // Add to Queue
-                await agencyProvisioningQueue.add('provision-agency', {
-                    jobId: job.id,
-                    agencyId: agency.id,
-                    dbName: validated.databaseName,
-                    subdomain: validated.domain.split('.')[0],
-                    adminEmail: ownerDetails.email,
-                    adminPasswordHash: ownerDetails.passwordHash,
-                    adminFirstName: ownerDetails.firstName,
-                    adminLastName: ownerDetails.lastName,
-                    userId: validated.ownerUserId,
-                    plan: validated.subscriptionPlan || 'trial',
-                });
-
-                this.logger.info({ agencyId: agency.id, jobId: job.id }, 'Agency created and provisioning queued');
-            } else {
-                this.logger.info({ agencyId: agency.id }, 'Agency created (no provisioning)');
-            }
-
-            return agency;
+            return { agency, jobId: result.jobId };
         } catch (error) {
             this.logger.error({ error, context: 'createAgency', input });
             throw new AppError('Failed to create agency');
@@ -111,7 +76,6 @@ export class AgenciesService {
      * Update an agency
      */
     async updateAgency(id: string, input: UpdateAgencyInput) {
-
         try {
             const validated = updateAgencySchema.parse(input);
             const [agency] = await db.update(agencies)
@@ -151,11 +115,9 @@ export class AgenciesService {
      * Complete agency setup: create DB, migrate, seed admin (ASYNC)
      */
     async completeAgencySetup(input: CompleteAgencySetupInput) {
-
         try {
-            this.logger.info({ step: '1. Input Validation', input }, 'Starting agency setup');
+            this.logger.info({ step: '1. Input Validation', subdomain: input.subdomain }, 'Starting agency setup');
 
-            // 1. Validate Input (Strict Zod check should happen in route, but we double check basics)
             if (!input.companyName || !input.subdomain || !input.adminEmail || !input.password) {
                 throw new AppError('Missing required fields for setup');
             }
@@ -163,7 +125,7 @@ export class AgenciesService {
             const subdomain = input.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
             const dbName = `agency_${subdomain}_db`;
 
-            // Check if domain taken (Quick synchronous check)
+            // Check if subdomain taken
             const existingAgency = await db.select().from(agencies).where(eq(agencies.databaseName, dbName)).limit(1);
             if (existingAgency.length > 0) {
                 const isRetry = existingAgency[0].status === 'pending';
@@ -172,18 +134,16 @@ export class AgenciesService {
                 }
             }
 
-            // 2. Create/Update Agency Record (Pending State)
             const { hashPassword } = await import('../../utils/password.js');
             const hashedPassword = await hashPassword(input.password);
 
-            // Create user in MAIN DB first (so we have an ID)
-            const { users, userRoles, profiles, agencyProvisioningJobs } = await import('../../infrastructure/database/schema.js');
+            const { users, userRoles, agencyProvisioningJobs, profiles } = await import('../../infrastructure/database/schema.js');
 
-            // Check/Create User
+            // 1. Check/Create User in Main DB
             let userId;
-            const existingUser = await db.select().from(users).where(eq(users.email, input.adminEmail)).limit(1);
-            if (existingUser.length > 0) {
-                userId = existingUser[0].id;
+            const [existingUser] = await db.select().from(users).where(eq(users.email, input.adminEmail)).limit(1);
+            if (existingUser) {
+                userId = existingUser.id;
             } else {
                 const [newUser] = await db.insert(users).values({
                     email: input.adminEmail,
@@ -195,43 +155,20 @@ export class AgenciesService {
                 userId = newUser.id;
             }
 
-            // Create/Update Agency
+
+
+            // 3. Create or Update Agency Record
             let agencyId = input.id;
-
-            // Handle logo and teamMembers - store in metadata for now or specific tables later
-            // Handle logo and teamMembers - store in metadata for now or specific tables later
-            // For now we just ensure they don't cause schema validation errors (already handled by schema update)
-            if (input.logo && input.logo.startsWith('data:')) {
-                try {
-                    const matches = input.logo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-                    if (matches && matches.length === 3) {
-                        const mimeType = matches[1];
-                        const buffer = Buffer.from(matches[2], 'base64');
-                        const key = `agencies/${subdomain}/logo-${Date.now()}.${mimeType.split('/')[1]}`;
-
-                        const { uploadFileToS3 } = await import('../../infrastructure/s3/index.js');
-                        const logoUrl = await uploadFileToS3(buffer, key, mimeType);
-
-                        // Add to metadata
-                        if (!input.metadata) input.metadata = {};
-                        (input.metadata as any).logoUrl = logoUrl;
-                        this.logger.info({ logoUrl }, 'Logo uploaded');
-                    }
-                } catch (e) {
-                    this.logger.error({ error: e, context: 'Logo Upload' });
-                    // Don't fail setup just for logo
-                }
-            }
             if (!agencyId) {
                 if (existingAgency.length > 0) {
-                    agencyId = existingAgency[0].id; // Retry case
+                    agencyId = existingAgency[0].id;
                 } else {
                     const [newAgency] = await db.insert(agencies).values({
                         name: input.companyName,
                         domain: `${subdomain}.oru.erp`,
                         databaseName: dbName,
                         subscriptionPlan: input.plan || 'trial',
-                        status: 'pending', // IMPORTANT: Pending until job finishes
+                        status: 'pending',
                         isActive: true,
                         contactEmail: input.adminEmail,
                         ownerUserId: userId,
@@ -240,8 +177,42 @@ export class AgenciesService {
                 }
             }
 
-            // 3. Create Job Record
-            const [job] = await db.insert(agencyProvisioningJobs).values({
+            // 4. Assign Role
+            const [existingRole] = await db.select().from(userRoles).where(
+                and(
+                    eq(userRoles.userId, userId),
+                    eq(userRoles.agencyId, agencyId),
+                    eq(userRoles.role, 'agency_admin')
+                )
+            ).limit(1);
+
+            if (!existingRole) {
+                await db.insert(userRoles).values({
+                    userId: userId,
+                    agencyId: agencyId,
+                    role: 'agency_admin',
+                    permissions: ['*'],
+                });
+            } else {
+                await db.update(userRoles)
+                    .set({ permissions: ['*'] })
+                    .where(eq(userRoles.id, existingRole.id));
+            }
+
+            // 5. Create/Update Profile
+            const [existingProfile] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
+            if (existingProfile) {
+                await db.update(profiles).set({ agencyId, updatedAt: new Date() }).where(eq(profiles.userId, userId));
+            } else {
+                await db.insert(profiles).values({
+                    userId,
+                    agencyId,
+                    fullName: `${input.firstName || 'Admin'} ${input.lastName || 'User'}`,
+                });
+            }
+
+            // 4. Create Job Record
+            const [jobRecord] = await db.insert(agencyProvisioningJobs).values({
                 domain: `${subdomain}.oru.erp`,
                 databaseName: dbName,
                 agencyName: input.companyName,
@@ -250,32 +221,67 @@ export class AgenciesService {
                 requestedBy: userId,
                 agencyId: agencyId,
                 status: 'pending',
-                payload: { ...input, password: '***' }, // Don't store plain password
+                payload: { ...input, password: '***' },
             }).returning();
 
-            // 4. Add to BullMQ Queue
+            // 5. QUEUE THE JOB (CRITICAL FIX)
             const { agencyProvisioningQueue } = await import('../../jobs/queues.js');
             await agencyProvisioningQueue.add('provision-agency', {
-                jobId: job.id,
+                jobId: jobRecord.id,
                 agencyId: agencyId,
                 dbName: dbName,
-                subdomain,
+                subdomain: subdomain,
                 adminEmail: input.adminEmail,
                 adminPasswordHash: hashedPassword,
-                adminFirstName: input.firstName || 'Admin',
-                adminLastName: input.lastName || 'User',
                 userId: userId,
-                plan: input.plan || 'trial',
             });
 
-            this.logger.info({ agencyId, jobId: job.id }, 'Agency setup job dispatched');
+            this.logger.info({ jobId: jobRecord.id, agencyId }, 'Agency provisioning job queued successfully');
 
-            // Return Agency (with status pending)
-            return await this.getAgency(agencyId);
+            return {
+                success: true,
+                jobId: jobRecord.id,
+                agencyId: agencyId,
+                message: 'Agency creation started'
+            };
 
-        } catch (error) {
-            this.logger.error({ error, stack: (error as Error).stack, context: 'completeAgencySetup', input });
+        } catch (error: any) {
+            this.logger.error({ error, context: 'completeAgencySetup' });
             throw error;
+        }
+    }
+
+    /**
+     * Get provisioning job status
+     */
+    async getProvisioningStatus(jobId: string) {
+        try {
+            const { agencyProvisioningJobs } = await import('../../infrastructure/database/schema.js');
+            const [job] = await db.select().from(agencyProvisioningJobs).where(eq(agencyProvisioningJobs.id, jobId));
+
+            if (!job) throw new NotFoundError('Provisioning job not found');
+
+            let agency = null;
+            if (job.agencyId) {
+                try {
+                    agency = await this.getAgency(job.agencyId);
+                } catch (e) {
+                    this.logger.warn({ agencyId: job.agencyId }, 'Agency not found for provisioning job');
+                }
+            }
+
+            return {
+                status: job.status,
+                progress: job.progressPercentage,
+                error: job.errorMessage,
+                result: job.result,
+                agency: agency,
+                step: job.currentStep
+            };
+        } catch (error) {
+            if (error instanceof NotFoundError) throw error;
+            this.logger.error({ error, context: 'getProvisioningStatus', jobId });
+            throw new AppError('Failed to fetch provisioning status');
         }
     }
 
@@ -284,39 +290,26 @@ export class AgenciesService {
      */
     async checkDomainAvailability(domain: string) {
         if (!domain) throw new AppError('Domain is required');
-
-        // Normalize subdomain
         const subdomain = domain.toLowerCase().replace(/[^a-z0-9-]/g, '');
         const dbName = `agency_${subdomain}_db`;
-
         const existingAgency = await db.select().from(agencies).where(eq(agencies.databaseName, dbName)).limit(1);
-
         if (existingAgency.length > 0) {
             return { available: false, error: 'Domain is already taken' };
         }
-
         return { available: true };
     }
 
     /**
      * Public Registration / Provisioning
-     * Handles initial agency creation via Frontend Wizard
      */
     async provisionAgency(input: ProvisionAgencyInput) {
-
-        // Validate payload
         if (!input.agencyName || !input.domain || !input.adminEmail || !input.adminPassword) {
             throw new AppError('Missing required fields for signup');
         }
 
-        // Subdomain extraction
-        // Assuming domain is something like "subdomain.oru.erp" or just "subdomain"
-        const domainParts = input.domain.toLowerCase().split('.');
-        const subdomain = domainParts[0].replace(/[^a-z0-9-]/g, '');
-
+        const subdomain = input.domain.toLowerCase().split('.')[0].replace(/[^a-z0-9-]/g, '');
         if (!subdomain) throw new AppError('Invalid domain format');
 
-        // Map frontend fields to internal setup payload
         const payload: CompleteAgencySetupInput = {
             companyName: input.agencyName,
             subdomain: subdomain,
@@ -325,10 +318,8 @@ export class AgenciesService {
             adminEmail: input.adminEmail,
             password: input.adminPassword,
             plan: input.subscriptionPlan || 'trial',
-            maxUsers: input.companySize === '10-50' ? 50 : (input.companySize === '50-100' ? 100 : 10), // Example logic
-            maxStorageGB: 10, // Default
-
-            // Structured Fields (mapped to metadata/settings if schema supports it or just kept in optional fields)
+            maxUsers: input.companySize === '10-50' ? 50 : (input.companySize === '50-100' ? 100 : 10),
+            maxStorageGB: 10,
             metadata: {
                 industry: input.industry,
                 primaryFocus: input.primaryFocus,
@@ -341,9 +332,7 @@ export class AgenciesService {
             address: {
                 country: input.country,
             },
-
-            // Add other fields if needed
-            id: input.id // Optional if updating exist pending
+            id: input.id
         };
 
         return await this.completeAgencySetup(payload);

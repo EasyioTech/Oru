@@ -52,7 +52,7 @@ export async function processAgencyProvisioning(job: Job<AgencyProvisioningPaylo
         // 2. Run Migrations
         await job.updateProgress(50);
         await db.update(agencyProvisioningJobs)
-            .set({ status: 'seeding_data', progressPercentage: 50 })
+            .set({ status: 'creating_database', progressPercentage: 50 })
             .where(eq(agencyProvisioningJobs.id, jobId));
 
         logger('Running migrations...');
@@ -60,10 +60,23 @@ export async function processAgencyProvisioning(job: Job<AgencyProvisioningPaylo
         const agencyDb = await getAgencyDb(dbName);
         if (!agencyDb) throw new Error('Failed to connect to new agency database');
 
-        let migrationsFolder = path.join(process.cwd(), 'drizzle');
+        // Locate migrations folder for TENANTS
+        let migrationsFolder = process.env.TENANT_MIGRATIONS_PATH || path.join(process.cwd(), 'drizzle', 'tenant');
+
+        // Fallback for common dev/prod structures
         if (!fs.existsSync(migrationsFolder)) {
-            logger(`Warning: Migrations folder not found at ${migrationsFolder}, falling back to 'drizzle'`);
-            migrationsFolder = 'drizzle';
+            const possiblePaths = [
+                path.join(process.cwd(), 'backend', 'drizzle', 'tenant'),
+                path.join(process.cwd(), '..', 'drizzle', 'tenant'),
+                path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', '..', 'drizzle', 'tenant')
+            ];
+
+            for (const p of possiblePaths) {
+                if (fs.existsSync(p)) {
+                    migrationsFolder = p;
+                    break;
+                }
+            }
         }
 
         logger(`Using migrations folder: ${migrationsFolder}`);
@@ -75,9 +88,22 @@ export async function processAgencyProvisioning(job: Job<AgencyProvisioningPaylo
 
         // 3. Seed Admin User & Data in Agency DB
         await job.updateProgress(70);
-        logger('Seeding admin user in agency database...');
+        logger('Seeding initial data in agency database...');
 
-        // Sync User to Agency DB
+        const {
+            users,
+            userRoles,
+            agencies: agencyTable,
+            agencySettings: settingsTable,
+            pageCatalog: catalogTable,
+            agencyPageAssignments: assignmentsTable
+        } = await import('../../infrastructure/database/schema.js');
+
+        // 3a. Get Agency Record from Main DB
+        const [agencyRecord] = await db.select().from(agencyTable).where(eq(agencyTable.id, agencyId));
+        if (!agencyRecord) throw new Error(`Agency ${agencyId} not found in main database`);
+
+        // 3b. Sync User to Agency DB (MUST BE FIRST because agencies table has FK to users)
         await agencyDb.insert(users).values({
             id: userId,
             email: adminEmail,
@@ -89,17 +115,60 @@ export async function processAgencyProvisioning(job: Job<AgencyProvisioningPaylo
             updatedAt: new Date(),
         }).onConflictDoNothing();
 
+        // 3c. Sync Agency Record to Tenant DB
+        await agencyDb.insert(agencyTable).values(agencyRecord).onConflictDoNothing();
+
+        // 3d. Sync User Roles to Agency DB
+        const mainRoles = await db.select().from(userRoles).where(eq(userRoles.userId, userId));
+        if (mainRoles.length > 0) {
+            logger(`Syncing ${mainRoles.length} user roles to tenant DB...`);
+            await agencyDb.insert(userRoles).values(mainRoles).onConflictDoNothing();
+        }
+
+        // 3e. Seed Agency Settings
+        await agencyDb.insert(settingsTable).values({
+            agencyId: agencyRecord.id,
+            agencyName: agencyRecord.name,
+            domain: agencyRecord.domain,
+            timezone: 'UTC',
+            primaryColor: '#0a6ed1',
+            secondaryColor: '#0854a0',
+        }).onConflictDoNothing();
+
+        // 3f. Sync Page Catalog (Copy from Main DB to Tenant DB)
+        const mainCatalog = await db.select().from(catalogTable);
+        if (mainCatalog.length > 0) {
+            logger(`Syncing ${mainCatalog.length} catalog items to tenant DB...`);
+            await agencyDb.insert(catalogTable).values(mainCatalog).onConflictDoNothing();
+
+            // 3g. Auto-assign all active pages for Trial
+            logger(`Auto-assigning all detected pages to agency...`);
+            const assignments = mainCatalog.map(page => ({
+                agencyId: agencyId,
+                pageId: page.id,
+                status: 'active',
+                isTrial: true,
+            }));
+
+            // Assign in Main DB
+            await db.insert(assignmentsTable).values(assignments as any).onConflictDoNothing();
+
+            // Assign in Tenant DB
+            await agencyDb.insert(assignmentsTable).values(assignments as any).onConflictDoNothing();
+        }
+
         // 4. Finalize
         await job.updateProgress(100);
 
         // Update Main DB Agency Status -> Active
-        await db.update(agencies)
+        const [updatedAgency] = await db.update(agencies)
             .set({
                 status: 'active',
                 isActive: true,
                 updatedAt: new Date()
             })
-            .where(eq(agencies.id, agencyId));
+            .where(eq(agencies.id, agencyId))
+            .returning();
 
         // Update Job Status -> Completed
         await db.update(agencyProvisioningJobs)
@@ -107,7 +176,7 @@ export async function processAgencyProvisioning(job: Job<AgencyProvisioningPaylo
                 status: 'completed',
                 completedAt: new Date(),
                 progressPercentage: 100,
-                result: { success: true, dbName }
+                result: { success: true, dbName, agency: updatedAgency }
             })
             .where(eq(agencyProvisioningJobs.id, jobId));
 

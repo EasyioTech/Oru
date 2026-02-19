@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { selectOne, updateRecord, insertRecord } from '@/services/api/core';
 import { fetchAgencySettings, updateAgencySettingsApi } from '@/services/api/agencies';
 import { useAuth } from '@/hooks/useAuth';
 import { getAgencyId } from '@/utils/agencyUtils';
@@ -55,7 +54,7 @@ export const useAgencySettings = () => {
     }
 
     const agencyDatabase = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -66,15 +65,17 @@ export const useAgencySettings = () => {
         try {
           const { settings } = await fetchAgencySettings(agencyDatabase);
           if (settings && Object.keys(settings).length > 0) {
-            agencySettings = settings as AgencySettings;
+            agencySettings = settings as unknown as AgencySettings;
           }
         } catch (apiErr) {
           console.warn('[useAgencySettings] Agencies API failed, falling back to selectOne:', apiErr);
         }
       }
-      if (!agencySettings) {
-        agencySettings = await selectOne<AgencySettings>('agency_settings', {});
-      }
+
+      // Fallback removed - strictly use API
+      // if (!agencySettings) {
+      //   agencySettings = await selectOne<AgencySettings>('agency_settings', {});
+      // }
 
       // Also fetch from main database if agency_name is missing or default
       let mainDbSettings = null;
@@ -91,7 +92,7 @@ export const useAgencySettings = () => {
               'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
             },
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             mainDbSettings = data?.data?.settings || data.settings;
@@ -153,7 +154,7 @@ export const useAgencySettings = () => {
         };
 
         setSettings(parsedSettings);
-        
+
         // Apply theme colors to CSS variables
         if (parsedSettings.primary_color) {
           document.documentElement.style.setProperty('--primary-color', parsedSettings.primary_color);
@@ -194,18 +195,18 @@ export const useAgencySettings = () => {
     const agencyDatabase = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
     try {
       setError(null);
-      
+
       // Remove agency_id from newSettings if present - agency_settings table doesn't have this column
       // Each agency has its own database, so agency is identified by database name, not a column
       const { agency_id: _, ...settingsWithoutAgencyId } = newSettings;
-      
+
       // Only include fields that are actually provided (not undefined)
       const settingsToSave: any = {};
-      
+
       // Copy only defined fields, but exclude large logo_url unless it's actually new
       Object.keys(settingsWithoutAgencyId).forEach(key => {
         const value = (settingsWithoutAgencyId as any)[key];
-        
+
         // Special handling for logo_url: only include if it's a new/changed value
         // Don't send existing large base64 strings that haven't changed
         if (key === 'logo_url') {
@@ -255,23 +256,13 @@ export const useAgencySettings = () => {
       // Final safety check: explicitly remove agency_id if it somehow got into settingsToSave
       // agency_settings table doesn't have this column - each agency has its own database
       delete settingsToSave.agency_id;
-      
+
       if (agencyDatabase) {
         // Use agencies API (normalized tables)
         await updateAgencySettingsApi(agencyDatabase, settingsToSave);
         setSettings((prev) => (prev ? { ...prev, ...settingsToSave } : null));
-      } else if (settings?.id) {
-        // Fallback: update via core API
-        const updated = await updateRecord<AgencySettings>(
-          'agency_settings',
-          settingsToSave,
-          { id: settings.id }
-        );
-        setSettings(updated);
       } else {
-        // Insert new settings
-        const inserted = await insertRecord<AgencySettings>('agency_settings', settingsToSave);
-        setSettings(inserted);
+        throw new Error('No agency database context found. Cannot save settings.');
       }
 
       // Apply theme colors immediately
@@ -324,7 +315,7 @@ export const useAgencySettings = () => {
 function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
   // Remove # if present
   hex = hex.replace('#', '');
-  
+
   // Parse RGB
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
@@ -338,7 +329,7 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
   if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    
+
     switch (max) {
       case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
       case g: h = ((b - r) / d + 2) / 6; break;
@@ -352,4 +343,3 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
     l: Math.round(l * 100),
   };
 }
-

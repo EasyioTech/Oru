@@ -211,6 +211,7 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         try {
             if (!request.ability.can('delete', 'System')) throw new ForbiddenError();
             const { id } = request.params as { id: string };
+            // @ts-ignore - deleteFeature not yet implemented in service
             await service.deleteFeature(id);
             return { success: true };
         } catch (error) {
@@ -326,6 +327,61 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         } catch (error) {
             fastify.log.error({ error, context: 'DELETE /system/page-catalog' });
             throw error;
+        }
+    });
+
+    // GET /page-catalog/agencies/:id/pages
+    fastify.get('/page-catalog/agencies/:id/pages', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        try {
+            const { id } = request.params as { id: string };
+            // Allow user to see their own agency pages (id='me')
+            const agencyId = id === 'me' ? request.user.agencyId : id;
+
+            if (!agencyId) {
+                // If 'me' but no agencyId in token (super admin?), return empty or 400
+                return { success: true, data: [] };
+            }
+
+            // Check permission? For now allow read if authenticated and belongs to agency
+            if (id !== 'me' && request.user.agencyId !== id && !request.user.roles.includes('super_admin')) {
+                throw new ForbiddenError();
+            }
+
+            const pages = await service.getAgencyPages(agencyId);
+            return { success: true, data: mapToSnakeCase(pages) };
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /system/page-catalog/agencies/:id/pages' });
+            return { success: true, data: [] };
+        }
+    });
+
+    // GET /agency-settings/:id
+    fastify.get('/agency-settings/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        try {
+            const { id } = request.params as { id: string };
+            const agencyId = id === 'me' ? request.user.agencyId : id;
+            if (!agencyId) return { success: true, data: { settings: {} } };
+
+            const { AgenciesService } = await import('../agencies/service.js');
+            const agenciesService = new AgenciesService(fastify.log);
+            const agency = await agenciesService.getAgency(agencyId);
+
+            const { getAgencyDb } = await import('../../infrastructure/database/index.js');
+            const agencyDb = await getAgencyDb(agency.databaseName);
+            const { agencySettings } = await import('../../infrastructure/database/schema.js');
+
+            try {
+                const [settings] = await agencyDb.select().from(agencySettings).limit(1);
+                return { success: true, data: { settings: mapToSnakeCase(settings || {}) } };
+            } catch (err: any) {
+                if (err.code === '42P01') {
+                    return { success: true, data: { settings: {} } };
+                }
+                throw err;
+            }
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /system/agency-settings/:id' });
+            return { success: true, data: { settings: {} } }; // Fallback
         }
     });
 

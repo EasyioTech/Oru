@@ -17,7 +17,7 @@ export const DashboardRoutes = () => [
     key="/agency-setup"
     path="/agency-setup"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AgencySetup /></SuspenseRoute>
         </DashboardLayout>
@@ -28,7 +28,7 @@ export const DashboardRoutes = () => [
     key="/agency-setup-progress"
     path="/agency-setup-progress"
     element={
-      <ProtectedRoute>
+      <ProtectedRoute requiredRole={["agency_admin", "admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AgencySetupProgress /></SuspenseRoute>
         </DashboardLayout>
@@ -50,7 +50,7 @@ export const DashboardRoutes = () => [
     key="/agency"
     path="/agency"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AgencyAdminDashboard /></SuspenseRoute>
         </DashboardLayout>

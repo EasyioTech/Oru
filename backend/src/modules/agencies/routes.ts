@@ -3,6 +3,7 @@ import { FastifyPluginAsync } from 'fastify';
 import { AgenciesService } from './service.js';
 import { listAgenciesResponseSchema, agencyResponseSchema, createAgencySchema, updateAgencySchema, completeAgencySetupSchema, provisionAgencySchema } from './schemas.js';
 import { ForbiddenError } from '../../utils/errors.js';
+import { mapToSnakeCase } from '../../utils/case-transform.js';
 
 const agencyRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new AgenciesService(fastify.log);
@@ -62,9 +63,7 @@ const agencyRoutes: FastifyPluginAsync = async (fastify) => {
         try {
             const validated = provisionAgencySchema.parse(request.body);
             const result = await service.provisionAgency(validated);
-            return reply.code(201).send({ success: true, data: result }); // Frontend expects { success: true, ... } or data wrapper?
-            // Frontend: const result = await response.json(); if (!result.success) ...
-            // So structure should be { success: true, ... }
+            return reply.code(202).send(result);
         } catch (error) {
             fastify.log.error(error);
             throw error;
@@ -83,7 +82,7 @@ const agencyRoutes: FastifyPluginAsync = async (fastify) => {
             // TODO: Import CreateAgencyInput from schemas
             const validated = createAgencySchema.parse(request.body);
             const rawAgency = await service.createAgency(validated);
-            const response = agencyResponseSchema.parse(rawAgency);
+            const response = agencyResponseSchema.parse(rawAgency.agency);
             return reply.code(201).send({ success: true, data: response });
         } catch (error) {
             fastify.log.error(error);
@@ -101,10 +100,9 @@ const agencyRoutes: FastifyPluginAsync = async (fastify) => {
                 throw new ForbiddenError('Insufficient permissions to setup agency');
             }
 
-            // TODO: Import CompleteAgencySetupInput from schemas
             const validated = completeAgencySetupSchema.parse(request.body);
             const result = await service.completeAgencySetup(validated);
-            return { success: true, data: result };
+            return reply.code(202).send(result);
         } catch (error) {
             fastify.log.error(error);
             throw error;
@@ -121,7 +119,6 @@ const agencyRoutes: FastifyPluginAsync = async (fastify) => {
                 throw new ForbiddenError('Insufficient permissions to update agency');
             }
 
-            // TODO: Import UpdateAgencyInput
             const validated = updateAgencySchema.parse(request.body);
             const rawAgency = await service.updateAgency(id, validated);
             const response = agencyResponseSchema.parse(rawAgency);
@@ -140,6 +137,140 @@ const agencyRoutes: FastifyPluginAsync = async (fastify) => {
             const { database } = request.query as { database: string };
             const isComplete = await service.isSetupComplete(database);
             return { success: true, data: { setupComplete: isComplete } };
+        } catch (error) {
+            fastify.log.error(error);
+            throw error;
+        }
+    });
+
+    // Get Provisioning Status
+    fastify.get('/provisioning/:jobId', async (request, reply) => {
+        const { jobId } = request.params as { jobId: string };
+        try {
+            const result = await service.getProvisioningStatus(jobId);
+            return { success: true, data: result };
+        } catch (error) {
+            fastify.log.error(error);
+            throw error;
+        }
+    });
+
+    // Get Agency Settings (Dynamic DB)
+    fastify.get('/agency-settings', {
+        onRequest: [fastify.authenticate],
+    }, async (request, reply) => {
+        let database: string | undefined;
+        try {
+            const query = request.query as { database: string };
+            database = query.database;
+            if (!database) {
+                return reply.code(400).send({ success: false, message: 'Database name is required' });
+            }
+
+            // Verify user belongs to this agency or is super admin
+            let userAgencyDb = null;
+            if (request.user.agencyId) {
+                try {
+                    const agency = await service.getAgency(request.user.agencyId);
+                    userAgencyDb = agency.databaseName;
+                } catch (e) {
+                    // unexpected if logged in user has invalid agencyId
+                }
+            }
+
+            if (userAgencyDb !== database && !request.user.roles.includes('super_admin')) {
+                throw new ForbiddenError('Insufficient permissions');
+            }
+
+            const { getAgencyDb } = await import('../../infrastructure/database/index.js');
+            const agencyDb = await getAgencyDb(database);
+            // agencySettings is now exported from schema.js via schemas/agency.ts
+            const { agencySettings } = await import('../../infrastructure/database/schema.js');
+
+            // Check if table exists/query settings
+            try {
+                const [settings] = await agencyDb.select().from(agencySettings).limit(1);
+                return { success: true, data: { settings: mapToSnakeCase(settings || {}) } };
+            } catch (error: any) {
+                // If table doesn't exist, return empty
+                if (error.code === '42P01') {
+                    return { success: true, data: { settings: {} } };
+                }
+                throw error;
+            }
+        } catch (error: any) {
+            fastify.log.error({
+                error: error.message,
+                stack: error.stack,
+                database,
+                context: 'GET /agencies/agency-settings'
+            });
+            throw error;
+        }
+    });
+
+    // Update Agency Settings (Dynamic DB)
+    fastify.put('/agency-settings', {
+        onRequest: [fastify.authenticate],
+    }, async (request, reply) => {
+        try {
+            const body = request.body as { database: string; settings: any };
+            const { database, settings } = body;
+
+            if (!database) {
+                return reply.code(400).send({ success: false, message: 'Database name is required' });
+            }
+
+            // Verify permissions
+            let userAgencyDb = null;
+            if (request.user.agencyId) {
+                try {
+                    const agency = await service.getAgency(request.user.agencyId);
+                    userAgencyDb = agency.databaseName;
+                } catch (e) {
+                    // ignore
+                }
+            }
+
+            if (userAgencyDb !== database && !request.user.roles.includes('super_admin')) {
+                throw new ForbiddenError('Insufficient permissions');
+            }
+
+            // Check update permission
+            if (!request.ability.can('update', 'Agency')) {
+                // Or specific 'AgencySettings' ability
+                throw new ForbiddenError('Insufficient permissions to update settings');
+            }
+
+            const { getAgencyDb } = await import('../../infrastructure/database/index.js');
+            const agencyDb = await getAgencyDb(database);
+            const { agencySettings } = await import('../../infrastructure/database/schema.js');
+            const { eq } = await import('drizzle-orm');
+
+            // Upsert logic
+            let result;
+            if (settings.id) {
+                [result] = await agencyDb.update(agencySettings)
+                    .set({ ...settings, updatedAt: new Date() })
+                    .where(eq(agencySettings.id, settings.id))
+                    .returning();
+            } else {
+                // Check if any row exists
+                const [existing] = await agencyDb.select().from(agencySettings).limit(1);
+                if (existing) {
+                    [result] = await agencyDb.update(agencySettings)
+                        .set({ ...settings, updatedAt: new Date() })
+                        .where(eq(agencySettings.id, existing.id))
+                        .returning();
+                } else {
+                    [result] = await agencyDb.insert(agencySettings)
+                        .values(settings)
+                        .returning();
+                }
+            }
+
+            return { success: true, data: { settings: mapToSnakeCase(result) } };
+
         } catch (error) {
             fastify.log.error(error);
             throw error;

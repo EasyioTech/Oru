@@ -55,72 +55,60 @@ export const NotificationCenter: React.FC = () => {
 
   const loadNotifications = async () => {
     if (!user) return;
-    
-    return fetchNotifications(async () => {
-      const { data, error } = await db
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
 
-      // Handle case where notifications table doesn't exist
-      if (error) {
-        // If table doesn't exist, just return empty array (don't show error to user)
-        if (error.message?.includes('does not exist') || error.message?.includes('42P01')) {
-          setNotifications([]);
-          setUnreadCount(0);
-          return [];
+    return fetchNotifications(async () => {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      const response = await fetch('/api/notifications?limit=50', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        throw error;
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch notifications');
       }
-      
-      setNotifications((data || []) as Notification[]);
-      
-      // Get unread count - count unread notifications
-      const unreadNotifications = (data || []).filter(n => !n.read_at);
-      setUnreadCount(unreadNotifications.length);
-      
-      return data;
+
+      const data = await response.json();
+      const notificationsList = data.data?.notifications || [];
+
+      setNotifications(notificationsList);
+
+      const unread = notificationsList.filter((n: Notification) => !n.read_at).length;
+      setUnreadCount(unread);
+
+      return notificationsList;
     });
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
     return markAsRead(async () => {
-      // Try to use RPC function, but if it doesn't exist, just update locally
-      try {
-        const { error } = await db.rpc('mark_notification_read', {
-          p_notification_id: notificationId
-        });
-
-        if (error && !error.message?.includes('does not exist') && !error.message?.includes('42P01')) {
-          throw error;
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (error: any) {
-        // If RPC doesn't exist or table doesn't exist, just update locally
-        if (!error.message?.includes('does not exist') && !error.message?.includes('42P01')) {
-          throw error;
-        }
-      }
+      });
 
       // Update local state
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === notificationId 
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.id === notificationId
             ? { ...notif, read_at: new Date().toISOString() }
             : notif
         )
       );
+      setUnreadCount(prev => Math.max(0, prev - 1));
     });
   };
 
   const handleMarkAllAsRead = async () => {
     const unreadNotifications = notifications.filter(n => !n.read_at);
-    
+
     for (const notification of unreadNotifications) {
       await handleMarkAsRead(notification.id);
     }
-    
+
     setUnreadCount(0);
     toast({ title: 'All notifications marked as read' });
   };
@@ -129,7 +117,7 @@ export const NotificationCenter: React.FC = () => {
     if (!notification.read_at) {
       handleMarkAsRead(notification.id);
     }
-    
+
     if (notification.action_url) {
       window.open(notification.action_url, '_blank');
     }
@@ -138,7 +126,7 @@ export const NotificationCenter: React.FC = () => {
   useEffect(() => {
     if (user) {
       loadNotifications();
-      
+
       // Set up polling for notifications (realtime not available in browser-only mode)
       const pollInterval = setInterval(() => {
         loadNotifications();
@@ -183,8 +171,8 @@ export const NotificationCenter: React.FC = () => {
         <Button variant="ghost" size="sm" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
@@ -192,16 +180,16 @@ export const NotificationCenter: React.FC = () => {
           )}
         </Button>
       </PopoverTrigger>
-      
+
       <PopoverContent className="w-[90vw] sm:w-96 max-w-sm p-0" align="end">
         <Card className="border-0 shadow-none">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Notifications</CardTitle>
               {unreadCount > 0 && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={handleMarkAllAsRead}
                   disabled={markingRead}
                 >
@@ -214,38 +202,38 @@ export const NotificationCenter: React.FC = () => {
               {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <div className="px-2 sm:px-3 pt-2 pb-2 border-b">
                 <TabsList className="grid grid-cols-4 w-full h-auto p-0.5 bg-muted/50 gap-0.5">
-                  <TabsTrigger 
-                    value="all" 
+                  <TabsTrigger
+                    value="all"
                     className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
                   >
                     All
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="unread" 
+                  <TabsTrigger
+                    value="unread"
                     className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
                   >
                     Unread
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="approval" 
+                  <TabsTrigger
+                    value="approval"
                     className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
                   >
                     Approval
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="alert" 
+                  <TabsTrigger
+                    value="alert"
                     className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
                   >
                     Alerts
                   </TabsTrigger>
                 </TabsList>
               </div>
-              
+
               <ScrollArea className="h-96">
                 <TabsContent value={activeTab} className="mt-0">
                   {loadingNotifications ? (
@@ -261,25 +249,24 @@ export const NotificationCenter: React.FC = () => {
                     <div className="space-y-1">
                       {filteredNotifications.map((notification, index) => (
                         <div key={notification.id}>
-                          <div 
-                            className={`p-3 cursor-pointer hover:bg-muted/50 transition-colors ${
-                              !notification.read_at ? 'bg-blue-50/50' : ''
-                            }`}
+                          <div
+                            className={`p-3 cursor-pointer hover:bg-muted/50 transition-colors ${!notification.read_at ? 'bg-blue-50/50' : ''
+                              }`}
                             onClick={() => handleNotificationClick(notification)}
                           >
                             <div className="flex items-start space-x-3">
                               <div className="flex-shrink-0 mt-1">
                                 {getPriorityIcon(notification.priority)}
                               </div>
-                              
+
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1">
                                   <h4 className="text-sm font-medium truncate">
                                     {notification.title}
                                   </h4>
                                   <div className="flex items-center space-x-1">
-                                    <Badge 
-                                      variant="secondary" 
+                                    <Badge
+                                      variant="secondary"
                                       className={`text-xs ${getCategoryColor(notification.category)}`}
                                     >
                                       {notification.category}
@@ -289,11 +276,11 @@ export const NotificationCenter: React.FC = () => {
                                     )}
                                   </div>
                                 </div>
-                                
+
                                 <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                                   {notification.message}
                                 </p>
-                                
+
                                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                                   <div className="flex items-center">
                                     <Clock className="w-3 h-3 mr-1" />
@@ -314,7 +301,7 @@ export const NotificationCenter: React.FC = () => {
                 </TabsContent>
               </ScrollArea>
             </Tabs>
-            
+
             <div className="border-t p-3">
               <Button variant="ghost" className="w-full" asChild>
                 <Link to="/notifications">

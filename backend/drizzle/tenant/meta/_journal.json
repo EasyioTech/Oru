@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1771496141231,
+      "tag": "0000_tenant_root_blueprint",
+      "breakpoints": true
+    }
+  ]
+}

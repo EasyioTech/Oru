@@ -11,3 +11,5 @@ export * from './catalog.js';
 export * from './plans.js';
 export * from './notifications.js';
 export * from './tickets.js';
+export * from './crm.js';
+export * from './projects.js';

@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { AppRole } from '@/utils/roleUtils';
-import { selectRecords, selectOne } from '@/services/api/core';
-import { loginUser, registerUser, loginSauth } from '@/services/api/auth';
+// import { selectRecords, selectOne } from '@/services/api/core'; // Removed as we use API now
+import { loginUser, registerUser, loginSauth, getCurrentUser } from '@/services/api/auth';
 import { logWarn, logError } from '@/utils/consoleLogger';
 
 interface User {
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 1. Simple base64-encoded JSON (our format): btoa(JSON.stringify({...}))
         // 2. JWT format (legacy): header.payload.signature
         let decoded: { userId?: string; email?: string; exp?: number };
-        
+
         if (token.includes('.')) {
           // JWT format - decode the payload part
           const parts = token.split('.');
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Simple base64 format - decode directly
           decoded = JSON.parse(atob(token));
         }
-        
+
         if (decoded.exp && decoded.exp * 1000 > Date.now()) {
           // Token is still valid – restore minimal user from token,
           // then hydrate full user/profile/roles from the database where possible
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             is_active: true
           };
           setUser(restoredUser);
-          
+
           // Prefer stored role from previous real login if available
           const storedRole = localStorage.getItem('user_role') as AppRole | null;
           if (storedRole) {
@@ -127,8 +127,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           } else if (decoded.userId) {
             // Fallback to client-side DB lookup for legacy/mock flows
-            fetchUserProfile(decoded.userId);
-            fetchUserRole(decoded.userId);
+            fetchUserData(decoded.userId);
+            // fetchUserRole(decoded.userId); // Handled by fetchUserData
           }
         } else {
           // Token expired
@@ -146,78 +146,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserData = async (userId: string) => {
     try {
-      // Don't fetch profile if user is super admin (they use main DB, not agency DB)
+      // Don't fetch if super admin (handled differently via loginSauth generally, but if token remains)
       const currentRole = localStorage.getItem('user_role');
-      if (currentRole === 'super_admin') {
+      if (currentRole === 'super_admin' && !localStorage.getItem('agency_database')) {
         return;
       }
-      
-      const data = await selectOne('profiles', { user_id: userId });
-      if (data) {
-        setProfile(data as Profile);
+
+      const userData = await getCurrentUser(userId);
+
+      if (userData) {
+        if (userData.profile) {
+          setProfile(userData.profile as Profile);
+        }
+
+        if (userData.roles && userData.roles.length > 0) {
+          // Define role hierarchy (lower number = higher priority)
+          const roleHierarchy: Record<AppRole, number> = {
+            'super_admin': 1,
+            'ceo': 2,
+            'cto': 3,
+            'cfo': 4,
+            'coo': 5,
+            'admin': 6,
+            'operations_manager': 7,
+            'department_head': 8,
+            'team_lead': 9,
+            'project_manager': 10,
+            'hr': 11,
+            'finance_manager': 12,
+            'sales_manager': 13,
+            'marketing_manager': 14,
+            'quality_assurance': 15,
+            'it_support': 16,
+            'legal_counsel': 17,
+            'business_analyst': 18,
+            'customer_success': 19,
+            'employee': 20,
+            'contractor': 21,
+            'intern': 22
+          };
+
+          // Find the highest priority role
+          // Handle both string[] and object[] formats for roles
+          const userRoleStrings = userData.roles.map((r: any) => typeof r === 'string' ? r : r.role) as AppRole[];
+
+          if (userRoleStrings.length > 0) {
+            const highestRole = userRoleStrings.reduce((highest, current) => {
+              const currentPriority = roleHierarchy[current] || 99;
+              const highestPriority = roleHierarchy[highest] || 99;
+              return currentPriority < highestPriority ? current : highest;
+            });
+            setUserRole(highestRole);
+          } else {
+            setUserRole('employee');
+          }
+        } else {
+          setUserRole('employee');
+        }
       }
     } catch (error) {
-      logError('Error fetching profile:', error);
+      logError('Error fetching user data:', error);
     }
   };
 
+  // Keep these as no-ops or wrappers if external code calls them, 
+  // but useEffect uses them so we redefine them to use fetchUserData
+  const fetchUserProfile = async (userId: string) => {
+    await fetchUserData(userId);
+  };
+
   const fetchUserRole = async (userId: string) => {
-    try {
-      // Query the database for roles
-      const data = await selectRecords('user_roles', {
-        where: { user_id: userId }
-      });
-
-      if (!data || data.length === 0) {
-        setUserRole('employee');
-        return;
-      }
-
-      // Define role hierarchy (lower number = higher priority)
-      const roleHierarchy: Record<AppRole, number> = {
-        'super_admin': 1,
-        'ceo': 2,
-        'cto': 3,
-        'cfo': 4,
-        'coo': 5,
-        'admin': 6,
-        'operations_manager': 7,
-        'department_head': 8,
-        'team_lead': 9,
-        'project_manager': 10,
-        'hr': 11,
-        'finance_manager': 12,
-        'sales_manager': 13,
-        'marketing_manager': 14,
-        'quality_assurance': 15,
-        'it_support': 16,
-        'legal_counsel': 17,
-        'business_analyst': 18,
-        'customer_success': 19,
-        'employee': 20,
-        'contractor': 21,
-        'intern': 22
-      };
-
-      // Find the highest priority role
-      const userRoles = (data as any[]).map(r => r.role as AppRole);
-      const highestRole = userRoles.reduce((highest, current) => {
-        const currentPriority = roleHierarchy[current] || 99;
-        const highestPriority = roleHierarchy[highest] || 99;
-        return currentPriority < highestPriority ? current : highest;
-      });
-
-      setUserRole(highestRole);
-    } catch (error) {
-      logError('Error fetching user role:', error);
-    }
+    // Already handled by fetchUserData, but keeping function signature for safety
+    // if called independently, it triggers full update
+    // await fetchUserData(userId); 
   };
 
   const refreshProfile = async () => {
     if (!user) return;
-    await fetchUserProfile(user.id);
+    await fetchUserData(user.id);
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -229,11 +237,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (typeof window !== 'undefined') {
         agencyId = localStorage.getItem('agency_id') || null;
       }
-      
+
       if (!agencyId) {
         throw new Error('Agency ID not found. Please ensure you are logged in to an agency account or provide an agency ID.');
       }
-      
+
       const result = await registerUser({
         email,
         password,
@@ -243,10 +251,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Store token
       localStorage.setItem('auth_token', result.token);
-      
+
       // Set user state
       setUser(result.user as any);
-      
+
       toast({
         title: "Sign up successful",
         description: "Welcome to Oru!"
@@ -267,10 +275,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Real database login (domain-first for agency users; omit domain for super admin)
     try {
       const result = await loginUser({ email, password, domain });
-      
+
       // Store token
       localStorage.setItem('auth_token', result.token);
-      
+
       // Set user state from server response
       setUser(result.user as any);
 
@@ -280,7 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const role = typeof r === 'string' ? r : r.role;
         return role === 'super_admin';
       });
-      
+
       // Check if this is a system-level super admin (no agency database)
       // IMPORTANT: Only system-level super admins (with super_admin role AND no agency database)
       // should be treated as super_admin. Agency admins should NOT be treated as super_admin.
@@ -288,7 +296,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const hasAgencyDatabase = !!(userAgency && userAgency.databaseName);
       const isSystemLevelSuperAdmin = hasSuperAdminRole && !hasAgencyDatabase;
       setIsSystemSuperAdmin(isSystemLevelSuperAdmin);
-      
+
       // Clear agency context ONLY for system-level super admin
       // Agency admins should keep their agency context
       if (isSystemLevelSuperAdmin) {
@@ -303,7 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('agency_id', userAgency.id);
         }
       }
-      
+
       // If profile came back from server, use it directly
       const serverProfile = (result.user as any).profile;
       if (serverProfile) {
@@ -403,7 +411,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       setUserRole(null);
       setIsSystemSuperAdmin(false);
-      
+
       toast({
         title: "Logged out",
         description: "You have been logged out successfully"

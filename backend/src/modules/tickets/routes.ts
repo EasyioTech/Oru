@@ -84,7 +84,8 @@ const ticketsRoutes: FastifyPluginAsync = async (fastify) => {
 
             const input = {
                 ...(request.body as object),
-                userId: request.user?.id
+                userId: request.user?.id,
+                agencyId: (request.body as any).agencyId || request.user?.agencyId
             };
 
             const data = await service.createTicket(input);
@@ -126,7 +127,8 @@ const ticketsRoutes: FastifyPluginAsync = async (fastify) => {
 
             const input = {
                 ...(request.body as object),
-                userId: request.user?.id
+                userId: request.user?.id,
+                agencyId: (request.body as any).agencyId || request.user?.agencyId
             };
 
             const data = await service.createTicket(input);

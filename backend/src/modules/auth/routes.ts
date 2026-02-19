@@ -53,7 +53,8 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.get('/me', {
         onRequest: [fastify.authenticate],
     }, async (request, reply) => {
-        return reply.send({ user: request.user });
+        const user = await authService.getCurrentUser(request.user.id);
+        return reply.send({ success: true, user });
     });
 };
 

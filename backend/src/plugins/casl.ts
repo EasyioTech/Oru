@@ -5,7 +5,7 @@ import { createMongoAbility, MongoAbility, AbilityBuilder } from '@casl/ability'
 import { FastifyPluginAsync } from 'fastify';
 
 export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-export type Subjects = 'Agency' | 'User' | 'System' | 'Catalog' | 'Ticket' | 'all';
+export type Subjects = 'Agency' | 'User' | 'System' | 'Catalog' | 'Ticket' | 'Project' | 'Client' | 'all';
 
 export type AppAbility = MongoAbility<[Actions, Subjects]>;
 
@@ -24,6 +24,14 @@ const caslPlugin: FastifyPluginAsync = async (fastify) => {
 
         if (roles.includes('super_admin')) {
             can('manage', 'all');
+        } else if (roles.includes('agency_admin')) {
+            // Agency Admins can manage their own resources
+            can('manage', 'Agency');
+            can('manage', 'User');
+            can('manage', 'Ticket');
+            can('manage', 'Project');
+            can('manage', 'Client');
+            can('read', 'System');
         }
 
         // TODO: Add more role mappings as needed

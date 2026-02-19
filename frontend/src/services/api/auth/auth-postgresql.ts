@@ -51,7 +51,7 @@ export function generateToken(userId: string, email: string): string {
     exp: Math.floor((Date.now() + JWT_EXPIRATION_MS) / 1000),
     iat: Math.floor(Date.now() / 1000)
   };
-  
+
   // Simple base64 encoding for browser (not cryptographically secure, but works for demo)
   return btoa(JSON.stringify(payload));
 }
@@ -62,12 +62,12 @@ export function generateToken(userId: string, email: string): string {
 export function verifyToken(token: string): { userId: string; email: string } | null {
   try {
     const decoded = JSON.parse(atob(token));
-    
+
     // Check expiration
     if (decoded.exp * 1000 < Date.now()) {
       return null;
     }
-    
+
     return { userId: decoded.userId, email: decoded.email };
   } catch (error) {
     return null;
@@ -145,14 +145,14 @@ export async function loginUser(data: SignInData): Promise<AuthResponse> {
 
   // Use the new server endpoint that searches all agency databases
   const apiBaseUrl = getApiBaseUrl();
-  
+
   const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ 
-      email, 
+    body: JSON.stringify({
+      email,
       password,
       domain: data.domain?.trim() || undefined,
       twoFactorToken: data.twoFactorToken,
@@ -193,7 +193,7 @@ export async function loginUser(data: SignInData): Promise<AuthResponse> {
   const hasSuperAdminRole = result.user?.roles?.includes('super_admin');
   const hasAgencyDatabase = !!result.user?.agency?.databaseName;
   const isSuperAdmin = hasSuperAdminRole && !hasAgencyDatabase;
-  
+
   // Store the agency database and id for future queries (only for non-super-admin users)
   if (isSuperAdmin) {
     // Clear agency context for super admins - they use main database
@@ -261,30 +261,26 @@ export async function loginSauth(data: { email: string; password: string }): Pro
  * Get current user
  */
 export async function getCurrentUser(userId: string): Promise<User & { profile?: Profile; roles?: UserRole[] } | null> {
-  const user = await queryOne<User>(
-    'SELECT * FROM public.users WHERE id = $1 AND is_active = true',
-    [userId]
-  );
+  try {
+    const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+    if (!token) return null;
 
-  if (!user) {
+    const response = await fetch(`${getApiBaseUrl()}/api/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (!data.success || !data.user) return null;
+
+    return data.user;
+  } catch (error) {
+    console.error('Failed to fetch current user:', error);
     return null;
   }
-
-  const profile = await queryOne<Profile>(
-    'SELECT * FROM public.profiles WHERE user_id = $1',
-    [userId]
-  );
-
-  const roles = await queryMany<UserRole>(
-    'SELECT * FROM public.user_roles WHERE user_id = $1',
-    [userId]
-  );
-
-  return {
-    ...user,
-    profile: profile || undefined,
-    roles: roles || undefined,
-  };
 }
 
 /**
@@ -336,7 +332,7 @@ export async function requestPasswordReset(email: string): Promise<string> {
  */
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   const decoded = verifyToken(token);
-  
+
   if (!decoded) {
     throw new Error('Invalid or expired reset token');
   }

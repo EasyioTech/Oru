@@ -1,5 +1,5 @@
 
-import { pgTable, uuid, text, boolean, timestamp, jsonb, integer, inet, uniqueIndex, decimal, bigint } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, timestamp, jsonb, integer, inet, uniqueIndex, decimal, bigint, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import {
     emailProviderEnum,
@@ -7,6 +7,7 @@ import {
     twitterCardEnum,
     logLevelEnum
 } from './enums.js';
+import { agencies } from './agency.js';
 
 /**
  * System Settings Table
@@ -208,4 +209,38 @@ export const systemSettings = pgTable('system_settings', {
     updatedBy: uuid('updated_by'),
 }, (table) => ({
     singletonIdx: uniqueIndex('idx_system_settings_singleton').on(sql`(1)`),
+}));
+
+/**
+ * System Email Providers Table
+ */
+export const systemEmailProviders = pgTable('system_email_providers', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agencyId: uuid('agency_id').references(() => agencies.id, { onDelete: 'cascade' }), // NULL for system-wide
+    providerType: emailProviderEnum('provider_type').notNull(),
+    name: text('name').notNull(),
+    config: jsonb('config').notNull(), // Host, Port, API Key, etc.
+    isDefault: boolean('is_default').default(false).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    agencyIdIdx: index('idx_system_email_providers_agency_id').on(table.agencyId),
+}));
+
+/**
+ * System Storage Providers Table
+ */
+export const systemStorageProviders = pgTable('system_storage_providers', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agencyId: uuid('agency_id').references(() => agencies.id, { onDelete: 'cascade' }), // NULL for system-wide
+    providerType: storageProviderEnum('provider_type').notNull(),
+    name: text('name').notNull(),
+    config: jsonb('config').notNull(), // Bucket, Region, Access Key, etc.
+    isDefault: boolean('is_default').default(false).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    agencyIdIdx: index('idx_system_storage_providers_agency_id').on(table.agencyId),
 }));

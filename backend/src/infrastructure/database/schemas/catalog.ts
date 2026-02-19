@@ -1,7 +1,7 @@
 
 import { pgTable, uuid, text, boolean, timestamp, jsonb, integer, uniqueIndex, index, decimal, date } from 'drizzle-orm/pg-core';
 import { sql, isNull } from 'drizzle-orm';
-import { pageCategoryEnum, pageAssignmentStatusEnum, pageRequestStatusEnum } from './enums.js';
+import { pageCategoryEnum, pageAssignmentStatusEnum, pageRequestStatusEnum, agencyTierEnum } from './enums.js';
 import { users } from './users.js';
 import { agencies } from './agency.js';
 
@@ -20,9 +20,7 @@ export const pageCatalog = pgTable('page_catalog', {
     displayOrder: integer('display_order').default(0).notNull(),
     baseCost: decimal('base_cost', { precision: 12, scale: 2 }).default('0').notNull(),
     billingCycle: text('billing_cycle').default('monthly'),
-    minSubscriptionTier: text('min_subscription_tier'),
-    requiredFeatures: text('required_features').array().default([]),
-    dependentPages: uuid('dependent_pages').array(),
+    minSubscriptionTier: agencyTierEnum('min_subscription_tier'),
     isActive: boolean('is_active').default(true).notNull(),
     isBeta: boolean('is_beta').default(false).notNull(),
     requiresApproval: boolean('requires_approval').default(false).notNull(),
@@ -57,11 +55,45 @@ export const pageCatalog = pgTable('page_catalog', {
 }));
 
 /**
+ * Page Dependencies Table
+ * Relational replacement for dependent_pages array
+ */
+export const pageDependencies = pgTable('page_dependencies', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    pageId: uuid('page_id').notNull().references(() => pageCatalog.id, { onDelete: 'cascade' }),
+    dependsOnPageId: uuid('depends_on_page_id').notNull().references(() => pageCatalog.id, { onDelete: 'cascade' }),
+    isOptional: boolean('is_optional').default(false).notNull(),
+    metadata: jsonb('metadata').default({}).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    uniqueDependency: uniqueIndex('unique_page_dependency').on(table.pageId, table.dependsOnPageId),
+    pageIdIdx: index('idx_page_dependencies_page_id').on(table.pageId),
+}));
+
+import { systemFeatures } from './features.js';
+
+/**
+ * Page Feature Requirements Table
+ * Relational replacement for required_features array
+ */
+export const pageFeatureRequirements = pgTable('page_feature_requirements', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    pageId: uuid('page_id').notNull().references(() => pageCatalog.id, { onDelete: 'cascade' }),
+    featureId: uuid('feature_id').notNull().references(() => systemFeatures.id, { onDelete: 'cascade' }),
+    isRequired: boolean('is_required').default(true).notNull(),
+    metadata: jsonb('metadata').default({}).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    uniqueRequirement: uniqueIndex('unique_page_feature_requirement').on(table.pageId, table.featureId),
+    pageIdIdx: index('idx_page_feature_requirements_page_id').on(table.pageId),
+}));
+
+/**
  * Page Recommendation Rules
  */
 export const pageRecommendationRules = pgTable('page_recommendation_rules', {
     id: uuid('id').defaultRandom().primaryKey(),
-    pageId: uuid('page_id').notNull().unique().references(() => pageCatalog.id, { onDelete: 'cascade' }),
+    pageId: uuid('page_id').notNull().references(() => pageCatalog.id, { onDelete: 'cascade' }),
     industry: text('industry').array(),
     companySize: text('company_size').array(),
     primaryFocus: text('primary_focus').array(),
@@ -107,14 +139,16 @@ export const agencyPageAssignments = pgTable('agency_page_assignments', {
     suspensionReason: text('suspension_reason'),
     expiresAt: timestamp('expires_at', { withTimezone: true }),
     autoRenew: boolean('auto_renew').default(true).notNull(),
+    // NOTE: usageCount should be updated using atomic increments (sql`usage_count + 1`) to avoid concurrency issues
     usageCount: integer('usage_count').default(0).notNull(),
     lastAccessedAt: timestamp('last_accessed_at', { withTimezone: true }),
     customQuota: jsonb('custom_quota').default({}).notNull(),
     metadata: jsonb('metadata').default({}).notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
-    uniqueAgencyPage: uniqueIndex('unique_agency_page').on(table.agencyId, table.pageId),
+    uniqueAgencyPage: uniqueIndex('unique_agency_page').on(table.agencyId, table.pageId).where(isNull(table.deletedAt)),
     agencyIdIdx: index('idx_agency_page_assignments_agency_id').on(table.agencyId),
     pageIdIdx: index('idx_agency_page_assignments_page_id').on(table.pageId),
     statusIdx: index('idx_agency_page_assignments_status').on(table.status),
@@ -138,6 +172,7 @@ export const pagePricingTiers = pgTable('page_pricing_tiers', {
     validFrom: date('valid_from'),
     validUntil: date('valid_until'),
     metadata: jsonb('metadata').default({}).notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
@@ -200,7 +235,9 @@ export const pageUsageAnalytics = pgTable('page_usage_analytics', {
     metadata: jsonb('metadata').default({}).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
-    uniquePageUsage: uniqueIndex('unique_page_usage_daily').on(table.agencyId, table.pageId, table.date, table.userId),
+    // Two indexes to handle NULL userId (aggregate) vs specific user analytics
+    uniquePageUsagePerUser: uniqueIndex('unique_page_usage_daily_user').on(table.agencyId, table.pageId, table.date, table.userId).where(sql`user_id IS NOT NULL`),
+    uniquePageUsageAggregate: uniqueIndex('unique_page_usage_daily_aggregate').on(table.agencyId, table.pageId, table.date).where(sql`user_id IS NULL`),
     agencyIdIdx: index('idx_page_usage_analytics_agency_id').on(table.agencyId),
     pageIdIdx: index('idx_page_usage_analytics_page_id').on(table.pageId),
     dateIdx: index('idx_page_usage_analytics_date').on(table.date),

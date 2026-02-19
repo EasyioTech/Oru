@@ -4,11 +4,9 @@ import { QUEUES } from './definitions.js';
 import { processAgencyProvisioning } from './processors/agency-provisioning.job.js';
 import { FastifyBaseLogger } from 'fastify';
 
-const connection = {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD || undefined,
-};
+import { getRedisConnection } from '../infrastructure/redis/index.js';
+
+const connection = getRedisConnection();
 
 export function initWorkers(logger?: FastifyBaseLogger) {
     const agencyWorker = new Worker(QUEUES.AGENCY_PROVISIONING, processAgencyProvisioning, {
@@ -45,10 +43,11 @@ export function initWorkers(logger?: FastifyBaseLogger) {
     });
 
     if (logger) {
+        const conn = connection as any;
         logger.info({
             msg: '👷 Job Workers Initializing',
-            redisHost: connection.host,
-            redisPort: connection.port
+            redisHost: conn.host,
+            redisPort: conn.port
         });
     }
 

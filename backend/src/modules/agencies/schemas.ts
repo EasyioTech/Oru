@@ -26,7 +26,7 @@ export const completeAgencySetupSchema = z.preprocess(
         password: z.string().min(8),
         firstName: z.string().optional(),
         lastName: z.string().optional(),
-        plan: z.enum(['trial', 'starter', 'basic', 'professional', 'enterprise']).default('trial'),
+        plan: z.enum(['trial', 'starter', 'basic', 'professional', 'enterprise', 'custom']).default('trial'),
         maxUsers: z.number().int().positive().optional(),
         maxStorageGB: z.number().int().positive().optional(),
         metadata: z.record(z.any()).optional(),
@@ -50,7 +50,7 @@ export const provisionAgencySchema = z.object({
     adminEmail: z.string().email(),
     adminPassword: z.string().min(8),
     adminName: z.string().optional(),
-    subscriptionPlan: z.enum(['trial', 'starter', 'basic', 'professional', 'enterprise']).default('trial'),
+    subscriptionPlan: z.enum(['trial', 'starter', 'basic', 'professional', 'enterprise', 'custom']).default('trial'),
     companySize: z.string().optional(),
     industry: z.string().optional(),
     primaryFocus: z.string().optional(),
@@ -61,7 +61,7 @@ export const provisionAgencySchema = z.object({
 });
 export type ProvisionAgencyInput = z.infer<typeof provisionAgencySchema>;
 
-export const agencyResponseSchema = agencySchema.transform((data) => mapToSnakeCase(data));
+export const agencyResponseSchema = agencySchema.transform((data) => mapToCamelCase(data));
 
 export const listAgenciesResponseSchema = z.object({
     agencies: z.array(agencyResponseSchema),

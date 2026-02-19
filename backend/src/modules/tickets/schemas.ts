@@ -9,7 +9,7 @@ export const ticketSchema = z.object({
     status: z.string(),
     priority: z.string(),
     category: z.string().nullable(),
-    agencyId: z.string().uuid().nullable(),
+    agencyId: z.string().uuid(),
     userId: z.string().uuid().nullable(),
     assignedTo: z.string().uuid().nullable(),
     metadata: z.record(z.any()),
@@ -22,7 +22,7 @@ export const createTicketSchema = z.object({
     description: z.string().min(1),
     priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
     category: z.string().optional(),
-    agencyId: z.string().uuid().optional(),
+    agencyId: z.string().uuid(),
 });
 
 export const updateTicketSchema = createTicketSchema.partial().extend({
