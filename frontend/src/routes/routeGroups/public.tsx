@@ -17,6 +17,7 @@ export const PublicRoutes = () => [
   <Route key="/sauth" path={import.meta.env.VITE_SAUTH_PATH || '/sauth'} element={<SuspenseRoute><Pages.SauthLogin /></SuspenseRoute>} />,
   <Route key="/agency-signup" path="/agency-signup" element={<SuspenseRoute><Pages.OnboardingWizard /></SuspenseRoute>} />,
   <Route key="/signup-success" path="/signup-success" element={<SuspenseRoute><Pages.SignupSuccess /></SuspenseRoute>} />,
+  <Route key="/waitlist" path="/waitlist" element={<SuspenseRoute><Pages.WaitlistPage /></SuspenseRoute>} />,
   <Route key="/forgot-password" path="/forgot-password" element={<SuspenseRoute><Pages.ForgotPassword /></SuspenseRoute>} />,
   <Route key="/login" path="/login" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
   <Route key="/register" path="/register" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,

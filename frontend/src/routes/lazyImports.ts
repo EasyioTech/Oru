@@ -14,6 +14,7 @@ export const SignupSuccess = React.lazy(() => import("../pages/auth/signup-succe
 export const ForgotPassword = React.lazy(() => import("../pages/auth/forgot-password"));
 export const NotFound = React.lazy(() => import("../pages/public/not-found"));
 export const OnboardingWizard = React.lazy(() => import("../components/onboarding/OnboardingWizard"));
+export const WaitlistPage = React.lazy(() => import("../pages/public/waitlist"));
 
 // Static Pages (split for performance - each loads independently)
 export const ContactPage = React.lazy(() => import("../pages/static-pages/contact"));
