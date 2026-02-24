@@ -20,18 +20,18 @@ export default function LogoCloud() {
   }, []);
 
   return (
-    <section className="py-16 border-y border-white/[0.06] overflow-hidden">
+    <section className="py-16 border-y border-border overflow-hidden bg-background">
       <Container>
         <FadeIn isVisible={mounted} delay={100}>
-          <p className="text-center text-[13px] text-[#666] mb-8 tracking-[0.02em] uppercase">
+          <p className="text-center text-[13px] text-muted-foreground mb-8 tracking-[0.02em] uppercase">
             Trusted by leading agencies
           </p>
         </FadeIn>
-        
+
         <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
-          
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
           <InfiniteScroll />
         </div>
       </Container>
@@ -53,23 +53,23 @@ function InfiniteScroll() {
     const animate = () => {
       position += speed;
       const containerWidth = scrollContainer.scrollWidth / 2;
-      
+
       if (position >= containerWidth) {
         position = 0;
       }
-      
+
       scrollContainer.style.transform = `translateX(-${position}px)`;
       animationId = requestAnimationFrame(animate);
     };
 
     animationId = requestAnimationFrame(animate);
-    
+
     return () => cancelAnimationFrame(animationId);
   }, []);
 
   return (
     <div className="overflow-hidden">
-      <div 
+      <div
         ref={scrollRef}
         className="flex gap-16"
         style={{ width: 'max-content' }}
@@ -82,7 +82,7 @@ function InfiniteScroll() {
               logo.width
             )}
           >
-            <span className="text-[18px] font-medium text-[#333] hover:text-[#555] whitespace-nowrap select-none cursor-default">
+            <span className="text-[18px] font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap select-none cursor-default">
               {logo.name}
             </span>
           </div>

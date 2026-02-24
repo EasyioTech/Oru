@@ -75,7 +75,7 @@ Enterprise-grade design system for Oru ERP
   :root {
     /* Light mode – neutral enterprise palette (SAP/Salesforce/Microsoft style). Clean grays, crisp blue primary */
     /* Main content – subtle off-white for card contrast */
-    --background: 220 14% 98%;
+    --background: 0 0% 100%;
     --foreground: 222 47% 11%;
 
     /* Header & cards – pure white for elevation */
@@ -89,20 +89,20 @@ Enterprise-grade design system for Oru ERP
     --primary: 211 100% 43%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
+    --secondary: 210 20% 96%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 220 14% 96%;
+    --accent: 210 20% 96%;
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 65% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 0 0% 91%;
+    --input: 0 0% 91%;
     --ring: 211 100% 43%;
 
     /* Semantic – clear, professional */
@@ -127,38 +127,52 @@ Enterprise-grade design system for Oru ERP
     --info-dark: 211 100% 36%;
 
     /* Sidebar – clean, slight tint for separation */
-    --sidebar-background: 220 14% 98%;
+    --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 222 47% 15%;
     --sidebar-primary: 211 100% 43%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 94%;
+    --sidebar-accent: 0 0% 94%;
     --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 0 0% 91%;
     --sidebar-ring: 211 100% 43%;
 
     /* Border Radius */
     --radius: 0.5rem;
 
     /* Layout Spacing - 8px Grid System */
-    --page-padding-x: 1.5rem; /* 24px */
-    --page-padding-y: 1.5rem; /* 24px */
-    --section-spacing: 2rem; /* 32px */
-    --card-padding: 1rem; /* 16px */
-    --card-padding-lg: 1.5rem; /* 24px */
-    --grid-gap: 1rem; /* 16px */
-    --grid-gap-lg: 1.5rem; /* 24px */
+    --page-padding-x: 1.5rem;
+    /* 24px */
+    --page-padding-y: 1.5rem;
+    /* 24px */
+    --section-spacing: 2rem;
+    /* 32px */
+    --card-padding: 1rem;
+    /* 16px */
+    --card-padding-lg: 1.5rem;
+    /* 24px */
+    --grid-gap: 1rem;
+    /* 16px */
+    --grid-gap-lg: 1.5rem;
+    /* 24px */
 
     /* Typography Scale - Professional Enterprise Typography */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
 
-    --text-xs: 0.75rem; /* 12px */
-    --text-sm: 0.875rem; /* 14px */
-    --text-base: 1rem; /* 16px */
-    --text-lg: 1.125rem; /* 18px */
-    --text-xl: 1.25rem; /* 20px */
-    --text-2xl: 1.5rem; /* 24px */
-    --text-3xl: 1.875rem; /* 30px */
+    --text-xs: 0.75rem;
+    /* 12px */
+    --text-sm: 0.875rem;
+    /* 14px */
+    --text-base: 1rem;
+    /* 16px */
+    --text-lg: 1.125rem;
+    /* 18px */
+    --text-xl: 1.25rem;
+    /* 20px */
+    --text-2xl: 1.5rem;
+    /* 24px */
+    --text-3xl: 1.875rem;
+    /* 30px */
 
     /* Font Weights */
     --font-normal: 400;
@@ -178,36 +192,36 @@ Enterprise-grade design system for Oru ERP
   }
 
   .dark {
-    /* Dark mode – GitHub/VS Code style. Near-black backgrounds, crisp white text, vibrant accents */
+    /* Dark mode – Unified Neutral Black. Deep backgrounds, vibrant accents */
     /* Main content – near black */
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
 
     /* Header & cards – elevated surfaces */
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
 
     /* Primary – vibrant blue, pops on dark */
     --primary: 211 100% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 25% 16%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 215 25% 14%;
-    --muted-foreground: 215 20% 70%;
+    --muted: 0 0% 9%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 215 25% 18%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 18%;
-    --input: 215 20% 18%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
     --ring: 211 100% 55%;
 
     /* Semantic – clear, readable on dark */
@@ -232,13 +246,13 @@ Enterprise-grade design system for Oru ERP
     --info-dark: 211 100% 65%;
 
     /* Sidebar – consistent with content */
-    --sidebar-background: 222 47% 7%;
-    --sidebar-foreground: 210 40% 96%;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 211 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 25% 16%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 20% 17%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 11%;
     --sidebar-ring: 211 100% 55%;
   }
 }
@@ -288,6 +302,7 @@ Enterprise-grade design system for Oru ERP
 
   /* Respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -298,7 +313,9 @@ Enterprise-grade design system for Oru ERP
   }
 
   /* Touch-friendly interactions */
-  button, [role="button"], a {
+  button,
+  [role="button"],
+  a {
     @apply touch-manipulation;
   }
 
@@ -315,229 +332,274 @@ Enterprise-grade design system for Oru ERP
 }
 
 @layer base {
+
   /* Hide all scrollbars globally */
   * {
     /* Hide scrollbar for Chrome, Safari, and Opera */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
   }
 
   *::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
+    /* Chrome, Safari, Opera */
     width: 0;
     height: 0;
   }
 
   html {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
   }
 
   html::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
+    /* Chrome, Safari, Opera */
     width: 0;
     height: 0;
   }
 
   body {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
   }
 
   body::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
+    /* Chrome, Safari, Opera */
     width: 0;
     height: 0;
   }
 }
 
 @layer utilities {
-    /* Onboarding Wizard Animations */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(24px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+
+  /* Onboarding Wizard Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
     }
 
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-16px);
     }
 
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
     }
 
-    @keyframes slideInFromRight {
-      from {
-        opacity: 0;
-        transform: translateX(40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
     }
 
-    @keyframes slideInFromLeft {
-      from {
-        opacity: 0;
-        transform: translateX(-40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-40px);
     }
 
-    @keyframes pulseSubtle {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.7;
-      }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulseSubtle {
+
+    0%,
+    100% {
+      opacity: 1;
     }
 
-    @keyframes progressFill {
-      from {
-        width: 0%;
-      }
+    50% {
+      opacity: 0.7;
     }
+  }
 
-    @keyframes checkmark {
-      0% {
-        stroke-dashoffset: 100;
-      }
-      100% {
-        stroke-dashoffset: 0;
-      }
+  @keyframes progressFill {
+    from {
+      width: 0%;
     }
+  }
 
-    @keyframes shimmer {
-      0% {
-        background-position: -200% 0;
-      }
-      100% {
-        background-position: 200% 0;
-      }
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-8px);
-      }
-    }
-
-    .animate-fade-in-up {
-      animation: fadeInUp 0.5s ease-out forwards;
-    }
-
-    .animate-fade-in-down {
-      animation: fadeInDown 0.4s ease-out forwards;
-    }
-
-    .animate-scale-in {
-      animation: scaleIn 0.4s ease-out forwards;
-    }
-
-    .animate-slide-in-right {
-      animation: slideInFromRight 0.5s ease-out forwards;
-    }
-
-    .animate-slide-in-left {
-      animation: slideInFromLeft 0.5s ease-out forwards;
-    }
-
-    .animate-pulse-subtle {
-      animation: pulseSubtle 2s ease-in-out infinite;
-    }
-
-    .animate-checkmark {
-      stroke-dasharray: 100;
+  @keyframes checkmark {
+    0% {
       stroke-dashoffset: 100;
-      animation: checkmark 0.6s ease-out forwards;
     }
 
-    .animate-shimmer {
-      background: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.1) 50%, transparent 100%);
-      background-size: 200% 100%;
-      animation: shimmer 2s infinite;
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
     }
 
-    .animate-float {
-      animation: float 3s ease-in-out infinite;
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
     }
 
-    /* Staggered animation delays */
-    .delay-75 { animation-delay: 75ms; }
-    .delay-100 { animation-delay: 100ms; }
-    .delay-150 { animation-delay: 150ms; }
-    .delay-200 { animation-delay: 200ms; }
-    .delay-300 { animation-delay: 300ms; }
-    .delay-400 { animation-delay: 400ms; }
-    .delay-500 { animation-delay: 500ms; }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
 
-    /* Onboarding specific styles */
-    .onboarding-bg {
-      background: 
-        radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 100%, hsl(var(--primary) / 0.02) 0%, transparent 50%),
-        hsl(var(--background));
-    }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
 
-    .dark .onboarding-bg {
-      background: 
-        radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 100%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
-        hsl(var(--background));
-    }
+  .animate-fade-in-down {
+    animation: fadeInDown 0.4s ease-out forwards;
+  }
 
-    .step-indicator-line {
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
 
-    .input-focus-ring {
-      transition: box-shadow 0.2s ease, border-color 0.2s ease;
-    }
+  .animate-slide-in-right {
+    animation: slideInFromRight 0.5s ease-out forwards;
+  }
 
-    .input-focus-ring:focus-within {
-      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
-    }
+  .animate-slide-in-left {
+    animation: slideInFromLeft 0.5s ease-out forwards;
+  }
 
-    /* Scrollbar utility: hide scrollbar (single definition) */
-    .scrollbar-thin,
-    .scrollbar-hide {
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-    .scrollbar-thin::-webkit-scrollbar,
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-      width: 0;
-      height: 0;
-    }
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s ease-in-out infinite;
+  }
+
+  .animate-checkmark {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: checkmark 0.6s ease-out forwards;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.1) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Staggered animation delays */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Onboarding specific styles */
+  .onboarding-bg {
+    background:
+      radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, hsl(var(--primary) / 0.02) 0%, transparent 50%),
+      hsl(var(--background));
+  }
+
+  .dark .onboarding-bg {
+    background:
+      radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+      hsl(var(--background));
+  }
+
+  .step-indicator-line {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .input-focus-ring {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .input-focus-ring:focus-within {
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+  }
+
+  /* Scrollbar utility: hide scrollbar (single definition) */
+  .scrollbar-thin,
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar,
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 
   /* Safe area insets for mobile devices (notches, home indicators) */
   .safe-area-inset-bottom {

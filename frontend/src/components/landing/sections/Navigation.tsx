@@ -7,11 +7,11 @@ import { useSmoothScroll } from '../hooks';
 import { ThemeLogo } from '@/components/shared/ThemeLogo';
 import { useThemeSync } from '@/hooks/useThemeSync';
 
-const navLinks = [
-  { label: 'Features', href: 'features' },
-  { label: 'Pricing', href: 'pricing' },
-  { label: 'FAQ', href: 'faq' },
-];
+// const navLinks = [
+//   { label: 'Features', href: 'features' },
+//   { label: 'Pricing', href: 'pricing' },
+//   { label: 'FAQ', href: 'faq' },
+// ];
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
@@ -49,26 +49,26 @@ export default function Navigation() {
         window.matchMedia('(prefers-color-scheme: dark)').matches));
 
   return (
-    <header 
+    <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-        scrolled 
-          ? 'bg-black/70 backdrop-blur-xl border-b border-white/[0.06]' 
+        scrolled
+          ? 'bg-background/80 backdrop-blur-xl border-b border-border'
           : 'bg-transparent'
       )}
     >
       <nav className="max-w-[1120px] mx-auto px-6 h-[64px] flex items-center justify-between">
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="flex items-center gap-2.5 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden">
+          <div className="w-14 h-14 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden">
             <ThemeLogo className="h-6 w-auto object-contain" />
           </div>
-          <span className="text-[15px] font-semibold tracking-[-0.01em]">Oru</span>
+          {/* <span className="text-[15px] font-semibold tracking-[-0.01em]">Oru</span> */}
         </Link>
 
-        <div className="hidden md:flex items-center gap-1">
+        {/* <div className="hidden md:flex items-center gap-1">
           {navLinks.map((item, i) => (
             <button
               key={item.href}
@@ -79,33 +79,33 @@ export default function Navigation() {
               {item.label}
             </button>
           ))}
+        </div> */}
+
+        <div className="flex items-center gap-2 md:gap-3">
+          <button
+            type="button"
+            onClick={handleThemeToggle}
+            className={cn(
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition-colors',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
+            )}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {mounted && isDark ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </button>
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="ghost" href="/auth">Sign in</Button>
+            <Button variant="primary" href="/auth" size="md">Get Started</Button>
+          </div>
         </div>
 
-<div className="flex items-center gap-2 md:gap-3">
-            <button
-              type="button"
-              onClick={handleThemeToggle}
-              className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#888] hover:text-white transition-colors',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
-              )}
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {mounted && isDark ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
-            <div className="hidden md:flex items-center gap-2">
-              <Button variant="ghost" href="/auth">Sign in</Button>
-              <Button variant="primary" href="/auth" size="md">Get Started</Button>
-            </div>
-          </div>
-
-        <button 
-          className="md:hidden p-2 -mr-2 text-[#888] hover:text-white transition-colors"
+        <button
+          className="md:hidden p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
@@ -126,51 +126,37 @@ export default function Navigation() {
         'md:hidden overflow-hidden transition-all duration-300',
         mobileOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
       )}>
-        <div className="bg-black/90 backdrop-blur-xl border-t border-white/[0.06] px-6 py-6 space-y-1">
-          {navLinks.map((item, i) => (
+        <div className={cn(
+          'pt-4 border-t border-border space-y-3 transition-all duration-300 bg-background/95 backdrop-blur-xl px-6 pb-8',
+          mobileOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        )}
+          style={{ transitionDelay: mobileOpen ? '150ms' : '0ms' }}
+        >
+          <div className="flex items-center justify-between py-2">
+            <span className="text-muted-foreground text-sm">Theme</span>
             <button
-              key={item.href}
-              onClick={() => handleNavClick(item.href)}
-              className={cn(
-                'block w-full text-left py-3 text-[#888] hover:text-white transition-all duration-300',
-                mobileOpen ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+              type="button"
+              onClick={handleThemeToggle}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {mounted && isDark ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
               )}
-              style={{ transitionDelay: mobileOpen ? `${i * 50}ms` : '0ms' }}
-            >
-              {item.label}
             </button>
-          ))}
-<div className={cn(
-              'pt-4 border-t border-white/[0.06] space-y-3 transition-all duration-300',
-              mobileOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            )}
-            style={{ transitionDelay: mobileOpen ? '150ms' : '0ms' }}
-            >
-              <div className="flex items-center justify-between py-2">
-                <span className="text-[#888] text-sm">Theme</span>
-                <button
-                  type="button"
-                  onClick={handleThemeToggle}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#888] hover:text-white transition-colors"
-                  aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                >
-                  {mounted && isDark ? (
-                    <Sun className="h-5 w-5" />
-                  ) : (
-                    <Moon className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-              <Link to="/auth" className="block text-[#888] py-2">Sign in</Link>
-              <Link 
-                to="/auth" 
-                className="block w-full py-2.5 text-center font-medium bg-white text-black rounded-lg"
-              >
-                Get Started
-              </Link>
-            </div>
+          </div>
+          <Link to="/auth" className="block text-muted-foreground py-2">Sign in</Link>
+          <Link
+            to="/auth"
+            className="block w-full py-2.5 text-center font-medium bg-primary text-primary-foreground rounded-lg shadow-lg shadow-primary/20"
+          >
+            Get Started
+          </Link>
         </div>
       </div>
+      {/* </div> */}
     </header>
   );
 }

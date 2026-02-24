@@ -64,29 +64,29 @@ const StarRating = ({ count = 5 }: { count?: number }) => (
 const MobileCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  
+
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
+
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     }, 4000);
-    
+
     return () => clearInterval(interval);
   }, [isAutoPlaying]);
-  
+
   const handlePrev = () => {
     setIsAutoPlaying(false);
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
-  
+
   const handleNext = () => {
     setIsAutoPlaying(false);
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
-  
+
   const testimonial = testimonials[currentIndex];
-  
+
   return (
     <div className="relative">
       <div className="overflow-hidden">
@@ -96,40 +96,40 @@ const MobileCarousel = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.3 }}
-          className="p-5 rounded-2xl bg-zinc-900/50 border border-white/[0.06]"
+          className="p-5 rounded-2xl bg-card border border-border"
         >
-          <Quote className="w-6 h-6 text-white/[0.08] mb-3" />
-          
+          <Quote className="w-6 h-6 text-muted-foreground/10 mb-3" />
+
           <StarRating />
-          
-          <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
             "{testimonial.content}"
           </p>
-          
+
           <div className="mt-4 flex items-center gap-3">
-            <div className={`${testimonial.color} w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-xs ring-2 ring-white/10`}>
+            <div className={`${testimonial.color} w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-xs ring-2 ring-background`}>
               {testimonial.avatar}
             </div>
             <div>
-              <div className="text-sm font-medium text-white">
+              <div className="text-sm font-medium text-foreground">
                 {testimonial.author}
               </div>
-              <div className="text-xs text-zinc-500">
+              <div className="text-xs text-muted-foreground/80">
                 {testimonial.role} · {testimonial.company}
               </div>
             </div>
           </div>
         </motion.div>
       </div>
-      
+
       <div className="mt-4 flex items-center justify-between">
         <button
           onClick={handlePrev}
-          className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className="p-2 rounded-lg bg-muted border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        
+
         <div className="flex items-center gap-1.5">
           {testimonials.map((_, i) => (
             <button
@@ -138,18 +138,17 @@ const MobileCarousel = () => {
                 setIsAutoPlaying(false);
                 setCurrentIndex(i);
               }}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === currentIndex 
-                  ? 'bg-white w-6' 
-                  : 'bg-zinc-600 hover:bg-zinc-500'
-              }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentIndex
+                ? 'bg-foreground w-6'
+                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
             />
           ))}
         </div>
-        
+
         <button
           onClick={handleNext}
-          className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className="p-2 rounded-lg bg-muted border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -161,7 +160,7 @@ const MobileCarousel = () => {
 const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
-  
+
   return (
     <motion.div
       ref={ref}
@@ -171,28 +170,28 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
       className="group relative"
     >
       <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      <div className="relative h-full p-6 lg:p-8 rounded-2xl bg-zinc-900/50 border border-white/[0.06] group-hover:border-white/[0.1] transition-colors">
-        <Quote className="w-8 h-8 text-white/[0.06] absolute top-6 right-6" />
-        
+
+      <div className="relative h-full p-6 lg:p-8 rounded-2xl bg-card border border-border group-hover:border-border/80 transition-colors">
+        <Quote className="w-8 h-8 text-muted-foreground/10 absolute top-6 right-6" />
+
         <StarRating />
-        
-        <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
+
+        <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
           "{testimonial.content}"
         </p>
-        
+
         <div className="mt-6 flex items-center gap-4">
-          <div className={`${testimonial.color} w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm ring-2 ring-white/10`}>
+          <div className={`${testimonial.color} w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm ring-2 ring-background`}>
             {testimonial.avatar}
           </div>
           <div>
-            <div className="text-sm font-medium text-white">
+            <div className="text-sm font-medium text-foreground">
               {testimonial.author}
             </div>
-            <div className="text-xs text-zinc-500 mt-0.5">
+            <div className="text-xs text-muted-foreground/80 mt-0.5">
               {testimonial.role}
             </div>
-            <div className="text-xs text-zinc-600 mt-0.5">
+            <div className="text-xs text-muted-foreground/60 mt-0.5">
               {testimonial.company}
             </div>
           </div>
@@ -205,44 +204,45 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
 export const Testimonials = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  
+
   return (
-    <section ref={ref} className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.05),transparent_50%)]" />
-      
+    <section ref={ref} className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden bg-background">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.05),transparent_50%)]" />
+
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionTitle
           badge="Testimonials"
           title="Loved by agencies across India"
           description="See what agency founders and teams have to say about transforming their operations with Oru."
         />
-        
+
         <div className="mt-10 sm:mt-16 md:hidden">
           <MobileCarousel />
         </div>
-        
+
         <div className="mt-16 hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {testimonials.map((testimonial, index) => (
-            <TestimonialCard 
+            <TestimonialCard
               key={testimonial.id}
-              testimonial={testimonial} 
+              testimonial={testimonial}
               index={index}
             />
           ))}
         </div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.6 }}
           className="mt-8 sm:mt-12 flex flex-col items-center"
         >
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-500">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <span>Join</span>
-            <span className="text-white font-medium">500+ agencies</span>
+            <span className="text-foreground font-medium">500+ agencies</span>
             <span>already using Oru</span>
           </div>
-          
+
           <div className="mt-4 hidden sm:flex items-center gap-6">
             {['PixelCraft', 'BrandWave', 'CreativeMinds', 'Spark Digital', 'GrowthLabs'].map((company, i) => (
               <motion.div
@@ -251,7 +251,7 @@ export const Testimonials = () => {
                 animate={isInView ? { opacity: 0.5 } : {}}
                 transition={{ delay: 0.8 + i * 0.1 }}
                 whileHover={{ opacity: 1 }}
-                className="text-xs font-medium text-zinc-600 hover:text-zinc-400 transition-colors cursor-default"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-default"
               >
                 {company}
               </motion.div>
