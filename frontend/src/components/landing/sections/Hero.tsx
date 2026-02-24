@@ -215,6 +215,7 @@ export const Hero = () => {
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <Link to="/auth">
             <Button 
               size="lg" 
@@ -223,6 +224,8 @@ export const Hero = () => {
               <span className="relative z-10 flex items-center gap-2">
                 Start Free Trial
 =======
+=======
+>>>>>>> Stashed changes
           <Link to="/waitlist">
             <Button
               size="lg"
@@ -231,11 +234,15 @@ export const Hero = () => {
             >
               <span className="relative z-10 flex items-center gap-2">
                 Get Early Access
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>
           </Link>
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
           
           <Button 
@@ -247,6 +254,20 @@ export const Hero = () => {
             Watch Demo
           </Button>
 =======
+=======
+
+          <Link to="/waitlist">
+            <Button
+              size="lg"
+              variant="ghost"
+              className="px-8 h-12 text-base rounded-xl"
+            >
+              <Play className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+              Join the Waitlist
+            </Button>
+          </Link>
+        </motion.div>
+>>>>>>> Stashed changes
 
           <Link to="/waitlist">
             <Button
