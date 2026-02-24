@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { MapPin, Building, CreditCard, Mail } from 'lucide-react';
 import { OnboardingFormData, INDUSTRIES, COMPANY_SIZES, INDUSTRY_COLORS } from '../fragments/types';
 import { cn } from '@/lib/utils';
 
@@ -11,8 +12,13 @@ interface StepBusinessProps {
 
 export default function StepBusiness({ formData, updateFormData, setCanProceed }: StepBusinessProps) {
   useEffect(() => {
-    setCanProceed(!!(formData.industry && formData.companySize));
-  }, [formData.industry, formData.companySize, setCanProceed]);
+    setCanProceed(!!(
+      formData.industry &&
+      formData.companySize &&
+      formData.streetAddress &&
+      formData.city
+    ));
+  }, [formData.industry, formData.companySize, formData.streetAddress, formData.city, setCanProceed]);
 
   return (
     <div className="space-y-8">
@@ -90,6 +96,81 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
                 </button>
               );
             })}
+          </div>
+        </div>
+        <div className="space-y-6 pt-4 border-t border-white/[0.08]">
+          <div className="flex items-center gap-2 text-white font-medium">
+            <MapPin className="w-4 h-4 text-emerald-400" />
+            Office Location & Billing
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm text-zinc-400">Street Address</label>
+                <input
+                  value={formData.streetAddress}
+                  onChange={(e) => updateFormData({ streetAddress: e.target.value })}
+                  placeholder="123 Business Way, Suite 100"
+                  className="w-full h-11 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm text-zinc-400">City</label>
+                <input
+                  value={formData.city}
+                  onChange={(e) => updateFormData({ city: e.target.value })}
+                  placeholder="Mumbai"
+                  className="w-full h-11 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-zinc-400">State / Region</label>
+                <input
+                  value={formData.state}
+                  onChange={(e) => updateFormData({ state: e.target.value })}
+                  placeholder="Maharashtra"
+                  className="w-full h-11 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm text-zinc-400">Postal Code</label>
+                <input
+                  value={formData.postalCode}
+                  onChange={(e) => updateFormData({ postalCode: e.target.value })}
+                  placeholder="400001"
+                  className="w-full h-11 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-zinc-400">Tax ID / PAN (Optional)</label>
+                <input
+                  value={formData.taxId}
+                  onChange={(e) => updateFormData({ taxId: e.target.value })}
+                  placeholder="ABCDE1234F"
+                  className="w-full h-11 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400 flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5" />
+                Billing email (if different)
+              </label>
+              <input
+                value={formData.billingEmail}
+                onChange={(e) => updateFormData({ billingEmail: e.target.value })}
+                placeholder="accounts@company.com"
+                className="w-full h-11 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] transition-all"
+              />
+            </div>
           </div>
         </div>
       </motion.div>

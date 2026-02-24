@@ -22,6 +22,12 @@ const caslPlugin: FastifyPluginAsync = async (fastify) => {
         // Map roles to permissions
         const roles = request.user?.roles || [];
 
+        // If no user/roles, they can't do much but we shouldn't crash
+        if (roles.length === 0) {
+            request.ability = build();
+            return;
+        }
+
         if (roles.includes('super_admin')) {
             can('manage', 'all');
         } else if (roles.includes('agency_admin')) {

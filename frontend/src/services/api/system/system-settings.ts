@@ -46,9 +46,6 @@ export interface SystemSettings {
   terms_of_service_url?: string;
   privacy_policy_url?: string;
   cookie_policy_url?: string;
-  // System Configuration
-  maintenance_mode?: boolean;
-  maintenance_message?: string;
   default_language?: string;
   default_timezone?: string;
   // Email/SMTP Configuration

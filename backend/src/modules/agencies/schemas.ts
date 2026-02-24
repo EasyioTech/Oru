@@ -23,6 +23,7 @@ export const completeAgencySetupSchema = z.preprocess(
         companyName: z.string().min(1),
         subdomain: z.string().min(1).regex(/^[a-zA-Z0-9-]+$/),
         adminEmail: z.string().email(),
+        adminPhone: z.string().optional(),
         password: z.string().min(8),
         firstName: z.string().optional(),
         lastName: z.string().optional(),
@@ -31,7 +32,18 @@ export const completeAgencySetupSchema = z.preprocess(
         maxStorageGB: z.number().int().positive().optional(),
         metadata: z.record(z.any()).optional(),
         settings: z.record(z.any()).optional(),
-        address: z.record(z.any()).optional(),
+
+        // Detailed Address
+        address: z.string().optional(),
+        streetAddress: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        postalCode: z.string().optional(),
+        country: z.string().optional(),
+
+        // Billing & Tax
+        billingEmail: z.string().email().optional(),
+        taxId: z.string().optional(),
 
         // Frontend specific fields that might be passed
         teamMembers: z.array(z.any()).optional(),
@@ -48,6 +60,7 @@ export const provisionAgencySchema = z.object({
     agencyName: z.string().min(1),
     domain: z.string().min(1),
     adminEmail: z.string().email(),
+    adminPhone: z.string().optional(),
     adminPassword: z.string().min(8),
     adminName: z.string().optional(),
     subscriptionPlan: z.enum(['trial', 'starter', 'basic', 'professional', 'enterprise', 'custom']).default('trial'),
@@ -56,7 +69,18 @@ export const provisionAgencySchema = z.object({
     primaryFocus: z.string().optional(),
     timezone: z.string().optional(),
     enableGST: z.boolean().optional(),
+
+    // Detailed Address
+    streetAddress: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    postalCode: z.string().optional(),
     country: z.string().optional(),
+
+    // Billing & Tax
+    billingEmail: z.string().email().optional(),
+    taxId: z.string().optional(),
+
     id: z.string().optional(),
 });
 export type ProvisionAgencyInput = z.infer<typeof provisionAgencySchema>;

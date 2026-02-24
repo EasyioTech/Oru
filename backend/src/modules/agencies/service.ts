@@ -1,13 +1,74 @@
 
 import { db } from '../../infrastructure/database/index.js';
 import { agencies } from '../../infrastructure/database/schema.js';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import { FastifyBaseLogger } from 'fastify';
 import { AppError, NotFoundError } from '../../utils/errors.js';
 import { createAgencySchema, updateAgencySchema, CreateAgencyInput, UpdateAgencyInput, CompleteAgencySetupInput, ProvisionAgencyInput } from './schemas.js';
+import { redisConnection } from '../../infrastructure/redis/index.js';
+import os from 'os';
 
 export class AgenciesService {
     constructor(private logger: FastifyBaseLogger) { }
+
+    /**
+     * Check system health for signup pre-flight
+     */
+    async signupPreflight() {
+        const start = Date.now();
+        const results: any = {
+            postgres: { status: 'down', latency: 0 },
+            redis: { status: 'down', latency: 0 },
+        };
+
+        // 1. Check Postgres (Father DB)
+        try {
+            const pgStart = Date.now();
+            await db.execute(sql`SELECT 1`);
+            results.postgres.status = 'up';
+            results.postgres.latency = Date.now() - pgStart;
+        } catch (error) {
+            this.logger.error({ error, context: 'preflight-postgres' });
+        }
+
+        // 2. Check Redis
+        try {
+            const redisStart = Date.now();
+            await redisConnection.ping();
+            results.redis.status = 'up';
+            results.redis.latency = Date.now() - redisStart;
+        } catch (error) {
+            this.logger.error({ error, context: 'preflight-redis' });
+        }
+
+        // Critical requirement: Postgres must be up for signup
+        if (results.postgres.status !== 'up') {
+            return {
+                allowed: false,
+                reason: 'DATABASE_UNREACHABLE',
+                message: 'The central database is currently unreachable. Please try again later.'
+            };
+        }
+
+        // Check if database creation is likely possible (Permission check)
+        try {
+            await db.execute(sql`SELECT datname FROM pg_database LIMIT 1`);
+        } catch (error: any) {
+            this.logger.error({ error, context: 'preflight-permission' });
+            return {
+                allowed: false,
+                reason: 'INSUFFICIENT_PERMISSIONS',
+                message: 'Database provisioning permissions are not correctly configured.'
+            };
+        }
+
+        return {
+            allowed: true,
+            status: results.redis.status === 'up' ? 'healthy' : 'degraded',
+            postgresLatency: results.postgres.latency,
+            timestamp: new Date().toISOString()
+        };
+    }
 
     /**
      * List all agencies with pagination
@@ -171,7 +232,22 @@ export class AgenciesService {
                         status: 'pending',
                         isActive: true,
                         contactEmail: input.adminEmail,
+                        contactPhone: input.adminPhone,
+                        billingEmail: input.billingEmail || input.adminEmail,
+                        address: input.streetAddress || input.address,
+                        city: input.city,
+                        state: input.state,
+                        postalCode: input.postalCode,
+                        country: input.country,
+                        taxId: input.taxId,
                         ownerUserId: userId,
+                        settings: input.settings || {},
+                        metadata: {
+                            ...(input.metadata || {}),
+                            industry: (input.metadata as any)?.industry,
+                            companySize: (input.metadata as any)?.companySize,
+                            primaryFocus: (input.metadata as any)?.primaryFocus,
+                        }
                     }).returning();
                     agencyId = newAgency.id;
                 }
@@ -233,7 +309,10 @@ export class AgenciesService {
                 subdomain: subdomain,
                 adminEmail: input.adminEmail,
                 adminPasswordHash: hashedPassword,
+                adminFirstName: input.firstName || 'Admin',
+                adminLastName: input.lastName || 'User',
                 userId: userId,
+                plan: input.plan || 'trial',
             });
 
             this.logger.info({ jobId: jobRecord.id, agencyId }, 'Agency provisioning job queued successfully');
@@ -316,6 +395,7 @@ export class AgenciesService {
             firstName: input.adminName ? input.adminName.split(' ')[0] : 'Admin',
             lastName: input.adminName ? input.adminName.split(' ').slice(1).join(' ') : 'User',
             adminEmail: input.adminEmail,
+            adminPhone: input.adminPhone,
             password: input.adminPassword,
             plan: input.subscriptionPlan || 'trial',
             maxUsers: input.companySize === '10-50' ? 50 : (input.companySize === '50-100' ? 100 : 10),
@@ -329,9 +409,13 @@ export class AgenciesService {
                 timezone: input.timezone,
                 enableGST: input.enableGST,
             },
-            address: {
-                country: input.country,
-            },
+            streetAddress: input.streetAddress,
+            city: input.city,
+            state: input.state,
+            postalCode: input.postalCode,
+            country: input.country,
+            billingEmail: input.billingEmail,
+            taxId: input.taxId,
             id: input.id
         };
 

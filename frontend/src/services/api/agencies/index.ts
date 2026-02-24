@@ -159,7 +159,7 @@ export async function exportAgencyBackup(agencyId: string): Promise<void> {
   const headers = authHeaders();
   // Remove Content-Type for blob response
   delete headers['Content-Type'];
-  
+
   const response = await fetch(endpoint, {
     method: 'POST',
     headers,
@@ -179,7 +179,7 @@ export async function exportAgencyBackup(agencyId: string): Promise<void> {
 
   // Get blob from response
   const blob = await response.blob();
-  
+
   // Extract filename from Content-Disposition header or generate one
   const contentDisposition = response.headers.get('Content-Disposition');
   let filename = `agency_backup_${agencyId}_${new Date().toISOString().slice(0, 10)}.zip`;

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Check, X, Mail } from 'lucide-react';
+import { Eye, EyeOff, Check, X, Mail, Phone } from 'lucide-react';
 import { OnboardingFormData } from '../fragments/types';
 import { cn } from '@/lib/utils';
 
@@ -156,6 +156,20 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
         </div>
 
         <div className="space-y-2">
+          <label className="text-sm text-zinc-400 flex items-center gap-2">
+            <Phone className="w-3.5 h-3.5" />
+            Phone number
+          </label>
+          <input
+            value={formData.adminPhone}
+            onChange={(e) => updateFormData({ adminPhone: e.target.value })}
+            placeholder="+1 (555) 000-0000"
+            className={inputClass}
+            autoComplete="tel"
+          />
+        </div>
+
+        <div className="space-y-2">
           <label className="text-sm text-zinc-400">Password</label>
           <div className="relative">
             <input
@@ -200,7 +214,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
               onChange={(e) => updateFormData({ confirmPassword: e.target.value })}
               placeholder="Confirm password"
               className={cn(
-                inputClass, 
+                inputClass,
                 "pr-12",
                 formData.confirmPassword && !validation.passwordsMatch && "border-red-500/30"
               )}

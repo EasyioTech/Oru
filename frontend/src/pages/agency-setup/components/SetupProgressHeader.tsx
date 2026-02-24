@@ -49,13 +49,12 @@ export function SetupProgressHeader({ currentStep }: SetupProgressHeaderProps) {
               return (
                 <div key={step.id} className="flex flex-col items-center gap-2 flex-1">
                   <div
-                    className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${
-                      isCompleted
+                    className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${isCompleted
                         ? 'bg-primary text-white'
                         : isCurrent
                           ? 'bg-primary text-white ring-2 ring-primary/30'
                           : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                    }`}
+                      }`}
                   >
                     {isCompleted ? (
                       <CheckCircle2 className="h-4 w-4" />
@@ -64,9 +63,8 @@ export function SetupProgressHeader({ currentStep }: SetupProgressHeaderProps) {
                     )}
                   </div>
                   <span
-                    className={`text-[10px] font-medium text-center hidden sm:block max-w-[60px] ${
-                      isCurrent ? 'text-primary' : isCompleted ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'
-                    }`}
+                    className={`text-[10px] font-medium text-center hidden sm:block max-w-[60px] ${isCurrent ? 'text-primary' : isCompleted ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'
+                      }`}
                   >
                     {step.title.split(' ')[0]}
                   </span>

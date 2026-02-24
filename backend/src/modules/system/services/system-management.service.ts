@@ -32,4 +32,41 @@ export class SystemManagementService {
         const [feature] = await db.insert(systemFeatures).values({ ...input }).returning();
         return feature;
     }
+
+    async getBranding() {
+        const settings = await this.getSettings();
+        return {
+            systemName: settings.systemName,
+            systemTagline: settings.systemTagline,
+            logoUrl: settings.logoUrl,
+            logoDarkUrl: settings.logoDarkUrl,
+            logoLightUrl: settings.logoLightUrl,
+            faviconUrl: settings.faviconUrl,
+            metaTitle: settings.metaTitle,
+            metaDescription: settings.metaDescription,
+        };
+    }
+
+    async updateFeature(featureId: string, updates: UpdateFeatureInput) {
+        const [updatedFeature] = await db.update(systemFeatures)
+            .set({ ...updates, updatedAt: new Date() })
+            .where(eq(systemFeatures.id, featureId))
+            .returning();
+
+        if (!updatedFeature) {
+            throw new NotFoundError(`Feature with ID ${featureId} not found.`);
+        }
+        return updatedFeature;
+    }
+
+    async deleteFeature(featureId: string) {
+        const [deletedFeature] = await db.delete(systemFeatures)
+            .where(eq(systemFeatures.id, featureId))
+            .returning();
+
+        if (!deletedFeature) {
+            throw new NotFoundError(`Feature with ID ${featureId} not found.`);
+        }
+        return deletedFeature;
+    }
 }

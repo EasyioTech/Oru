@@ -34,7 +34,7 @@ export const projects = pgTable('projects', {
     actualCost: numeric('actual_cost', { precision: 12, scale: 2 }).default('0'),
     allocatedBudget: numeric('allocated_budget', { precision: 12, scale: 2 }).default('0'),
     costCenter: text('cost_center'),
-    currencyId: uuid('currency_id').references(() => currencies.id).default('00000000-0000-0000-0000-000000000000'), // Link to currencies table
+    currencyId: uuid('currency_id').references(() => currencies.id),
     currency: text('currency').default('USD').notNull(), // Keep for display/cache
 
     // Relationships

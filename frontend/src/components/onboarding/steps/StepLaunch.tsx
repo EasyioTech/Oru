@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, User, Mail, Globe, Briefcase, Users, Check } from 'lucide-react';
+import { Building2, User, Mail, Globe, Briefcase, Users, Check, Phone, MapPin } from 'lucide-react';
 import { OnboardingFormData, INDUSTRIES, COMPANY_SIZES } from '../fragments/types';
 
 interface StepLaunchProps {
@@ -30,6 +30,8 @@ export default function StepLaunch({ formData, isLoading, setCanProceed }: StepL
     { icon: Users, label: 'Team', value: getCompanySizeLabel() },
     { icon: User, label: 'Admin', value: formData.adminName },
     { icon: Mail, label: 'Email', value: formData.adminEmail },
+    { icon: Phone, label: 'Phone', value: formData.adminPhone },
+    { icon: MapPin, label: 'Location', value: `${formData.city}, ${formData.state}` },
   ];
 
   return (

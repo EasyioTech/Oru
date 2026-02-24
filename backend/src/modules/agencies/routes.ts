@@ -8,6 +8,23 @@ import { mapToSnakeCase } from '../../utils/case-transform.js';
 const agencyRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new AgenciesService(fastify.log);
 
+    // --- Public Routes ---
+
+    // Check Domain Availability (Public)
+    // MUST BE BEFORE /:id because "check-domain" matches :id pattern
+    fastify.get('/check-domain', async (request, reply) => {
+        try {
+            const domain = (request.query as { domain: string }).domain;
+            const result = await service.checkDomainAvailability(domain);
+            return result;
+        } catch (error) {
+            fastify.log.error(error);
+            throw error;
+        }
+    });
+
+    // --- Protected Routes ---
+
     // List Agencies
     fastify.get('/', {
         onRequest: [fastify.authenticate],
@@ -25,21 +42,6 @@ const agencyRoutes: FastifyPluginAsync = async (fastify) => {
             throw error;
         }
     });
-
-    // Check Domain Availability (Public)
-    // MUST BE BEFORE /:id because "check-domain" matches :id pattern
-    fastify.get('/check-domain', async (request, reply) => {
-        try {
-            const domain = (request.query as { domain: string }).domain;
-            const result = await service.checkDomainAvailability(domain);
-            return result;
-        } catch (error) {
-            fastify.log.error(error);
-            throw error;
-        }
-    });
-
-    // Get Agency
     fastify.get('/:id', {
         onRequest: [fastify.authenticate],
     }, async (request, reply) => {

@@ -1,8 +1,8 @@
-import { 
-  Building2, 
-  Briefcase, 
-  Shield, 
-  Rocket, 
+import {
+  Building2,
+  Briefcase,
+  Shield,
+  Rocket,
   LucideIcon,
   Laptop,
   Megaphone,
@@ -94,11 +94,18 @@ export interface OnboardingFormData {
   adminLastName: string;
   adminName: string;
   adminEmail: string;
+  adminPhone: string;
   adminPassword: string;
   confirmPassword: string;
   agreeToTerms: boolean;
   enableGST: boolean;
   subscriptionPlan: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  taxId: string;
+  billingEmail: string;
 }
 
 export const initialFormData: OnboardingFormData = {
@@ -115,11 +122,18 @@ export const initialFormData: OnboardingFormData = {
   adminLastName: '',
   adminName: '',
   adminEmail: '',
+  adminPhone: '',
   adminPassword: '',
   confirmPassword: '',
   agreeToTerms: false,
   enableGST: true,
   subscriptionPlan: 'professional',
+  streetAddress: '',
+  city: '',
+  state: '',
+  postalCode: '',
+  taxId: '',
+  billingEmail: '',
 };
 
 export const DOMAIN_SUFFIXES = [

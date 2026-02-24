@@ -69,7 +69,7 @@ export const agencySettings = pgTable('agency_settings', {
     agencyName: text('agency_name').notNull(),
     logoUrl: text('logo_url'),
     domain: text('domain'),
-    defaultCurrencyId: uuid('default_currency_id').references(() => currencies.id).default('00000000-0000-0000-0000-000000000000'),
+    defaultCurrencyId: uuid('default_currency_id').references(() => currencies.id),
     defaultCurrency: text('default_currency').default('USD').notNull(),
     primaryColor: text('primary_color').default('#0a6ed1').notNull(),
     secondaryColor: text('secondary_color').default('#0854a0').notNull(),

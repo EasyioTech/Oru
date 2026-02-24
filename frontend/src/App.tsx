@@ -18,8 +18,6 @@ import { TicketFloatingButton } from "@/components/shared/TicketFloatingButton";
 import { ScrollToTop } from "@/core/layout/ScrollToTop";
 import { useAuth } from "@/hooks/useAuth";
 import { useSystemSettings } from "@/hooks/useSystemSettings";
-import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
-import { MaintenanceMode } from "@/core/layout/MaintenanceMode";
 import HoverReceiver from "tooling/visual-edits/VisualEditsMessenger";
 import { ThemeSync } from "@/core/layout/ThemeSync";
 import { BrandingProvider } from "@/contexts/BrandingContext";
@@ -35,15 +33,7 @@ const AppContent = () => {
   // Load and apply system settings (SEO, analytics, branding, etc.) - only for super admins
   // For agency admins, this will fail silently as they don't have access to system settings
   useSystemSettings();
-  
-  // Check maintenance mode (super admins bypass)
-  const { maintenanceMode, maintenanceMessage, loading: maintenanceLoading } = useMaintenanceMode();
-  
-  // Show maintenance mode if enabled and user is not super admin
-  if (!maintenanceLoading && maintenanceMode && !isSystemSuperAdmin && userRole !== 'super_admin') {
-    return <MaintenanceMode message={maintenanceMessage || undefined} />;
-  }
-  
+
   return (
     <>
       <ThemeSync />

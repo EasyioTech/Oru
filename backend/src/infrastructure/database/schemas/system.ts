@@ -163,13 +163,6 @@ export const systemSettings = pgTable('system_settings', {
     backupEncryptionEnabled: boolean('backup_encryption_enabled').default(true).notNull(),
     backupCompressionEnabled: boolean('backup_compression_enabled').default(true).notNull(),
 
-    // Maintenance
-    maintenanceMode: boolean('maintenance_mode').default(false).notNull(),
-    maintenanceMessage: text('maintenance_message'),
-    maintenanceAllowedIps: inet('maintenance_allowed_ips').array(),
-    maintenanceStartTime: timestamp('maintenance_start_time', { withTimezone: true }),
-    maintenanceEndTime: timestamp('maintenance_end_time', { withTimezone: true }),
-
     // Localization
     defaultLanguage: text('default_language').default('en').notNull(),
     availableLanguages: text('available_languages').array().default(['en']),

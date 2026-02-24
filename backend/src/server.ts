@@ -35,6 +35,15 @@ const server = Fastify({
 });
 
 // --- Plugins ---
+// Root-level public routes (define before static/autoload to avoid interference)
+server.get('/health', async () => {
+    return {
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    };
+});
+
 await server.register(cors, {
 
     origin: (origin, cb) => {
@@ -47,7 +56,7 @@ await server.register(cors, {
             'https://www.orutest.site'
         ];
 
-        const envOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
+        const envOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : [];
         const allowedOrigins = [...defaultOrigins, ...envOrigins];
 
         // Allow requests with no origin (like mobile apps or curl requests)
@@ -65,12 +74,14 @@ await server.register(cors, {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Agency-Database', 'Accept', 'Origin', 'X-Requested-With', 'Idempotency-Key'],
     exposedHeaders: ['Content-Length', 'X-Request-Id'],
+    maxAge: 86400,
 });
 await server.register(helmet, {
+    contentSecurityPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
 });
 await server.register(rateLimit, {
-    max: 100,
+    max: 1000,
     timeWindow: '1 minute',
 });
 await server.register(multipart, {
@@ -143,16 +154,6 @@ server.setErrorHandler((error: any, request, reply) => {
     });
 });
 
-// --- Health Check ---
-server.get('/health', async () => {
-    return {
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    };
-});
-
-
 // --- Startup ---
 const start = async () => {
     try {
@@ -191,5 +192,5 @@ signals.forEach((signal) => {
     });
 });
 
-start();
 
+start();

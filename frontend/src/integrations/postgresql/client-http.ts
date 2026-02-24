@@ -70,12 +70,12 @@ class HttpDatabaseClient {
         if (response.status === 429 && retryCount < 2) {
           const retryAfter = response.headers.get('Retry-After') || '5';
           const retryDelay = parseInt(retryAfter) * 1000; // Convert to milliseconds
-          
+
           console.warn(`[HTTP DB] Rate limit exceeded, retrying after ${retryAfter}s... (attempt ${retryCount + 1}/2)`);
-          
+
           // Wait before retrying (max 10 seconds)
           await new Promise(resolve => setTimeout(resolve, Math.min(retryDelay, 10000)));
-          
+
           // Retry the request with incremented retry count
           return this.makeRequest<T>(endpoint, method, body, useMainDatabase, retryCount + 1);
         }
@@ -83,24 +83,24 @@ class HttpDatabaseClient {
         // Handle missing agency database - clear auth and redirect to login
         // Only logout for database-level errors (3D000), NOT for column/table errors (42703, 42P01, 42P10)
         const isDatabaseNotFound = errorData.code === 'AGENCY_DB_NOT_FOUND' || errorData.code === '3D000';
-        
+
         // Schema errors (missing columns/tables) should NOT cause logout
         const msg = typeof errorData.message === 'string' ? errorData.message : '';
         const err = typeof errorData.error === 'string' ? errorData.error : (errorData.error?.message ?? '');
         const isSchemaError = errorData.code === '42703' || // column does not exist
-                             errorData.code === '42P01' || // relation does not exist
-                             errorData.code === '42P10' || // invalid ORDER BY in DISTINCT
-                             (msg && (
-                               (msg.includes('column') && msg.includes('does not exist')) ||
-                               (msg.includes('relation') && msg.includes('does not exist')) ||
-                               msg.includes('SELECT DISTINCT, ORDER BY expressions')
-                             )) ||
-                             (err && (
-                               (err.includes('column') && err.includes('does not exist')) ||
-                               (err.includes('relation') && err.includes('does not exist')) ||
-                               err.includes('SELECT DISTINCT, ORDER BY expressions')
-                             ));
-        
+          errorData.code === '42P01' || // relation does not exist
+          errorData.code === '42P10' || // invalid ORDER BY in DISTINCT
+          (msg && (
+            (msg.includes('column') && msg.includes('does not exist')) ||
+            (msg.includes('relation') && msg.includes('does not exist')) ||
+            msg.includes('SELECT DISTINCT, ORDER BY expressions')
+          )) ||
+          (err && (
+            (err.includes('column') && err.includes('does not exist')) ||
+            (err.includes('relation') && err.includes('does not exist')) ||
+            err.includes('SELECT DISTINCT, ORDER BY expressions')
+          ));
+
         if (isDatabaseNotFound && !isSchemaError) {
           console.warn('[HTTP DB] Agency database not found, clearing auth...');
           if (typeof window !== 'undefined') {
@@ -129,7 +129,7 @@ class HttpDatabaseClient {
       }
 
       const result = await response.json();
-      
+
       // Handle different response formats
       if (result.rows !== undefined) {
         return result as QueryResult<T>;
@@ -170,7 +170,7 @@ class HttpDatabaseClient {
   }
 
   async query<T = any>(sql: string, params: any[] = [], userId?: string, useMainDatabase: boolean = false): Promise<QueryResult<T>> {
-    
+
     return this.makeRequest<T>('/query', 'POST', {
       sql,
       params,
@@ -252,13 +252,13 @@ export async function transaction<T>(
   const queries: Array<{ sql: string; params: any[] }> = [];
   const queryResults: Array<{ rows: any[]; rowCount: number }> = [];
   let queryIndex = 0;
-  
+
   // Create a mock client that collects queries and stores results
   const mockClient = {
     query: async (sql: string, params: any[] = []): Promise<{ rows: any[]; rowCount: number }> => {
       const currentIndex = queryIndex++;
       queries.push({ sql, params });
-      
+
       // Return a promise that will be resolved with actual results
       return new Promise((resolve) => {
         // Store resolver to call after transaction completes
@@ -267,18 +267,18 @@ export async function transaction<T>(
       });
     }
   };
-  
+
   // Start callback execution (it will collect queries)
   const callbackPromise = callback(mockClient);
-  
+
   // Wait for all queries to be collected
   await new Promise(resolve => setTimeout(resolve, 0));
-  
+
   // If no queries, just return callback result
   if (queries.length === 0) {
     return await callbackPromise;
   }
-  
+
   // Execute all queries in a transaction via backend (with auth and agency context)
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -306,12 +306,12 @@ export async function transaction<T>(
       const errObj = typeof result?.error === 'object' ? result.error : null;
       const msg = errObj?.message || result?.message || (typeof result?.error === 'string' ? result.error : null) || response.statusText;
       const detail = errObj?.details?.detail || errObj?.detail || result?.data?.detail;
-      const fullMsg = typeof msg === 'string' 
-        ? (detail ? `${msg}. ${detail}` : msg) 
+      const fullMsg = typeof msg === 'string'
+        ? (detail ? `${msg}. ${detail}` : msg)
         : 'Transaction failed';
       throw new Error(fullMsg);
     }
-    
+
     // Resolve all query promises with actual results
     if (result.results && (mockClient as any)._resolvers) {
       result.results.forEach((queryResult: any, index: number) => {
@@ -324,7 +324,7 @@ export async function transaction<T>(
         }
       });
     }
-    
+
     // Wait for callback to complete
     return await callbackPromise;
   } catch (error: unknown) {

@@ -43,13 +43,13 @@ export default function OnboardingWizard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signIn } = useAuth();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [canProceed, setCanProceed] = useState(false);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
-  
+
   // Creation progress tracking
   const [creationProgress, setCreationProgress] = useState<CreationProgress>({
     status: 'idle',
@@ -58,6 +58,44 @@ export default function OnboardingWizard() {
     canRetry: false,
   });
   const [progressIndex, setProgressIndex] = useState(0);
+
+  // Pre-flight check state
+  const [preflightResult, setPreflightResult] = useState<{
+    allowed: boolean;
+    reason?: string;
+    message?: string;
+  } | null>(null);
+  const [isPreflightLoading, setIsPreflightLoading] = useState(true);
+
+  // Pre-flight check on mount
+  useEffect(() => {
+    const checkPreflight = async () => {
+      setIsPreflightLoading(true);
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/system/signup-preflight`);
+        const result = await response.json();
+        if (result.success) {
+          setPreflightResult(result.data);
+        } else {
+          setPreflightResult({
+            allowed: false,
+            reason: 'PREFLIGHT_ERROR',
+            message: result.message || 'System health check failed.'
+          });
+        }
+      } catch (error) {
+        logError('Pre-flight check failed:', error);
+        setPreflightResult({
+          allowed: false,
+          reason: 'CONNECTION_ERROR',
+          message: 'Could not connect to the server for health verification.'
+        });
+      } finally {
+        setIsPreflightLoading(false);
+      }
+    };
+    checkPreflight();
+  }, []);
 
   // Load saved draft
   useEffect(() => {
@@ -141,6 +179,7 @@ export default function OnboardingWizard() {
           domain: domainFull,
           adminName: formData.adminName,
           adminEmail: formData.adminEmail,
+          adminPhone: formData.adminPhone,
           adminPassword: formData.adminPassword,
           industry: formData.industry,
           companySize: formData.companySize,
@@ -149,6 +188,12 @@ export default function OnboardingWizard() {
           timezone: formData.timezone,
           enableGST: formData.enableGST,
           subscriptionPlan: formData.subscriptionPlan,
+          streetAddress: formData.streetAddress,
+          city: formData.city,
+          state: formData.state,
+          postalCode: formData.postalCode,
+          taxId: formData.taxId,
+          billingEmail: formData.billingEmail,
         }),
       });
 
@@ -417,7 +462,26 @@ export default function OnboardingWizard() {
     <div className="h-screen flex flex-col bg-[#000000] text-white antialiased selection:bg-blue-500/20 overflow-hidden">
       <GridPattern />
 
-      {/* Creation Progress Overlay */}
+      {/* Pre-flight Alert */}
+      {!isPreflightLoading && preflightResult && !preflightResult.allowed && (
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-4"
+          >
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-red-400">Infrastructure Issues Detected</h3>
+              <p className="text-xs text-red-400/80 mt-1">
+                {preflightResult.message} You can still browse the wizard, but setup may fail.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Wizard Steps - generous vertical padding */}
       <AnimatePresence>
         {renderCreationOverlay()}
       </AnimatePresence>
@@ -450,8 +514,8 @@ export default function OnboardingWizard() {
                       currentStep > step.id
                         ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                         : currentStep === step.id
-                        ? "bg-white text-black"
-                        : "bg-zinc-900 text-zinc-600 border border-zinc-800"
+                          ? "bg-white text-black"
+                          : "bg-zinc-900 text-zinc-600 border border-zinc-800"
                     )}
                   >
                     {currentStep > step.id ? '✓' : step.id}
@@ -468,8 +532,24 @@ export default function OnboardingWizard() {
               ))}
             </div>
 
-            <div className="text-xs text-zinc-500 tabular-nums min-w-[2.5rem] text-right py-2 -my-1">
-              {currentStep}/{ONBOARDING_STEPS.length}
+            <div className="flex items-center gap-3 py-2 -my-1 min-w-[4rem] justify-end">
+              {/* Health Sentinel */}
+              {!isPreflightLoading && preflightResult && (
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider",
+                    preflightResult.allowed
+                      ? "bg-emerald-500/10 text-emerald-500"
+                      : "bg-red-500/10 text-red-500"
+                  )}
+                >
+                  <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", preflightResult.allowed ? "bg-emerald-500" : "bg-red-500")} />
+                  <span className="hidden sm:inline">{preflightResult.allowed ? 'System Ready' : 'Issue'}</span>
+                </div>
+              )}
+              <div className="text-xs text-zinc-500 tabular-nums">
+                {currentStep}/{ONBOARDING_STEPS.length}
+              </div>
             </div>
           </div>
         </div>
@@ -532,10 +612,10 @@ export default function OnboardingWizard() {
             ) : (
               <button
                 onClick={handleSubmit}
-                disabled={!canProceed || isLoading}
+                disabled={!canProceed || isLoading || (preflightResult && !preflightResult.allowed)}
                 className={cn(
                   "flex items-center gap-2.5 px-8 sm:px-10 py-3 rounded-xl text-sm font-medium transition-all min-h-12",
-                  canProceed && !isLoading
+                  canProceed && !isLoading && (!preflightResult || preflightResult.allowed)
                     ? "bg-white text-black hover:bg-zinc-200"
                     : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
                 )}

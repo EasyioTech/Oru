@@ -61,6 +61,25 @@ const planRoutes: FastifyPluginAsync = async (fastify) => {
             throw error;
         }
     });
+
+    // Delete Plan (BUG-05 fix: this route was never registered)
+    fastify.delete('/:id', {
+        onRequest: [fastify.authenticate],
+    }, async (request, reply) => {
+        const { id } = request.params as { id: string };
+        try {
+            if (!request.ability.can('delete', 'Catalog')) {
+                throw new ForbiddenError();
+            }
+
+            await service.deletePlan(id);
+            return { success: true, message: 'Plan deleted successfully' };
+        } catch (error) {
+            fastify.log.error(error);
+            throw error;
+        }
+    });
+
     // List Features
     fastify.get('/features', {
         onRequest: [fastify.authenticate],

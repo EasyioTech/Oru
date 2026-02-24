@@ -18,17 +18,19 @@ export class SystemService {
 
     // Delegate methods
     async getMetrics() { return this.monitoring.getMetrics(); }
+    async getDetailedHealth() { return this.monitoring.checkDetailedHealth(); }
+    async getSignupPreflight() { return this.monitoring.checkSignupPreflight(); }
     async getRealtimeUsage() { return this.monitoring.getRealtimeUsage(); }
     async getTickets(params?: TicketsQueryInput) { return this.monitoring.getTickets(params); }
-    async getTicketsSummary() { return this.monitoring.getMetrics(); } // simplified
+    async getTicketsSummary() { return this.monitoring.getTicketsSummary(); }
 
     async getSettings() { return this.management.getSettings(); }
     async updateSettings(updates: UpdateSystemSettingsInput) { return this.management.updateSettings(updates); }
-    async getMaintenanceStatus() { return this.management.getSettings(); } // simplified
-    async getBranding() { return this.management.getSettings(); } // simplified
+    async getBranding() { return this.management.getBranding(); }
     async getSystemFeatures() { return this.management.getSystemFeatures(); }
     async createFeature(input: CreateFeatureInput) { return this.management.createFeature(input); }
-    async updateFeature(id: string, input: UpdateFeatureInput) { return this.management.getSystemFeatures(); } // placeholder
+    async updateFeature(id: string, input: UpdateFeatureInput) { return this.management.updateFeature(id, input); }
+    async deleteFeature(id: string) { return this.management.deleteFeature(id); }
 
     async getAgencyData(agencyId: string) { return this.agency.getAgencyData(agencyId); }
     async getAgencyPages(agencyId: string) { return this.agency.getAgencyPages(agencyId); }

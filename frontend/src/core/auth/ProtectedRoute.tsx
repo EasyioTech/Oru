@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   useEffect(() => {
     // Only system-level super admins (no agency database) should skip page access check
     const isSystemSuperAdminCheck = userRole === 'super_admin' && !localStorage.getItem('agency_database');
-    
+
     if (userRole && !isSystemSuperAdminCheck && user) {
       hasPageAccess(location.pathname).then(hasAccess => {
         setHasPageAccessResult(hasAccess);
@@ -56,7 +56,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   // IMPORTANT: Only system-level super_admin (no agency database) should skip agency context check
   // Agency admins (role='admin' with agency database) should have agency context
   const isSystemSuperAdmin = userRole === 'super_admin' && !localStorage.getItem('agency_database');
-  
+
   if (!isSystemSuperAdmin) {
     const agencyDatabase = localStorage.getItem('agency_database');
     if (!agencyDatabase && location.pathname !== '/agency-setup' && location.pathname !== '/agency-setup-progress') {
@@ -73,7 +73,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   // Determine required roles: use prop if provided, otherwise auto-detect from routePermissions
   let requiredRoles: AppRole[] = [];
   let useAutoDetection = false;
-  
+
   if (requiredRole) {
     // Explicit role requirement from prop
     requiredRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
@@ -117,15 +117,15 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
               To access this page, please request it from your administrator or contact support.
             </p>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => window.history.back()}
                 className="flex-1"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
               </Button>
-              <Button 
+              <Button
                 variant="default"
                 onClick={() => window.location.href = '/dashboard'}
                 className="flex-1"
@@ -143,21 +143,21 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   // If requiredRoles is empty, all authenticated users can access
   if (userRole && requiredRoles.length > 0) {
     // Use canAccessRouteSync for role checking
-    const hasAccess = useAutoDetection 
+    const hasAccess = useAutoDetection
       ? canAccessRouteSync(userRole, location.pathname)
       : (requiredRoles.includes(userRole) || requiredRoles.some(role => hasRoleOrHigher(userRole, role)));
-    
+
     if (!hasAccess) {
       // Get route permission info for better error message
       const routePermission = getRoutePermission(location.pathname);
-      
+
       // Format required roles for display
       const roleNames = requiredRoles.map(role => getRoleDisplayName(role));
-      const roleText = roleNames.length === 1 
-        ? roleNames[0] 
+      const roleText = roleNames.length === 1
+        ? roleNames[0]
         : roleNames.length === 2
-        ? `${roleNames[0]} or ${roleNames[1]}`
-        : `${roleNames.slice(0, -1).join(', ')}, or ${roleNames[roleNames.length - 1]}`;
+          ? `${roleNames[0]} or ${roleNames[1]}`
+          : `${roleNames.slice(0, -1).join(', ')}, or ${roleNames[roleNames.length - 1]}`;
 
       return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
@@ -188,15 +188,15 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
                 )}
               </div>
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => window.history.back()}
                   className="flex-1"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Go Back
                 </Button>
-                <Button 
+                <Button
                   variant="default"
                   onClick={() => window.location.href = '/dashboard'}
                   className="flex-1"
