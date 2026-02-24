@@ -5,7 +5,7 @@ import { SectionWrapper } from '@/components/ui/SectionWrapper';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Lazy load sections below the fold
-const LogoCloud = React.lazy(() => import('./sections/LogoCloud').then(module => ({ default: module.default || module.LogoCloud })));
+const LogoCloud = React.lazy(() => import('./sections/LogoCloud'));
 const BentoFeatures = React.lazy(() => import('./sections/BentoFeatures').then(module => ({ default: module.BentoFeatures })));
 const ProductShowcase = React.lazy(() => import('./sections/ProductShowcase').then(module => ({ default: module.ProductShowcase })));
 const Stats = React.lazy(() => import('./sections/Stats').then(module => ({ default: module.Stats })));
@@ -18,15 +18,15 @@ const Footer = React.lazy(() => import('./sections/Footer').then(module => ({ de
 const SectionLoader = () => (
   <div className="w-full h-96 flex items-center justify-center py-20">
     <div className="space-y-4 w-full max-w-4xl px-4">
-      <Skeleton className="h-12 w-3/4 mx-auto bg-zinc-800/50" />
-      <Skeleton className="h-64 w-full bg-zinc-800/50 rounded-xl" />
+      <Skeleton className="h-12 w-3/4 mx-auto bg-muted" />
+      <Skeleton className="h-64 w-full bg-muted rounded-xl" />
     </div>
   </div>
 );
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#000000] text-white antialiased selection:bg-blue-500/20 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground overflow-x-hidden">
       <Navigation />
       <Hero />
 

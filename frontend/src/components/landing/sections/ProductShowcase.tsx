@@ -1,25 +1,32 @@
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useRef, useState, lazy, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, lazy, Suspense } from 'react';
 import {
-  Play,
-  ChevronRight,
   LayoutDashboard,
+  FolderKanban,
   Users,
-  FileText,
   Settings,
-  Menu,
-  DollarSign,
-  UserCheck,
-  Target,
-  FileDown,
+  ChevronRight,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Search,
+  Plus,
+  Bell,
+  Wallet,
+  Building2,
+  Users2,
+  Receipt,
   MessageSquare,
-  HardDrive,
-  BarChart3,
-  Loader2
+  Files,
+  TrendingUp,
+  LineChart,
+  Menu,
+  X
 } from 'lucide-react';
-import { SectionTitle } from '../fragments';
+import { SectionTitle, Container } from '../fragments';
+import { cn } from '@/lib/utils';
 
-// Lazy load views
+// Lazy load views for better performance
 const DashboardView = lazy(() => import('./showcase-views/DashboardView').then(m => ({ default: m.DashboardView })));
 const ProjectsView = lazy(() => import('./showcase-views/ProjectsView').then(m => ({ default: m.ProjectsView })));
 const TeamView = lazy(() => import('./showcase-views/TeamView').then(m => ({ default: m.TeamView })));
@@ -33,17 +40,17 @@ const FileManagementView = lazy(() => import('./showcase-views/FileManagementVie
 const FinancialManagementView = lazy(() => import('./showcase-views/FinancialManagementView').then(m => ({ default: m.FinancialManagementView })));
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'projects', label: 'Projects', icon: FileText },
-  { id: 'team', label: 'Team', icon: Users },
-  { id: 'payroll', label: 'Payroll', icon: DollarSign },
-  { id: 'hrms', label: 'HRMS', icon: UserCheck },
-  { id: 'crm', label: 'CRM Leads', icon: Target },
-  { id: 'invoicing', label: 'Invoices', icon: FileDown },
-  { id: 'chat', label: 'Live Chat', icon: MessageSquare },
-  { id: 'files', label: 'Files', icon: HardDrive },
-  { id: 'financials', label: 'Financials', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'text-blue-500' },
+  { id: 'projects', label: 'Projects', icon: FolderKanban, color: 'text-indigo-500' },
+  { id: 'team', label: 'Team', icon: Users, color: 'text-emerald-500' },
+  { id: 'payroll', label: 'Payroll', icon: Wallet, color: 'text-amber-500' },
+  { id: 'hrms', label: 'HRMS', icon: Building2, color: 'text-purple-500' },
+  { id: 'crm', label: 'CRM', icon: Users2, color: 'text-pink-500' },
+  { id: 'invoicing', label: 'Invoicing', icon: Receipt, color: 'text-cyan-500' },
+  { id: 'chat', label: 'Internal Chat', icon: MessageSquare, color: 'text-blue-400' },
+  { id: 'files', label: 'File Manager', icon: Files, color: 'text-orange-500' },
+  { id: 'financials', label: 'Financials', icon: LineChart, color: 'text-emerald-400' },
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'text-zinc-400' },
 ];
 
 const views: Record<string, React.FC> = {
@@ -61,164 +68,198 @@ const views: Record<string, React.FC> = {
 };
 
 const LoadingState = () => (
-  <div className="h-full w-full flex flex-col items-center justify-center bg-zinc-950/20 backdrop-blur-[2px]">
-    <motion.div
-      animate={{ rotate: 360 }}
-      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-    >
-      <Loader2 className="w-8 h-8 text-blue-500/50" />
-    </motion.div>
-    <p className="text-[10px] text-zinc-500 mt-3 font-medium uppercase tracking-widest">Loading Module...</p>
+  <div className="w-full h-full flex items-center justify-center bg-background/50 backdrop-blur-sm">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      <span className="text-sm font-medium text-muted-foreground">Syncing Oru...</span>
+    </div>
   </div>
 );
 
 export const ProductShowcase = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const ActiveView = views[activeTab];
 
   return (
-    <section ref={ref} className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden bg-zinc-950">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.08),transparent_50%)]" />
+    <section className="relative py-24 md:py-32 bg-background overflow-hidden border-t border-border">
+      {/* Background Orbs */}
+      <div className="absolute top-1/4 -left-20 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none opacity-40" />
+      <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-muted-foreground/5 rounded-full blur-[120px] pointer-events-none opacity-20" />
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <Container className="relative z-10">
         <SectionTitle
-          badge="Product Ecosystem"
-          title="One platform, every operation"
-          description="Everything your agency needs to scale. Powerful modules designed to work together seamlessly."
+          badge="Product Tour"
+          title="See Oru in Action"
+          description="A centralized operating system for modern agencies. Everything connected, nothing lost in translation."
         />
 
+        {/* Browser Frame */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-10 sm:mt-16"
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          viewport={{ once: true }}
+          className="mt-16 md:mt-24 relative mx-auto max-w-[1100px]"
         >
-          <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]">
-            <div className="absolute -inset-px bg-gradient-to-b from-white/[0.12] to-transparent rounded-2xl sm:rounded-3xl pointer-events-none" />
-
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/[0.06] bg-zinc-900/60">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="md:hidden p-2 rounded-xl hover:bg-white/[0.05] transition-colors active:scale-95"
-                >
-                  <Menu className="w-5 h-5 text-zinc-400" />
-                </button>
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500/60 border border-red-500/20 shadow-[0_0_8px_rgba(239,68,68,0.2)]" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/60 border border-yellow-500/20 shadow-[0_0_8px_rgba(234,179,8,0.2)]" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/60 border border-green-500/20 shadow-[0_0_8px_rgba(34,197,94,0.2)]" />
+          <div className={cn(
+            "relative bg-card rounded-2xl border border-border shadow-2xl shadow-black/20 overflow-hidden transition-all duration-700",
+            device === 'desktop' ? 'w-full aspect-[16/10]' :
+              device === 'tablet' ? 'max-w-[768px] aspect-[4/3] mx-auto' :
+                'max-w-[375px] aspect-[9/19] mx-auto'
+          )}>
+            {/* Browser Header */}
+            <div className="h-12 bg-muted/50 border-b border-border flex items-center px-4 gap-4">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-error/20" />
+                <div className="w-3 h-3 rounded-full bg-warning/20" />
+                <div className="w-3 h-3 rounded-full bg-success/20" />
+              </div>
+              <div className="flex-1 bg-background/50 border border-border rounded-md px-3 py-1 flex items-center gap-2">
+                <Search className="w-3 h-3 text-muted-foreground" />
+                <div className="text-[10px] text-muted-foreground">oru.agency/dashboard</div>
+              </div>
+              <div className="flex gap-2">
+                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 </div>
-              </div>
-              <div className="hidden md:block px-6 py-1.5 rounded-full bg-zinc-800/80 border border-white/[0.03] text-[10px] text-zinc-400 font-mono tracking-wide">
-                app.oru.io<span className="text-zinc-600">/</span><span className="text-blue-400">{activeTab}</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] animate-pulse" />
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest hidden sm:block">Live Operations</span>
               </div>
             </div>
 
-            <div className="flex relative items-stretch h-[450px] sm:h-[520px] lg:h-[600px]">
-              <div className={`
-                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-                md:translate-x-0
-                absolute md:relative z-20
-                w-56 sm:w-64 h-full
-                border-r border-white/[0.06] bg-zinc-900/98 md:bg-zinc-900/40 
-                flex flex-col
-                transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]
-              `}>
-                <div className="p-4 sm:p-6 mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
-                      <span className="text-sm font-black text-white italic">O</span>
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white font-display tracking-tight">Oru Enterprise</div>
-                      <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Admin Dashboard</div>
-                    </div>
-                  </div>
+            <div className="flex h-[calc(100%-3rem)] overflow-hidden">
+              {/* Internal Sidebar */}
+              <div className={cn(
+                "w-56 bg-muted/30 border-r border-border flex flex-col transition-all duration-300",
+                "md:relative absolute md:translate-x-0 inset-y-0 z-20",
+                isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+              )}>
+                <div className="p-4 flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">O</div>
+                  <span className="font-bold text-foreground tracking-tight">Oru ERP</span>
                 </div>
 
-                <nav className="flex-1 overflow-y-auto custom-scrollbar px-3 pb-6 space-y-1">
-                  <div className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] px-3 mb-2 mt-4 ml-0.5">Core Modules</div>
+                <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none custom-scrollbar px-2 space-y-0.5">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => {
                         setActiveTab(tab.id);
-                        setSidebarOpen(false);
+                        if (window.innerWidth < 768) setIsSidebarOpen(false);
                       }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-300 relative group overflow-hidden ${activeTab === tab.id
-                          ? 'bg-blue-500/10 text-white'
-                          : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]'
-                        }`}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all group relative",
+                        activeTab === tab.id
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                      )}
                     >
+                      <tab.icon className={cn(
+                        "w-4 h-4",
+                        activeTab === tab.id ? tab.color : "text-muted-foreground group-hover:text-foreground"
+                      )} />
+                      <span className="truncate">{tab.label}</span>
                       {activeTab === tab.id && (
                         <motion.div
-                          layoutId="activeTabBg"
-                          className="absolute inset-0 bg-blue-500/10 border-l-2 border-blue-500"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          layoutId="active-tab-indicator"
+                          className="absolute right-2 w-1.5 h-1.5 rounded-full bg-primary"
                         />
                       )}
-                      <tab.icon className={`w-4 h-4 relative z-10 ${activeTab === tab.id ? 'text-blue-400' : 'group-hover:text-zinc-300 transition-colors'}`} />
-                      <span className="text-xs font-medium relative z-10">{tab.label}</span>
                     </button>
                   ))}
-                </nav>
+                </div>
+
+                <div className="p-4 mt-auto border-t border-border">
+                  <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted/50 border border-border/50">
+                    <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">JD</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-bold text-foreground truncate">John Doe</div>
+                      <div className="text-[8px] text-muted-foreground truncate">Agency Admin</div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <AnimatePresence mode="wait">
-                {sidebarOpen && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 md:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                  />
-                )}
-              </AnimatePresence>
+              {/* View Container */}
+              <div className="flex-1 relative flex flex-col min-w-0 bg-background/30 overflow-hidden">
+                {/* Internal Toolbar */}
+                <div className="h-14 border-b border-border flex items-center justify-between px-6 bg-card/50">
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                      className="md:hidden p-2 rounded-lg hover:bg-muted"
+                    >
+                      {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </button>
+                    <h2 className="text-sm font-bold text-foreground capitalize flex items-center gap-2">
+                      {activeTab}
+                      <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="md:flex hidden items-center bg-muted/50 rounded-lg px-2 py-1 border border-border">
+                      <Search className="w-3 h-3 text-muted-foreground" />
+                      <input className="bg-transparent border-none text-[10px] outline-none ml-2 w-24" placeholder="Search..." />
+                    </div>
+                    <Bell className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                </div>
 
-              <div className="flex-1 min-w-0 bg-zinc-900/20 relative">
-                <div className="absolute inset-0 pointer-events-none border-l border-white/[0.02]" />
-                <Suspense fallback={<LoadingState />}>
-                  <ActiveView />
-                </Suspense>
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTab}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                      className="h-full"
+                    >
+                      <Suspense fallback={<LoadingState />}>
+                        <ActiveView />
+                      </Suspense>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.8 }}
-            className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6"
-          >
-            <button className="group flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.05] border border-white/[0.08] text-xs sm:text-sm text-zinc-300 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.15] transition-all active:scale-95">
-              <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 transition-transform">
-                <Play className="w-2.5 h-2.5 text-white fill-current ml-0.5" />
-              </div>
-              Watch Product Walkthrough
+          {/* Device Switcher */}
+          <div className="mt-8 flex justify-center gap-3">
+            <button
+              onClick={() => setDevice('desktop')}
+              className={cn(
+                "p-2.5 rounded-xl border-2 transition-all",
+                device === 'desktop' ? "border-primary bg-primary/10 text-primary shadow-lg shadow-primary/10" : "border-border text-muted-foreground hover:bg-muted"
+              )}
+            >
+              <Monitor className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-zinc-950 bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-500">
-                    JD
-                  </div>
-                ))}
-              </div>
-              <span className="text-xs text-zinc-500">Used by <span className="text-zinc-300 font-bold">500+</span> agencies</span>
-            </div>
-          </motion.div>
+            <button
+              onClick={() => setDevice('tablet')}
+              className={cn(
+                "p-2.5 rounded-xl border-2 transition-all",
+                device === 'tablet' ? "border-primary bg-primary/10 text-primary shadow-lg shadow-primary/10" : "border-border text-muted-foreground hover:bg-muted"
+              )}
+            >
+              <Tablet className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setDevice('mobile')}
+              className={cn(
+                "p-2.5 rounded-xl border-2 transition-all",
+                device === 'mobile' ? "border-primary bg-primary/10 text-primary shadow-lg shadow-primary/10" : "border-border text-muted-foreground hover:bg-muted"
+              )}
+            >
+              <Smartphone className="w-5 h-5" />
+            </button>
+          </div>
         </motion.div>
-      </div>
+      </Container>
 
+      {/* Internal Scroll Style */}
       <style dangerouslySetInnerHTML={{
         __html: `
         .custom-scrollbar::-webkit-scrollbar {
@@ -228,11 +269,11 @@ export const ProductShowcase = () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
+          background: hsl(var(--border));
+          border-radius: 20px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: hsl(var(--primary) / 0.5);
         }
       `}} />
     </section>

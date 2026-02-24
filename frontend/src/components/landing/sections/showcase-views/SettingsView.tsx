@@ -1,37 +1,113 @@
 import { motion } from 'framer-motion';
+import {
+    Settings2,
+    Shield,
+    Bell,
+    Users,
+    Github,
+    Link2,
+    Database,
+    Globe,
+    Monitor
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export const SettingsView = () => (
-    <div className="p-4 sm:p-6 lg:p-8 h-full overflow-y-auto">
-        <h3 className="text-base sm:text-lg font-semibold text-white font-display mb-4 sm:mb-6">Settings</h3>
+export const SettingsView = () => {
+    return (
+        <div className="h-full space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-xl font-bold text-foreground font-display">Workspace Configuration</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Manage global preferences and system integrations.</p>
+                </div>
+                <button className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Save Changes
+                </button>
+            </div>
 
-        <div className="space-y-2 sm:space-y-4">
-            {[
-                { label: 'Notifications', description: 'Email and push notification preferences', enabled: true },
-                { label: 'Two-Factor Auth', description: 'Add extra security to your account', enabled: true },
-                { label: 'Auto-save', description: 'Automatically save changes', enabled: true },
-                { label: 'Dark Mode', description: 'Use dark theme across the app', enabled: true },
-                { label: 'Analytics', description: 'Share usage data to improve the product', enabled: false },
-            ].map((setting, i) => (
-                <motion.div
-                    key={setting.label}
-                    initial={{ opacity: 0, x: -15 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.08 }}
-                    className="flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-zinc-800/50 border border-white/[0.04]"
-                >
-                    <div className="flex-1 min-w-0 mr-3">
-                        <div className="text-xs sm:text-sm font-medium text-white">{setting.label}</div>
-                        <div className="text-[10px] sm:text-xs text-zinc-500 mt-0.5 truncate leading-relaxed">{setting.description}</div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-1 space-y-1">
+                    {[
+                        { label: 'General', icon: Settings2, active: true },
+                        { label: 'Security', icon: Shield },
+                        { label: 'Notifications', icon: Bell },
+                        { label: 'Members', icon: Users },
+                        { label: 'Billing', icon: Database },
+                    ].map((item, i) => (
+                        <div
+                            key={item.label}
+                            className={cn(
+                                "flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                item.active
+                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                    : "text-muted-foreground hover:bg-muted"
+                            )}
+                        >
+                            <item.icon className="w-4 h-4" />
+                            {item.label}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="lg:col-span-3 space-y-6">
+                    <div className="p-6 rounded-2xl bg-card border border-border shadow-sm">
+                        <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-primary" />
+                            Regional Settings
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Workspace Domain</label>
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted border border-border">
+                                    <span className="text-xs text-foreground">Easyio.tech/oru</span>
+                                    <Link2 className="w-3 h-3 text-muted-foreground" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Timezone</label>
+                                <div className="px-3 py-2 rounded-xl bg-muted border border-border text-xs text-foreground">
+                                    IST (UTC+5:30)
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className={`w-8 h-5 sm:w-10 sm:h-6 rounded-full p-0.5 sm:p-1 transition-colors flex-shrink-0 cursor-pointer ${setting.enabled ? 'bg-blue-500' : 'bg-zinc-700'}`}>
-                        <motion.div
-                            className="w-4 h-4 rounded-full bg-white shadow-sm"
-                            animate={{ x: setting.enabled ? (typeof window !== 'undefined' && window.innerWidth < 640 ? 12 : 16) : 0 }}
-                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                        />
+
+                    <div className="p-6 rounded-2xl bg-card border border-border shadow-sm">
+                        <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                            <Monitor className="w-4 h-4 text-success" />
+                            Connected Apps
+                        </h4>
+                        <div className="space-y-3">
+                            {[
+                                { name: 'Slack', status: 'Connected', icon: Hash, color: 'text-purple-500' },
+                                { name: 'GitHub', status: 'Authorize', icon: Github, color: 'text-foreground' },
+                            ].map((app, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-all">
+                                    <div className="flex items-center gap-3">
+                                        <div className={cn("p-2 rounded-lg bg-card shadow-sm", app.color)}>
+                                            <app.icon className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-xs font-bold text-foreground">{app.name}</span>
+                                    </div>
+                                    <button className={cn(
+                                        "text-[10px] font-bold px-3 py-1 rounded-lg transition-all",
+                                        app.status === 'Connected' ? "bg-success/10 text-success" : "bg-primary text-primary-foreground"
+                                    )}>
+                                        {app.status}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </motion.div>
-            ))}
+                </div>
+            </div>
         </div>
-    </div>
+    );
+};
+
+const Hash = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="4" y1="9" x2="20" y2="9" /><line x1="4" y1="15" x2="20" y2="15" />
+        <line x1="10" y1="3" x2="8" y2="21" /><line x1="16" y1="3" x2="14" y2="21" />
+    </svg>
 );

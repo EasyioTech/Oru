@@ -71,7 +71,7 @@ const FAQItem = ({ question, answer, isOpen, onToggle }: { question: string; ans
           <ChevronDown className="w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
         </motion.div>
       </button>
-      
+
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -81,7 +81,7 @@ const FAQItem = ({ question, answer, isOpen, onToggle }: { question: string; ans
             transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
             className="overflow-hidden"
           >
-            <p className="pb-5 text-sm text-zinc-400 leading-relaxed pr-8">
+            <p className="pb-5 text-sm text-muted-foreground leading-relaxed pr-8">
               {answer}
             </p>
           </motion.div>
@@ -96,24 +96,24 @@ export const FAQ = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
   const [activeCategory, setActiveCategory] = useState(faqs[0].category);
-  
+
   const toggleItem = (key: string) => {
     setOpenItems(prev => ({ ...prev, [key]: !prev[key] }));
   };
-  
+
   const activeFaqs = faqs.find(f => f.category === activeCategory)?.questions || [];
-  
+
   return (
     <section ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(16,185,129,0.05),transparent_50%)]" />
-      
+
       <div className="relative z-10 max-w-4xl mx-auto">
         <SectionTitle
           badge="FAQ"
           title="Frequently asked questions"
           description="Everything you need to know about Oru. Can't find what you're looking for? Reach out to our team."
         />
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -124,17 +124,16 @@ export const FAQ = () => {
             <button
               key={faq.category}
               onClick={() => setActiveCategory(faq.category)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeCategory === faq.category
-                  ? 'bg-white/[0.1] text-white'
-                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeCategory === faq.category
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
             >
               {faq.category}
             </button>
           ))}
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -153,34 +152,34 @@ export const FAQ = () => {
             ))}
           </div>
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.5 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8"
         >
-          <div className="flex items-center gap-3 text-sm text-zinc-500">
-            <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-              <HelpCircle className="w-5 h-5 text-zinc-400" />
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
-              <div className="text-zinc-300">Still have questions?</div>
-              <a href="mailto:support@Oru.io" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <div className="text-foreground">Still have questions?</div>
+              <a href="mailto:support@Oru.io" className="text-primary hover:text-primary/80 transition-colors">
                 support@Oru.io
               </a>
             </div>
           </div>
-          
-          <div className="hidden sm:block w-px h-10 bg-white/[0.06]" />
-          
-          <div className="flex items-center gap-3 text-sm text-zinc-500">
-            <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-              <MessageCircle className="w-5 h-5 text-zinc-400" />
+
+          <div className="hidden sm:block w-px h-10 bg-border" />
+
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center">
+              <MessageCircle className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
-              <div className="text-zinc-300">Chat with us</div>
-              <span className="text-zinc-500">Live chat available 9am-6pm IST</span>
+              <div className="text-foreground">Chat with us</div>
+              <span className="text-muted-foreground/60">Live chat available 9am-6pm IST</span>
             </div>
           </div>
         </motion.div>
