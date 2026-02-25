@@ -136,7 +136,7 @@ async function migrateToNormalizedSchema(client) {
             company_tagline
           )
         WHERE id = (SELECT id FROM public.agency_branding LIMIT 1);
-      `).catch(() => {});
+      `).catch(() => { });
     }
 
     // Migrate address data
@@ -164,7 +164,7 @@ async function migrateToNormalizedSchema(client) {
             country
           )
         WHERE address_type = 'primary';
-      `).catch(() => {});
+      `).catch(() => { });
     }
 
     // Migrate financial settings
@@ -200,7 +200,7 @@ async function migrateToNormalizedSchema(client) {
             bank_account_number
           )
         WHERE id = (SELECT id FROM public.agency_financial_settings LIMIT 1);
-      `).catch(() => {});
+      `).catch(() => { });
     }
 
     // Migrate preferences
@@ -224,7 +224,7 @@ async function migrateToNormalizedSchema(client) {
             time_format
           )
         WHERE id = (SELECT id FROM public.agency_preferences LIMIT 1);
-      `).catch(() => {});
+      `).catch(() => { });
     }
 
     console.log('[SQL] ✅ Legacy data migration completed');
@@ -234,7 +234,6 @@ async function migrateToNormalizedSchema(client) {
 }
 
 /**
-<<<<<<< HEAD
  * Ensure system_settings table exists (main database)
  * @param {Object} client - PostgreSQL client
  */
@@ -274,8 +273,6 @@ async function ensureSystemSettingsTable(client) {
 }
 
 /**
-=======
->>>>>>> 9834a76d4fce6638fd3b9ba6a3aecb51d990783d
  * Ensure agency_provisioning_jobs table exists (async agency creation)
  * @param {Object} client - PostgreSQL client
  */
@@ -301,11 +298,11 @@ async function ensureAgencyProvisioningJobsTable(client) {
   await client.query(`
     CREATE INDEX IF NOT EXISTS idx_agency_provisioning_jobs_status ON public.agency_provisioning_jobs(status);
   `);
-  
+
   await client.query(`
     CREATE INDEX IF NOT EXISTS idx_agency_provisioning_jobs_idempotency_key ON public.agency_provisioning_jobs(idempotency_key) WHERE idempotency_key IS NOT NULL;
   `);
-  
+
   await client.query(`
     CREATE INDEX IF NOT EXISTS idx_agency_provisioning_jobs_created_at ON public.agency_provisioning_jobs(created_at);
   `);
@@ -328,13 +325,13 @@ async function ensureAgencyProvisioningJobsTable(client) {
  */
 async function ensureAgenciesSchema(client) {
   console.log('[SQL] Ensuring agencies schema (normalized)...');
-  
+
   // Core settings table
   await ensureAgencySettingsTable(client);
-  
+
   // System settings table (main database)
   await ensureSystemSettingsTable(client);
-  
+
   // Normalized sub-tables
   await ensureAgencyBrandingSchema(client);
   await ensureAgencyAddressSchema(client);
@@ -342,13 +339,13 @@ async function ensureAgenciesSchema(client) {
   await ensureAgencyNotificationsSchema(client);
   await ensureAgencyFinancialSettingsSchema(client);
   await ensureAgencyPreferencesSchema(client);
-  
+
   // Ensure agency provisioning jobs table
   await ensureAgencyProvisioningJobsTable(client);
-  
+
   // Migrate data from legacy columns if they exist
   await migrateToNormalizedSchema(client);
-  
+
   console.log('[SQL] ✅ Agencies schema ensured (normalized)');
 }
 
