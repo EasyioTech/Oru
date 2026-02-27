@@ -19,10 +19,10 @@ require('dotenv').config({ path: require('path').join(__dirname, '..', '..', '.e
  * Prevents server from starting with default or missing secrets
  */
 function validateRequiredSecrets() {
-  const postgresPassword = process.env.POSTGRES_PASSWORD || 
-                          process.env.DATABASE_URL?.match(/:(.+?)@/)?.[1] ||
-                          process.env.VITE_DATABASE_URL?.match(/:(.+?)@/)?.[1];
-  
+  const postgresPassword = process.env.POSTGRES_PASSWORD ||
+    process.env.DATABASE_URL?.match(/:(.+?)@/)?.[1] ||
+    process.env.VITE_DATABASE_URL?.match(/:(.+?)@/)?.[1];
+
   const jwtSecret = process.env.VITE_JWT_SECRET || process.env.JWT_SECRET;
 
   const required = {
@@ -127,10 +127,6 @@ configureMiddleware(app);
 // Request logging
 app.use(requestLogger);
 
-// Maintenance mode check
-const { maintenanceMode } = require('./middleware/maintenanceMode');
-app.use('/api', maintenanceMode);
-
 // Rate limiting
 const { apiLimiter } = require('./middleware/rateLimiter');
 app.use('/api', apiLimiter);
@@ -197,13 +193,13 @@ let isServerReady = false;
 async function runMigrationIfExists(client, migrationName) {
   const fs = require('fs');
   const path = require('path');
-  
+
   const migrationPath = path.join(__dirname, '..', '..', 'database', 'migrations', migrationName);
-  
+
   if (!fs.existsSync(migrationPath)) {
     return false;
   }
-  
+
   try {
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
     await client.query(migrationSQL);
@@ -229,12 +225,12 @@ async function ensureSuperAdminUser(client) {
         WHERE table_schema = 'public' AND table_name = 'users'
       )
     `);
-    
+
     if (!tableCheck.rows[0].exists) {
       logger.warn('Users table does not exist, skipping super admin creation');
       return;
     }
-    
+
     // Check if user_roles table exists
     const userRolesCheck = await client.query(`
       SELECT EXISTS (
@@ -242,9 +238,9 @@ async function ensureSuperAdminUser(client) {
         WHERE table_schema = 'public' AND table_name = 'user_roles'
       )
     `);
-    
+
     const userRolesExists = userRolesCheck.rows[0].exists;
-    
+
     // Check if super admin exists
     let userCheck;
     if (userRolesExists) {
@@ -260,14 +256,14 @@ async function ensureSuperAdminUser(client) {
         SELECT id FROM public.users WHERE email = 'super@buildflow.local'
       `);
     }
-    
+
     if (userCheck.rows.length === 0 || (userRolesExists && !userCheck.rows[0].role)) {
       logger.info('Creating super admin user...');
-      
+
       // Ensure extensions
       await client.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
       await client.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
-      
+
       // Create or update super admin
       await client.query(`
         INSERT INTO public.users (email, password_hash, email_confirmed, email_confirmed_at, is_active)
@@ -283,24 +279,24 @@ async function ensureSuperAdminUser(client) {
           is_active = true,
           updated_at = now()
       `);
-      
+
       // Get user ID
       const adminResult = await client.query(
         `SELECT id FROM public.users WHERE email = 'super@buildflow.local' LIMIT 1`
       );
       const adminId = adminResult.rows[0]?.id;
-      
+
       if (!adminId) {
         logger.warn('Super admin user not found after creation');
         return;
       }
-      
+
       // Ensure profile exists
       const profileExists = await client.query(
         `SELECT 1 FROM public.profiles WHERE user_id = $1 LIMIT 1`,
         [adminId]
       );
-      
+
       if (profileExists.rows.length === 0) {
         await client.query(
           `INSERT INTO public.profiles (user_id, full_name, is_active, created_at, updated_at)
@@ -315,7 +311,7 @@ async function ensureSuperAdminUser(client) {
           [adminId]
         );
       }
-      
+
       // Ensure super_admin role exists
       if (userRolesExists) {
         const roleExists = await client.query(
@@ -323,7 +319,7 @@ async function ensureSuperAdminUser(client) {
            WHERE user_id = $1 AND role = 'super_admin' AND agency_id IS NULL LIMIT 1`,
           [adminId]
         );
-        
+
         if (roleExists.rows.length === 0) {
           await client.query(
             `INSERT INTO public.user_roles (user_id, role, agency_id) 
@@ -332,7 +328,7 @@ async function ensureSuperAdminUser(client) {
           );
         }
       }
-      
+
       logger.info('✅ Super admin user verified (email: super@buildflow.local)');
     } else {
       logger.info('✅ Super admin user verified');
@@ -358,14 +354,14 @@ async function initializeMainDatabase() {
   const fs = require('fs');
   const path = require('path');
   const startTime = Date.now();
-  
+
   try {
     logger.info('Initializing main database schema...');
-    
+
     // Get main pool from pool manager
     const mainPool = poolManager.getMainPool();
     const client = await mainPool.connect();
-    
+
     try {
       // Check if agencies table exists
       const tableCheck = await client.query(`
@@ -374,12 +370,12 @@ async function initializeMainDatabase() {
           WHERE table_schema = 'public' AND table_name = 'agencies'
         )
       `);
-      
+
       // Run core schema migration if needed
       if (!tableCheck.rows[0].exists) {
         logger.warn('Main database schema missing, running migrations...');
         const migrated = await runMigrationIfExists(client, '01_core_schema.sql');
-        
+
         if (!migrated) {
           // Fallback: Create agencies table directly
           logger.warn('Migration file not found, creating agencies table...');
@@ -407,7 +403,7 @@ async function initializeMainDatabase() {
       } else {
         logger.info('✅ Main database schema verified');
       }
-      
+
       // Ensure other critical tables exist (run migrations if needed)
       try {
         await runMigrationIfExists(client, '10_page_catalog_schema.sql');
@@ -422,7 +418,7 @@ async function initializeMainDatabase() {
         });
         // Continue with other migrations - don't crash
       }
-      
+
       // Ensure page_catalog has data
       try {
         const catalogCount = await client.query('SELECT COUNT(*) as count FROM public.page_catalog');
@@ -432,7 +428,7 @@ async function initializeMainDatabase() {
           error: catalogError.message
         });
       }
-      
+
       // Ensure system_settings has data
       try {
         const settingsCount = await client.query('SELECT COUNT(*) as count FROM public.system_settings');
@@ -450,13 +446,13 @@ async function initializeMainDatabase() {
           error: settingsError.message
         });
       }
-      
+
       // Ensure super admin exists
       await ensureSuperAdminUser(client);
-      
+
       const duration = Date.now() - startTime;
       logger.info('✅ Main database initialization complete', { durationMs: duration });
-      
+
     } finally {
       client.release();
     }
@@ -491,29 +487,29 @@ async function initializeRedis() {
 function initializeBackups() {
   const cron = require('node-cron');
   const { createBackup, cleanupOldBackups, BACKUP_SCHEDULE } = require('./services/backupService');
-  
+
   // Validate cron schedule
   if (!cron.validate(BACKUP_SCHEDULE)) {
     logger.error('Invalid backup schedule', { schedule: BACKUP_SCHEDULE });
     return;
   }
-  
+
   cron.schedule(BACKUP_SCHEDULE, async () => {
     try {
       logger.info('Starting scheduled backup');
       await createBackup('buildflow_db', 'full');
-      
+
       const deleted = await cleanupOldBackups();
       if (deleted > 0) {
         logger.info('Cleaned up old backups', { count: deleted });
       }
     } catch (error) {
-      logger.error('Scheduled backup failed', { 
-        error: error.message 
+      logger.error('Scheduled backup failed', {
+        error: error.message
       });
     }
   });
-  
+
   logger.info('Automated backups scheduled', { schedule: BACKUP_SCHEDULE });
 }
 
@@ -525,15 +521,15 @@ async function gracefulShutdown(signal) {
     logger.warn(`${signal} received again, forcing exit...`);
     process.exit(1);
   }
-  
+
   isShuttingDown = true;
   logger.info(`${signal} received, shutting down gracefully...`);
-  
+
   const shutdownTimeout = setTimeout(() => {
     logger.error('Shutdown timeout exceeded, forcing exit');
     process.exit(1);
   }, 30000); // 30 second timeout
-  
+
   try {
     // Stop accepting new connections
     server.close((err) => {
@@ -543,16 +539,16 @@ async function gracefulShutdown(signal) {
         logger.info('HTTP server closed');
       }
     });
-    
+
     // Close Redis connection
     const { closeRedisConnection } = require('./config/redis');
     await closeRedisConnection();
     logger.info('Redis connection closed');
-    
+
     // Close all database pools
     await poolManager.closeAll();
     logger.info('Database pools closed');
-    
+
     clearTimeout(shutdownTimeout);
     logger.info('Shutdown complete');
     process.exit(0);
@@ -571,16 +567,16 @@ async function startServer() {
     logger.error('❌ Startup timeout - server failed to initialize in 60 seconds');
     process.exit(1);
   }, 60000); // 60 second startup timeout
-  
+
   try {
     logger.info('Starting Oru API Server...');
-    
+
     // Step 1: Initialize main database (MUST succeed before server starts)
     await initializeMainDatabase();
-    
+
     // Step 2: Initialize Redis (can fail gracefully)
     await initializeRedis();
-    
+
     // Step 3: Start HTTP server
     await new Promise((resolve, reject) => {
       server.listen(PORT, '0.0.0.0', (err) => {
@@ -591,25 +587,25 @@ async function startServer() {
         }
       });
     });
-    
+
     logger.info('✅ Server started', {
       port: PORT,
       environment: process.env.NODE_ENV || 'development',
     });
-    
+
     // Step 4: Initialize background services (non-blocking)
     initializeBackups();
-    
+
     const { initializeScheduledReports } = require('./services/scheduledReportService');
     initializeScheduledReports();
-    
+
     logger.info('✅ WebSocket server initialized');
-    
+
     isServerReady = true;
     clearTimeout(startupTimeout);
-    
+
     logger.info('🚀 Oru API Server is ready to accept requests');
-    
+
   } catch (error) {
     clearTimeout(startupTimeout);
     logger.error('❌ Failed to start server', {
@@ -629,26 +625,26 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Error handlers
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception', { 
-    error: error.message, 
-    stack: error.stack 
+  logger.error('Uncaught Exception', {
+    error: error.message,
+    stack: error.stack
   });
-  
+
   if (!isServerReady) {
     // Failed during startup
     process.exit(1);
   }
-  
+
   // Try graceful shutdown
   gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection', { 
-    reason: reason?.message || String(reason), 
+  logger.error('Unhandled Rejection', {
+    reason: reason?.message || String(reason),
     stack: reason?.stack,
   });
-  
+
   if (!isServerReady) {
     // Failed during startup
     process.exit(1);

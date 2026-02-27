@@ -14,7 +14,7 @@ export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'dele
 
 // System Settings Enums
 export const emailProviderEnum = pgEnum('email_provider_type', ['smtp', 'sendgrid', 'mailgun', 'aws_ses', 'resend', 'postmark']);
-export const storageProviderEnum = pgEnum('storage_provider_type', ['local', 'aws_s3', 'azure_blob', 'gcp_storage', 'digitalocean_spaces']);
+export const storageProviderEnum = pgEnum('storage_provider_type', ['local', 'aws_s3', 'azure_blob', 'gcp_storage', 'digitalocean_spaces', 'r2', 'minio']);
 export const logLevelEnum = pgEnum('log_level_type', ['debug', 'info', 'warn', 'error', 'fatal']);
 export const twitterCardEnum = pgEnum('twitter_card_type', ['summary', 'summary_large_image', 'app', 'player']);
 

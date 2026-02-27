@@ -10,7 +10,7 @@ const { query, queryOne } = require('../infrastructure/database/dbQuery');
 const MASK_PLACEHOLDER = '***';
 
 const BOOLEAN_KEYS = new Set([
-  'maintenance_mode', 'ad_network_enabled', 'ad_placement_header', 'ad_placement_sidebar', 'ad_placement_footer',
+  'ad_network_enabled', 'ad_placement_header', 'ad_placement_sidebar', 'ad_placement_footer',
   'smtp_secure', 'password_require_uppercase', 'password_require_lowercase', 'password_require_numbers',
   'password_require_symbols', 'require_email_verification', 'enable_two_factor', 'enable_captcha',
   'enable_rate_limiting', 'enable_audit_logging', 'enable_error_tracking', 'enable_performance_monitoring',
@@ -29,7 +29,6 @@ const ALLOWED_SETTINGS_FIELDS = [
   'support_email', 'support_phone', 'support_address',
   'facebook_url', 'twitter_url', 'linkedin_url', 'instagram_url', 'youtube_url',
   'terms_of_service_url', 'privacy_policy_url', 'cookie_policy_url',
-  'maintenance_mode', 'maintenance_message',
   'default_language', 'default_timezone',
   'email_provider', 'smtp_host', 'smtp_port', 'smtp_user', 'smtp_password', 'smtp_from', 'smtp_secure',
   'sendgrid_api_key', 'sendgrid_from',
@@ -83,7 +82,6 @@ const STRING_MAX_LENGTHS = {
   meta_title: 200,
   meta_description: 500,
   custom_tracking_code: 50000,
-  maintenance_message: 2000,
   default_language: 20,
   default_timezone: 100,
   logo_url: 524288,      // 512KB for base64 uploads

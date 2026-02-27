@@ -13,12 +13,20 @@ export const pageCatalogSchema = basePageCatalogSchema.extend({
 
 export const createPageCatalogSchema = z.preprocess(
     (data: any) => mapToCamelCase(data),
-    createInsertSchema(pageCatalog).omit({ id: true, createdAt: true, updatedAt: true })
+    createInsertSchema(pageCatalog).extend({
+        baseCost: z.union([z.string(), z.number()]).transform(val => String(val)),
+        description: z.string().nullable().optional(),
+        icon: z.string().nullable().optional(),
+    }).omit({ id: true, createdAt: true, updatedAt: true })
 );
 
 export const updatePageCatalogSchema = z.preprocess(
     (data: any) => mapToCamelCase(data),
-    createInsertSchema(pageCatalog).partial().omit({ id: true, createdAt: true, updatedAt: true })
+    createInsertSchema(pageCatalog).extend({
+        baseCost: z.union([z.string(), z.number()]).transform(val => String(val)),
+        description: z.string().nullable().optional(),
+        icon: z.string().nullable().optional(),
+    }).partial().omit({ id: true, createdAt: true, updatedAt: true })
 );
 
 export const pagePricingTierSchema = createSelectSchema(pagePricingTiers);

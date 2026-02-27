@@ -18,12 +18,20 @@ const planServiceOutputSchema = planSchema.extend({
 
 export const createPlanSchema = z.preprocess(
     (data: any) => mapToCamelCase(data),
-    createInsertSchema(subscriptionPlans).omit({ id: true, createdAt: true, updatedAt: true })
+    createInsertSchema(subscriptionPlans).extend({
+        basePriceMonthly: z.union([z.string(), z.number()]).transform(String),
+        basePriceYearly: z.union([z.string(), z.number()]).transform(String),
+        description: z.string().nullable().optional(),
+    }).omit({ id: true, createdAt: true, updatedAt: true })
 );
 
 export const updatePlanSchema = z.preprocess(
     (data: any) => mapToCamelCase(data),
-    createInsertSchema(subscriptionPlans).partial().omit({ id: true, createdAt: true, updatedAt: true })
+    createInsertSchema(subscriptionPlans).extend({
+        basePriceMonthly: z.union([z.string(), z.number()]).transform(String),
+        basePriceYearly: z.union([z.string(), z.number()]).transform(String),
+        description: z.string().nullable().optional(),
+    }).partial().omit({ id: true, createdAt: true, updatedAt: true })
 );
 
 export const planResponseSchema = planServiceOutputSchema.transform(data => mapToSnakeCase(data));

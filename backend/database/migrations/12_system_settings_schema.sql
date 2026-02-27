@@ -65,8 +65,6 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
     cookie_policy_url TEXT,
     
     -- System Configuration
-    maintenance_mode BOOLEAN DEFAULT false,
-    maintenance_message TEXT,
     default_language TEXT DEFAULT 'en',
     default_timezone TEXT DEFAULT 'UTC',
     

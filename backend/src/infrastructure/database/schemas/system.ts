@@ -124,6 +124,7 @@ export const systemSettings = pgTable('system_settings', {
     awsS3Region: text('aws_s3_region'),
     awsS3AccessKeyEncrypted: text('aws_s3_access_key_encrypted'),
     awsS3SecretKeyEncrypted: text('aws_s3_secret_key_encrypted'),
+    awsS3Endpoint: text('aws_s3_endpoint'),
     awsS3PublicUrl: text('aws_s3_public_url'),
     cdnEnabled: boolean('cdn_enabled').default(false).notNull(),
     cdnUrl: text('cdn_url'),

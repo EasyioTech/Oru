@@ -12,12 +12,26 @@ import { Loader2, Save, RefreshCw, Settings, Search, Tag, Megaphone, Mail, Globe
 import { fetchSystemSettings, updateSystemSettings, type SystemSettings } from '@/services/api/system';
 import { IdentityTab, BrandingTab } from './settings-tabs';
 import { useBranding } from '@/contexts/BrandingContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function SystemSettings() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<SystemSettings>>({});
+  const [activeTab, setActiveTab] = useState('identity');
+  const [isDirty, setIsDirty] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingTab, setPendingTab] = useState<string | null>(null);
   const { toast } = useToast();
   const { refreshBranding } = useBranding();
 
@@ -31,6 +45,7 @@ export function SystemSettings() {
       const data = await fetchSystemSettings();
       setSettings(data);
       setFormData(data);
+      setIsDirty(false);
     } catch (error: any) {
       toast({
         title: 'Error Loading Settings',
@@ -45,9 +60,23 @@ export function SystemSettings() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const updated = await updateSystemSettings(formData);
+
+      // Only send changed fields to avoid "bad practice" of sending everything
+      const changedData: Partial<SystemSettings> = {};
+      if (settings) {
+        Object.entries(formData).forEach(([key, value]) => {
+          const k = key as keyof SystemSettings;
+          if (JSON.stringify(value) !== JSON.stringify(settings[k])) {
+            (changedData as any)[k] = value;
+          }
+        });
+      }
+
+      const payload = Object.keys(changedData).length > 0 ? changedData : formData;
+      const updated = await updateSystemSettings(payload);
       setSettings(updated);
       setFormData(updated);
+      setIsDirty(false);
 
       // Refresh branding context to update logo/title immediately
       await refreshBranding();
@@ -72,6 +101,37 @@ export function SystemSettings() {
       ...prev,
       [field]: value,
     }));
+    setIsDirty(true);
+  };
+
+  const handleTabChange = (value: string) => {
+    if (isDirty) {
+      setPendingTab(value);
+      setShowConfirm(true);
+    } else {
+      setActiveTab(value);
+    }
+  };
+
+  const handleDiscardChanges = () => {
+    if (settings) {
+      setFormData(settings);
+      setIsDirty(false);
+    }
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+    setShowConfirm(false);
+  };
+
+  const handleConfirmSave = async () => {
+    await handleSave();
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+    setShowConfirm(false);
   };
 
   if (loading) {
@@ -122,7 +182,7 @@ export function SystemSettings() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="identity" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
               <TabsTrigger value="identity">Identity</TabsTrigger>
               <TabsTrigger value="branding">Branding</TabsTrigger>
@@ -707,23 +767,28 @@ export function SystemSettings() {
                           placeholder={formData.aws_s3_secret_access_key === '***' ? '••••••••' : 'Enter Secret Key'}
                         />
                       </div>
-                      {(formData.file_storage_provider === 'r2' || formData.file_storage_provider === 'minio') && (
+                      {(formData.file_storage_provider === 'aws_s3' || formData.file_storage_provider === 'r2' || formData.file_storage_provider === 'minio') && (
                         <div className="space-y-2 md:col-span-2">
                           <Label htmlFor="aws_s3_endpoint">Custom Endpoint URL</Label>
                           <Input
                             id="aws_s3_endpoint"
-                            // Note: The frontend interface might not have aws_s3_endpoint mapped yet, assuming public_url for now or need to add it
-                            // Using custom_settings or similar if schema doesn't support it directly yet?
-                            // Checking schema: logic used `process.env.AWS_S3_ENDPOINT`.
-                            // We haven't added `aws_s3_endpoint` to DB schema.
-                            // For now, let's omit or just show a warning that endpoint must be set via ENV or add to DB later.
-                            // Wait, I can use `aws_s3_public_url` as a proxy for endpoint in some contexts? No.
-                            // Let's rely on standard S3 config for now and assume AWS or auto-region for R2.
-                            disabled
-                            placeholder="To configure custom endpoints (R2/MinIO), please use ENV variables for now."
+                            value={formData.aws_s3_endpoint || ''}
+                            onChange={(e) => handleChange('aws_s3_endpoint', e.target.value)}
+                            placeholder="https://<accountid>.r2.cloudflarestorage.com or http://minio:9000"
                           />
+                          <p className="text-xs text-muted-foreground">Required for R2 and MinIO. Leave empty for standard AWS S3.</p>
                         </div>
                       )}
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="aws_s3_public_url">Public Access URL (Optional)</Label>
+                        <Input
+                          id="aws_s3_public_url"
+                          value={formData.aws_s3_public_url || ''}
+                          onChange={(e) => handleChange('aws_s3_public_url', e.target.value)}
+                          placeholder="https://cdn.example.com or https://pub-xxx.r2.dev"
+                        />
+                        <p className="text-xs text-muted-foreground">Used to construct file URLs. If empty, standard S3/R2 URLs are used.</p>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -877,34 +942,6 @@ export function SystemSettings() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Maintenance Mode</h3>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="maintenance_mode">Enable Maintenance Mode</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Show maintenance message to all users
-                    </p>
-                  </div>
-                  <Switch
-                    id="maintenance_mode"
-                    checked={formData.maintenance_mode || false}
-                    onCheckedChange={(checked) => handleChange('maintenance_mode', checked)}
-                  />
-                </div>
-                {formData.maintenance_mode && (
-                  <div className="space-y-2">
-                    <Label htmlFor="maintenance_message">Maintenance Message</Label>
-                    <Textarea
-                      id="maintenance_message"
-                      value={formData.maintenance_message || ''}
-                      onChange={(e) => handleChange('maintenance_message', e.target.value)}
-                      placeholder="We're currently performing scheduled maintenance. Please check back soon."
-                      rows={3}
-                    />
-                  </div>
-                )}
-              </div>
 
               {/* Logging & Monitoring */}
               <div className="space-y-4 border rounded-lg p-4">
@@ -1039,6 +1076,29 @@ export function SystemSettings() {
           </Tabs>
         </CardContent>
       </Card>
+
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes in the "{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}" tab. Would you like to save them before switching, or discard them?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingTab(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDiscardChanges}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Discard
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleConfirmSave}>
+              Save Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

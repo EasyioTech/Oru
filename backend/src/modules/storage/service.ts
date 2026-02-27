@@ -43,8 +43,14 @@ export class StorageService {
             let fileUrl: string;
 
             if (provider === 'local') {
-                // Ensure local storage directory exists
-                const baseDir = path.join(process.cwd(), 'uploads');
+                // Determine absolute storage path
+                let baseDir: string;
+                if (settings?.fileStoragePath && path.isAbsolute(settings.fileStoragePath)) {
+                    baseDir = settings.fileStoragePath;
+                } else {
+                    baseDir = path.join(process.cwd(), 'uploads');
+                }
+
                 const targetDir = path.join(baseDir, context, year.toString(), month);
 
                 await fs.promises.mkdir(targetDir, { recursive: true });

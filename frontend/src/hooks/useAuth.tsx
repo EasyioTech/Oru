@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Token can be either:
         // 1. Simple base64-encoded JSON (our format): btoa(JSON.stringify({...}))
         // 2. JWT format (legacy): header.payload.signature
-        let decoded: { userId?: string; email?: string; exp?: number };
-        
+        let decoded: { id?: string; userId?: string; email?: string; exp?: number };
+
         if (token.includes('.')) {
           // JWT format - decode the payload part
           const parts = token.split('.');
@@ -105,18 +105,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Simple base64 format - decode directly
           decoded = JSON.parse(atob(token));
         }
-        
+
         if (decoded.exp && decoded.exp * 1000 > Date.now()) {
           // Token is still valid – restore minimal user from token,
           // then hydrate full user/profile/roles from the database where possible
           const restoredUser: User = {
-            id: decoded.userId || '',
+            id: decoded.id || decoded.userId || '',
             email: decoded.email || '',
             email_confirmed: true,
             is_active: true
           };
           setUser(restoredUser);
-          
+
           // Prefer stored role from previous real login if available
           const storedRole = localStorage.getItem('user_role') as AppRole | null;
           if (storedRole) {
@@ -125,10 +125,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (storedRole === 'super_admin' && !localStorage.getItem('agency_database')) {
               setIsSystemSuperAdmin(true);
             }
-          } else if (decoded.userId) {
+          } else if (decoded.id || decoded.userId) {
             // Fallback to client-side DB lookup for legacy/mock flows
-            fetchUserProfile(decoded.userId);
-            fetchUserRole(decoded.userId);
+            const actualId = decoded.id || decoded.userId || '';
+            fetchUserProfile(actualId);
+            fetchUserRole(actualId);
           }
         } else {
           // Token expired
@@ -153,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentRole === 'super_admin') {
         return;
       }
-      
+
       const data = await selectOne('profiles', { user_id: userId });
       if (data) {
         setProfile(data as Profile);
@@ -229,11 +230,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (typeof window !== 'undefined') {
         agencyId = localStorage.getItem('agency_id') || null;
       }
-      
+
       if (!agencyId) {
         throw new Error('Agency ID not found. Please ensure you are logged in to an agency account or provide an agency ID.');
       }
-      
+
       const result = await registerUser({
         email,
         password,
@@ -243,10 +244,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Store token
       localStorage.setItem('auth_token', result.token);
-      
+
       // Set user state
       setUser(result.user as any);
-      
+
       toast({
         title: "Sign up successful",
         description: "Welcome to Oru!"
@@ -267,10 +268,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Real database login (domain-first for agency users; omit domain for super admin)
     try {
       const result = await loginUser({ email, password, domain });
-      
+
       // Store token
       localStorage.setItem('auth_token', result.token);
-      
+
       // Set user state from server response
       setUser(result.user as any);
 
@@ -280,7 +281,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const role = typeof r === 'string' ? r : r.role;
         return role === 'super_admin';
       });
-      
+
       // Check if this is a system-level super admin (no agency database)
       // IMPORTANT: Only system-level super admins (with super_admin role AND no agency database)
       // should be treated as super_admin. Agency admins should NOT be treated as super_admin.
@@ -288,7 +289,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const hasAgencyDatabase = !!(userAgency && userAgency.databaseName);
       const isSystemLevelSuperAdmin = hasSuperAdminRole && !hasAgencyDatabase;
       setIsSystemSuperAdmin(isSystemLevelSuperAdmin);
-      
+
       // Clear agency context ONLY for system-level super admin
       // Agency admins should keep their agency context
       if (isSystemLevelSuperAdmin) {
@@ -303,7 +304,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('agency_id', userAgency.id);
         }
       }
-      
+
       // If profile came back from server, use it directly
       const serverProfile = (result.user as any).profile;
       if (serverProfile) {
@@ -403,7 +404,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       setUserRole(null);
       setIsSystemSuperAdmin(false);
-      
+
       toast({
         title: "Logged out",
         description: "You have been logged out successfully"

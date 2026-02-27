@@ -51,7 +51,7 @@ export class CatalogService {
             return page;
         } catch (error) {
             this.logger.error({ error, context: 'createPage', input });
-            throw new AppError('Failed to create catalog item');
+            throw new AppError('Failed to create catalog item: ' + ((error as any).message || String(error)));
         }
     }
 

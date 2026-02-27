@@ -17,7 +17,7 @@ const CACHE_TTL_MS = 60000; // 1 minute
  */
 async function getSystemSettings() {
   const now = Date.now();
-  
+
   // Return cached settings if still valid
   if (settingsCache && cacheTimestamp && (now - cacheTimestamp) < CACHE_TTL_MS) {
     return settingsCache;
@@ -39,8 +39,6 @@ async function getSystemSettings() {
 
     // Return default settings if none exist
     const defaults = {
-      maintenance_mode: false,
-      maintenance_message: null,
       email_provider: 'smtp',
       smtp_host: null,
       smtp_port: 587,
@@ -73,10 +71,7 @@ async function getSystemSettings() {
     return defaults;
   } catch (error) {
     logger.warn('Could not fetch system settings', { message: error.message });
-    const defaults = {
-      maintenance_mode: false,
-      maintenance_message: null,
-    };
+    const defaults = {};
     settingsCache = defaults;
     cacheTimestamp = now;
     return defaults;
@@ -99,7 +94,7 @@ function clearSettingsCache() {
  */
 async function getEmailConfig() {
   const settings = await getSystemSettings();
-  
+
   return {
     provider: settings.email_provider || 'smtp',
     smtp: {
@@ -136,7 +131,7 @@ async function getEmailConfig() {
  */
 async function getSecurityConfig() {
   const settings = await getSystemSettings();
-  
+
   return {
     password: {
       minLength: settings.password_min_length || 8,

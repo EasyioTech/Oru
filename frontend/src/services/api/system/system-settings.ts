@@ -46,9 +46,6 @@ export interface SystemSettings {
   terms_of_service_url?: string;
   privacy_policy_url?: string;
   cookie_policy_url?: string;
-  // System Configuration
-  maintenance_mode?: boolean;
-  maintenance_message?: string;
   default_language?: string;
   default_timezone?: string;
   // Email/SMTP Configuration
@@ -94,6 +91,8 @@ export interface SystemSettings {
   aws_s3_region?: string;
   aws_s3_access_key_id?: string;
   aws_s3_secret_access_key?: string;
+  aws_s3_endpoint?: string;
+  aws_s3_public_url?: string;
   // API Configuration
   api_rate_limit_enabled?: boolean;
   api_rate_limit_requests_per_minute?: number;
@@ -188,10 +187,10 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
 
   if (!parsed.success) {
     const errorResponse = parsed as ApiErrorShape;
-    const message = errorResponse.error?.message || errorResponse.error || errorResponse.message || 'Request failed';
-    const error = new Error(message);
-    (error as any).code = errorResponse.error?.code;
-    (error as any).details = errorResponse.error?.details;
+    const message = (typeof errorResponse.error === 'object' ? errorResponse.error?.message : errorResponse.error) || errorResponse.message || 'Request failed';
+    const error = new Error(String(message));
+    (error as any).code = typeof errorResponse.error === 'object' ? errorResponse.error?.code : undefined;
+    (error as any).details = typeof errorResponse.error === 'object' ? errorResponse.error?.details : undefined;
     throw error;
   }
 

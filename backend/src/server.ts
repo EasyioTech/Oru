@@ -146,6 +146,15 @@ if (process.env.NODE_ENV === 'production') {
 
 // --- Global Error Handler ---
 server.setErrorHandler((error: any, request, reply) => {
+    if (error.name === 'ZodError') {
+        server.log.warn({ msg: 'Validation error', error: error.issues });
+        return reply.status(400).send({
+            error: true,
+            message: 'Validation Error',
+            details: error.issues,
+            code: 'VALIDATION_ERROR',
+        });
+    }
     server.log.error(error);
     reply.status(error.statusCode || 500).send({
         error: true,

@@ -14,7 +14,7 @@ export const getS3Client = async () => {
     // 2. Determine Credentials (DB > Env)
     const region = settings?.awsS3Region || process.env.AWS_REGION || 'auto';
     const bucket = settings?.awsS3Bucket || process.env.AWS_S3_BUCKET || 'oru-erp-files';
-    const endpoint = settings?.awsS3PublicUrl ? undefined : (process.env.AWS_S3_ENDPOINT); // TODO: DB field for endpoint if different from public URL
+    const endpoint = settings?.awsS3Endpoint || process.env.AWS_S3_ENDPOINT;
     // Note: Schema has awsS3PublicUrl but strictly speaking S3 endpoint (for R2/MinIO) might be different. 
     // For now assuming AWS_S3_ENDPOINT from env is main fallback or we need a DB field for 'endpoint'.
     // Looking at schema: awsS3PublicUrl is for public access. 
@@ -56,7 +56,7 @@ export const s3Client = new S3Client({
 
 export const uploadFileToS3 = async (fileStream: any, key: string, mimeType: string) => {
     try {
-        const { client, bucket, region, publicUrl } = await getS3Client();
+        const { client, bucket, region, endpoint, publicUrl } = await getS3Client();
 
         const parallelUploads3 = new Upload({
             client,
@@ -75,9 +75,16 @@ export const uploadFileToS3 = async (fileStream: any, key: string, mimeType: str
             return `${publicUrl}/${key}`;
         }
         // Fallback logic
-        if (process.env.AWS_S3_ENDPOINT) {
-            return `https://${bucket}.${region}.r2.cloudflarestorage.com/${key}`;
+        if (endpoint && endpoint.includes('r2.cloudflarestorage.com')) {
+            // R2 usually doesn't have a standard public S3-style URL without a custom domain or .r2.dev
+            // If and only if we don't have a publicUrl, we try to guess or use the endpoint as a base
+            return `${endpoint}/${bucket}/${key}`;
         }
+
+        if (endpoint) {
+            return `${endpoint}/${bucket}/${key}`;
+        }
+
         return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
     } catch (e) {
         console.error('S3 Upload Error', e);
