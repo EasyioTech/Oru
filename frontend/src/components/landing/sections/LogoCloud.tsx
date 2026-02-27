@@ -40,45 +40,26 @@ export default function LogoCloud() {
 }
 
 function InfiniteScroll() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    let animationId: number;
-    let position = 0;
-    const speed = 0.4;
-
-    const animate = () => {
-      position += speed;
-      const containerWidth = scrollContainer.scrollWidth / 2;
-
-      if (position >= containerWidth) {
-        position = 0;
-      }
-
-      scrollContainer.style.transform = `translateX(-${position}px)`;
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animationId = requestAnimationFrame(animate);
-
-    return () => cancelAnimationFrame(animationId);
-  }, []);
-
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden" style={{ maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
+      <style>{`
+        @keyframes logo-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(calc(-50% - 2rem)); } 
+        }
+        .animate-logo-scroll {
+          animation: logo-scroll 30s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
       <div
-        ref={scrollRef}
-        className="flex gap-16"
-        style={{ width: 'max-content' }}
+        className="flex gap-16 animate-logo-scroll w-max"
       >
-        {[...logos, ...logos].map((logo, i) => (
+        {[...logos, ...logos, ...logos].map((logo, i) => (
           <div
             key={i}
             className={cn(
-              'flex items-center justify-center transition-colors duration-200',
+              'flex shrink-0 items-center justify-center transition-colors duration-200',
               logo.width
             )}
           >

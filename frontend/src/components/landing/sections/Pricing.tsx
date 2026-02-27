@@ -176,14 +176,14 @@ export const Pricing = () => {
                   ))}
                 </ul>
 
-                <Link to={plan.id === 'enterprise' ? '/contact' : '/auth'}>
+                <Link to="/waitlist">
                   <Button
                     className={`w-full h-11 font-medium rounded-xl transition-all duration-300 ${plan.popular
                       ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20'
                       : 'bg-muted hover:bg-muted/80 text-foreground border border-border'
                       }`}
                   >
-                    {plan.cta}
+                    Join Waitlist
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
@@ -202,8 +202,8 @@ export const Pricing = () => {
             All plans include SSL security, daily backups, and 99.9% uptime SLA.
             <br />
             <span className="text-muted-foreground">Need a custom plan?</span>
-            <Link to="/contact" className="text-primary hover:text-primary/80 ml-1">
-              Talk to our team
+            <Link to="/waitlist" className="text-primary hover:text-primary/80 ml-1">
+              Join the waitlist
             </Link>
           </p>
         </motion.div>

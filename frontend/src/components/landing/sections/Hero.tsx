@@ -52,7 +52,10 @@ const DashboardPreview = () => (
     className="relative mt-20 lg:mt-32 group/dashboard w-full max-w-5xl mx-auto"
   >
     {/* Enhanced Glow Effect */}
-    <div className="absolute -inset-4 sm:-inset-8 bg-gradient-to-b from-primary/20 via-primary/5 to-transparent rounded-[2.5rem] blur-3xl opacity-50 group-hover/dashboard:opacity-70 transition-opacity duration-700 pointer-events-none" />
+    <div
+      className="absolute -inset-4 sm:-inset-8 bg-gradient-to-b from-primary/20 via-primary/5 to-transparent rounded-[2.5rem] blur-3xl opacity-50 group-hover/dashboard:opacity-70 transition-opacity duration-700 pointer-events-none will-change-transform transform-gpu"
+      style={{ transform: 'translateZ(0)' }}
+    />
 
     {/* Main Browser Window */}
     <div className="relative rounded-2xl border border-border/50 bg-background/40 backdrop-blur-xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(var(--background),0.5)]">
@@ -248,10 +251,10 @@ export const Hero = () => {
         <ShimmerBadge />
 
         <h1 className="mt-4 text-4xl sm:text-5xl lg:text-7xl font-display font-semibold text-foreground leading-[1.1] tracking-[-0.02em]">
-          <TextReveal delay={0.2}>Stop Leaking Profits.</TextReveal>
+          <TextReveal delay={0.2}>The operating system for</TextReveal>
           <br />
-          <span className="text-muted-foreground/60">
-            <TextReveal delay={0.6}>Start Scaling Your Agency.</TextReveal>
+          <span className="text-zinc-500">
+            <TextReveal delay={0.6}>modern agencies</TextReveal>
           </span>
         </h1>
 
@@ -261,8 +264,8 @@ export const Hero = () => {
           transition={{ duration: 0.6, delay: 1 }}
           className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
         >
-          Oru replaces your scattered tools with one efficiency engine.
-          Track every rupee and deadline in real-time, so you can focus on growth.
+          Manage projects, track finances, automate workflows, and scale your agency
+          with one powerful platform built for the way you work.
         </motion.p>
 
         <motion.div
@@ -271,14 +274,14 @@ export const Hero = () => {
           transition={{ duration: 0.6, delay: 1.2 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Link to="/auth">
+          <Link to="/waitlist">
             <Button
               size="lg"
               variant="primary"
               className="px-8 h-12 text-base rounded-xl"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Maximize My Agency
+                Join the Waitlist
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>

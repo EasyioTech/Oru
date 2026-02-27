@@ -12,3 +12,5 @@ export * from './schemas/plans.js';
 export * from './schemas/notifications.js';
 export * from './schemas/tickets.js';
 export * from './schemas/features.js';
+export * from './schemas/crm.js';
+export * from './schemas/projects.js';

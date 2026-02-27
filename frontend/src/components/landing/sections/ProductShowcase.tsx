@@ -80,6 +80,7 @@ export const ProductShowcase = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const ActiveView = views[activeTab];
 
@@ -140,13 +141,14 @@ export const ProductShowcase = () => {
                   <span className="font-bold text-foreground tracking-tight">Oru ERP</span>
                 </div>
 
-                <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none custom-scrollbar px-2 space-y-0.5">
-                  {tabs.map((tab) => (
+                <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none custom-scrollbar px-2 space-y-0.5 relative">
+                  {tabs.map((tab, idx) => (
                     <button
                       key={tab.id}
                       onClick={() => {
                         setActiveTab(tab.id);
                         if (window.innerWidth < 768) setIsSidebarOpen(false);
+                        if (!hasInteracted) setHasInteracted(true);
                       }}
                       className={cn(
                         "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all group relative",
@@ -155,6 +157,16 @@ export const ProductShowcase = () => {
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                       )}
                     >
+                      {/* Hint animation on the second tab if user hasn't interacted yet */}
+                      {!hasInteracted && idx === 1 && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-50">
+                          <div className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                          </div>
+                        </div>
+                      )}
+
                       <tab.icon className={cn(
                         "w-4 h-4",
                         activeTab === tab.id ? tab.color : "text-muted-foreground group-hover:text-foreground"

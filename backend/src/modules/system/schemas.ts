@@ -73,6 +73,8 @@ export const updateSystemSettingsSchema = z.preprocess(
     updateSettingsWithVirtuals
 );
 
+export type UpdateSystemSettingsInput = z.infer<typeof updateSettingsWithVirtuals>;
+
 // --- Agency Summary Schema ---
 // Extend the select schema with additional computed fields
 export const agencySummarySchema = createSelectSchema(agencies).pick({
@@ -134,3 +136,27 @@ export const getMetricsResponseSchema = z.object({
 export const getSettingsResponseSchema = z.object({
     settings: systemSettingsSchema.transform((data) => mapToSnakeCase(data)),
 });
+
+// --- Feature Schemas ---
+export const createFeatureSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    featureKey: z.string().min(1),
+    isActive: z.boolean().default(true),
+    metadata: z.record(z.any()).default({}),
+});
+
+export const updateFeatureSchema = createFeatureSchema.partial();
+
+export type CreateFeatureInput = z.infer<typeof createFeatureSchema>;
+export type UpdateFeatureInput = z.infer<typeof updateFeatureSchema>;
+
+// --- Tickets Query Schema ---
+export const ticketsQuerySchema = z.object({
+    status: z.enum(['open', 'in_progress', 'resolved', 'closed']).optional(),
+    priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+    limit: z.coerce.number().min(1).max(100).default(50),
+    offset: z.coerce.number().min(0).default(0),
+});
+
+export type TicketsQueryInput = z.infer<typeof ticketsQuerySchema>;

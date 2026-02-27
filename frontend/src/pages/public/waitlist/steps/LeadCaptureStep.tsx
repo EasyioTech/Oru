@@ -35,7 +35,7 @@ export default function LeadCaptureStep({ formData, setField, onSubmit, onBack, 
                 <h2 className="text-2xl sm:text-3xl font-display font-semibold text-foreground tracking-tight">
                     Where should we send your invite?
                 </h2>
-                <p className="text-[13px] text-muted-foreground/70 max-w-md mx-auto leading-relaxed">
+                <p className="text-[13px] text-muted-foreground max-w-md mx-auto leading-relaxed">
                     Your configuration details and early access invite will land in your inbox.
                 </p>
             </div>
@@ -51,17 +51,17 @@ export default function LeadCaptureStep({ formData, setField, onSubmit, onBack, 
                             transition={{ delay: 0.1 + i * 0.06 }}
                             className="space-y-2"
                         >
-                            <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                            <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                                 {field.label}
                             </label>
                             <div className="relative">
-                                <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
+                                <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                                 <input
                                     type={field.type}
                                     value={formData[field.key] as string}
                                     onChange={(e) => setField(field.key, e.target.value)}
                                     placeholder={field.placeholder}
-                                    className="w-full pl-11 pr-4 py-4 rounded-2xl border border-border/40 bg-transparent text-foreground text-[13px] font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20 focus:border-foreground/20 transition-all"
+                                    className="w-full pl-11 pr-4 py-4 rounded-2xl border border-border bg-transparent text-foreground text-[13px] font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all"
                                 />
                             </div>
                         </motion.div>
@@ -80,7 +80,7 @@ export default function LeadCaptureStep({ formData, setField, onSubmit, onBack, 
             )}
 
             {/* Trust Signal */}
-            <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground/40">
+            <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground/60">
                 <Shield className="w-3 h-3" />
                 <span>Your data is encrypted and will never be shared</span>
             </div>

@@ -8,6 +8,7 @@ import {
   MapPin,
   ArrowUpRight
 } from 'lucide-react';
+import { ThemeLogo } from '@/components/shared/ThemeLogo';
 
 const footerLinks = {
   product: {
@@ -67,11 +68,10 @@ export const Footer = () => {
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 lg:py-20">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 lg:gap-12">
           <div className="col-span-2">
-            <Link to="/" className="inline-flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-sm font-bold text-primary-foreground">D</span>
+            <Link to="/" className="inline-flex items-center group">
+              <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden">
+                <ThemeLogo className="h-10 w-auto object-contain" />
               </div>
-              <span className="text-lg font-display font-semibold text-foreground">Oru</span>
             </Link>
 
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">

@@ -75,7 +75,7 @@ Enterprise-grade design system for Oru ERP
   :root {
     /* Light mode – neutral enterprise palette (SAP/Salesforce/Microsoft style). Clean grays, crisp blue primary */
     /* Main content – subtle off-white for card contrast */
-    --background: 0 0% 100%;
+    --background: 220 14% 98%;
     --foreground: 222 47% 11%;
 
     /* Header & cards – pure white for elevation */
@@ -89,20 +89,20 @@ Enterprise-grade design system for Oru ERP
     --primary: 211 100% 43%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 96%;
+    --secondary: 220 14% 96%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 20% 96%;
+    --accent: 220 14% 96%;
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 65% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 91%;
-    --input: 0 0% 91%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 211 100% 43%;
 
     /* Semantic – clear, professional */
@@ -127,13 +127,13 @@ Enterprise-grade design system for Oru ERP
     --info-dark: 211 100% 36%;
 
     /* Sidebar – clean, slight tint for separation */
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 220 14% 98%;
     --sidebar-foreground: 222 47% 15%;
     --sidebar-primary: 211 100% 43%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent: 220 14% 94%;
     --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 0 0% 91%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 211 100% 43%;
 
     /* Border Radius */
@@ -192,68 +192,70 @@ Enterprise-grade design system for Oru ERP
   }
 
   .dark {
-    /* Dark mode – Unified Neutral Black. Deep backgrounds, vibrant accents */
-    /* Main content – near black */
-    --background: 0 0% 2%;
+    /* Updated dark mode: Neutral premium dark/black palette */
+    /* Main surface - deep charcoal/black */
+    --background: 0 0% 4%;
+    /* Near black */
     --foreground: 0 0% 98%;
+    /* Crisp white */
 
-    /* Header & cards – elevated surfaces */
-    --card: 0 0% 4%;
+    /* Elevated surfaces - slightly lighter charcoal */
+    --card: 0 0% 7%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 5%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary – vibrant blue, pops on dark */
-    --primary: 211 100% 55%;
+    /* Primary – enterprise blue variant for dark mode */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
+    --secondary: 240 5% 12%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 9%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 240 5% 10%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 0 0% 12%;
+    --accent: 240 5% 15%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 63% 55%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
-    --ring: 211 100% 55%;
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 217 91% 60%;
 
-    /* Semantic – clear, readable on dark */
-    --success: 152 52% 48%;
+    /* Semantic */
+    --success: 142 70% 45%;
     --success-foreground: 0 0% 100%;
-    --success-light: 152 40% 14%;
-    --success-dark: 152 52% 54%;
+    --success-light: 142 70% 10%;
+    --success-dark: 142 70% 35%;
 
-    --warning: 38 92% 55%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --warning-light: 38 50% 14%;
-    --warning-dark: 38 92% 60%;
+    --warning-light: 38 92% 10%;
+    --warning-dark: 38 92% 40%;
 
-    --error: 0 63% 55%;
+    --error: 0 84% 60%;
     --error-foreground: 0 0% 100%;
-    --error-light: 0 45% 14%;
-    --error-dark: 0 63% 60%;
+    --error-light: 0 84% 10%;
+    --error-dark: 0 84% 50%;
 
-    --info: 211 100% 55%;
+    --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
-    --info-light: 211 50% 14%;
-    --info-dark: 211 100% 65%;
+    --info-light: 217 91% 10%;
+    --info-dark: 217 91% 50%;
 
-    /* Sidebar – consistent with content */
-    --sidebar-background: 0 0% 3%;
-    --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 211 100% 55%;
+    /* Sidebar - neutral dark */
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent: 240 5% 12%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 11%;
-    --sidebar-ring: 211 100% 55%;
+    --sidebar-border: 240 5% 12%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 

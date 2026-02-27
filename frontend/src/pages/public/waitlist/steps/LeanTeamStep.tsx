@@ -33,7 +33,7 @@ export default function LeanTeamStep({ formData, togglePainPoint, onNext, onBack
                 <h2 className="text-2xl sm:text-3xl font-display font-semibold text-foreground tracking-tight">
                     Which fragmented workflow slows you down?
                 </h2>
-                <p className="text-[13px] text-muted-foreground/70 max-w-md mx-auto leading-relaxed">
+                <p className="text-[13px] text-muted-foreground max-w-md mx-auto leading-relaxed">
                     Select up to <strong className="text-foreground">2</strong> that resonate with your daily operations.
                 </p>
             </div>
@@ -50,18 +50,18 @@ export default function LeanTeamStep({ formData, togglePainPoint, onNext, onBack
                             transition={{ delay: 0.1 + i * 0.05 }}
                             whileHover={{ scale: 1.005 }}
                             whileTap={{ scale: 0.995 }}
-                            className={`relative flex items-start gap-4 w-full p-5 rounded-2xl border text-left transition-all duration-300 ${isSelected ? 'border-foreground/20 bg-foreground/[0.04] shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)]' : 'border-border/40 bg-transparent hover:border-border/60 hover:bg-muted/20'} ${atMax && !isSelected ? 'opacity-40 blur-[0.5px]' : ''}`}
+                            className={`relative flex items-start gap-4 w-full p-5 rounded-2xl border text-left transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/[0.04] shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]' : 'border-border bg-transparent hover:border-border/80 hover:bg-muted/30'} ${atMax && !isSelected ? 'opacity-50' : ''}`}
                         >
-                            <div className={`w-[18px] h-[18px] rounded-[5px] border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${isSelected ? 'border-foreground bg-foreground' : 'border-border/60'}`}>
+                            <div className={`w-[18px] h-[18px] rounded-[5px] border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
                                 {isSelected && (
-                                    <svg className="w-[10px] h-[10px] text-background" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-[10px] h-[10px] text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className={`text-[13px] font-semibold leading-snug transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/70'}`}>{point.label}</div>
-                                <div className="text-[11px] text-muted-foreground/50 mt-1.5 leading-relaxed">{point.description}</div>
+                                <div className={`text-[13px] font-semibold leading-snug transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>{point.label}</div>
+                                <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{point.description}</div>
                             </div>
                         </motion.button>
                     );

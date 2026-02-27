@@ -258,15 +258,13 @@ const features = [
 ];
 
 const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: number }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
   const Preview = feature.preview;
 
   return (
     <motion.div
-      ref={ref}
       initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
       className={`group relative rounded-[2.5rem] border border-border bg-card/40 backdrop-blur-xl overflow-hidden shadow-2xl shadow-black/5 hover:shadow-primary/5 transition-all duration-700 cursor-pointer p-8 ${feature.gridClass}`}
     >

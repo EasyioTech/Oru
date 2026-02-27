@@ -42,14 +42,14 @@ export default function StackSpendStep({ formData, setField, onNext, onBack }: P
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-foreground tracking-tight">
                     Let's Talk Numbers
                 </h2>
-                <p className="text-[12px] sm:text-[13px] text-muted-foreground/70 max-w-md mx-auto leading-relaxed">
+                <p className="text-[12px] sm:text-[13px] text-muted-foreground max-w-md mx-auto leading-relaxed">
                     Understanding your current spend helps us build pricing you'd actually love.
                 </p>
             </div>
 
             {/* Monthly Spend */}
             <div className="space-y-3">
-                <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                     Monthly software stack spend
                 </label>
                 <div className="grid gap-2">
@@ -67,18 +67,18 @@ export default function StackSpendStep({ formData, setField, onNext, onBack }: P
                                 className={`
                   flex items-center gap-3 sm:gap-4 w-full px-4 py-3 sm:py-3.5 rounded-2xl border text-left transition-all duration-300
                   ${isSelected
-                                        ? 'border-foreground/20 bg-foreground/[0.04] shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)]'
-                                        : 'border-border/40 bg-transparent hover:border-border/60 hover:bg-muted/20'
+                                        ? 'border-primary/50 bg-primary/[0.04] shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]'
+                                        : 'border-border bg-transparent hover:border-border/80 hover:bg-muted/30'
                                     }
-                  ${hasSpendSelection && !isSelected ? 'opacity-40 blur-[0.5px]' : ''}
+                  ${hasSpendSelection && !isSelected ? 'opacity-50' : ''}
                 `}
                             >
-                                <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-all duration-300 ${isSelected ? 'border-foreground bg-foreground' : 'border-border/60'}`}>
-                                    {isSelected && <div className="w-[6px] h-[6px] rounded-full bg-background" />}
+                                <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-all duration-300 ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
+                                    {isSelected && <div className="w-[6px] h-[6px] rounded-full bg-primary-foreground" />}
                                 </div>
-                                <span className={`text-[12px] sm:text-[13px] transition-colors ${isSelected ? 'font-semibold text-foreground' : 'text-foreground/70'}`}>
+                                <span className={`text-[12px] sm:text-[13px] transition-colors ${isSelected ? 'font-semibold text-foreground' : 'text-foreground/80'}`}>
                                     {option.label}
-                                    {option.sub && <span className="text-muted-foreground/40 ml-1 text-[10px] sm:text-[11px]">{option.sub}</span>}
+                                    {option.sub && <span className="text-muted-foreground/60 ml-1 text-[10px] sm:text-[11px]">{option.sub}</span>}
                                 </span>
                             </motion.button>
                         );
@@ -90,7 +90,7 @@ export default function StackSpendStep({ formData, setField, onNext, onBack }: P
 
             {/* Billing Model — 3 columns on sm+, stacked on mobile */}
             <div className="space-y-3">
-                <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                     Preferred billing model
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
@@ -108,16 +108,16 @@ export default function StackSpendStep({ formData, setField, onNext, onBack }: P
                                 className={`
                   relative p-4 rounded-2xl border text-center transition-all duration-300
                   ${isSelected
-                                        ? 'border-foreground/20 bg-foreground/[0.04] shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)]'
-                                        : 'border-border/40 bg-transparent hover:border-border/60 hover:bg-muted/20'
+                                        ? 'border-primary/50 bg-primary/[0.04] shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]'
+                                        : 'border-border bg-transparent hover:border-border/80 hover:bg-muted/30'
                                     }
-                  ${hasBillingSelection && !isSelected ? 'opacity-40 blur-[0.5px]' : ''}
+                  ${hasBillingSelection && !isSelected ? 'opacity-50' : ''}
                 `}
                             >
-                                <div className={`text-[13px] font-bold transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/60'}`}>
+                                <div className={`text-[13px] font-bold transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>
                                     {option.label}
                                 </div>
-                                <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 mt-1.5 leading-snug">
+                                <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-1.5 leading-snug">
                                     {option.description}
                                 </div>
                             </motion.button>
@@ -130,21 +130,21 @@ export default function StackSpendStep({ formData, setField, onNext, onBack }: P
 
             {/* No-brainer Price */}
             <div className="space-y-3">
-                <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                     What price would be a "no-brainer"?
                 </label>
-                <p className="text-[11px] text-muted-foreground/50 pl-1">Optional — helps us nail the pricing.</p>
+                <p className="text-[11px] text-muted-foreground pl-1">Optional — helps us nail the pricing.</p>
                 <div className="relative">
-                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40" />
+                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
                     <input
                         type="text"
                         inputMode="numeric"
                         value={formData.noBrainerPrice}
                         onChange={(e) => setField('noBrainerPrice', e.target.value.replace(/[^0-9,]/g, ''))}
                         placeholder="e.g. 5,000"
-                        className="w-full pl-10 pr-20 py-3.5 sm:py-4 rounded-2xl border border-border/40 bg-transparent text-foreground text-[13px] font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20 focus:border-foreground/20 transition-all"
+                        className="w-full pl-10 pr-20 py-3.5 sm:py-4 rounded-2xl border border-border bg-transparent text-foreground text-[13px] font-medium placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/30 text-[11px] font-bold tracking-wide">/ month</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 text-[11px] font-bold tracking-wide">/ month</span>
                 </div>
             </div>
 

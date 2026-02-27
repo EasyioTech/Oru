@@ -8,7 +8,7 @@ export const agencyStatusEnum = pgEnum('agency_status', ['active', 'suspended', 
 export const userStatusEnum = pgEnum('user_status', ['active', 'inactive', 'suspended', 'locked']);
 
 // System Monitoring
-export const healthStatusEnum = pgEnum('health_status', ['healthy', 'degraded', 'down', 'maintenance']);
+export const healthStatusEnum = pgEnum('health_status', ['healthy', 'degraded', 'down']);
 export const alertSeverityEnum = pgEnum('alert_severity', ['info', 'warning', 'error', 'critical']);
 export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'login', 'logout', 'access', 'export', 'import']);
 

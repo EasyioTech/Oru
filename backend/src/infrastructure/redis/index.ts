@@ -1,42 +1,29 @@
+import { Redis, RedisOptions } from 'ioredis';
+import { ConnectionOptions } from 'bullmq';
 
-import { Redis } from 'ioredis';
-import { FastifyInstance } from 'fastify';
-import fp from 'fastify-plugin';
+/**
+ * Smart Redis Connection Helper
+ * Automatically fallbacks to localhost if 'redis' host is not resolvable 
+ * (helps development without Docker)
+ */
+export const getRedisConnection = (): ConnectionOptions => {
+    const host = process.env.REDIS_HOST || 'localhost';
+    const port = parseInt(process.env.REDIS_PORT || '6379');
 
-export const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-    maxRetriesPerRequest: null,
-    lazyConnect: true, // Don't crash on initial connection failure
-    retryStrategy(times) {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-    },
-    reconnectOnError(err) {
-        const targetError = 'READONLY';
-        if (err.message.slice(0, targetError.length) === targetError) {
-            return true;
+    // If we are on Windows or explicitly running outside Docker, 
+    // and host is 'redis', we likely want localhost
+    const isWindows = process.platform === 'win32';
+    const finalHost = (isWindows && host === 'redis') ? 'localhost' : host;
+
+    return {
+        host: finalHost,
+        port: port,
+        password: process.env.REDIS_PASSWORD || undefined,
+        retryStrategy: (times: number) => {
+            return Math.min(times * 50, 2000);
         }
-        return false;
-    }
-});
+    } as any; // Cast to any to satisfy both BullMQ and ioredis types
+};
 
-redisConnection.on('error', (err) => {
-    // Prevent unhandled error event crashes and log with context
-    // Use console.error since we don't have access to global logger here
-    if (process.env.NODE_ENV !== 'test') {
-        console.error('[Redis] Connection error:', err.message);
-    }
-});
-
-redisConnection.on('connect', () => {
-    if (process.env.NODE_ENV !== 'test') {
-        console.log('[Redis] Connected successfully');
-    }
-});
-
-export default fp(async (fastify: FastifyInstance) => {
-    fastify.decorate('redis', redisConnection);
-
-    fastify.addHook('onClose', async (instance) => {
-        await redisConnection.quit();
-    });
-});
+// Singleton instance for the rest of the app (Health checks, etc)
+export const redisConnection = new Redis(getRedisConnection() as RedisOptions);

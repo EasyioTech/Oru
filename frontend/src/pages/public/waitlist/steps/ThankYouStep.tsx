@@ -36,7 +36,7 @@ export default function ThankYouStep() {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25, duration: 0.5 }}
-                    className="text-[13px] text-muted-foreground/70 max-w-sm mx-auto leading-relaxed"
+                    className="text-[13px] text-muted-foreground max-w-sm mx-auto leading-relaxed"
                 >
                     Your spot for early access is confirmed. We're rolling out invites in batches to ensure stability.
                 </motion.p>
@@ -50,7 +50,7 @@ export default function ThankYouStep() {
                 className="flex flex-col items-center gap-2.5"
             >
                 {perks.map((perk, i) => (
-                    <div key={i} className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
+                    <div key={i} className="flex items-center gap-2.5 text-[12px] text-foreground/80">
                         <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
                             <Check className="w-2.5 h-2.5 text-emerald-500" />
                         </div>
@@ -68,8 +68,8 @@ export default function ThankYouStep() {
                 transition={{ delay: 0.45, duration: 0.5 }}
                 className="space-y-4"
             >
-                <p className="text-[13px] text-muted-foreground/60 max-w-sm mx-auto leading-relaxed">
-                    Want to <strong className="text-foreground/80">skip the line</strong>? We're hand-picking founders to shape our final MVP. Give us brutal, honest feedback and we'll fast-track your account.
+                <p className="text-[13px] text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                    Want to <strong className="text-foreground/90">skip the line</strong>? We're hand-picking founders to shape our final MVP. Give us brutal, honest feedback and we'll fast-track your account.
                 </p>
 
                 <a
@@ -82,7 +82,7 @@ export default function ThankYouStep() {
                     Book a 10-min Founder Demo
                     <ArrowRight className="w-4 h-4" />
                 </a>
-                <p className="text-[10px] text-muted-foreground/40 uppercase tracking-widest">Skip the waitlist entirely</p>
+                <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">Skip the waitlist entirely</p>
             </motion.div>
 
             {/* Return Link */}
@@ -91,7 +91,7 @@ export default function ThankYouStep() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
             >
-                <a href="/" className="text-[12px] text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+                <a href="/" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">
                     ← Return to Oru Suite
                 </a>
             </motion.div>

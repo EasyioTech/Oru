@@ -393,21 +393,37 @@ backend/src/
 
 ---
 
-## 🚨 CRITICAL PRODUCTION RULES
+---
 
-1. **NO GUESSING** - Always check existing code before implementing
-2. **NO TEMPORARY FIXES** - Production code must be permanent
-3. **NO BREAKING CHANGES** - Maintain API contracts
-4. **NO ASSUMPTIONS** - Verify frontend expectations
-5. **NO SILENT FAILURES** - Log all errors properly
-6. **NO CRASHES** - Always return safe defaults
-7. **NO INCONSISTENCY** - Follow established patterns
-8. **NO SHORTCUTS** - Quality over speed
-9. **NO CONTEXT LOSS** - Read related files before changing
-10. **NO DOCUMENTATION SPAM** - Max 20 lines, proper location
+## 🏢 MULTI-TENANCY & AGENCY PROVISIONING
+
+### Provisioning Flow (THE GROUND REALITY)
+1. **Validation**: All subdomain inputs MUST be kebab-case and reserved-word checked.
+2. **Main DB Prep**:
+   - Create User in Main DB.
+   - Assign `agency_admin` role (NOT `admin`).
+   - Create Agency record as `pending`.
+3. **BullMQ Job**:
+   - MUST use absolute paths for migrations (never `process.cwd()`).
+   - MUST verify database existence before `CREATE DATABASE`.
+   - MUST run full migrations.
+   - MUST seed `system_settings` and `page_catalog` in the tenant DB.
+4. **Activation**: Only mark agency `active` AFTER admin user is synced to tenant DB.
+
+### Tenancy Connection Rules
+- **Header**: Use `X-Agency-Database` (case-insensitive) for all tenant requests.
+- **Isolation**: NEVER perform cross-database joins.
+- **Scaling**: All agency pools MUST be managed with an eviction policy (WIP).
+
+### Critical Fixes Needed (NEXT MOVES)
+- [ ] **Role Mapping**: Update frontend `ProtectedRoute` to allow `agency_admin`.
+- [ ] **Full Seeding**: Ensure background job seeds more than just the user.
+- [ ] **Path Safety**: Hardcode migration directory via environment or `__dirname`.
+- [ ] **Pool Safety**: Implement a Max Pool size for tenant connections.
 
 ---
 
 **FOLLOW THESE RULES. NO EXCEPTIONS.**
 **THIS SYSTEM SERVES THOUSANDS OF COMPANIES.**
 **PRODUCTION QUALITY IS MANDATORY.**
+

@@ -11,6 +11,7 @@ import StackSpendStep from './steps/StackSpendStep';
 import LeadCaptureStep from './steps/LeadCaptureStep';
 import ThankYouStep from './steps/ThankYouStep';
 import { Link } from 'react-router-dom';
+import { ThemeLogo } from '@/components/shared/ThemeLogo';
 
 const stepVariants = {
     enter: { opacity: 0, y: 20 },
@@ -74,24 +75,26 @@ export default function WaitlistPage() {
             <div className="fixed inset-0 pointer-events-none">
                 {/* Grid Pattern */}
                 <div
-                    className="absolute inset-0 opacity-[0.03]"
+                    className="absolute inset-0 opacity-[0.05]"
                     style={{
                         backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
                         backgroundSize: '64px 64px',
                     }}
                 />
                 {/* Subtle Glow Orbs */}
-                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-foreground/[0.04] to-transparent blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tl from-foreground/[0.03] to-transparent blur-[100px]" />
+                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-foreground/[0.06] to-transparent blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tl from-foreground/[0.05] to-transparent blur-[100px]" />
                 {/* Radial Vignette */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_80%)]" />
             </div>
 
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-border/30 bg-background/60 backdrop-blur-2xl">
-                <div className="max-w-2xl mx-auto flex items-center justify-between px-5 sm:px-6 h-16">
-                    <Link to="/" className="text-lg font-bold text-foreground tracking-tight font-display hover:opacity-70 transition-opacity">
-                        Oru
+            <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-2xl">
+                <div className="max-w-2xl mx-auto flex items-center justify-between px-5 sm:px-6 h-14">
+                    <Link to="/" className="flex items-center group">
+                        <div className="w-10 h-10 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden">
+                            <ThemeLogo className="h-8 w-auto object-contain" />
+                        </div>
                     </Link>
                     {!isThankYou && (
                         <div className="flex items-center gap-4">
@@ -103,13 +106,13 @@ export default function WaitlistPage() {
                                         className={`h-1.5 rounded-full transition-all duration-500 ${i < currentStepIndex
                                             ? 'w-1.5 bg-foreground'
                                             : i === currentStepIndex
-                                                ? 'w-6 bg-foreground'
+                                                ? 'w-6 bg-primary'
                                                 : 'w-1.5 bg-border'
                                             }`}
                                     />
                                 ))}
                             </div>
-                            <span className="text-[11px] font-bold text-muted-foreground tabular-nums tracking-wide uppercase">
+                            <span className="text-[11px] font-bold text-foreground tabular-nums tracking-wide uppercase">
                                 Step {Math.min(currentStepIndex + 1, totalSteps)} of {totalSteps}
                             </span>
                         </div>
@@ -154,10 +157,10 @@ export default function WaitlistPage() {
             {/* Footer */}
             <footer className="relative z-10 py-8">
                 <div className="max-w-2xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <p className="text-[11px] text-muted-foreground/50 tracking-wide">
+                    <p className="text-[11px] text-muted-foreground/80 tracking-wide">
                         Your data is encrypted and never shared with third parties.
                     </p>
-                    <Link to="/" className="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors tracking-wide">
+                    <Link to="/" className="text-[11px] text-muted-foreground/80 hover:text-foreground transition-colors tracking-wide">
                         oru.agency
                     </Link>
                 </div>

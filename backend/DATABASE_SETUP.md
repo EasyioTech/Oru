@@ -86,6 +86,15 @@ npm run db:push
 ```
 ✅ Schema pushed successfully
 ```
+### Step 2.1: Add Super Admin User
+```bash
+npx tsx src/scripts/seed-super-admin.ts
+```
+
+**What this does:**
+- Creates a super_admin user for platform-level access via /sauth.
+- Idempotent — safe to run multiple times.
+- 
 
 ---
 

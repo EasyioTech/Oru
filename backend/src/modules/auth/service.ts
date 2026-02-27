@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
-import { users, profiles, userRoles } from '../../infrastructure/database/schema.js';
-import { and } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import { users, profiles, userRoles, agencies } from '../../infrastructure/database/schema.js';
+import { and, desc } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../../utils/password.js';
 import { UnauthorizedError, ValidationError } from '../../utils/errors.js';
 import type { RegisterInput, LoginInput } from './schemas.js';
@@ -73,7 +73,7 @@ export class AuthService {
     }
 
     async login(input: LoginInput) {
-        const { email, password } = input;
+        const { email, password, domain } = input;
 
         // Find user
         const user = await this.fastify.db.query.users.findFirst({
@@ -92,9 +92,40 @@ export class AuthService {
 
         // Fetch user roles
         const rolesResults = await this.fastify.db.query.userRoles.findMany({
-            where: eq(userRoles.userId, user.id),
+            where: and(
+                eq(userRoles.userId, user.id),
+                eq(userRoles.isActive, true)
+            ),
         });
-        const roles = rolesResults.map(r => r.role);
+        const roles = rolesResults.map((r: any) => r.role);
+
+        // Security Policy: Platform Super Admins are FORBIDDEN from using the Agency login.
+        // They must use the /sauth endpoint to access the System Panel.
+        if (roles.includes('super_admin')) {
+            throw new UnauthorizedError('Super Admins must use the System Login path.');
+        }
+
+        if (!domain) {
+            throw new ValidationError('Agency domain is required');
+        }
+
+        // Fetch user agency context
+        let agency = await this.fastify.db.query.agencies.findFirst({
+            where: and(
+                eq(agencies.domain, domain),
+                eq(agencies.isActive, true)
+            ),
+        });
+
+        if (!agency) {
+            throw new UnauthorizedError('Agency not found or inactive');
+        }
+
+        // Check if user has a role ENROLLED for this specific agency
+        const hasAgencyAccess = rolesResults.some((r: any) => r.agencyId === agency?.id);
+        if (!hasAgencyAccess) {
+            throw new UnauthorizedError('You do not have access to this agency');
+        }
 
         // Update last login
         await this.fastify.db
@@ -107,6 +138,8 @@ export class AuthService {
             id: user.id,
             email: user.email,
             roles: roles,
+            agencyId: agency.id,
+            agencyDatabase: agency.databaseName,
         });
 
         const refreshToken = this.fastify.jwt.sign(
@@ -114,16 +147,25 @@ export class AuthService {
             { expiresIn: '7d' }
         );
 
-        this.fastify.log.info({ userId: user.id }, 'User logged in');
+        this.fastify.log.info({ userId: user.id, agencyId: agency.id }, 'User logged in to agency');
 
         return {
+            success: true,
+            token: accessToken,
+            accessToken,
+            refreshToken,
             user: {
                 id: user.id,
                 email: user.email,
                 roles: roles,
+                agency: {
+                    id: agency.id,
+                    name: agency.name,
+                    domain: agency.domain,
+                    databaseName: agency.databaseName,
+                    status: agency.status,
+                },
             },
-            accessToken,
-            refreshToken,
         };
     }
 
@@ -147,7 +189,7 @@ export class AuthService {
             const rolesResults = await this.fastify.db.query.userRoles.findMany({
                 where: eq(userRoles.userId, user.id),
             });
-            const roles = rolesResults.map(r => r.role);
+            const roles = rolesResults.map((r: any) => r.role);
 
             const accessToken = this.fastify.jwt.sign({
                 id: user.id,
@@ -194,12 +236,13 @@ export class AuthService {
             where: and(
                 eq(userRoles.userId, user.id),
                 eq(userRoles.role, 'super_admin'),
-                eq(userRoles.isActive, true)
+                eq(userRoles.isActive, true),
+                sql`agency_id IS NULL` // Platform admin role has no agency id
             ),
         });
 
         if (!adminRole) {
-            throw new UnauthorizedError('Access denied: Super Admin only');
+            throw new UnauthorizedError('Access denied: Unauthorized System Entry');
         }
 
         // Update last login
@@ -208,11 +251,12 @@ export class AuthService {
             .set({ lastSignInAt: new Date() })
             .where(eq(users.id, user.id));
 
-        // Generate tokens
+        // Generate tokens - STRICTLY PLATFORM ONLY
         const accessToken = this.fastify.jwt.sign({
             id: user.id,
             email: user.email,
             roles: ['super_admin'],
+            context: 'platform'
         });
 
         return {
@@ -223,6 +267,45 @@ export class AuthService {
                 email: user.email,
                 roles: ['super_admin'],
             },
+        };
+    }
+    async getCurrentUser(userId: string) {
+        const user = await this.fastify.db.query.users.findFirst({
+            where: eq(users.id, userId),
+        });
+
+        if (!user) {
+            throw new UnauthorizedError('User not found');
+        }
+
+        const profile = await this.fastify.db.query.profiles.findFirst({
+            where: eq(profiles.userId, userId),
+        });
+
+        const rolesResults = await this.fastify.db.query.userRoles.findMany({
+            where: eq(userRoles.userId, userId),
+        });
+        const roles = rolesResults.map((r: any) => r.role);
+
+        // Find agency context if any
+        let agency = null;
+        if (profile?.agencyId) {
+            agency = await this.fastify.db.query.agencies.findFirst({
+                where: eq(agencies.id, profile.agencyId),
+            });
+        }
+
+        return {
+            ...user,
+            profile: profile || undefined,
+            roles: roles,
+            agency: agency ? {
+                id: agency.id,
+                name: agency.name,
+                domain: agency.domain,
+                databaseName: agency.databaseName,
+                status: agency.status,
+            } : undefined,
         };
     }
 }

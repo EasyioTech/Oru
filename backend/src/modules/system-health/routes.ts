@@ -5,6 +5,7 @@ import { db } from '../../infrastructure/database/index.js';
 import { systemHealthMetrics } from '../../infrastructure/database/schema.js';
 import { desc } from 'drizzle-orm';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
+import { AgenciesService } from '../agencies/service.js';
 
 const systemHealthRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.get('/', {

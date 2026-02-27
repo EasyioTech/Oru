@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 interface ButtonProps {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   href?: string;
   onClick?: () => void;
@@ -29,6 +29,7 @@ export function Button({
     primary: 'bg-foreground text-background hover:opacity-90 active:scale-[0.98]',
     secondary: 'bg-secondary text-foreground border border-border hover:bg-muted active:scale-[0.98]',
     ghost: 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+    outline: 'bg-transparent text-foreground border border-border hover:bg-muted active:scale-[0.98]',
   };
 
   const sizes = {

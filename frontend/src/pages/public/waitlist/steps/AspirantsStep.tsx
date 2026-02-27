@@ -33,7 +33,7 @@ export default function AspirantsStep({ formData, togglePainPoint, onNext, onBac
                 <h2 className="text-2xl sm:text-3xl font-display font-semibold text-foreground tracking-tight">
                     What feels like the biggest headache?
                 </h2>
-                <p className="text-[13px] text-muted-foreground/70 max-w-md mx-auto leading-relaxed">
+                <p className="text-[13px] text-muted-foreground max-w-md mx-auto leading-relaxed">
                     As you plan your operations, which of these keeps you up at night?
                 </p>
             </div>
@@ -50,14 +50,14 @@ export default function AspirantsStep({ formData, togglePainPoint, onNext, onBac
                             transition={{ delay: 0.1 + i * 0.05 }}
                             whileHover={{ scale: 1.005 }}
                             whileTap={{ scale: 0.995 }}
-                            className={`relative flex items-start gap-4 w-full p-5 rounded-2xl border text-left transition-all duration-300 ${isSelected ? 'border-foreground/20 bg-foreground/[0.04] shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)]' : 'border-border/40 bg-transparent hover:border-border/60 hover:bg-muted/20'} ${hasSelection && !isSelected ? 'opacity-40 blur-[0.5px]' : ''}`}
+                            className={`relative flex items-start gap-4 w-full p-5 rounded-2xl border text-left transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/[0.04] shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]' : 'border-border bg-transparent hover:border-border/80 hover:bg-muted/30'} ${hasSelection && !isSelected ? 'opacity-50' : ''}`}
                         >
-                            <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${isSelected ? 'border-foreground bg-foreground' : 'border-border/60'}`}>
-                                {isSelected && <div className="w-[6px] h-[6px] rounded-full bg-background" />}
+                            <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
+                                {isSelected && <div className="w-[6px] h-[6px] rounded-full bg-primary-foreground" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className={`text-[13px] font-semibold leading-snug transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/70'}`}>{point.label}</div>
-                                <div className="text-[11px] text-muted-foreground/50 mt-1.5 leading-relaxed">{point.description}</div>
+                                <div className={`text-[13px] font-semibold leading-snug transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>{point.label}</div>
+                                <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{point.description}</div>
                             </div>
                         </motion.button>
                     );

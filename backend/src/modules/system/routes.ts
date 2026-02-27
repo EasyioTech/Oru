@@ -4,7 +4,7 @@ import { PlansService } from '../plans/service.js';
 import { CatalogService } from '../catalog/service.js';
 import { listPlansResponseSchema } from '../plans/schemas.js';
 import { listPageCatalogResponseSchema } from '../catalog/schemas.js';
-import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema } from './schemas.js';
+import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema, ticketsQuerySchema, createFeatureSchema, updateFeatureSchema } from './schemas.js';
 import { sendSystemEmail } from '../../infrastructure/email/index.js';
 import { ForbiddenError } from '../../utils/errors.js';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
@@ -12,6 +12,17 @@ import { mapToSnakeCase } from '../../utils/case-transform.js';
 
 const systemRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new SystemService(fastify);
+
+    // GET /signup-preflight (Public)
+    fastify.get('/signup-preflight', async (request) => {
+        try {
+            const data = await service.getSignupPreflight();
+            return { success: true, data };
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /system/signup-preflight' });
+            throw error;
+        }
+    });
 
     // GET /agencies/:id/data
     fastify.get('/agencies/:id/data', {
@@ -43,9 +54,8 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
                 throw new ForbiddenError('Super Admin access required');
             }
 
-            const rawData = await service.getMetrics();
-            const response = getMetricsResponseSchema.parse(rawData);
-            return { success: true, data: response };
+            const data = await service.getMetrics();
+            return { success: true, data };
         } catch (error) {
             request.log.error(error);
             throw error;
@@ -112,17 +122,6 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         }
     });
 
-    // GET /maintenance-status (Public - no auth required)
-    fastify.get('/maintenance-status', async (request) => {
-        try {
-            const data = await service.getMaintenanceStatus();
-            return { success: true, data: mapToSnakeCase(data) };
-        } catch (error) {
-            fastify.log.error(error);
-            throw error;
-        }
-    });
-
     // GET /branding (Public - no auth required)
     fastify.get('/branding', async (request) => {
         try {
@@ -145,14 +144,29 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         }
     });
 
+    // GET /health/detailed (Requires Admin)
+    fastify.get('/health/detailed', { onRequest: [fastify.authenticate] }, async (request) => {
+        try {
+            if (!request.ability.can('read', 'System')) {
+                throw new ForbiddenError('Super Admin access required');
+            }
+            const data = await service.getDetailedHealth();
+            return { success: true, data };
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /health/detailed' });
+            throw error;
+        }
+    });
+
     // GET /tickets - List tickets with query params
     fastify.get('/tickets', { onRequest: [fastify.authenticate] }, async (request) => {
         try {
-            const data = await service.getTickets(request.query as any);
+            const query = ticketsQuerySchema.parse(request.query);
+            const data = await service.getTickets(query);
             return { success: true, data: mapToSnakeCase(data) };
         } catch (error) {
             fastify.log.error({ error, context: 'GET /system/tickets' });
-            return { success: true, data: { tickets: [] } };
+            throw error;
         }
     });
 
@@ -163,7 +177,7 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
             return { success: true, data: mapToSnakeCase(data) };
         } catch (error) {
             fastify.log.error({ error, context: 'GET /tickets/summary' });
-            return { success: true, data: { stats: { total: 0, open: 0, inProgress: 0, resolved: 0, avgResolutionTime: 0, newToday: 0, resolvedToday: 0 }, recentTickets: [] } };
+            throw error;
         }
     });
 
@@ -174,7 +188,7 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
             return { success: true, data: mapToSnakeCase(data) };
         } catch (error) {
             fastify.log.error({ error, context: 'GET /features' });
-            return { success: true, data: { features: [], enabledModules: [] } };
+            throw error;
         }
     });
 
@@ -182,7 +196,8 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post('/features', { onRequest: [fastify.authenticate] }, async (request, reply) => {
         try {
             if (!request.ability.can('create', 'System')) throw new ForbiddenError();
-            const feature = await service.createFeature(request.body);
+            const validated = createFeatureSchema.parse(request.body);
+            const feature = await service.createFeature(validated);
             return reply.code(201).send({ success: true, data: { feature: mapToSnakeCase(feature) } });
         } catch (error) {
             fastify.log.error({ error, context: 'POST /system/features' });
@@ -195,7 +210,8 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         try {
             if (!request.ability.can('update', 'System')) throw new ForbiddenError();
             const { id } = request.params as { id: string };
-            const feature = await service.updateFeature(id, request.body);
+            const validated = updateFeatureSchema.parse(request.body);
+            const feature = await service.updateFeature(id, validated);
             return { success: true, data: { feature: mapToSnakeCase(feature) } };
         } catch (error) {
             fastify.log.error({ error, context: 'PUT /system/features' });
@@ -223,10 +239,10 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
             const plans = await plansService.listPlans();
             const safePlans = Array.isArray(plans) ? plans : [];
             const responseData = safePlans.map(plan => mapToSnakeCase(plan));
-            return { success: true, data: { plans: responseData } }; // Wrapped for plans.ts service
+            return { success: true, data: { plans: responseData } };
         } catch (error) {
             fastify.log.error({ error, context: 'GET /system/plans' });
-            return { success: true, data: { plans: [] } };
+            throw error;
         }
     });
 
@@ -277,11 +293,10 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
             const catalogService = new CatalogService(fastify.log);
             const items = await catalogService.listPages();
             const safeItems = Array.isArray(items) ? items : [];
-            // usePageCatalog.ts expects data to be the array directly
             return { success: true, data: safeItems.map(item => mapToSnakeCase(item)) };
         } catch (error) {
             fastify.log.error({ error, context: 'GET /page-catalog' });
-            return { success: true, data: [] };
+            throw error;
         }
     });
 
@@ -323,6 +338,59 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         } catch (error) {
             fastify.log.error({ error, context: 'DELETE /system/page-catalog' });
             throw error;
+        }
+    });
+
+    // GET /page-catalog/agencies/:id/pages
+    fastify.get('/page-catalog/agencies/:id/pages', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        try {
+            const { id } = request.params as { id: string };
+            // Allow user to see their own agency pages (id='me')
+            const agencyId = id === 'me' ? request.user.agencyId : id;
+
+            if (!agencyId) {
+                return { success: true, data: [] };
+            }
+
+            if (id !== 'me' && request.user.agencyId !== id && !request.user.roles.includes('super_admin')) {
+                throw new ForbiddenError();
+            }
+
+            const pages = await service.getAgencyPages(agencyId);
+            return { success: true, data: mapToSnakeCase(pages) };
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /system/page-catalog/agencies/:id/pages' });
+            throw error;
+        }
+    });
+
+    // GET /agency-settings/:id
+    fastify.get('/agency-settings/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        try {
+            const { id } = request.params as { id: string };
+            const agencyId = id === 'me' ? request.user.agencyId : id;
+            if (!agencyId) return { success: true, data: { settings: {} } };
+
+            const { AgenciesService } = await import('../agencies/service.js');
+            const agenciesService = new AgenciesService(fastify.log);
+            const agency = await agenciesService.getAgency(agencyId);
+
+            const { getAgencyDb } = await import('../../infrastructure/database/index.js');
+            const agencyDb = await getAgencyDb(agency.databaseName);
+            const { agencySettings } = await import('../../infrastructure/database/schema.js');
+
+            try {
+                const [settings] = await agencyDb.select().from(agencySettings).limit(1);
+                return { success: true, data: { settings: mapToSnakeCase(settings || {}) } };
+            } catch (err: any) {
+                if (err.code === '42P01') {
+                    return { success: true, data: { settings: {} } };
+                }
+                throw err;
+            }
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /system/agency-settings/:id' });
+            return { success: true, data: { settings: {} } }; // Fallback
         }
     });
 

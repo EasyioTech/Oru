@@ -94,9 +94,12 @@ export class TicketsService {
             const ticketNumber = `TKT-${ticketIdGen()}`;
 
             const [ticket] = await db.insert(tickets).values({
-                ...validated,
-                title: validated.title, // Explicit mapping if needed, but validated should have title
                 ticketNumber,
+                title: validated.title,
+                description: validated.description,
+                priority: validated.priority,
+                category: validated.category,
+                agencyId: validated.agencyId as string,
             }).returning();
             return ticket;
         } catch (error) {

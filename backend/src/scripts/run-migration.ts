@@ -1,63 +1,50 @@
 
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import pg from 'pg';
-import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 
-// Setup dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load env
+// Load .env from root if not in container (Optional, as env vars usually exist)
 dotenv.config({ path: path.join(__dirname, '../../..', '.env') });
 
-const { Client } = pg;
-
-// DB Config
-const DB_NAME = process.env.MAIN_DB_NAME || 'oru';
-
 async function runMigration() {
-    const client = new Client({
-        connectionString: process.env.DATABASE_URL, // Should point to 'oru'
+    console.log('🚀 Starting Database Migration...');
+
+    if (!process.env.DATABASE_URL) {
+        console.error('❌ DATABASE_URL is not defined');
+        process.exit(1);
+    }
+
+    const pool = new pg.Pool({
+        connectionString: process.env.DATABASE_URL,
     });
 
     try {
-        await client.connect();
-        console.log(`✅ Connected to database: ${client.database}`);
+        const db = drizzle(pool);
 
-        // Find migration file
-        const drizzleDir = path.join(__dirname, '../../drizzle');
-        const files = fs.readdirSync(drizzleDir);
-        const migrationFile = files.find(f => f.endsWith('.sql'));
+        // Path to compiled migrations or source migrations
+        // In Prod (Docker), we usually copy 'drizzle' folder to /app/drizzle
+        // This script is in /app/dist/scripts/run-migration.js
+        // So __dirname is /app/dist/scripts
+        // Expected migrations at /app/drizzle
+        const migrationsFolder = path.resolve(__dirname, '../../drizzle');
 
-        if (!migrationFile) {
-            console.error('❌ No SQL migration file found in drizzle directory');
-            process.exit(1);
-        }
+        console.log(`📂 Loading migrations from: ${migrationsFolder}`);
 
-        const filePath = path.join(drizzleDir, migrationFile);
-        console.log(`📄 Found migration file: ${migrationFile}`);
+        await migrate(db, { migrationsFolder });
 
-        // Read SQL
-        const sql = fs.readFileSync(filePath, 'utf-8');
-
-        // Execute SQL
-        console.log('🚀 Executing migration...');
-
-        // Drizzle generates SQL with separate statements? Usually one big block or separated by ;
-        // pg client can execute multiple statements in one query call usually.
-        await client.query(sql);
-
-        console.log('✅ Migration executed successfully!');
-    } catch (error: any) {
-        console.error('❌ Error executing migration:', error.message);
-        if (error.position) {
-            console.error(`   at position: ${error.position}`);
-        }
+        console.log('✅ Migrations applied successfully!');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Migration failed:', error);
         process.exit(1);
     } finally {
-        await client.end();
+        await pool.end();
     }
 }
 

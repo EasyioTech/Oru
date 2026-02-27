@@ -88,15 +88,15 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                                 if (i < subStep) setSubStep(i as 0 | 1 | 2);
                             }}
                             className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full transition-all ${i === subStep
-                                ? 'bg-foreground/[0.06] text-foreground'
+                                ? 'bg-primary/10 text-primary'
                                 : i < subStep
-                                    ? 'text-foreground/40 hover:text-foreground/60 cursor-pointer'
-                                    : 'text-muted-foreground/30 cursor-default'
+                                    ? 'text-foreground/60 hover:text-foreground/80 cursor-pointer'
+                                    : 'text-muted-foreground/40 cursor-default'
                                 }`}
                         >
                             {label}
                         </button>
-                        {i < 2 && <ChevronRight className="w-3 h-3 text-muted-foreground/20" />}
+                        {i < 2 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
                     </div>
                 ))}
             </div>
@@ -116,10 +116,10 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                         className="space-y-6"
                     >
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                            <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                                 How do you currently manage operations?
                             </label>
-                            <p className="text-[11px] text-muted-foreground/50 pl-1">Pick the closest match to your current stack.</p>
+                            <p className="text-[11px] text-muted-foreground pl-1">Pick the closest match to your current stack.</p>
                         </div>
                         <div className="grid gap-2.5">
                             {toolOptions.map((tool, i) => {
@@ -134,14 +134,14 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                                         transition={{ delay: 0.05 + i * 0.04 }}
                                         whileHover={{ scale: 1.005 }}
                                         whileTap={{ scale: 0.995 }}
-                                        className={`flex items-start gap-4 w-full p-4 rounded-2xl border text-left transition-all duration-300 ${isSelected ? 'border-foreground/20 bg-foreground/[0.04] shadow-[0_0_0_1px_hsl(var(--foreground)/0.08)]' : 'border-border/40 bg-transparent hover:border-border/60 hover:bg-muted/20'} ${hasToolSelection && !isSelected ? 'opacity-40 blur-[0.5px]' : ''}`}
+                                        className={`flex items-start gap-4 w-full p-4 rounded-2xl border text-left transition-all duration-300 ${isSelected ? 'border-primary/50 bg-primary/[0.04] shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]' : 'border-border bg-transparent hover:border-border/80 hover:bg-muted/30'} ${hasToolSelection && !isSelected ? 'opacity-50' : ''}`}
                                     >
-                                        <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${isSelected ? 'border-foreground bg-foreground' : 'border-border/60'}`}>
-                                            {isSelected && <div className="w-[6px] h-[6px] rounded-full bg-background" />}
+                                        <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
+                                            {isSelected && <div className="w-[6px] h-[6px] rounded-full bg-primary-foreground" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className={`text-[13px] font-semibold transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/70'}`}>{tool.label}</div>
-                                            <div className="text-[11px] text-muted-foreground/50 mt-0.5">{tool.description}</div>
+                                            <div className={`text-[13px] font-semibold transition-colors ${isSelected ? 'text-foreground' : 'text-foreground/80'}`}>{tool.label}</div>
+                                            <div className="text-[11px] text-muted-foreground mt-0.5">{tool.description}</div>
                                         </div>
                                     </motion.button>
                                 );
@@ -151,7 +151,7 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                         <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
 
                         <div className="flex gap-3">
-                            <button onClick={onBack} className="px-5 py-3.5 rounded-2xl border border-border/40 text-[13px] font-medium text-muted-foreground hover:bg-muted/30 hover:border-border/60 transition-all flex items-center gap-2">
+                            <button onClick={onBack} className="px-5 py-3.5 rounded-2xl border border-border text-[13px] font-medium text-foreground hover:bg-muted/30 hover:border-border/80 transition-all flex items-center gap-2">
                                 <ArrowLeft className="w-3.5 h-3.5" /> Back
                             </button>
                             <motion.button
@@ -159,7 +159,7 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                                 disabled={!canProceedSub0}
                                 whileHover={canProceedSub0 ? { scale: 1.005 } : {}}
                                 whileTap={canProceedSub0 ? { scale: 0.995 } : {}}
-                                className={`flex-1 py-3.5 rounded-2xl font-semibold text-[14px] transition-all duration-300 flex items-center justify-center gap-2 ${canProceedSub0 ? 'bg-foreground text-background hover:opacity-90 shadow-[0_4px_20px_-4px_hsl(var(--foreground)/0.25)]' : 'bg-muted/60 text-muted-foreground/40 cursor-not-allowed'}`}
+                                className={`flex-1 py-3.5 rounded-2xl font-semibold text-[14px] transition-all duration-300 flex items-center justify-center gap-2 ${canProceedSub0 ? 'bg-foreground text-background hover:opacity-90 shadow-[0_4px_20px_-4px_hsl(var(--foreground)/0.25)]' : 'bg-muted text-muted-foreground/40 cursor-not-allowed'}`}
                             >
                                 Next <ArrowRight className={`w-4 h-4 transition-opacity ${canProceedSub0 ? 'opacity-100' : 'opacity-0'}`} />
                             </motion.button>
@@ -178,10 +178,10 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                         className="space-y-6"
                     >
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                            <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                                 Rank features by what would make you switch fastest
                             </label>
-                            <p className="text-[11px] text-muted-foreground/50 pl-1">Drag to reorder. #1 = most important to you.</p>
+                            <p className="text-[11px] text-muted-foreground pl-1">Drag to reorder. #1 = most important to you.</p>
                         </div>
                         <div className="space-y-1.5">
                             {formData.featureRanking.map((feature, index) => (
@@ -192,14 +192,14 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                                     onDragEnter={() => handleDragEnter(index)}
                                     onDragEnd={handleDragEnd}
                                     onDragOver={(e) => e.preventDefault()}
-                                    className="flex items-center gap-3 p-4 rounded-2xl border border-border/30 bg-muted/10 hover:bg-muted/20 cursor-grab active:cursor-grabbing transition-colors select-none"
+                                    className="flex items-center gap-3 p-4 rounded-2xl border border-border/50 bg-muted/5 hover:bg-muted/15 cursor-grab active:cursor-grabbing transition-colors select-none"
                                 >
-                                    <Grip className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />
-                                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0 ${index === 0 ? 'bg-foreground/10 text-foreground' : 'bg-foreground/[0.04] text-muted-foreground/50'
+                                    <Grip className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
+                                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0 ${index === 0 ? 'bg-primary/20 text-primary' : 'bg-foreground/[0.08] text-foreground/60'
                                         }`}>{index + 1}</span>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-[13px] font-semibold text-foreground/80">{feature}</div>
-                                        <div className="text-[10px] text-muted-foreground/40 mt-0.5">{featureDescriptions[feature]}</div>
+                                        <div className="text-[13px] font-semibold text-foreground/90">{feature}</div>
+                                        <div className="text-[10px] text-muted-foreground mt-0.5">{featureDescriptions[feature]}</div>
                                     </div>
                                 </div>
                             ))}
@@ -208,7 +208,7 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                         <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
 
                         <div className="flex gap-3">
-                            <button onClick={() => setSubStep(0)} className="px-5 py-3.5 rounded-2xl border border-border/40 text-[13px] font-medium text-muted-foreground hover:bg-muted/30 hover:border-border/60 transition-all flex items-center gap-2">
+                            <button onClick={() => setSubStep(0)} className="px-5 py-3.5 rounded-2xl border border-border text-[13px] font-medium text-foreground hover:bg-muted/30 hover:border-border/80 transition-all flex items-center gap-2">
                                 <ArrowLeft className="w-3.5 h-3.5" /> Back
                             </button>
                             <motion.button
@@ -234,11 +234,11 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                         className="space-y-6"
                     >
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.2em] pl-1">
+                            <label className="text-[10px] font-bold text-foreground/80 uppercase tracking-[0.2em] pl-1">
                                 Feature spotlight — native erp chat
                             </label>
-                            <p className="text-[12px] text-muted-foreground/60 pl-1 leading-relaxed mt-2">
-                                We're building <strong className="text-foreground/80">Koe</strong> — a context-aware chat app directly inside your ERP to replace scattered WhatsApp/Slack groups. How valuable would this be for your team?
+                            <p className="text-[12px] text-muted-foreground pl-1 leading-relaxed mt-2">
+                                We're building <strong className="text-foreground/90">Koe</strong> — a context-aware chat app directly inside your ERP to replace scattered WhatsApp/Slack groups. How valuable would this be for your team?
                             </p>
                         </div>
 
@@ -255,13 +255,13 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                                         <Star
                                             className={`w-9 h-9 transition-all duration-200 ${rating <= formData.chatRating
                                                 ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]'
-                                                : 'text-border/50 hover:text-muted-foreground/30'
+                                                : 'text-border hover:text-muted-foreground'
                                                 }`}
                                         />
                                     </motion.button>
                                 ))}
                             </div>
-                            <div className="flex justify-between w-full max-w-[260px] text-[9px] text-muted-foreground/40 uppercase tracking-widest">
+                            <div className="flex justify-between w-full max-w-[260px] text-[9px] text-muted-foreground/60 uppercase tracking-widest">
                                 <span>Not useful</span>
                                 <span>Game changer</span>
                             </div>
@@ -269,7 +269,7 @@ export default function OruMatchStep({ formData, setField, setFeatureRanking, on
                                 <motion.div
                                     initial={{ opacity: 0, y: 4 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="text-[12px] text-muted-foreground/50 mt-2"
+                                    className="text-[12px] text-muted-foreground mt-2"
                                 >
                                     {formData.chatRating <= 2 ? "Good to know — we'll keep iterating." : formData.chatRating <= 4 ? 'Nice — Koe is shaping up to be a key differentiator.' : "Love this! You'll be among the first to test Koe."}
                                 </motion.div>

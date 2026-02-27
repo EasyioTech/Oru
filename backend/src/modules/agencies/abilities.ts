@@ -10,6 +10,9 @@ export function defineAbilitiesForAgency(user: any) {
 
     if (user.roles.includes('super_admin')) {
         can('manage', 'Agency');
+    } else if (user.roles.includes('agency_admin')) {
+        can('read', 'Agency');
+        can('update', 'Agency');
     }
 
     return build();
