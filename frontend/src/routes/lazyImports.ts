@@ -15,10 +15,21 @@ export const ForgotPassword = React.lazy(() => import("../pages/auth/forgot-pass
 export const NotFound = React.lazy(() => import("../pages/public/not-found"));
 export const OnboardingWizard = React.lazy(() => import("../components/onboarding/OnboardingWizard"));
 export const WaitlistPage = React.lazy(() => import("../pages/public/waitlist"));
+export const FeatureDetail = React.lazy(() => import("../pages/public/features/FeatureDetail"));
+export const BlogList = React.lazy(() => import("../pages/public/blog/BlogList"));
+export const BlogPostDetail = React.lazy(() => import("../pages/public/blog/BlogPostDetail"));
+export const AboutPage = React.lazy(() => import("../pages/public/About"));
+
+// SEO Optimized Industry Pages
+export const MarketingAgenciesIndustry = React.lazy(() => import("../pages/public/industries/MarketingAgencies"));
+export const SoftwareDevIndustry = React.lazy(() => import("../pages/public/industries/SoftwareDevelopment"));
+
+// SEO Optimized Competitor Comparison Pages
+export const OdooComparison = React.lazy(() => import("../pages/public/compare/OdooComparison"));
+export const SapComparison = React.lazy(() => import("../pages/public/compare/SapComparison"));
 
 // Static Pages (split for performance - each loads independently)
 export const ContactPage = React.lazy(() => import("../pages/static-pages/contact"));
-export const AboutPage = React.lazy(() => import("../pages/static-pages/about"));
 export const BlogPage = React.lazy(() => import("../pages/static-pages/blog"));
 export const CareersPage = React.lazy(() => import("../pages/static-pages/careers"));
 export const HelpCenterPage = React.lazy(() => import("../pages/static-pages/help-center"));

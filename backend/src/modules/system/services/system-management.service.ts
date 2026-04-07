@@ -164,6 +164,25 @@ export class SystemManagementService {
         };
     }
 
+    async getSeoSettings() {
+        const settings = await this.getSettings();
+        return {
+            meta_title: settings.metaTitle,
+            meta_description: settings.metaDescription,
+            meta_keywords: Array.isArray(settings.metaKeywords) ? settings.metaKeywords.join(', ') : (settings.metaKeywords || ''),
+            og_title: settings.ogTitle,
+            og_description: settings.ogDescription,
+            og_image_url: settings.ogImageUrl,
+            twitter_card_type: settings.twitterCardType,
+            twitter_site: settings.twitterSite,
+            facebook_url: settings.facebookUrl,
+            twitter_url: settings.twitterUrl,
+            linkedin_url: settings.linkedinUrl,
+            instagram_url: settings.instagramUrl,
+            youtube_url: settings.youtubeUrl,
+        };
+    }
+
     async updateFeature(featureId: string, updates: UpdateFeatureInput) {
         const [updatedFeature] = await db.update(systemFeatures)
             .set({ ...updates, updatedAt: new Date() })

@@ -7,6 +7,29 @@ import { ForbiddenError } from '../../utils/errors.js';
 const catalogRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new CatalogService(fastify.log);
 
+    // GET /public (Public SEO Access)
+    fastify.get('/public', async (request, reply) => {
+        try {
+            const items = await service.listPublicPages();
+            return { success: true, data: items };
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500).send({ success: false, message: 'Internal Server Error' });
+        }
+    });
+
+    fastify.get('/public/:slug', async (request, reply) => {
+        try {
+            const { slug } = request.params as { slug: string };
+            const item = await service.getPublicPageByPath(slug);
+            if (!item) return reply.code(404).send({ success: false, message: 'Feature not found' });
+            return { success: true, data: item };
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500).send({ success: false, message: 'Internal Server Error' });
+        }
+    });
+
     // List Catalog
     fastify.get('/', {
         onRequest: [fastify.authenticate],

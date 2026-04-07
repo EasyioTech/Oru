@@ -4,7 +4,7 @@ import { PlansService } from '../plans/service.js';
 import { CatalogService } from '../catalog/service.js';
 import { listPlansResponseSchema } from '../plans/schemas.js';
 import { listPageCatalogResponseSchema } from '../catalog/schemas.js';
-import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema, ticketsQuerySchema, createFeatureSchema, updateFeatureSchema } from './schemas.js';
+import { getMetricsResponseSchema, getSettingsResponseSchema, updateSystemSettingsSchema, emailTestRequestSchema, ticketsQuerySchema, createFeatureSchema, updateFeatureSchema, getSeoSettingsResponseSchema } from './schemas.js';
 import { sendSystemEmail } from '../../infrastructure/email/index.js';
 import { ForbiddenError } from '../../utils/errors.js';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
@@ -12,6 +12,86 @@ import { mapToSnakeCase } from '../../utils/case-transform.js';
 
 const systemRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new SystemService(fastify);
+
+    // GET /sitemap.xml (Public)
+    fastify.get('/sitemap.xml', async (request, reply) => {
+        try {
+            const baseUrl = 'https://oruerp.com';
+            const catalogService = new CatalogService(fastify.log);
+            const publicPages = await catalogService.listPublicPages();
+            
+            // Add Blog Posts to Sitemap
+            const { BlogService } = await import('../blog/service.js');
+            const blogService = new BlogService(fastify.log);
+            const blogPosts = await blogService.listPublicPosts('', 1000);
+
+            const staticPages = [
+                '',
+                '/pricing',
+                '/industries/marketing-agencies',
+                '/industries/software-development',
+                '/compare/odoo',
+                '/compare/sap-business-one',
+                '/about',
+                '/contact',
+                '/blog'
+            ];
+
+            const catalogUrls = publicPages.map(page => {
+                const slug = page.path.replace(/^\//, '').replace(/\//g, '-');
+                return `/features/${slug}`;
+            });
+
+            const blogUrls = blogPosts.map(post => `/blog/${post.slug}`);
+
+            const allPages = [...new Set([...staticPages, ...catalogUrls, ...blogUrls])];
+
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${allPages.map(page => `
+    <url>
+        <loc>${baseUrl}${page}</loc>
+        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>${page === '' ? '1.0' : '0.8'}</priority>
+    </url>`).join('')}
+</urlset>`;
+
+            reply.type('application/xml').send(xml);
+        } catch (error) {
+            fastify.log.error(error);
+            reply.code(500).send('Internal Server Error');
+        }
+    });
+
+    // GET /robots.txt (Public)
+    fastify.get('/robots.txt', async (request, reply) => {
+        const robots = `User-agent: *
+Allow: /
+Sitemap: https://oruerp.com/sitemap.xml
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+`;
+        reply.type('text/plain').send(robots);
+    });
+
+    // GET /seo-settings (Public)
+    fastify.get('/seo-settings', async (request) => {
+        try {
+            const data = await service.getSeoSettings();
+            return { success: true, data: getSeoSettingsResponseSchema.parse(data) };
+        } catch (error) {
+            fastify.log.error({ error, context: 'GET /system/seo-settings' });
+            throw error;
+        }
+    });
 
     // GET /signup-preflight (Public)
     fastify.get('/signup-preflight', async (request) => {

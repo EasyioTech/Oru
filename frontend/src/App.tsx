@@ -47,32 +47,36 @@ const AppContent = () => {
   );
 };
 
+import { HelmetProvider } from "react-helmet-async";
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      storageKey="oru-theme"
-      enableColorScheme
-      disableTransitionOnChange
-    >
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <HoverReceiver />
-        <ErrorBoundary>
-          <BrandingProvider>
-            <AuthProvider>
-              <ViewAsUserProvider>
-                <AppContent />
-              </ViewAsUserProvider>
-            </AuthProvider>
-          </BrandingProvider>
-        </ErrorBoundary>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        storageKey="oru-theme"
+        enableColorScheme
+        disableTransitionOnChange
+      >
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <HoverReceiver />
+          <ErrorBoundary>
+            <BrandingProvider>
+              <AuthProvider>
+                <ViewAsUserProvider>
+                  <AppContent />
+                </ViewAsUserProvider>
+              </AuthProvider>
+            </BrandingProvider>
+          </ErrorBoundary>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;

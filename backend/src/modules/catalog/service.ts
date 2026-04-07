@@ -9,6 +9,31 @@ import { createPageCatalogSchema, updatePageCatalogSchema } from './schemas.js';
 export class CatalogService {
     constructor(private logger: FastifyBaseLogger) { }
 
+    async listPublicPages() {
+        try {
+            const pages = await db.select({
+                id: pageCatalog.id,
+                path: pageCatalog.path,
+                title: pageCatalog.title,
+                description: pageCatalog.description,
+                icon: pageCatalog.icon,
+                category: pageCatalog.category,
+                seoTitle: pageCatalog.seoTitle,
+                seoDescription: pageCatalog.seoDescription,
+                seoKeywords: pageCatalog.seoKeywords,
+                tags: pageCatalog.tags,
+            })
+            .from(pageCatalog)
+            .where(eq(pageCatalog.isActive, true))
+            .orderBy(pageCatalog.category, pageCatalog.displayOrder);
+
+            return pages || [];
+        } catch (error) {
+            this.logger.error({ error, context: 'listPublicPages' });
+            return [];
+        }
+    }
+
     async listPages(limit = 100) {
         try {
             const pages = await db.select().from(pageCatalog)
@@ -23,6 +48,24 @@ export class CatalogService {
             this.logger.error({ error, context: 'listPages' });
             // Return empty array on error to prevent dashboard from breaking
             return [];
+        }
+    }
+
+    async getPublicPageByPath(path: string) {
+        try {
+            // Path might be stored as "/crm/clients" or "crm-clients" in slug form
+            // Let's normalize searching
+            const searchPath = path.startsWith('/') ? path : `/${path.replace(/-/g, '/')}`;
+            
+            const [page] = await db.select().from(pageCatalog)
+                .where(eq(pageCatalog.path, searchPath));
+            
+            if (!page || !page.isActive) return null;
+
+            return page;
+        } catch (error) {
+            this.logger.error({ error, context: 'getPublicPageByPath', path });
+            return null;
         }
     }
 

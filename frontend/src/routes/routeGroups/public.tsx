@@ -21,6 +21,14 @@ export const PublicRoutes = () => [
   <Route key="/forgot-password" path="/forgot-password" element={<SuspenseRoute><Pages.ForgotPassword /></SuspenseRoute>} />,
   <Route key="/login" path="/login" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
   <Route key="/register" path="/register" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
+  
+  // Industry Specific Landing Pages
+  <Route key="/industries/marketing-agencies" path="/industries/marketing-agencies" element={<SuspenseRoute><Pages.MarketingAgenciesIndustry /></SuspenseRoute>} />,
+  <Route key="/industries/software-development" path="/industries/software-development" element={<SuspenseRoute><Pages.SoftwareDevIndustry /></SuspenseRoute>} />,
+  
+  // Comparison Pages
+  <Route key="/compare/odoo" path="/compare/odoo" element={<SuspenseRoute><Pages.OdooComparison /></SuspenseRoute>} />,
+  <Route key="/compare/sap-business-one" path="/compare/sap-business-one" element={<SuspenseRoute><Pages.SapComparison /></SuspenseRoute>} />,
 ];
 
 /**
@@ -29,7 +37,6 @@ export const PublicRoutes = () => [
 export const StaticPageRoutes = () => [
   <Route key="/contact" path="/contact" element={<SuspenseRoute><Pages.ContactPage /></SuspenseRoute>} />,
   <Route key="/about" path="/about" element={<SuspenseRoute><Pages.AboutPage /></SuspenseRoute>} />,
-  <Route key="/blog" path="/blog" element={<SuspenseRoute><Pages.BlogPage /></SuspenseRoute>} />,
   <Route key="/careers" path="/careers" element={<SuspenseRoute><Pages.CareersPage /></SuspenseRoute>} />,
   <Route key="/help" path="/help" element={<SuspenseRoute><Pages.HelpCenterPage /></SuspenseRoute>} />,
   <Route key="/docs" path="/docs" element={<SuspenseRoute><Pages.DocsPage /></SuspenseRoute>} />,
@@ -44,4 +51,11 @@ export const StaticPageRoutes = () => [
   <Route key="/templates" path="/templates" element={<SuspenseRoute><Pages.TemplatesPage /></SuspenseRoute>} />,
   <Route key="/community" path="/community" element={<SuspenseRoute><Pages.CommunityPage /></SuspenseRoute>} />,
   <Route key="/press" path="/press" element={<SuspenseRoute><Pages.PressPage /></SuspenseRoute>} />,
+  
+  // Dynamic Feature Pages
+  <Route key="/features/:slug" path="/features/:slug" element={<SuspenseRoute><Pages.FeatureDetail /></SuspenseRoute>} />,
+
+  // Blog Routes
+  <Route key="/blog" path="/blog" element={<SuspenseRoute><Pages.BlogList /></SuspenseRoute>} />,
+  <Route key="/blog/:slug" path="/blog/:slug" element={<SuspenseRoute><Pages.BlogPostDetail /></SuspenseRoute>} />,
 ];

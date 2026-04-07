@@ -27,12 +27,15 @@ services:
       dockerfile: Dockerfile
     environment:
       - DATABASE_URL=postgresql://postgres:admin@postgres:5432/oru_erp
-      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - PORT=3000
-      - VITE_JWT_SECRET=supersecret123
-      - CORS_ORIGINS=http://localhost:8080,http://localhost:5173
-    ports:
-      - "3000:3000"
+      - JWT_SECRET=JcMSILOrQE6jKwuNEORXAK1UFky8nWgU7EWVXCzNN0o=
+      - VITE_JWT_SECRET=JcMSILOrQE6jKwuNEORXAK1UFky8nWgU7EWVXCzNN0o=
+      - CORS_ORIGINS=https://oruerp.com,https://www.oruerp.com,https://get-oru.com,https://www.get-oru.com,http://localhost:5173,http://localhost:3000
+      - NODE_ENV=production
+    volumes:
+      - backend_uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_started
@@ -44,10 +47,25 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
     restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
+  backend_uploads:
+  caddy_data:
+  caddy_config:

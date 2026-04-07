@@ -1,0 +1,18 @@
+{
+    email cristy@example.com
+}
+
+oruerp.com, get-oru.com {
+    # Reverse proxy for frontend
+    reverse_proxy frontend:80
+
+    # Reverse proxy for backend API requests
+    handle_path /api/* {
+        reverse_proxy backend:3000
+    }
+
+    # Optional: Log file
+    log {
+        output file /var/log/caddy/access.log
+    }
+}

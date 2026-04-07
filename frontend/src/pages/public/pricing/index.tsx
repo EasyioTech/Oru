@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SEO } from "@/components/shared/SEO";
 
 export default function Pricing() {
   const { currency, loading, formatPrice, changeCurrency, availableCurrencies } = useCurrency();
@@ -142,6 +143,11 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Oru ERP Pricing - Affordable Plans for Every Business"
+        description="Choose the perfect plan for your agency. From startup to enterprise, Oru ERP offers scalable pricing to fit your needs."
+        keywords="ERP pricing, Oru ERP plans, agency pricing, business software cost"
+      />
       {/* Navigation */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">

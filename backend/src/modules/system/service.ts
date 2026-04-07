@@ -25,6 +25,7 @@ export class SystemService {
     async getTicketsSummary() { return this.monitoring.getTicketsSummary(); }
 
     async getSettings() { return this.management.getSettings(); }
+    async getSeoSettings() { return this.management.getSeoSettings(); }
     async updateSettings(updates: UpdateSystemSettingsInput) { return this.management.updateSettings(updates); }
     async getBranding() { return this.management.getBranding(); }
     async getSystemFeatures() { return this.management.getSystemFeatures(); }
