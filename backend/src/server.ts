@@ -34,24 +34,10 @@ const server = Fastify({
     trustProxy: true,
 });
 
-// --- 1. Global Decoration / Static Plugins ---
-// Register static first to ensure reply.sendFile is available everywhere
+// --- 1. Global Decoration ---
+// Register ONE static plugin with NO prefix first TO DECORATE ONLY
+// Then use it with prefixes
 const frontendDist = path.join(process.cwd(), '../frontend/dist');
-
-// Serve uploaded files
-await server.register(fastifyStatic, {
-    root: path.join(process.cwd(), 'uploads'),
-    prefix: '/uploads/',
-    decorateReply: false
-});
-
-// Serve frontend apps
-await server.register(fastifyStatic, {
-    root: frontendDist,
-    prefix: '/',
-    wildcard: false,
-    decorateReply: true, // This is the one that decorates 'reply'
-});
 
 // --- 2. Middleware Plugins ---
 await server.register(cors, {
@@ -92,7 +78,7 @@ await server.register(authPlugin);
 await server.register(caslPlugin);
 await server.register(swaggerPlugin);
 
-// --- 4. Routes ---
+// --- 4. Define Root Routes BEFORE Static to avoid interception ---
 
 // Health
 server.get('/health', async () => ({ status: 'ok', uptime: process.uptime() }));
@@ -111,16 +97,16 @@ server.get('/sitemap.xml', async (request, reply) => {
         ]);
 
         const baseUrl = 'https://oruerp.com';
-        const staticPages = ['', '/pricing', '/about', '/blog', '/contact'];
+        const staticPages = ['', '/pricing', '/about', '/blog', '/contact', '/privacy', '/terms'];
         const catalogUrls = publicPages.map(p => `/features/${p.path.replace(/^\//, '').replace(/\//g, '-')}`);
         const blogUrls = blogPosts.map(p => `/blog/${p.slug}`);
         const allPages = [...new Set([...staticPages, ...catalogUrls, ...blogUrls])];
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${allPages.map(page => `  <url>\n    <loc>${baseUrl}${page}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${page === '' ? '1.0' : '0.8'}</priority>\n  </url>`).join('\n')}\n</urlset>`;
         return reply.type('application/xml').send(xml);
-    } catch (e) {
+    } catch (e: any) {
         server.log.error(e);
-        return reply.status(500).send('Error generating sitemap');
+        return reply.status(500).send('Error generating sitemap: ' + e.message);
     }
 });
 
@@ -128,7 +114,24 @@ server.get('/robots.txt', async (request, reply) => {
     return reply.type('text/plain').send('User-agent: *\nAllow: /\nSitemap: https://oruerp.com/sitemap.xml\n');
 });
 
-// API Modules
+// --- 5. Register Static and Autoload ---
+
+// Register static for uploads
+await server.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false
+});
+
+// Register static for frontend dist
+await server.register(fastifyStatic, {
+    root: frontendDist,
+    prefix: '/',
+    wildcard: true,
+    decorateReply: true, // Only this one decorates reply.sendFile
+});
+
+// Autoload modules (prefix /api)
 await server.register(autoLoad, {
     dir: path.join(__dirname, 'modules'),
     options: { prefix: '/api' },
@@ -136,18 +139,20 @@ await server.register(autoLoad, {
     ignorePattern: /schemas\.ts$|service\.ts$|abilities\.ts$/,
 });
 
-// SPA Fallback
+// SPA Fallback and NotFound
 if (process.env.NODE_ENV === 'production') {
     server.log.info(`Serve frontend from: ${frontendDist}`);
     server.setNotFoundHandler(async (request, reply) => {
+        // API 404
         if (request.url.startsWith('/api')) {
             return reply.status(404).send({ error: true, message: 'Route not found', code: 'NOT_FOUND' });
         }
-        return reply.sendFile('index.html'); // uses root registered dist
+        // Frontend SPA Fallback
+        return reply.sendFile('index.html');
     });
 }
 
-// --- Global Error Handler ---
+// Global Error Handler
 server.setErrorHandler((error: any, request, reply) => {
     if (error.name === 'ZodError') {
         return reply.status(400).send({ error: true, message: 'Validation Error', details: error.issues, code: 'VALIDATION_ERROR' });
@@ -160,7 +165,6 @@ server.setErrorHandler((error: any, request, reply) => {
     });
 });
 
-// --- Startup ---
 const start = async () => {
     try {
         const port = parseInt(process.env.PORT || '5001');
