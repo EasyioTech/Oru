@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-ENV VITE_API_URL=http://localhost:3000/api
+# Uses dynamic same-origin logic in src/config/api.ts if not set
 RUN npm run build
 
 FROM nginx:alpine

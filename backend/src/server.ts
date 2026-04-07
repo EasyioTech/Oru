@@ -167,34 +167,30 @@ await server.register(autoLoad, {
 });
 
 // --- Serve Frontend in Production ---
+const frontendDist = path.join(process.cwd(), '../frontend/dist');
+await server.register(fastifyStatic, {
+    root: frontendDist,
+    prefix: '/',
+    wildcard: false,
+    decorateReply: true, // Ensure sendFile is available
+});
+
 if (process.env.NODE_ENV === 'production') {
-    const frontendDist = path.join(process.cwd(), '../frontend/dist');
     server.log.info(`Serve frontend from: ${frontendDist}`);
 
-    try {
-        await server.register(fastifyStatic, {
-            root: frontendDist,
-            prefix: '/',
-            wildcard: false, // Handle wildcard manually
-            decorateReply: false, // avoided conflict with uploads static
-        });
-
-        // SPA Fallback
-        server.setNotFoundHandler(async (request, reply) => {
-            // API 404
-            if (request.raw.url && request.raw.url.startsWith('/api')) {
-                return reply.status(404).send({
-                    error: true,
-                    message: 'Route not found',
-                    code: 'NOT_FOUND',
-                });
-            }
-            // Frontend generic 404 -> index.html
-            return reply.sendFile('index.html', frontendDist);
-        });
-    } catch (e) {
-        server.log.error(`Failed to register frontend static files: ${e}`);
-    }
+    // SPA Fallback
+    server.setNotFoundHandler(async (request, reply) => {
+        // API 404
+        if (request.raw.url && request.raw.url.startsWith('/api')) {
+            return reply.status(404).send({
+                error: true,
+                message: 'Route not found',
+                code: 'NOT_FOUND',
+            });
+        }
+        // Frontend generic 404 -> index.html
+        return reply.sendFile('index.html', frontendDist);
+    });
 }
 
 

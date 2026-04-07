@@ -12,7 +12,7 @@ oruerp.com, get-oru.com {
     }
 
     # Reverse proxy for backend API requests
-    handle_path /api/* {
+    handle /api/* {
         reverse_proxy backend:3000
     }
 
