@@ -1,4 +1,4 @@
-import { api } from './index';
+import { api } from '@/utils/api';
 
 export interface SeoSettings {
   meta_title: string | null;
