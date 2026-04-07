@@ -10,14 +10,19 @@ export class BlogService {
 
     async listPublicPosts(category?: string, limit = 10) {
         try {
-            let query = db.select().from(blogPosts)
-                .where(and(eq(blogPosts.isPublished, true), isNull(blogPosts.deletedAt)));
-            
+            const conditions = [
+                eq(blogPosts.isPublished, true),
+                isNull(blogPosts.deletedAt)
+            ];
+
             if (category) {
-                query = query.where(eq(blogPosts.category, category));
+                conditions.push(eq(blogPosts.category, category));
             }
 
-            return await query.orderBy(desc(blogPosts.publishedAt)).limit(limit);
+            return await db.select().from(blogPosts)
+                .where(and(...conditions))
+                .orderBy(desc(blogPosts.publishedAt))
+                .limit(limit);
         } catch (error) {
             this.logger.error({ error, context: 'listPublicPosts' });
             return [];
