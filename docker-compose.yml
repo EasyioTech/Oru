@@ -32,7 +32,7 @@ services:
       - PORT=3000
       - JWT_SECRET=JcMSILOrQE6jKwuNEORXAK1UFky8nWgU7EWVXCzNN0o=
       - VITE_JWT_SECRET=JcMSILOrQE6jKwuNEORXAK1UFky8nWgU7EWVXCzNN0o=
-      - CORS_ORIGINS=https://oruerp.com,https://www.oruerp.com,https://get-oru.com,https://www.get-oru.com,http://localhost:5173,http://localhost:3000
+      - CORS_ORIGINS=https://oruerp.com,https://www.oruerp.com,https://oruerp.com,https://www.oruerp.com,http://localhost:5173,http://localhost:3000
       - NODE_ENV=production
     volumes:
       - backend_uploads:/app/uploads

@@ -1,8 +1,8 @@
 {
-    email cristy@example.com
+    email easyiotechnologies@gmail.com
 }
 
-oruerp.com, get-oru.com {
+oruerp.com, oruerp.com {
     # Proxy sitemap and robots specifically to backend
     handle /sitemap.xml {
         reverse_proxy backend:3000

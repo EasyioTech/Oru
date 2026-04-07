@@ -60,7 +60,7 @@ ssh oru "docker ps"
 ## 🔒 SSL & Domains
 The system is managed by **Caddy**, which automatically handles SSL for:
 - `oruerp.com`
-- `get-oru.com`
+- `oruerp.com`
 
 **Caddy Configuration:** Located at `Oru/Caddyfile` on the server.
 

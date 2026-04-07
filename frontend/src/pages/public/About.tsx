@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 const AboutPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
+      <SEO
         title="About Oru ERP - By Easyio Technologies"
         description="Learn about Oru ERP, the next-generation business management platform built by Easyio Technologies. Discover our mission to redefine enterprise software."
         keywords="oru erp, easyio technologies, easyiotech, about oru, erp mission, cloud enterprise software"
@@ -16,7 +16,7 @@ const AboutPage = () => {
       {/* Hero Section */}
       <section className="py-24 px-4 bg-primary text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
-           <Globe className="absolute -bottom-20 -right-20 h-96 w-96" />
+          <Globe className="absolute -bottom-20 -right-20 h-96 w-96" />
         </div>
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-7xl font-extrabold tracking-tighter mb-6">
@@ -26,9 +26,9 @@ const AboutPage = () => {
             Oru ERP is a masterpiece of business engineering, designed by <strong>Easyio Technologies</strong> (EasyioTech) to empower the world's most ambitious agencies and enterprises.
           </p>
           <div className="flex justify-center gap-4">
-             <Link to="/agency-signup">
-                <Button size="lg" variant="secondary" className="h-14 px-8 text-lg font-bold">Join the Mission</Button>
-             </Link>
+            <Link to="/agency-signup">
+              <Button size="lg" variant="secondary" className="h-14 px-8 text-lg font-bold">Join the Mission</Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -37,23 +37,23 @@ const AboutPage = () => {
       <section className="py-24 px-4 border-b">
         <div className="container mx-auto max-w-5xl">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-             <div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">Easyio Technologies: The Visionary Behind Oru</h2>
-                <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-                   <p>
-                      <strong>Easyio Technologies</strong>, also known globally as <strong>EasyioTech</strong>, is a frontier software lab dedicated to building high-performance systems. Our flagship product, <strong>Oru</strong> (and its domain <strong>oruerp.com</strong>), represents the pinnacle of our research into user experience and system architecture.
-                   </p>
-                   <p>
-                      When we set out to build Oru, we didn't want to create just another ERP. We wanted to build a "Digital Nervous System" that connects every part of a business—from CRM and HRM to complex Project Management and Automated Billing.
-                   </p>
-                </div>
-             </div>
-             <div className="bg-muted rounded-3xl p-12 flex items-center justify-center border shadow-inner">
-                <div className="text-center">
-                   <div className="text-6xl font-black text-primary mb-2">ORU</div>
-                   <div className="text-sm tracking-[0.4em] uppercase opacity-50">By Easyio Technologies</div>
-                </div>
-             </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">Easyio Technologies: The Visionary Behind Oru</h2>
+              <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+                <p>
+                  <strong>Easyio Technologies</strong>, also known globally as <strong>EasyioTech</strong>, is a frontier software lab dedicated to building high-performance systems. Our flagship product, <strong>Oru</strong> (and its domain <strong>oruerp.com</strong>), represents the pinnacle of our research into user experience and system architecture.
+                </p>
+                <p>
+                  When we set out to build Oru, we didn't want to create just another ERP. We wanted to build a "Digital Nervous System" that connects every part of a business—from CRM and HRM to complex Project Management and Automated Billing.
+                </p>
+              </div>
+            </div>
+            <div className="bg-muted rounded-3xl p-12 flex items-center justify-center border shadow-inner">
+              <div className="text-center">
+                <div className="text-6xl font-black text-primary mb-2">ORU</div>
+                <div className="text-sm tracking-[0.4em] uppercase opacity-50">By Easyio Technologies</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -84,13 +84,13 @@ const AboutPage = () => {
       {/* CTA Final */}
       <section className="py-24 px-4 text-center">
         <div className="container mx-auto">
-           <h2 className="text-4xl font-bold mb-8">Ready to experience Oru by Easyio Technologies?</h2>
-           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/agency-signup">
-                 <Button size="lg" className="h-14 px-8 text-lg font-bold">Create Your Instance</Button>
-              </Link>
-              <span className="text-muted-foreground font-medium">Available at: <strong>oruerp.com</strong> | <strong>get-oru.com</strong></span>
-           </div>
+          <h2 className="text-4xl font-bold mb-8">Ready to experience Oru by Easyio Technologies?</h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/agency-signup">
+              <Button size="lg" className="h-14 px-8 text-lg font-bold">Create Your Instance</Button>
+            </Link>
+            <span className="text-muted-foreground font-medium">Available at: <strong>oruerp.com</strong> | <strong>oruerp.com</strong></span>
+          </div>
         </div>
       </section>
     </div>

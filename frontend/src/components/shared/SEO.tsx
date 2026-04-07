@@ -29,10 +29,10 @@ export const SEO: React.FC<SEOProps> = ({
 }) => {
   const { data: globalSettings } = useSeoSettings();
 
-  const siteTitle = title 
-    ? `${title} | Oru ERP` 
+  const siteTitle = title
+    ? `${title} | Oru ERP`
     : (globalSettings?.meta_title || 'Oru ERP - Complete Agency Management');
-  
+
   const metaDescription = description || globalSettings?.meta_description || 'Oru ERP is the all-in-one platform for agency management and business growth.';
   const metaKeywords = keywords || globalSettings?.meta_keywords || 'erp, agency management, crm, project management, business automation';
   const siteUrl = window.location.origin;
@@ -68,7 +68,7 @@ export const SEO: React.FC<SEOProps> = ({
     "description": "Oru ERP is an advanced enterprise resource planning system developed by Easyio Technologies for modern agencies and businesses.",
     "sameAs": [
       "https://easyiotech.com",
-      "https://get-oru.com",
+      "https://oruerp.com",
       globalSettings?.facebook_url,
       globalSettings?.twitter_url,
       globalSettings?.linkedin_url,

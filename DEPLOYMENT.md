@@ -35,7 +35,7 @@ Oru uses a modern Docker-based deployment strategy. To update the production ser
 ## 🌐 Domain Configuration
 The system is optimized for multiple domains managed via Caddy (SSL included):
 - **Primary**: `oruerp.com` (Main ERP branding)
-- **Secondary**: `get-oru.com` (High-converting landing pages)
+- **Secondary**: `oruerp.com` (High-converting landing pages)
 - **Corporate**: `easyiotech.com` (Easyio Technologies official)
 
 ## 🤖 SEO & AI Awareness Strategy
