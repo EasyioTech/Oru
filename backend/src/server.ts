@@ -44,6 +44,60 @@ server.get('/health', async () => {
     };
 });
 
+// Root-level SEO routes
+server.get('/sitemap.xml', async (request, reply) => {
+    try {
+        const { CatalogService } = await import('./modules/catalog/service.js');
+        const { BlogService } = await import('./modules/blog/service.js');
+        const catalogService = new CatalogService(server.log);
+        const blogService = new BlogService(server.log);
+        
+        const [publicPages, blogPosts] = await Promise.all([
+            catalogService.listPublicPages(),
+            blogService.listPublicPosts('', 1000)
+        ]);
+
+        const baseUrl = 'https://oruerp.com';
+        const staticPages = ['', '/pricing', '/about', '/blog', '/contact'];
+        const catalogUrls = publicPages.map(p => `/features/${p.path.replace(/^\//, '').replace(/\//g, '-')}`);
+        const blogUrls = blogPosts.map(p => `/blog/${p.slug}`);
+        
+        const allPages = [...new Set([...staticPages, ...catalogUrls, ...blogUrls])];
+
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${allPages.map(page => `
+    <url>
+        <loc>${baseUrl}${page}</loc>
+        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>${page === '' ? '1.0' : '0.8'}</priority>
+    </url>`).join('')}
+</urlset>`;
+        reply.type('application/xml').send(xml);
+    } catch (e) {
+        server.log.error(e);
+        reply.status(500).send('Error generating sitemap');
+    }
+});
+
+server.get('/robots.txt', async (request, reply) => {
+    const robots = `User-agent: *
+Allow: /
+Sitemap: https://oruerp.com/sitemap.xml
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+`;
+    reply.type('text/plain').send(robots);
+});
+
 await server.register(cors, {
 
     origin: (origin, cb) => {

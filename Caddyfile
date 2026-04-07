@@ -3,12 +3,22 @@
 }
 
 oruerp.com, get-oru.com {
-    # Reverse proxy for frontend
-    reverse_proxy frontend:80
+    # Proxy sitemap and robots specifically to backend
+    handle /sitemap.xml {
+        reverse_proxy backend:3000
+    }
+    handle /robots.txt {
+        reverse_proxy backend:3000
+    }
 
     # Reverse proxy for backend API requests
     handle_path /api/* {
         reverse_proxy backend:3000
+    }
+
+    # Everything else to frontend
+    handle /* {
+        reverse_proxy frontend:80
     }
 
     # Optional: Log file
