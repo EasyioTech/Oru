@@ -34,17 +34,70 @@ const server = Fastify({
     trustProxy: true,
 });
 
-// --- Plugins ---
-// Root-level public routes (define before static/autoload to avoid interference)
-server.get('/health', async () => {
-    return {
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    };
+// --- 1. Global Decoration / Static Plugins ---
+// Register static first to ensure reply.sendFile is available everywhere
+const frontendDist = path.join(process.cwd(), '../frontend/dist');
+
+// Serve uploaded files
+await server.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false
 });
 
-// Root-level SEO routes
+// Serve frontend apps
+await server.register(fastifyStatic, {
+    root: frontendDist,
+    prefix: '/',
+    wildcard: false,
+    decorateReply: true, // This is the one that decorates 'reply'
+});
+
+// --- 2. Middleware Plugins ---
+await server.register(cors, {
+    origin: (origin, cb) => {
+        const defaultOrigins = [
+            'http://localhost:5173',
+            'http://localhost:5001',
+            'http://127.0.0.1:5173',
+            'http://127.0.0.1:5001',
+            'https://orutest.site',
+            'https://www.orutest.site',
+            'https://oruerp.com',
+            'https://www.oruerp.com'
+        ];
+        const envOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : [];
+        const allowedOrigins = [...defaultOrigins, ...envOrigins];
+        if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
+            cb(null, true);
+        } else {
+            cb(new Error("Not allowed by CORS"), false);
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+});
+
+await server.register(helmet, {
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+});
+
+await server.register(rateLimit, { max: 1000, timeWindow: '1 minute' });
+await server.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
+
+// --- 3. Core Logic Plugins ---
+await server.register(dbPlugin);
+await server.register(authPlugin);
+await server.register(caslPlugin);
+await server.register(swaggerPlugin);
+
+// --- 4. Routes ---
+
+// Health
+server.get('/health', async () => ({ status: 'ok', uptime: process.uptime() }));
+
+// SEO at root
 server.get('/sitemap.xml', async (request, reply) => {
     try {
         const { CatalogService } = await import('./modules/catalog/service.js');
@@ -61,104 +114,21 @@ server.get('/sitemap.xml', async (request, reply) => {
         const staticPages = ['', '/pricing', '/about', '/blog', '/contact'];
         const catalogUrls = publicPages.map(p => `/features/${p.path.replace(/^\//, '').replace(/\//g, '-')}`);
         const blogUrls = blogPosts.map(p => `/blog/${p.slug}`);
-        
         const allPages = [...new Set([...staticPages, ...catalogUrls, ...blogUrls])];
 
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    ${allPages.map(page => `
-    <url>
-        <loc>${baseUrl}${page}</loc>
-        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>${page === '' ? '1.0' : '0.8'}</priority>
-    </url>`).join('')}
-</urlset>`;
-        reply.type('application/xml').send(xml);
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${allPages.map(page => `  <url>\n    <loc>${baseUrl}${page}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${page === '' ? '1.0' : '0.8'}</priority>\n  </url>`).join('\n')}\n</urlset>`;
+        return reply.type('application/xml').send(xml);
     } catch (e) {
         server.log.error(e);
-        reply.status(500).send('Error generating sitemap');
+        return reply.status(500).send('Error generating sitemap');
     }
 });
 
 server.get('/robots.txt', async (request, reply) => {
-    const robots = `User-agent: *
-Allow: /
-Sitemap: https://oruerp.com/sitemap.xml
-
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-`;
-    reply.type('text/plain').send(robots);
+    return reply.type('text/plain').send('User-agent: *\nAllow: /\nSitemap: https://oruerp.com/sitemap.xml\n');
 });
 
-await server.register(cors, {
-
-    origin: (origin, cb) => {
-        const defaultOrigins = [
-            'http://localhost:5173',
-            'http://localhost:5001',
-            'http://127.0.0.1:5173',
-            'http://127.0.0.1:5001',
-            'https://orutest.site',
-            'https://www.orutest.site'
-        ];
-
-        const envOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : [];
-        const allowedOrigins = [...defaultOrigins, ...envOrigins];
-
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return cb(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
-            cb(null, true);
-        } else {
-            // Log blocked origin for debugging
-            server.log.warn(`Blocked CORS request from origin: ${origin}`);
-            cb(new Error("Not allowed by CORS"), false);
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Agency-Database', 'Accept', 'Origin', 'X-Requested-With', 'Idempotency-Key'],
-    exposedHeaders: ['Content-Length', 'X-Request-Id'],
-    maxAge: 86400,
-});
-await server.register(helmet, {
-    contentSecurityPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-});
-await server.register(rateLimit, {
-    max: 1000,
-    timeWindow: '1 minute',
-});
-await server.register(multipart, {
-    limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB limit
-    }
-});
-
-// Serve uploaded files statically
-await server.register(fastifyStatic, {
-    root: path.join(process.cwd(), 'uploads'),
-    prefix: '/uploads/',
-    decorateReply: false // Avoid conflict if already decorated by something else (though usually safe)
-});
-
-await server.register(dbPlugin);
-await server.register(authPlugin);
-await server.register(caslPlugin);
-
-// --- Swagger Documentation ---
-await server.register(swaggerPlugin);
-
-// --- Routes ---
+// API Modules
 await server.register(autoLoad, {
     dir: path.join(__dirname, 'modules'),
     options: { prefix: '/api' },
@@ -166,44 +136,21 @@ await server.register(autoLoad, {
     ignorePattern: /schemas\.ts$|service\.ts$|abilities\.ts$/,
 });
 
-// --- Serve Frontend in Production ---
-const frontendDist = path.join(process.cwd(), '../frontend/dist');
-await server.register(fastifyStatic, {
-    root: frontendDist,
-    prefix: '/',
-    wildcard: false,
-    decorateReply: true, // Ensure sendFile is available
-});
-
+// SPA Fallback
 if (process.env.NODE_ENV === 'production') {
     server.log.info(`Serve frontend from: ${frontendDist}`);
-
-    // SPA Fallback
     server.setNotFoundHandler(async (request, reply) => {
-        // API 404
-        if (request.raw.url && request.raw.url.startsWith('/api')) {
-            return reply.status(404).send({
-                error: true,
-                message: 'Route not found',
-                code: 'NOT_FOUND',
-            });
+        if (request.url.startsWith('/api')) {
+            return reply.status(404).send({ error: true, message: 'Route not found', code: 'NOT_FOUND' });
         }
-        // Frontend generic 404 -> index.html
-        return reply.sendFile('index.html', frontendDist);
+        return reply.sendFile('index.html'); // uses root registered dist
     });
 }
-
 
 // --- Global Error Handler ---
 server.setErrorHandler((error: any, request, reply) => {
     if (error.name === 'ZodError') {
-        server.log.warn({ msg: 'Validation error', error: error.issues });
-        return reply.status(400).send({
-            error: true,
-            message: 'Validation Error',
-            details: error.issues,
-            code: 'VALIDATION_ERROR',
-        });
+        return reply.status(400).send({ error: true, message: 'Validation Error', details: error.issues, code: 'VALIDATION_ERROR' });
     }
     server.log.error(error);
     reply.status(error.statusCode || 500).send({
@@ -218,14 +165,8 @@ const start = async () => {
     try {
         const port = parseInt(process.env.PORT || '5001');
         await server.listen({ port, host: '0.0.0.0' });
-
-        // Initialize Workers
         const { initWorkers } = await import('./jobs/worker.js');
-        const workers = initWorkers(server.log); // keep reference if needed for shutdown
-
-        // Store workers on server instance or global for graceful shutdown
-        (global as any).workers = workers;
-
+        (global as any).workers = initWorkers(server.log);
         server.log.info(`🚀 Oru High-Tech ERP is soaring on port ${port}`);
     } catch (err) {
         server.log.error(err);
@@ -233,23 +174,16 @@ const start = async () => {
     }
 };
 
-// --- Graceful Shutdown ---
 const signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM'];
 signals.forEach((signal) => {
     process.on(signal, async () => {
         server.log.info(`Received ${signal}, shutting down gracefully...`);
-
-        // Close Workers
         const workers = (global as any).workers;
-        if (workers) {
-            await Promise.all(workers.map((w: any) => w.close()));
-        }
-
+        if (workers) await Promise.all(workers.map((w: any) => w.close()));
         await server.close();
         await closeAllPools();
         process.exit(0);
     });
 });
-
 
 start();
