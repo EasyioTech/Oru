@@ -24,14 +24,14 @@ export class SystemManagementService {
 
         return {
             ...settings,
-            facebookUrl: socialLinks.facebook,
-            twitterUrl: socialLinks.twitter,
-            linkedinUrl: socialLinks.linkedin,
-            instagramUrl: socialLinks.instagram,
-            youtubeUrl: socialLinks.youtube,
-            termsOfServiceUrl: legalLinks.terms_of_service,
-            privacyPolicyUrl: legalLinks.privacy_policy,
-            cookiePolicyUrl: legalLinks.cookie_policy,
+            facebookUrl: socialLinks.facebook || null,
+            twitterUrl: socialLinks.twitter || null,
+            linkedinUrl: socialLinks.linkedin || null,
+            instagramUrl: socialLinks.instagram || null,
+            youtubeUrl: socialLinks.youtube || null,
+            termsOfServiceUrl: legalLinks.terms_of_service || null,
+            privacyPolicyUrl: legalLinks.privacy_policy || null,
+            cookiePolicyUrl: legalLinks.cookie_policy || null,
             supportAddress: typeof settings.supportAddress === 'string' ? settings.supportAddress : (settings.supportAddress as any)?.address || '',
             metaKeywords: Array.isArray(settings.metaKeywords) ? settings.metaKeywords.join(', ') : (settings.metaKeywords || ''),
             // Secrets (masked)

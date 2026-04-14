@@ -2,7 +2,7 @@
     email easyiotechnologies@gmail.com
 }
 
-oruerp.com, oruerp.com {
+oruerp.com, get-oru.com {
     # Proxy sitemap and robots specifically to backend
     handle /sitemap.xml {
         reverse_proxy backend:3000

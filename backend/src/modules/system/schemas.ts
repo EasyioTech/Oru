@@ -166,19 +166,19 @@ export const getSettingsResponseSchema = z.object({
 });
 
 export const getSeoSettingsResponseSchema = z.object({
-    meta_title: z.string().nullable(),
-    meta_description: z.string().nullable(),
-    meta_keywords: z.string().nullable(),
-    og_title: z.string().nullable(),
-    og_description: z.string().nullable(),
-    og_image_url: z.string().nullable(),
-    twitter_card_type: z.string().nullable(),
-    twitter_site: z.string().nullable(),
-    facebook_url: z.string().nullable(),
-    twitter_url: z.string().nullable(),
-    linkedin_url: z.string().nullable(),
-    instagram_url: z.string().nullable(),
-    youtube_url: z.string().nullable(),
+    meta_title: z.string().nullish(),
+    meta_description: z.string().nullish(),
+    meta_keywords: z.string().nullish(),
+    og_title: z.string().nullish(),
+    og_description: z.string().nullish(),
+    og_image_url: z.string().nullish(),
+    twitter_card_type: z.string().nullish(),
+    twitter_site: z.string().nullish(),
+    facebook_url: z.string().nullish(),
+    twitter_url: z.string().nullish(),
+    linkedin_url: z.string().nullish(),
+    instagram_url: z.string().nullish(),
+    youtube_url: z.string().nullish(),
 }).transform((data) => mapToSnakeCase(data));
 
 // --- Feature Schemas ---
