@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 const integrations = [
   { name: 'Google Calendar', category: 'Productivity', status: 'Available' },
@@ -11,7 +12,13 @@ const integrations = [
 
 export default function IntegrationsPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Integrations | Connect Oru with Your Tools"
+        description="Oru integrates with your favorite tools. Connect Stripe, Google Calendar, Zapier, and more."
+        keywords="integrations, api, zapier, stripe, google calendar, productivity"
+      />
+      <PageWrapper>
       <div className="max-w-4xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em] mb-4">Integrations</h1>
@@ -40,5 +47,6 @@ export default function IntegrationsPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

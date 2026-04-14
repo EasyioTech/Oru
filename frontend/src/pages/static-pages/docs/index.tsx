@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 const sections = [
   { title: 'Quick Start Guide', items: ['Creating your agency', 'Inviting team members', 'Setting up projects'] },
@@ -10,7 +11,13 @@ const sections = [
 
 export default function DocsPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Documentation | Oru ERP Guides"
+        description="Complete documentation and guides for Oru ERP. Learn how to use projects, finances, teams, and more."
+        keywords="documentation, guides, how-to, tutorials, api docs"
+      />
+      <PageWrapper>
       <div className="max-w-4xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em] mb-4">Documentation</h1>
@@ -34,5 +41,6 @@ export default function DocsPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

@@ -1,10 +1,17 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 export default function PressPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Press | Oru ERP Media Resources"
+        description="Press resources, media inquiries, and company news for Oru ERP. Contact our press team."
+        keywords="press, media, news, company news, press contact, brand assets"
+      />
+      <PageWrapper>
       <div className="max-w-3xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em] mb-4">Press</h1>
@@ -24,5 +31,6 @@ export default function PressPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

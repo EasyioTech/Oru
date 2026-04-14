@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 const releases = [
   { version: '2.1.0', date: 'Dec 10, 2024', changes: ['New dashboard widgets', 'Improved project templates', 'Bug fixes'] },
@@ -9,7 +10,13 @@ const releases = [
 
 export default function ChangelogPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Changelog | Oru ERP Updates"
+        description="See what's new in Oru ERP. Release notes and feature updates."
+        keywords="changelog, release notes, updates, new features"
+      />
+      <PageWrapper>
       <div className="max-w-3xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em] mb-4">Changelog</h1>
@@ -40,5 +47,6 @@ export default function ChangelogPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

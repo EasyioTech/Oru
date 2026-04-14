@@ -1,10 +1,17 @@
 import { motion } from 'framer-motion';
 import { Users, ExternalLink } from 'lucide-react';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 export default function CommunityPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Community | Join Oru Users"
+        description="Join the Oru community. Connect with other agency professionals, share tips, and get support."
+        keywords="community, discord, forum, users, support, networking"
+      />
+      <PageWrapper>
       <div className="max-w-4xl mx-auto px-6 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Users className="w-16 h-16 text-blue-400 mx-auto mb-6" />
@@ -24,5 +31,6 @@ export default function CommunityPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

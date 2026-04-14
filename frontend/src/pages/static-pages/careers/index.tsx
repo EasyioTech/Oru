@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Briefcase, MapPin } from 'lucide-react';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 const positions = [
   { title: 'Senior Full-Stack Engineer', location: 'Remote / Mumbai', type: 'Full-time' },
@@ -11,7 +12,13 @@ const positions = [
 
 export default function CareersPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Careers at Oru | Join Our Team"
+        description="Join Oru ERP team. We're hiring talented engineers, designers, and product managers to build the future of agency management."
+        keywords="careers, jobs, hiring, oru jobs, engineering jobs, remote work"
+      />
+      <PageWrapper>
       <div className="max-w-4xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <span className="text-sm text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full">We're Hiring</span>
@@ -46,5 +53,6 @@ export default function CareersPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

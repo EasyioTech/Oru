@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 const items = [
   { status: 'done', title: 'Multi-currency Support', description: 'Handle invoices in multiple currencies' },
@@ -10,7 +11,13 @@ const items = [
 
 export default function RoadmapPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Roadmap | Oru ERP Development"
+        description="See what features and improvements are coming to Oru ERP. Our development roadmap."
+        keywords="roadmap, upcoming features, development, product updates"
+      />
+      <PageWrapper>
       <div className="max-w-3xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em] mb-4">Roadmap</h1>
@@ -44,5 +51,6 @@ export default function RoadmapPage() {
         </motion.div>
       </div>
     </PageWrapper>
+    </>
   );
 }

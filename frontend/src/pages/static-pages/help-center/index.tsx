@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, Users, FileText, Code, HelpCircle, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '../../../components/shared/SEO';
 
 const categories = [
   { icon: BookOpen, title: 'Getting Started', description: 'Learn the basics of Oru', articles: 12 },
@@ -13,7 +14,13 @@ const categories = [
 
 export default function HelpCenterPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Help Center | Oru ERP Support"
+        description="Find answers and learn how to use Oru ERP. Knowledge base, tutorials, and support documentation."
+        keywords="help, documentation, support, faq, knowledge base, tutorials"
+      />
+      <PageWrapper>
       <div className="max-w-4xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em] mb-4">Help Center</h1>
@@ -58,5 +65,6 @@ export default function HelpCenterPage() {
         </div>
       </div>
     </PageWrapper>
+    </>
   );
 }
