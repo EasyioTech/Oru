@@ -1,14 +1,18 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Phone, Send, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Mail, MapPin, MessageSquare, Send, Phone, Globe, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Button } from '../../../components/ui/button';
+import { SEO } from '../../../components/shared/SEO';
 import { PageWrapper } from '../components/PageWrapper';
-import { SEO } from '@/components/shared/SEO';
 
 export default function ContactPage() {
-  const [formState, setFormState] = useState({ name: '', email: '', company: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [formState, setFormState] = React.useState({
+    name: '',
+    email: '',
+    company: '',
+    message: ''
+  });
+  const [submitted, setSubmitted] = React.useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,128 +20,177 @@ export default function ContactPage() {
   };
 
   return (
-    <>
+    <PageWrapper>
       <SEO
-        title="Contact Oru ERP"
-        description="Get in touch with Oru ERP team. Have questions about our agency management platform? We'd love to hear from you."
+        title="Contact | Connect with Oru ERP"
+        description="Reach out to Oru ERP support at Easyio Technologies. We're here to help you scale your business operations."
       />
-      <PageWrapper>
-        <div className="max-w-6xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-[-0.02em]">Get in Touch</h1>
-          <p className="mt-4 text-lg text-zinc-400 max-w-xl mx-auto">
-            Have questions about Oru? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-          </p>
-        </motion.div>
+      
+      <div className="max-w-6xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="text-center mb-24 relative">
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-[10px] uppercase tracking-[0.2em] font-black text-zinc-400 dark:text-zinc-600 mb-8 shadow-sm dark:shadow-none transition-all"
+            >
+                <MessageSquare className="w-3 h-3" />
+                <span>Transmission Terminal</span>
+            </motion.div>
+            <motion.h1 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }}
+                className="text-5xl md:text-[8rem] font-black tracking-tighter text-zinc-900 dark:text-white mb-8 leading-[0.8] transition-colors uppercase"
+            >
+                ESTABLISH <span className="text-zinc-300 dark:text-zinc-800 italic transition-colors">LINK.</span>
+            </motion.h1>
+            <motion.p 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl md:text-2xl text-zinc-500 max-w-3xl mx-auto font-medium transition-colors italic leading-relaxed"
+            >
+                Have questions about Oru? Our team at <strong className="text-zinc-900 dark:text-zinc-300 transition-colors italic not-italic">Easyio Technologies</strong> is ready to accelerate your trajectory.
+            </motion.p>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+        <div className="grid lg:grid-cols-12 gap-12 items-start mb-40">
+          {/* Contact Form Section */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-7 bg-white dark:bg-zinc-900/10 border border-zinc-200 dark:border-zinc-900 rounded-[3rem] p-10 md:p-14 relative overflow-hidden shadow-sm dark:shadow-none transition-all"
           >
             {submitted ? (
-              <div className="p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                  <Send className="w-8 h-8 text-emerald-400" />
+              <div className="py-20 text-center relative z-10">
+                <div className="w-20 h-20 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 flex items-center justify-center mx-auto mb-10 transition-all">
+                  <Send className="w-8 h-8 text-zinc-400 dark:text-zinc-600 transition-colors" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Message Sent!</h3>
-                <p className="text-zinc-400">We'll get back to you within 24 hours.</p>
+                <h3 className="text-4xl font-black text-zinc-900 dark:text-white mb-4 tracking-tighter transition-colors uppercase italic">TRANSMISSION RECEIVED.</h3>
+                <p className="text-zinc-500 dark:text-zinc-500 text-lg font-medium transition-colors">Our communications cluster will respond within 24 hours.</p>
+                <button 
+                    onClick={() => setSubmitted(false)}
+                    className="mt-12 text-zinc-400 dark:text-zinc-600 hover:text-zinc-950 dark:hover:text-white font-black text-xs uppercase tracking-widest transition-colors underline underline-offset-8"
+                >
+                    INITIATE NEW TRANSMISSION
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Name</label>
+              <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-700 block pl-1 transition-colors">Identity</label>
                     <input
                       type="text"
                       required
+                      placeholder="Jane Cooper"
                       value={formState.name}
                       onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                      className="w-full h-12 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15]"
-                      placeholder="John Doe"
+                      className="w-full h-16 px-6 rounded-2xl bg-white dark:bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-200 dark:placeholder:text-zinc-800 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-700 transition-all font-black text-xs uppercase tracking-widest shadow-sm dark:shadow-none"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm text-zinc-400 mb-2">Email</label>
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-700 block pl-1 transition-colors">Access Node (Email)</label>
                     <input
                       type="email"
                       required
+                      placeholder="jane@company.com"
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                      className="w-full h-12 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15]"
-                      placeholder="john@company.com"
+                      className="w-full h-16 px-6 rounded-2xl bg-white dark:bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-200 dark:placeholder:text-zinc-800 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-700 transition-all font-black text-xs uppercase tracking-widest shadow-sm dark:shadow-none"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm text-zinc-400 mb-2">Company</label>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-700 block pl-1 transition-colors">Corporate Entity</label>
                   <input
                     type="text"
+                    placeholder="Acme Design Labs"
                     value={formState.company}
                     onChange={(e) => setFormState({ ...formState, company: e.target.value })}
-                    className="w-full h-12 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15]"
-                    placeholder="Acme Inc"
+                    className="w-full h-16 px-6 rounded-2xl bg-white dark:bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-200 dark:placeholder:text-zinc-800 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-700 transition-all font-black text-xs uppercase tracking-widest shadow-sm dark:shadow-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm text-zinc-400 mb-2">Message</label>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-700 block pl-1 transition-colors">Manifest Data (Message)</label>
                   <textarea
                     required
-                    rows={5}
+                    rows={6}
+                    placeholder="Describe your operational requirements..."
                     value={formState.message}
                     onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                    className="w-full p-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] resize-none"
-                    placeholder="Tell us how we can help..."
+                    className="w-full p-8 rounded-3xl bg-white dark:bg-zinc-950/20 border border-zinc-200 dark:border-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-200 dark:placeholder:text-zinc-800 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-700 transition-all resize-none font-medium text-lg leading-relaxed shadow-sm dark:shadow-none"
                   />
                 </div>
-                <Button type="submit" className="w-full h-12 bg-white text-black hover:bg-zinc-200 font-medium rounded-xl">
-                  Send Message
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <button type="submit" className="w-full h-20 bg-zinc-950 dark:bg-white text-white dark:text-black font-black text-xs tracking-[0.2em] uppercase rounded-full hover:scale-[1.02] active:scale-95 transition-all shadow-2xl dark:shadow-none flex items-center justify-center gap-4">
+                  DISPATCH TRANSMISSION
+                  <Send className="w-5 h-5" />
+                </button>
               </form>
             )}
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.01] transition-opacity">
+                <MessageSquare className="w-64 h-64 text-zinc-950 dark:text-white" />
+            </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-8"
-          >
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-              <h3 className="font-semibold text-white mb-4">Contact Information</h3>
-              <div className="space-y-4">
-                <a href="mailto:hello@Oru.io" className="flex items-center gap-3 text-zinc-400 hover:text-white transition-colors">
-                  <Mail className="w-5 h-5" />
-                  hello@Oru.io
-                </a>
-                <div className="flex items-center gap-3 text-zinc-400">
-                  <Phone className="w-5 h-5" />
-                  +91 98765 43210
+          {/* Info Section */}
+          <div className="lg:col-span-5 space-y-8">
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white dark:bg-zinc-900/10 border border-zinc-200 dark:border-zinc-900 rounded-[3rem] p-10 md:p-14 shadow-sm dark:shadow-none transition-all"
+            >
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-300 dark:text-zinc-700 mb-12 transition-colors italic">Direct Access Nodes</h3>
+              <div className="space-y-12">
+                {[
+                    { icon: Mail, label: 'Email Protocol', value: 'hello@oruerp.com', href: 'mailto:hello@oruerp.com' },
+                    { icon: Phone, label: 'Direct Stream', value: '+91 98765 43210' },
+                    { icon: MapPin, label: 'Physical Terminal', value: 'Easyio Labs, BKC, Mumbai 400051' }
+                ].map((item) => (
+                    <div key={item.label} className="flex gap-8 group">
+                        <div className="w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 flex items-center justify-center shrink-0 group-hover:border-zinc-400 dark:group-hover:border-zinc-700 transition-all">
+                            <item.icon className="w-6 h-6 text-zinc-400 dark:text-zinc-600 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="space-y-1 overflow-hidden">
+                            <span className="block text-zinc-300 dark:text-zinc-800 text-[10px] font-black uppercase tracking-widest transition-colors">{item.label}</span>
+                            {item.href ? (
+                                <a href={item.href} className="text-2xl font-black text-zinc-900 dark:text-white hover:text-zinc-500 transition-colors tracking-tighter truncate block uppercase italic">{item.value}</a>
+                            ) : (
+                                <div className="text-2xl font-black text-zinc-910 dark:text-white transition-colors tracking-tighter uppercase italic">{item.value}</div>
+                            )}
+                        </div>
+                    </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-zinc-950 dark:bg-white border border-zinc-950 dark:border-white rounded-[3rem] p-12 relative overflow-hidden group hover:scale-[1.02] transition-all duration-500 cursor-pointer shadow-2xl"
+            >
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                    <h3 className="text-3xl font-black text-white dark:text-black mb-2 tracking-tighter uppercase italic">ENTERPRISE CLUSTER.</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium transition-colors text-lg">Custom deployment for large fleets.</p>
                 </div>
-                <div className="flex items-start gap-3 text-zinc-400">
-                  <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <span>WeWork, Bandra Kurla Complex<br />Mumbai, Maharashtra 400051</span>
+                <div className="w-16 h-16 rounded-full bg-white dark:bg-zinc-950 flex items-center justify-center group-hover:rotate-45 transition-transform duration-500 shadow-2xl">
+                    <ArrowUpRight className="w-7 h-7 text-black dark:text-white" />
                 </div>
               </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-              <h3 className="font-semibold text-white mb-2">Enterprise Sales</h3>
-              <p className="text-sm text-zinc-400 mb-4">Need a custom solution for your large team? Let's talk.</p>
-              <Link to="/auth" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                Schedule a demo <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </motion.div>
+              <div className="absolute top-0 right-0 p-4 opacity-[0.05] dark:opacity-[0.03] scale-150 rotate-[12deg] group-hover:rotate-0 transition-transform duration-1000">
+                <Globe className="w-64 h-64 text-white dark:text-black" />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
-      </PageWrapper>
-    </>
+    </PageWrapper>
   );
 }
+
+
+

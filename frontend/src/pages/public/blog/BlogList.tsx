@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { PageWrapper } from '../../static-pages/components/PageWrapper';
 import { SEO } from '@/components/shared/SEO';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, User, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Newspaper, Sparkles } from 'lucide-react';
+import { format } from 'date-fns';
 import { api } from '@/utils/api';
 
 interface Post {
@@ -15,12 +14,15 @@ interface Post {
   excerpt: string;
   category: string;
   publishedAt: string;
-  featuredImage?: string;
+  created_at: string;
+  featured_image?: string;
+  categories?: string[];
 }
 
-const BlogList = () => {
+export default function BlogList() {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -31,6 +33,7 @@ const BlogList = () => {
         }
       } catch (err) {
         console.error('Error fetching blog posts:', err);
+        setError('Failed to fetch journal entries.');
       } finally {
         setLoading(false);
       }
@@ -39,93 +42,132 @@ const BlogList = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageWrapper>
       <SEO 
-        title="Oru ERP Blog - Industry Insights & ERP Best Practices" 
-        description="Stay ahead with the latest trends in agency management, ERP implementation, and business automation from the Oru ERP experts." 
+        title="Journal | The Architecture of Agency"
+        description="Deep dives into operational excellence, agency growth, and the future of enterprise software by Oru."
       />
-
-      {/* Hero */}
-      <section className="py-24 px-4 bg-muted/30 border-b">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-            Oru Insights
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Deep dives into automation, agency growth, and the future of enterprise resource planning.
-          </p>
+      
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="text-center mb-32 relative pt-20">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 dark:text-zinc-600 mb-8 shadow-sm dark:shadow-none transition-all"
+            >
+                <Newspaper className="w-3.5 h-3.5" />
+                <span>Operational Intelligence</span>
+            </motion.div>
+            <motion.h1 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }}
+                className="text-5xl md:text-[8rem] font-black tracking-tighter text-zinc-900 dark:text-white mb-8 leading-[0.8] transition-colors uppercase"
+            >
+                THE <span className="text-zinc-300 dark:text-zinc-800 italic transition-colors"> JOURNAL.</span>
+            </motion.h1>
+            <motion.p 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl md:text-2xl text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed max-w-3xl mx-auto transition-colors italic"
+            >
+                Deep dives into the engineering of agency velocity and the future of corporate software design at <strong className="text-zinc-950 dark:text-zinc-200 not-italic">Easyio Technologies</strong>.
+            </motion.p>
         </div>
-      </section>
 
-      {/* Blog Grid */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto">
-          {loading ? (
-            <div className="grid md:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-[400px] rounded-2xl" />
-              ))}
+        {/* Content Section */}
+        {loading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pb-40">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                    <div key={i} className="h-[500px] rounded-[3rem] bg-zinc-100 dark:bg-zinc-900/10 animate-pulse border border-zinc-200 dark:border-zinc-800/10" />
+                ))}
             </div>
-          ) : posts.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-8">
-              {posts.map((post) => (
-                <Card key={post.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-muted">
-                  <div className="aspect-video relative overflow-hidden bg-muted">
-                     {post.featuredImage ? (
-                        <img src={post.featuredImage} alt={post.title} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-                     ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary/20">
-                           <Badge variant="outline" className="text-4xl opacity-10 font-bold">ORU</Badge>
-                        </div>
-                     )}
-                     <div className="absolute top-4 left-4">
-                        <Badge className="bg-white/80 backdrop-blur text-primary hover:bg-white">{post.category}</Badge>
-                     </div>
-                  </div>
-                  <CardHeader>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(post.publishedAt).toLocaleDateString()}</span>
-                       <span className="flex items-center gap-1"><User className="h-3 w-3" /> Oru Team</span>
-                    </div>
-                    <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">{post.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="pt-0">
-                    <Link to={`/blog/${post.slug}`} className="w-full">
-                      <Button variant="ghost" className="w-full justify-between items-center group/btn">
-                         Read Article <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
+        ) : error ? (
+            <div className="py-20 text-center">
+                <p className="text-zinc-500 font-black uppercase tracking-widest italic">Signal Error: Failed to fetch journal entries.</p>
             </div>
-          ) : (
-            <div className="text-center py-24">
-               <h3 className="text-2xl font-bold mb-2">No articles yet</h3>
-               <p className="text-muted-foreground">Check back soon for our first insights!</p>
+        ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 pb-40">
+                {posts?.map((post, i) => (
+                    <motion.article
+                        key={post.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="group flex flex-col h-full"
+                    >
+                        <Link to={`/blog/${post.slug}`} className="flex flex-col h-full">
+                            <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden mb-8 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 group-hover:border-zinc-400 dark:group-hover:border-zinc-600 transition-all duration-700">
+                                {post.featured_image ? (
+                                    <img 
+                                        src={post.featured_image} 
+                                        alt={post.title}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90 group-hover:opacity-100 grayscale-[1] group-hover:grayscale-0"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center opacity-10">
+                                        <Sparkles className="w-20 h-20 text-zinc-500" />
+                                    </div>
+                                )}
+                                <div className="absolute top-6 left-6 flex items-center gap-2">
+                                     <span className="px-4 py-1.5 rounded-full bg-white dark:bg-zinc-950 text-[9px] font-black uppercase tracking-[0.2em] border border-zinc-200 dark:border-zinc-800 shadow-xl">
+                                        {post.categories?.[0] || post.category || 'JOURNAL'}
+                                     </span>
+                                </div>
+                            </div>
+                            
+                            <div className="flex-1 px-4">
+                                <div className="flex items-center gap-4 text-zinc-400 dark:text-zinc-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="w-3 h-3" />
+                                        {format(new Date(post.publishedAt || post.created_at), 'MMM dd, yyyy')}
+                                    </div>
+                                    <div className="w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                                    <div className="flex items-center gap-1.5">
+                                        <Clock className="w-3 h-3" />
+                                        5 MIN READ
+                                    </div>
+                                </div>
+                                <h2 className="text-3xl font-black text-zinc-950 dark:text-white mb-4 tracking-tighter uppercase italic group-hover:translate-x-1 transition-transform duration-500 leading-tight">
+                                    {post.title}
+                                </h2>
+                                <p className="text-zinc-500 dark:text-zinc-500 font-medium line-clamp-2 leading-relaxed italic mb-8">
+                                    {post.excerpt}
+                                </p>
+                                <div className="mt-auto inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-950 dark:text-white group-hover:gap-5 transition-all">
+                                    Read Entry <ArrowRight className="w-4 h-4" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.article>
+                ))}
             </div>
-          )}
-        </div>
-      </section>
+        )}
 
-      {/* Newsletter */}
-      <section className="py-24 px-4 bg-primary text-primary-foreground">
-         <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Stay updated on the future of ERP</h2>
-            <p className="text-primary-foreground/80 mb-10 text-lg">Join 5,000+ agency owners who receive our bi-weekly deep dives into business automation.</p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-               <input type="email" placeholder="Enter your email" className="flex-1 px-6 py-4 rounded-xl text-foreground outline-none" />
-               <Button variant="secondary" className="h-auto py-4 px-8 font-bold">Subscribe</Button>
+        {/* Categories / Newsletter */}
+        <section className="mb-40 grid lg:grid-cols-2 gap-20 py-20 border-t border-zinc-100 dark:border-zinc-900 transition-colors">
+            <div className="space-y-8">
+                <div className="inline-flex h-1 w-20 bg-zinc-200 dark:bg-zinc-900 rounded-full transition-colors" />
+                <h2 className="text-4xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase italic transition-colors">ARCHITECTURAL <br/>UPDATES.</h2>
+                <p className="text-xl text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic transition-colors">Subscribe to the protocol updates and strategic insights from the Easyio team.</p>
             </div>
-         </div>
-      </section>
-    </div>
+            
+            <div className="flex flex-col justify-center">
+                <div className="relative group/input max-w-lg">
+                    <input 
+                        type="email" 
+                        placeholder="ENTER TERMINAL EMAIL" 
+                        className="w-full h-20 px-10 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-[2rem] text-xs font-black tracking-widest uppercase focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-all font-mono"
+                    />
+                    <button className="absolute right-3 top-3 bottom-3 px-8 bg-zinc-950 dark:bg-white text-white dark:text-black rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all active:scale-95 shadow-xl">
+                        Subscribe
+                    </button>
+                </div>
+                <p className="mt-6 text-[10px] font-black text-zinc-300 dark:text-zinc-800 uppercase tracking-widest italic">Deployment frequency: Bi-weekly</p>
+            </div>
+        </section>
+      </div>
+    </PageWrapper>
   );
-};
-
-export default BlogList;
+}
