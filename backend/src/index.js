@@ -411,6 +411,7 @@ async function initializeMainDatabase() {
         await runMigrationIfExists(client, '12_system_settings_schema.sql');
         await runMigrationIfExists(client, '09_system_health_metrics.sql');
         await runMigrationIfExists(client, '16_agency_provisioning_jobs.sql');
+        await runMigrationIfExists(client, '20_create_blog_schema.sql');
       } catch (migrationError) {
         logger.error('Migration failed', {
           error: migrationError.message,
