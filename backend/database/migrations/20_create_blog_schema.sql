@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     content TEXT NOT NULL,
     excerpt TEXT,
     featured_image TEXT,
-    author_id UUID REFERENCES "user" (id) ON DELETE SET NULL,
+    author_id UUID,
     category TEXT NOT NULL,
     tags TEXT[] DEFAULT '{}',
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     seo_keywords TEXT[],
 
     -- Content Integration
-    related_feature_id UUID REFERENCES page_catalog (id) ON DELETE SET NULL,
+    related_feature_id UUID,
 
     -- Status
     is_published BOOLEAN NOT NULL DEFAULT FALSE,
