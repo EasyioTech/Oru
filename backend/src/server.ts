@@ -139,10 +139,6 @@ await server.register(autoLoad, {
     ignorePattern: /schemas\.ts$|service\.ts$|abilities\.ts$/,
 });
 
-// SPA Fallback with SEO meta tag injection
-const fs_module = await import('fs');
-const path_module = await import('path');
-
 // Meta tags for different page types
 const seoMetaTags: Record<string, { title: string; description: string; keywords: string }> = {
   // Industries
@@ -254,16 +250,32 @@ const seoMetaTags: Record<string, { title: string; description: string; keywords
   }
 };
 
+// Generate minimal HTML template with injected meta tags
+function generateSPAHtml(title: string, description: string, keywords: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${title}</title>
+    <meta name="description" content="${description}" />
+    <meta name="keywords" content="${keywords}" />
+    <meta name="theme-color" content="#1e293b" />
+    <link rel="icon" type="image/svg+xml" href="/images/landing/light.svg" />
+    <script type="module" src="/assets/index-rnMflQzt.js"></script>
+    <link rel="stylesheet" href="/assets/style-D1T164RD.js">
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        // React SPA will mount here
+    </script>
+</body>
+</html>`;
+}
+
 if (process.env.NODE_ENV === 'production') {
     server.log.info(`Serve frontend from: ${frontendDist}`);
-
-    // Load base index.html once at startup
-    let baseIndexHtml = '';
-    try {
-        baseIndexHtml = fs_module.readFileSync(path_module.join(frontendDist, 'index.html'), 'utf-8');
-    } catch (err) {
-        server.log.warn('Could not load index.html for meta tag injection');
-    }
 
     server.setNotFoundHandler(async (request, reply) => {
         // API 404
@@ -275,33 +287,14 @@ if (process.env.NODE_ENV === 'production') {
         const pathname = request.url.split('?')[0];
         const meta = seoMetaTags[pathname];
 
-        let html = baseIndexHtml;
-        if (meta && html) {
-            // Replace title
-            html = html.replace(
-                /<title>.*?<\/title>/,
-                `<title>${meta.title}</title>`
-            );
-            // Replace description
-            html = html.replace(
-                /(<meta name="description" content=").*?(")/,
-                `$1${meta.description}$2`
-            );
-            // Add/update keywords meta tag if not present
-            if (!html.includes('name="keywords"')) {
-                html = html.replace(
-                    /(<meta name="description"[^>]*>)/,
-                    `$1\n    <meta name="keywords" content="${meta.keywords}" />`
-                );
-            } else {
-                html = html.replace(
-                    /(<meta name="keywords" content=").*?(")/,
-                    `$1${meta.keywords}$2`
-                );
-            }
+        if (meta) {
+            // Return HTML with injected meta tags for SEO pages
+            const html = generateSPAHtml(meta.title, meta.description, meta.keywords);
+            return reply.type('text/html').send(html);
         }
 
-        return reply.type('text/html').send(html);
+        // For unmapped routes, use static file serving from frontend
+        return reply.sendFile('index.html');
     });
 }
 
