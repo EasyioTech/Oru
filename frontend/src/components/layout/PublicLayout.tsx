@@ -1,0 +1,18 @@
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { Navigation } from '@/components/landing/sections/Navigation';
+import { Footer } from '@/components/landing/sections/Footer';
+
+export const PublicLayout = () => {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navigation />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default PublicLayout;
