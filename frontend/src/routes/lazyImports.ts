@@ -23,10 +23,38 @@ export const AboutPage = React.lazy(() => import("../pages/public/About"));
 // SEO Optimized Industry Pages
 export const MarketingAgenciesIndustry = React.lazy(() => import("../pages/public/industries/MarketingAgencies"));
 export const SoftwareDevIndustry = React.lazy(() => import("../pages/public/industries/SoftwareDevelopment"));
+export const CreativeAgenciesIndustry = React.lazy(() => import("../pages/public/industries/CreativeAgencies"));
+export const ConsultingFirmsIndustry = React.lazy(() => import("../pages/public/industries/ConsultingFirms"));
+export const DigitalMarketingIndustry = React.lazy(() => import("../pages/public/industries/DigitalMarketing"));
+export const AdvertisingAgenciesIndustry = React.lazy(() => import("../pages/public/industries/AdvertisingAgencies"));
+export const MediaProductionIndustry = React.lazy(() => import("../pages/public/industries/MediaProduction"));
+export const ArchitectureDesignIndustry = React.lazy(() => import("../pages/public/industries/ArchitectureDesign"));
+export const LegalServicesIndustry = React.lazy(() => import("../pages/public/industries/LegalServices"));
+export const AccountingFirmsIndustry = React.lazy(() => import("../pages/public/industries/AccountingFirms"));
+export const FreelancersIndustry = React.lazy(() => import("../pages/public/industries/Freelancers"));
 
 // SEO Optimized Competitor Comparison Pages
 export const OdooComparison = React.lazy(() => import("../pages/public/compare/OdooComparison"));
 export const SapComparison = React.lazy(() => import("../pages/public/compare/SapComparison"));
+export const MondayComparison = React.lazy(() => import("../pages/public/compare/MondayComparison"));
+export const ZohoComparison = React.lazy(() => import("../pages/public/compare/ZohoComparison"));
+export const NetSuiteComparison = React.lazy(() => import("../pages/public/compare/NetSuiteComparison"));
+export const HubspotComparison = React.lazy(() => import("../pages/public/compare/HubspotComparison"));
+export const AsanaComparison = React.lazy(() => import("../pages/public/compare/AsanaComparison"));
+export const ClickupComparison = React.lazy(() => import("../pages/public/compare/ClickupComparison"));
+export const FreshworksComparison = React.lazy(() => import("../pages/public/compare/FreshworksComparison"));
+
+// SEO Optimized Feature Pages
+export const ProjectManagementFeature = React.lazy(() => import("../pages/public/features/ProjectManagement"));
+export const CRMFeature = React.lazy(() => import("../pages/public/features/CRM"));
+export const HRManagementFeature = React.lazy(() => import("../pages/public/features/HRManagement"));
+export const FinancialManagementFeature = React.lazy(() => import("../pages/public/features/FinancialManagement"));
+export const InvoicingBillingFeature = React.lazy(() => import("../pages/public/features/InvoicingBilling"));
+export const TimeTrackingFeature = React.lazy(() => import("../pages/public/features/TimeTracking"));
+export const TeamCollaborationFeature = React.lazy(() => import("../pages/public/features/TeamCollaboration"));
+export const ReportingAnalyticsFeature = React.lazy(() => import("../pages/public/features/ReportingAnalytics"));
+export const InventoryManagementFeature = React.lazy(() => import("../pages/public/features/InventoryManagement"));
+export const ClientPortalFeature = React.lazy(() => import("../pages/public/features/ClientPortal"));
 
 // Static Pages (split for performance - each loads independently)
 export const ContactPage = React.lazy(() => import("../pages/static-pages/contact"));
