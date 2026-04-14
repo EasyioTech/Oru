@@ -141,7 +141,8 @@ export default function RoadmapPage() {
             <div className="absolute top-0 right-0 p-12 opacity-[0.05] scale-150 rotate-12 group-hover:rotate-0 transition-transform duration-1000">
                 <Zap className="w-80 h-80 text-white dark:text-black" />
             </div>
-        </div>
+        </motion.div>
+      </div>
     </PageWrapper>
   );
 }
