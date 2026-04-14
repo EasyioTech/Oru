@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Navigation } from '@/components/landing/sections/Navigation';
-import { Footer } from '@/components/landing/sections/Footer';
+import Navigation from '../landing/sections/Navigation';
+import { Footer } from '../landing/sections/Footer';
 
 export const PublicLayout = () => {
   return (
