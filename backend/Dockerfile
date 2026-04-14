@@ -28,12 +28,8 @@ RUN npm ci --omit=dev
 # Copy compiled code from builder
 COPY --from=builder /app/dist ./dist
 
-# Copy any other necessary files (like scripts if needed at runtime, or migrations)
-# Assuming migrations are handled separately or included in dist if they are code
-# If drizzle usage requires source files for migrations, we might need them.
-# Usually drizzle-kit needs the schema files or migration sql files.
-# Let's verify where migration files are. 
-# They usually are in 'drizzle/' folder.
+# Copy migration files (required for backend startup)
+COPY --from=builder /app/database ./database
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.prod.ts ./
 
