@@ -116,20 +116,14 @@ server.get('/robots.txt', async (request, reply) => {
 
 // --- 5. Register Static and Autoload ---
 
-// Register static for uploads
+// Register static for uploads only
 await server.register(fastifyStatic, {
     root: path.join(process.cwd(), 'uploads'),
     prefix: '/uploads/',
     decorateReply: false
 });
 
-// Register static for frontend dist
-await server.register(fastifyStatic, {
-    root: frontendDist,
-    prefix: '/',
-    wildcard: true,
-    decorateReply: true, // Only this one decorates reply.sendFile
-});
+// Don't register static for frontend - let notFoundHandler serve it with meta tag injection
 
 // Autoload modules (prefix /api)
 await server.register(autoLoad, {
@@ -250,26 +244,31 @@ const seoMetaTags: Record<string, { title: string; description: string; keywords
   }
 };
 
+// Register static for frontend dist (assets, images, etc.)
+await server.register(fastifyStatic, {
+    root: frontendDist,
+    prefix: '/',
+    wildcard: false,  // Don't wildcard catch all
+});
+
 // Generate minimal HTML template with injected meta tags
 function generateSPAHtml(title: string, description: string, keywords: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>${title}</title>
     <meta name="description" content="${description}" />
     <meta name="keywords" content="${keywords}" />
     <meta name="theme-color" content="#1e293b" />
     <link rel="icon" type="image/svg+xml" href="/images/landing/light.svg" />
-    <script type="module" src="/assets/index-rnMflQzt.js"></script>
-    <link rel="stylesheet" href="/assets/style-D1T164RD.js">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
 </head>
 <body>
     <div id="root"></div>
-    <script>
-        // React SPA will mount here
-    </script>
+    <script type="module" src="/assets/index-rnMflQzt.js"><\/script>
+    <link rel="stylesheet" href="/assets/style-D1T164RD.css">
 </body>
 </html>`;
 }
@@ -287,14 +286,20 @@ if (process.env.NODE_ENV === 'production') {
         const pathname = request.url.split('?')[0];
         const meta = seoMetaTags[pathname];
 
+        // For all routes (mapped and unmapped), return SPA HTML
         if (meta) {
             // Return HTML with injected meta tags for SEO pages
             const html = generateSPAHtml(meta.title, meta.description, meta.keywords);
             return reply.type('text/html').send(html);
+        } else {
+            // For unmapped routes, use generic template
+            const html = generateSPAHtml(
+                'Oru ERP - Agency Management Platform',
+                'Oru ERP - Complete agency management and business solution',
+                'erp, agency management, crm, project management'
+            );
+            return reply.type('text/html').send(html);
         }
-
-        // For unmapped routes, use static file serving from frontend
-        return reply.sendFile('index.html');
     });
 }
 
