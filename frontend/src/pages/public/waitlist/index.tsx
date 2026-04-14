@@ -88,52 +88,8 @@ export default function WaitlistPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_80%)]" />
             </div>
 
-            {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-2xl">
-                <div className="max-w-2xl mx-auto flex items-center justify-between px-5 sm:px-6 h-14">
-                    <Link to="/" className="flex items-center group">
-                        <div className="w-10 h-10 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden">
-                            <ThemeLogo className="h-8 w-auto object-contain" />
-                        </div>
-                    </Link>
-                    {!isThankYou && (
-                        <div className="flex items-center gap-4">
-                            {/* Step Dots */}
-                            <div className="hidden sm:flex items-center gap-1.5">
-                                {Array.from({ length: totalSteps }).map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className={`h-1.5 rounded-full transition-all duration-500 ${i < currentStepIndex
-                                            ? 'w-1.5 bg-foreground'
-                                            : i === currentStepIndex
-                                                ? 'w-6 bg-primary'
-                                                : 'w-1.5 bg-border'
-                                            }`}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-[11px] font-bold text-foreground tabular-nums tracking-wide uppercase">
-                                Step {Math.min(currentStepIndex + 1, totalSteps)} of {totalSteps}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Progress Bar */}
-                {!isThankYou && (
-                    <div className="h-[2px] bg-border/20">
-                        <motion.div
-                            className="h-full bg-foreground"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${progress}%` }}
-                            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-                        />
-                    </div>
-                )}
-            </header>
-
             {/* Main Content */}
-            <main className="relative z-10 max-w-2xl mx-auto px-5 sm:px-6 py-12 sm:py-20">
+            <main className="relative z-10 max-w-2xl mx-auto px-5 sm:px-6 py-12 sm:py-20 flex-grow">
                 {/* Glassmorphism Card Container */}
                 <div className="relative">
                     <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-border/50 via-transparent to-border/20 pointer-events-none" />
@@ -153,18 +109,6 @@ export default function WaitlistPage() {
                     </div>
                 </div>
             </main>
-
-            {/* Footer */}
-            <footer className="relative z-10 py-8">
-                <div className="max-w-2xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <p className="text-[11px] text-muted-foreground/80 tracking-wide">
-                        Your data is encrypted and never shared with third parties.
-                    </p>
-                    <Link to="/" className="text-[11px] text-muted-foreground/80 hover:text-foreground transition-colors tracking-wide">
-                        oru.agency
-                    </Link>
-                </div>
-            </footer>
         </div>
     );
 }

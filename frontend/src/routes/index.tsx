@@ -1,13 +1,9 @@
-/**
- * Main Routes Configuration
- * Combines all route groups into a single Routes component
- */
-
 import { Routes, Route } from "react-router-dom";
 import { SuspenseRoute } from "./SuspenseRoute";
 import * as Pages from "./lazyImports";
 import {
   PublicRoutes,
+  NonLayoutPublicRoutes,
   StaticPageRoutes,
   DashboardRoutes,
   EmployeeRoutes,
@@ -29,6 +25,7 @@ export const AppRoutes = () => (
   <Routes>
     {PublicRoutes()}
     {StaticPageRoutes()}
+    {NonLayoutPublicRoutes()}
     {DashboardRoutes()}
     {EmployeeRoutes()}
     {ProjectRoutes()}
@@ -46,4 +43,5 @@ export const AppRoutes = () => (
     <Route path="*" element={<SuspenseRoute><Pages.NotFound /></SuspenseRoute>} />
   </Routes>
 );
+
 

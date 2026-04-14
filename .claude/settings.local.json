@@ -6,7 +6,11 @@
       "Bash(curl:*)",
       "Skill(update-config)",
       "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
-      "Bash(grep -l \"SEO\" D:/Oru/frontend/src/pages/static-pages/*.tsx)"
+      "Bash(grep -l \"SEO\" D:/Oru/frontend/src/pages/static-pages/*.tsx)",
+      "WebFetch(domain:www.netsuite.com)",
+      "WebFetch(domain:www.sap.com)",
+      "WebSearch",
+      "Bash(git commit:*)"
     ]
   }
 }

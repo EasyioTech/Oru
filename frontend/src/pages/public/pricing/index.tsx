@@ -148,52 +148,6 @@ export default function Pricing() {
         description="Choose the perfect plan for your agency. From startup to enterprise, Oru ERP offers scalable pricing to fit your needs."
         keywords="ERP pricing, Oru ERP plans, agency pricing, business software cost"
       />
-      {/* Navigation */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center gap-2" aria-label="Oru Home">
-              <Zap className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Oru</span>
-            </Link>
-            
-            <nav className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-              <Link to="/pricing" className="text-foreground font-medium">Pricing</Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <Globe className="h-4 w-4" />
-                    {currency.code}
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {Object.entries(availableCurrencies).map(([countryCode, currencyInfo]) => (
-                    <DropdownMenuItem 
-                      key={countryCode}
-                      onClick={() => changeCurrency(countryCode)}
-                      className="cursor-pointer"
-                    >
-                      {currencyInfo.symbol} {currencyInfo.code} - {currencyInfo.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </nav>
-
-            <div className="flex items-center gap-4">
-              <Link to="/auth">
-                <Button variant="ghost" className="hidden sm:inline-flex">Sign In</Button>
-              </Link>
-              <Link to="/agency-signup">
-                <Button>Get Started <ArrowRight className="ml-2 h-4 w-4" /></Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
@@ -347,21 +301,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t bg-muted/30 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <Zap className="h-6 w-6 text-primary" />
-              <span className="text-lg font-semibold">Oru</span>
-            </div>
-            
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span>© 2024 Oru. All rights reserved.</span>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

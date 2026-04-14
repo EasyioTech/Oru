@@ -34,7 +34,6 @@ export default function LandingPage() {
         ogImage="https://oruerp.com/og-image-home.png"
       />
       <div className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground overflow-x-hidden">
-        <Navigation />
       <Hero />
 
       <Suspense fallback={<SectionLoader />}>
@@ -69,8 +68,6 @@ export default function LandingPage() {
         <SectionWrapper>
           <CTA />
         </SectionWrapper>
-
-        <Footer />
       </Suspense>
       </div>
     </>
