@@ -1,10 +1,16 @@
 import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '@/components/shared/SEO';
 
 export default function TermsPage() {
   return (
-    <PageWrapper>
+    <>
+      <SEO
+        title="Terms of Service - Oru ERP"
+        description="Read Oru ERP's terms and conditions. Understand our service agreement and your rights as a user."
+      />
+      <PageWrapper>
       <div className="max-w-3xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-3 mb-6">
@@ -33,6 +39,7 @@ export default function TermsPage() {
           </div>
         </motion.div>
       </div>
-    </PageWrapper>
+      </PageWrapper>
+    </>
   );
 }

@@ -17,7 +17,8 @@
         "db:migrate:prod": "node dist/scripts/run-migration.js",
         "lint": "eslint src --ext .ts",
         "test": "vitest",
-        "seed:admin": "tsx src/scripts/seed-super-admin.ts"
+        "seed:admin": "tsx src/scripts/seed-super-admin.ts",
+        "seed:blog": "tsx src/scripts/seed-blog.ts"
     },
     "keywords": [
         "erp",

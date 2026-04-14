@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail, MapPin, Phone, Send, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageWrapper } from '../components/PageWrapper';
+import { SEO } from '@/components/shared/SEO';
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({ name: '', email: '', company: '', message: '' });
@@ -15,8 +16,13 @@ export default function ContactPage() {
   };
 
   return (
-    <PageWrapper>
-      <div className="max-w-6xl mx-auto px-6">
+    <>
+      <SEO
+        title="Contact Oru ERP"
+        description="Get in touch with Oru ERP team. Have questions about our agency management platform? We'd love to hear from you."
+      />
+      <PageWrapper>
+        <div className="max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -131,6 +137,7 @@ export default function ContactPage() {
           </motion.div>
         </div>
       </div>
-    </PageWrapper>
+      </PageWrapper>
+    </>
   );
 }

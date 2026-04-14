@@ -3,6 +3,7 @@ import Navigation from './sections/Navigation';
 import { Hero } from './sections/Hero';
 import { SectionWrapper } from '@/components/ui/SectionWrapper';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEO } from '@/components/shared/SEO';
 
 // Lazy load sections below the fold
 const LogoCloud = React.lazy(() => import('./sections/LogoCloud'));
@@ -26,8 +27,14 @@ const SectionLoader = () => (
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground overflow-x-hidden">
-      <Navigation />
+    <>
+      <SEO
+        title="All-in-One Agency Management Platform"
+        description="Manage projects, teams, finances, and clients with Oru ERP. Complete SaaS built for modern agencies."
+        ogImage="https://oruerp.com/og-image-home.png"
+      />
+      <div className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground overflow-x-hidden">
+        <Navigation />
       <Hero />
 
       <Suspense fallback={<SectionLoader />}>
@@ -65,7 +72,8 @@ export default function LandingPage() {
 
         <Footer />
       </Suspense>
-    </div>
+      </div>
+    </>
   );
 }
 
