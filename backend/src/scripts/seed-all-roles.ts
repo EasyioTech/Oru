@@ -113,8 +113,8 @@ async function getOrCreateDemoAgency(client: pg.PoolClient): Promise<string> {
     if (existing.rows.length > 0) return existing.rows[0].id;
 
     const res = await client.query(
-        `INSERT INTO agencies (name, domain, status, is_active)
-         VALUES ('Demo Agency', 'demo.oru.com', 'active', true) RETURNING id`,
+        `INSERT INTO agencies (name, domain, database_name, status, is_active)
+         VALUES ('Demo Agency', 'demo.oru.com', 'demo_agency_db', 'active', true) RETURNING id`,
     );
     return res.rows[0].id;
 }
