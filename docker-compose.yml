@@ -43,16 +43,22 @@ services:
         condition: service_started
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oruerp.rule=Host(`oruerp.com`, `www.oruerp.com`)"
-      - "traefik.http.routers.oruerp.entrypoints=web,websecure"
-      - "traefik.http.routers.oruerp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.oruerp.loadbalancer.server.port=3000"
+      - "traefik.http.routers.oru-backend.rule=Host(`oruerp.com`, `www.oruerp.com`, `get-oru.com`, `www.get-oru.com`) && PathPrefix(`/api`, `/database`)"
+      - "traefik.http.routers.oru-backend.entrypoints=web,websecure"
+      - "traefik.http.routers.oru-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.oru-backend.loadbalancer.server.port=3000"
     restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oru-frontend.rule=Host(`oruerp.com`, `www.oruerp.com`, `get-oru.com`, `www.get-oru.com`)"
+      - "traefik.http.routers.oru-frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.oru-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.oru-frontend.loadbalancer.server.port=80"
     restart: unless-stopped
 
 volumes:
