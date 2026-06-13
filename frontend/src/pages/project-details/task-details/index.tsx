@@ -77,7 +77,7 @@ export default function TaskDetails() {
     try {
       const data = await projectService.getTask(id, profile, user?.id);
       setTask(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading task:', error);
       toast({
         title: "Error",
@@ -95,7 +95,7 @@ export default function TaskDetails() {
     try {
       const data = await projectService.getTaskComments(id, profile, user?.id);
       setComments(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading comments:', error);
     }
   }, [id, profile, user?.id]);
@@ -106,7 +106,7 @@ export default function TaskDetails() {
     try {
       const data = await projectService.getTaskTimeTracking(id, profile, user?.id);
       setTimeEntries(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading time tracking:', error);
     }
   }, [id, profile, user?.id]);
@@ -138,7 +138,7 @@ export default function TaskDetails() {
         title: "Success",
         description: "Comment added successfully"
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to add comment",
@@ -174,7 +174,7 @@ export default function TaskDetails() {
         title: "Success",
         description: "Time logged successfully"
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to log time",
@@ -376,7 +376,7 @@ export default function TaskDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Checklist</p>
                     <div className="space-y-2">
-                      {task.checklist.map((item: any, idx: number) => {
+                      {task.checklist.map((item: unknown, idx: number) => {
                         const text = typeof item === 'string' ? item : item.text || '';
                         const completed = typeof item === 'object' ? (item.completed || false) : false;
                         return (

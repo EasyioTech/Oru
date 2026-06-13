@@ -8,14 +8,14 @@ import {
   Check, X, Clock, User, Loader2, Plus, Search, Edit, Trash2, 
   Settings, MoreVertical
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { selectRecords, updateRecord, deleteRecord } from '@/services/api/core';
+import { fetchLeaveTypes, fetchLeaveRequests as fetchLeaveRequestsAPI, updateLeaveRequest, LeaveType } from '@/services/api/hr/leaves';
+import { deleteRecord } from '@/services/api/core';
 import LeaveRequestFormDialog from "@/components/shared/LeaveRequestFormDialog";
 import LeaveTypeFormDialog from "@/components/shared/LeaveTypeFormDialog";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
-import { LeaveRequest as LeaveRequestType, LeaveType } from '@/integrations/postgresql/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +40,7 @@ interface LeaveRequest {
   approved_by?: string | null;
   approved_at?: string | null;
   rejection_reason?: string | null;
-  rawData?: any; // Store raw database record
+  rawData?: unknown; // Store raw database record
 }
 
 const LeaveRequests = () => {
@@ -66,70 +66,25 @@ const LeaveRequests = () => {
     }
     return leaveRequests.filter(request => request.status === status);
   };
-
-  useEffect(() => {
-    fetchLeaveRequests();
-    fetchLeaveTypes();
-  }, []);
-
-  const fetchLeaveRequests = async () => {
+  const fetchLeaveRequests = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Fetch leave requests using PostgreSQL service
-      const leaveData = await selectRecords('leave_requests', {
-        orderBy: 'created_at DESC'
-      });
-
-      // Fetch leave types for names
-      const leaveTypesData = await selectRecords('leave_types', {
-        select: 'id, name'
-      });
-
-      const leaveTypeMap = new Map(leaveTypesData.map((lt: any) => [lt.id, lt.name]));
-
-      // Fetch employee details and profiles
-      const userIds = leaveData.map((l: any) => l.employee_id).filter(Boolean);
-      let employees: any[] = [];
-      let profiles: any[] = [];
-
-      if (userIds.length > 0) {
-        employees = await selectRecords('employee_details', {
-          select: 'user_id, first_name, last_name',
-          filters: [
-            { column: 'user_id', operator: 'in', value: userIds }
-          ]
-        });
-
-        profiles = await selectRecords('profiles', {
-          select: 'user_id, full_name',
-          filters: [
-            { column: 'user_id', operator: 'in', value: userIds }
-          ]
-        });
-      }
-
-      const profileMap = new Map(profiles.map((p: any) => [p.user_id, p.full_name]));
-      const employeeMap = new Map(employees.map((e: any) => [e.user_id, e]));
+      // Fetch leave requests using REST API
+      const rawRequests = await fetchLeaveRequestsAPI();
 
       // Transform leave requests
-      const transformedRequests: LeaveRequest[] = leaveData.map((request: any) => {
-        const employee = employeeMap.get(request.employee_id);
-        const fullName = profileMap.get(request.employee_id) || 
-          (employee ? `${employee.first_name} ${employee.last_name}`.trim() : 'Unknown Employee');
-        const leaveTypeName = leaveTypeMap.get(request.leave_type_id) || 'Leave';
-
-        const start = new Date(request.start_date);
-        const end = new Date(request.end_date);
-        const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      const transformedRequests: LeaveRequest[] = rawRequests.map((request: any) => {
+        const employeeName = request.employee?.full_name || 'Unknown Employee';
+        const leaveTypeName = request.leave_type?.name || 'Leave';
 
         return {
           id: request.id,
-          employee: fullName,
+          employee: employeeName,
           type: leaveTypeName,
           startDate: request.start_date,
           endDate: request.end_date,
-          days: request.total_days || days,
+          days: request.total_days,
           reason: request.reason || 'No reason provided',
           status: request.status || 'pending',
           submittedDate: request.created_at,
@@ -154,18 +109,16 @@ const LeaveRequests = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchLeaveTypes = async () => {
+  const fetchLeaveTypesData = useCallback(async () => {
     try {
-      const types = await selectRecords<LeaveType>('leave_types', {
-        orderBy: 'name ASC'
-      });
+      const types = await fetchLeaveTypes();
       setLeaveTypes(types);
     } catch (error: any) {
       console.error('Error fetching leave types:', error);
     }
-  };
+  }, []);
 
   const handleApprove = async (requestId: string) => {
     try {
@@ -178,11 +131,9 @@ const LeaveRequests = () => {
         return;
       }
 
-      await updateRecord('leave_requests', { 
+      await updateLeaveRequest(requestId, { 
         status: 'approved',
-        approved_at: new Date().toISOString(),
-        approved_by: user.id
-      }, { id: requestId }, user.id);
+      });
 
       toast({
         title: "Success",
@@ -211,10 +162,10 @@ const LeaveRequests = () => {
         return;
       }
 
-      await updateRecord('leave_requests', { 
+      await updateLeaveRequest(requestId, { 
         status: 'rejected',
         rejection_reason: 'Rejected by administrator'
-      }, { id: requestId }, user.id);
+      });
 
       toast({
         title: "Success",
@@ -279,7 +230,7 @@ const LeaveRequests = () => {
           title: 'Success',
           description: 'Leave type deleted successfully',
         });
-        fetchLeaveTypes();
+        fetchLeaveTypesData();
       }
 
       setShowDeleteDialog(false);
@@ -293,7 +244,6 @@ const LeaveRequests = () => {
       });
     }
   };
-
   // Filter requests by search query
   const getFilteredRequests = () => {
     let filtered = filterByStatus(selectedTab);

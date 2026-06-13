@@ -66,7 +66,7 @@ export async function fetchDepartmentsList(params: DepartmentsListParams): Promi
   if (params.parent_department_id) search.set('parent_department_id', params.parent_department_id);
   if (params.min_budget != null && params.min_budget !== '') search.set('min_budget', String(params.min_budget));
   if (params.max_budget != null && params.max_budget !== '') search.set('max_budget', String(params.max_budget));
-  const url = `${base}/departments?${search.toString()}`;
+  const url = `${base}/hr/departments?${search.toString()}`;
   const res = await fetch(url, { method: 'GET', headers: await authHeaders() });
   if (!res.ok) {
     const text = await res.text();
@@ -80,7 +80,7 @@ export async function fetchDepartmentsList(params: DepartmentsListParams): Promi
     throw new Error(msg || `Departments list failed: ${res.status}`);
   }
   const json = (await res.json()) as DepartmentsListResponse;
-  const data = json.data ?? (json as any);
+  const data = json.data ?? (json as unknown);
   const departments = data.departments ?? [];
   const total = data.total ?? json.meta?.total ?? departments.length;
   return { departments, total };
@@ -98,7 +98,7 @@ export interface DepartmentStats {
  */
 export async function fetchDepartmentsStats(): Promise<DepartmentStats> {
   const base = getApiRoot().replace(/\/$/, '');
-  const url = `${base}/departments/stats`;
+  const url = `${base}/hr/departments/stats`;
   const res = await fetch(url, { method: 'GET', headers: await authHeaders() });
   if (!res.ok) {
     const text = await res.text();
@@ -146,7 +146,7 @@ export interface DepartmentUpdatePayload {
  */
 export async function createDepartment(payload: DepartmentCreatePayload): Promise<DepartmentListRow> {
   const base = getApiRoot().replace(/\/$/, '');
-  const res = await fetch(`${base}/departments`, {
+  const res = await fetch(`${base}/hr/departments`, {
     method: 'POST',
     headers: await authHeaders(),
     body: JSON.stringify(payload),
@@ -165,7 +165,7 @@ export async function createDepartment(payload: DepartmentCreatePayload): Promis
  */
 export async function updateDepartment(id: string, payload: DepartmentUpdatePayload): Promise<DepartmentListRow> {
   const base = getApiRoot().replace(/\/$/, '');
-  const res = await fetch(`${base}/departments/${id}`, {
+  const res = await fetch(`${base}/hr/departments/${id}`, {
     method: 'PUT',
     headers: await authHeaders(),
     body: JSON.stringify(payload),
@@ -186,7 +186,7 @@ export async function updateDepartment(id: string, payload: DepartmentUpdatePayl
  */
 export async function deleteDepartment(id: string, hard = false): Promise<void> {
   const base = getApiRoot().replace(/\/$/, '');
-  const url = hard ? `${base}/departments/${id}?hard=true` : `${base}/departments/${id}`;
+  const url = hard ? `${base}/hr/departments/${id}?hard=true` : `${base}/hr/departments/${id}`;
   const res = await fetch(url, { method: 'DELETE', headers: await authHeaders() });
   if (!res.ok) {
     const text = await res.text();

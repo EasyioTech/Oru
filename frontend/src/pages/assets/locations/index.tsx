@@ -3,7 +3,7 @@
  * Complete asset location management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,17 +72,12 @@ export default function AssetLocations() {
     email: '',
     is_active: true,
   });
-
-  useEffect(() => {
-    loadData();
-  }, [filterActive]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getAssetLocations();
       setLocations(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load locations',
@@ -91,7 +86,7 @@ export default function AssetLocations() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleCreate = () => {
     setFormData({
@@ -135,7 +130,7 @@ export default function AssetLocations() {
         description: 'Location deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete location',
@@ -172,7 +167,7 @@ export default function AssetLocations() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save location',
@@ -192,6 +187,9 @@ export default function AssetLocations() {
     const matchesFilter = filterActive === undefined || location.is_active === filterActive;
     return matchesSearch && matchesFilter;
   });
+    useEffect(() => {
+        loadData();
+      }, [filterActive, loadData]);
 
   const stats = {
     total: locations.length,

@@ -72,24 +72,7 @@ const Receipts = () => {
   const [receiptToUpdateStatus, setReceiptToUpdateStatus] = useState<{ receipt: Receipt; newStatus: string } | null>(null);
   const [agencyId, setAgencyId] = useState<string | null>(null);
 
-  const isFinanceManager = userRole === 'admin' || userRole === 'finance_manager';
-
-  useEffect(() => {
-    const initializeAgency = async () => {
-      const id = await getAgencyId(profile, user?.id);
-      setAgencyId(id);
-      if (id) {
-        fetchReceipts(id);
-        fetchCategories(id);
-      }
-    };
-
-    if (user?.id) {
-      initializeAgency();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, profile?.agency_id]);
-
+  const isFinanceManager = userRole === 'agency_admin' || userRole === 'manager' || userRole === 'super_admin';
   const fetchCategories = async (agencyIdParam?: string | null) => {
     const effectiveAgencyId = agencyIdParam || agencyId;
     try {
@@ -98,7 +81,7 @@ const Receipts = () => {
         return;
       }
 
-      let categoriesData: any[] = [];
+      let categoriesData: unknown[] = [];
       try {
         categoriesData = await selectRecords('expense_categories', {
           where: { 
@@ -107,7 +90,7 @@ const Receipts = () => {
           },
           orderBy: 'name ASC',
         }) || [];
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If agency_id column doesn't exist, fetch all active categories
         if (error?.message?.includes('agency_id') || error?.code === '42703') {
           console.warn('agency_id column not found in expense_categories, fetching all active categories');
@@ -116,7 +99,7 @@ const Receipts = () => {
               where: { is_active: true },
               orderBy: 'name ASC',
             }) || [];
-          } catch (fallbackError: any) {
+          } catch (fallbackError: unknown) {
             // If is_active also doesn't exist, fetch all categories
             if (fallbackError?.code === '42703' || fallbackError?.message?.includes('is_active')) {
               console.warn('is_active column not found, fetching all categories');
@@ -132,11 +115,11 @@ const Receipts = () => {
         }
       }
       
-      setCategories((categoriesData || []).map((cat: any) => ({
+      setCategories((categoriesData || []).map((cat: unknown) => ({
         id: cat.id,
         name: cat.name
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching categories:', error);
       // Don't show error for missing column errors - these are expected
       const isMissingColumnError = error?.code === '42703' || 
@@ -171,13 +154,13 @@ const Receipts = () => {
 
       // Fetch reimbursement requests with agency_id filter
       // Handle case where agency_id column might not exist yet
-      let requests: any[] = [];
+      let requests: unknown[] = [];
       try {
         requests = await selectRecords('reimbursement_requests', {
           where: { agency_id: effectiveAgencyId },
           orderBy: 'created_at DESC',
         }) || [];
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If agency_id column doesn't exist, fetch all requests
         if (error?.message?.includes('agency_id') || error?.code === '42703') {
           console.warn('agency_id column not found, fetching all reimbursement requests');
@@ -201,12 +184,12 @@ const Receipts = () => {
       }
 
       // Fetch expense categories
-      let categoriesData: any[] = [];
+      let categoriesData: unknown[] = [];
       try {
         categoriesData = await selectRecords('expense_categories', {
           where: { agency_id: effectiveAgencyId },
         }) || [];
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If agency_id column doesn't exist, fetch all categories
         if (error?.message?.includes('agency_id') || error?.code === '42703') {
           console.warn('agency_id column not found in expense_categories, fetching all categories');
@@ -216,11 +199,11 @@ const Receipts = () => {
         }
       }
 
-      const categoryMap = new Map((categoriesData || []).map((c: any) => [c.id, c.name]));
+      const categoryMap = new Map((categoriesData || []).map((c: unknown) => [c.id, c.name]));
 
       // Fetch attachments for all requests
-      const requestIds = requests.map((r: any) => r.id).filter(Boolean);
-      let attachments: any[] = [];
+      const requestIds = requests.map((r: unknown) => r.id).filter(Boolean);
+      let attachments: unknown[] = [];
       
       if (requestIds.length > 0) {
         attachments = await selectRecords('reimbursement_attachments', {
@@ -230,14 +213,14 @@ const Receipts = () => {
         }) || [];
       }
 
-      const attachmentsMap = new Map(attachments.map((a: any) => [a.reimbursement_id, a]));
+      const attachmentsMap = new Map(attachments.map((a: unknown) => [a.reimbursement_id, a]));
 
       // Fetch employee profiles for vendor names
       // Use employee_id if available, otherwise use user_id
       const employeeIds = requests
-        .map((r: any) => r.employee_id || r.user_id)
+        .map((r: unknown) => r.employee_id || r.user_id)
         .filter(Boolean);
-      let profiles: any[] = [];
+      let profiles: unknown[] = [];
 
       if (employeeIds.length > 0) {
         profiles = await selectRecords('profiles', {
@@ -247,10 +230,10 @@ const Receipts = () => {
         }) || [];
       }
 
-      const profileMap = new Map(profiles.map((p: any) => [p.user_id, p.full_name]));
+      const profileMap = new Map(profiles.map((p: unknown) => [p.user_id, p.full_name]));
 
       // Transform reimbursement requests to receipts
-      const transformedReceipts: Receipt[] = requests.map((request: any) => {
+      const transformedReceipts: Receipt[] = requests.map((request: unknown) => {
         const attachment = attachmentsMap.get(request.id);
         const categoryName = categoryMap.get(request.category_id) || 'Uncategorized';
         const employeeId = request.employee_id || request.user_id;
@@ -297,7 +280,7 @@ const Receipts = () => {
         pendingReview
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching receipts:', error);
       
       // Don't show error toast for missing column errors - these are expected during migration
@@ -349,7 +332,7 @@ const Receipts = () => {
 
       setReceiptToDelete(null);
       fetchReceipts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting receipt:', error);
       toast({
         title: "Error",
@@ -363,7 +346,7 @@ const Receipts = () => {
     if (!receiptToUpdateStatus?.receipt.request_id || !user?.id) return;
 
     try {
-      const updateData: any = {
+      const updateData: unknown = {
         status: receiptToUpdateStatus.newStatus,
       };
 
@@ -384,7 +367,7 @@ const Receipts = () => {
 
       setReceiptToUpdateStatus(null);
       await fetchReceipts(agencyId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating status:', error);
       toast({
         title: "Error",
@@ -393,6 +376,21 @@ const Receipts = () => {
       });
     }
   };
+    useEffect(() => {
+        const initializeAgency = async () => {
+          const id = await getAgencyId(profile, user?.id);
+          setAgencyId(id);
+          if (id) {
+            fetchReceipts(id);
+            fetchCategories(id);
+          }
+        };
+
+        if (user?.id) {
+          initializeAgency();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [user?.id, profile?.agency_id]);
 
   const filteredReceipts = receipts.filter(receipt => {
     const matchesSearch = 

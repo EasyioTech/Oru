@@ -56,31 +56,34 @@ export const EmployeeCard = ({
 
   return (
     <Card 
-      className="hover:shadow-lg border-l-4 border-l-primary/20 flex flex-col h-full w-full"
+      className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border flex flex-col h-full w-full bg-card overflow-hidden relative"
     >
-      <CardHeader className="pb-3 flex-shrink-0">
+      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-3xl -mr-8 -mt-8 pointer-events-none transition-opacity group-hover:opacity-100 opacity-0" />
+      <CardHeader className="pb-3 flex-shrink-0 relative z-10">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-14 w-14 border-2 border-primary/20 flex-shrink-0">
+          <Avatar className="h-14 w-14 border-2 border-background shadow-sm ring-2 ring-primary/10 flex-shrink-0 transition-transform group-hover:scale-105">
             <AvatarImageWithAuth 
               src={employee.avatar_url || undefined} 
               alt={employee.full_name} 
             />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
               {getInitials(employee.full_name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-base leading-5 truncate mb-1.5">
+            <CardTitle className="text-base font-semibold leading-5 truncate mb-1.5 group-hover:text-primary transition-colors">
               {employee.full_name}
             </CardTitle>
             <div className="flex items-center space-x-2 mb-1.5">
-              <RoleIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-              <Badge variant={getRoleBadgeVariant(employee.role)} className="text-xs px-1.5 py-0">
-                {getRoleDisplayName(employee.role as any)}
+              <div className="bg-primary/10 p-1 rounded-md flex items-center justify-center">
+                <RoleIcon className="h-3 w-3 text-primary flex-shrink-0" />
+              </div>
+              <Badge variant={getRoleBadgeVariant(employee.role)} className="text-[10px] px-1.5 py-0 uppercase tracking-wider font-medium">
+                {getRoleDisplayName(employee.role as unknown)}
               </Badge>
             </div>
             {employee.position ? (
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs text-muted-foreground truncate font-medium">
                 {employee.position}
               </p>
             ) : (

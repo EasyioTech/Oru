@@ -16,7 +16,7 @@ export const InventoryRoutes = () => [
     key="/inventory"
     path="/inventory"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryManagement /></SuspenseRoute>
         </DashboardLayout>
@@ -27,7 +27,7 @@ export const InventoryRoutes = () => [
     key="/inventory/products"
     path="/inventory/products"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryProducts /></SuspenseRoute>
         </DashboardLayout>
@@ -38,7 +38,7 @@ export const InventoryRoutes = () => [
     key="/inventory/bom"
     path="/inventory/bom"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryBOM /></SuspenseRoute>
         </DashboardLayout>
@@ -49,7 +49,7 @@ export const InventoryRoutes = () => [
     key="/inventory/serial-batch"
     path="/inventory/serial-batch"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventorySerialBatch /></SuspenseRoute>
         </DashboardLayout>
@@ -60,7 +60,7 @@ export const InventoryRoutes = () => [
     key="/inventory/reports"
     path="/inventory/reports"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryReports /></SuspenseRoute>
         </DashboardLayout>
@@ -71,7 +71,7 @@ export const InventoryRoutes = () => [
     key="/inventory/settings"
     path="/inventory/settings"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventorySettings /></SuspenseRoute>
         </DashboardLayout>
@@ -82,7 +82,7 @@ export const InventoryRoutes = () => [
     key="/inventory/warehouses"
     path="/inventory/warehouses"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryWarehouses /></SuspenseRoute>
         </DashboardLayout>
@@ -93,7 +93,7 @@ export const InventoryRoutes = () => [
     key="/inventory/stock-levels"
     path="/inventory/stock-levels"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryStockLevels /></SuspenseRoute>
         </DashboardLayout>
@@ -104,7 +104,7 @@ export const InventoryRoutes = () => [
     key="/inventory/transfers"
     path="/inventory/transfers"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryTransfers /></SuspenseRoute>
         </DashboardLayout>
@@ -115,7 +115,7 @@ export const InventoryRoutes = () => [
     key="/inventory/adjustments"
     path="/inventory/adjustments"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.InventoryAdjustments /></SuspenseRoute>
         </DashboardLayout>
@@ -132,7 +132,7 @@ export const ProcurementRoutes = () => [
     key="/procurement"
     path="/procurement"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementManagement /></SuspenseRoute>
         </DashboardLayout>
@@ -143,7 +143,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/vendors"
     path="/procurement/vendors"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementVendors /></SuspenseRoute>
         </DashboardLayout>
@@ -154,7 +154,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/purchase-orders"
     path="/procurement/purchase-orders"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementPurchaseOrders /></SuspenseRoute>
         </DashboardLayout>
@@ -165,7 +165,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/requisitions"
     path="/procurement/requisitions"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementRequisitions /></SuspenseRoute>
         </DashboardLayout>
@@ -176,7 +176,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/goods-receipts"
     path="/procurement/goods-receipts"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementGoodsReceipts /></SuspenseRoute>
         </DashboardLayout>
@@ -187,7 +187,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/rfq"
     path="/procurement/rfq"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementRFQ /></SuspenseRoute>
         </DashboardLayout>
@@ -198,7 +198,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/vendor-contracts"
     path="/procurement/vendor-contracts"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementVendorContracts /></SuspenseRoute>
         </DashboardLayout>
@@ -209,7 +209,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/vendor-performance"
     path="/procurement/vendor-performance"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementVendorPerformance /></SuspenseRoute>
         </DashboardLayout>
@@ -220,7 +220,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/reports"
     path="/procurement/reports"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementReports /></SuspenseRoute>
         </DashboardLayout>
@@ -231,7 +231,7 @@ export const ProcurementRoutes = () => [
     key="/procurement/settings"
     path="/procurement/settings"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProcurementSettings /></SuspenseRoute>
         </DashboardLayout>
@@ -248,7 +248,7 @@ export const AssetRoutes = () => [
     key="/assets"
     path="/assets"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Assets /></SuspenseRoute>
         </DashboardLayout>
@@ -259,7 +259,7 @@ export const AssetRoutes = () => [
     key="/assets/categories"
     path="/assets/categories"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetCategories /></SuspenseRoute>
         </DashboardLayout>
@@ -270,7 +270,7 @@ export const AssetRoutes = () => [
     key="/assets/locations"
     path="/assets/locations"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetLocations /></SuspenseRoute>
         </DashboardLayout>
@@ -281,7 +281,7 @@ export const AssetRoutes = () => [
     key="/assets/maintenance"
     path="/assets/maintenance"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetMaintenance /></SuspenseRoute>
         </DashboardLayout>
@@ -292,7 +292,7 @@ export const AssetRoutes = () => [
     key="/assets/depreciation"
     path="/assets/depreciation"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetDepreciation /></SuspenseRoute>
         </DashboardLayout>
@@ -303,7 +303,7 @@ export const AssetRoutes = () => [
     key="/assets/disposals"
     path="/assets/disposals"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetDisposals /></SuspenseRoute>
         </DashboardLayout>
@@ -314,7 +314,7 @@ export const AssetRoutes = () => [
     key="/assets/reports"
     path="/assets/reports"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetReports /></SuspenseRoute>
         </DashboardLayout>
@@ -325,7 +325,7 @@ export const AssetRoutes = () => [
     key="/assets/settings"
     path="/assets/settings"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssetSettings /></SuspenseRoute>
         </DashboardLayout>

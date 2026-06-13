@@ -33,19 +33,9 @@ export class SystemManagementService {
             privacyPolicyUrl: legalLinks.privacy_policy || null,
             cookiePolicyUrl: legalLinks.cookie_policy || null,
             supportAddress: typeof settings.supportAddress === 'string' ? settings.supportAddress : (settings.supportAddress as any)?.address || '',
-            metaKeywords: Array.isArray(settings.metaKeywords) ? settings.metaKeywords.join(', ') : (settings.metaKeywords || ''),
             // Secrets (masked)
             smtpPassword: this.maskSecret(settings.smtpPasswordEncrypted),
             sendgridApiKey: this.maskSecret(settings.sendgridApiKeyEncrypted),
-            mailgunApiKey: this.maskSecret(settings.mailgunApiKeyEncrypted),
-            awsSesAccessKey: this.maskSecret(settings.awsSesAccessKeyEncrypted),
-            awsSesSecretKey: this.maskSecret(settings.awsSesSecretKeyEncrypted),
-            resendApiKey: this.maskSecret(settings.resendApiKeyEncrypted),
-            postmarkApiKey: this.maskSecret(settings.postmarkApiKeyEncrypted),
-            captchaSecretKey: this.maskSecret(settings.captchaSecretKeyEncrypted),
-            awsS3AccessKeyId: this.maskSecret(settings.awsS3AccessKeyEncrypted),
-            awsS3SecretAccessKey: this.maskSecret(settings.awsS3SecretKeyEncrypted),
-            sentryDsn: this.maskSecret(settings.sentryDsnEncrypted),
         };
     }
 
@@ -74,15 +64,6 @@ export class SystemManagementService {
         const secretFields: Record<string, string> = {
             smtpPassword: 'smtpPasswordEncrypted',
             sendgridApiKey: 'sendgridApiKeyEncrypted',
-            mailgunApiKey: 'mailgunApiKeyEncrypted',
-            awsSesAccessKey: 'awsSesAccessKeyEncrypted',
-            awsSesSecretKey: 'awsSesSecretKeyEncrypted',
-            resendApiKey: 'resendApiKeyEncrypted',
-            postmarkApiKey: 'postmarkApiKeyEncrypted',
-            captchaSecretKey: 'captchaSecretKeyEncrypted',
-            awsS3AccessKeyId: 'awsS3AccessKeyEncrypted',
-            awsS3SecretAccessKey: 'awsS3SecretKeyEncrypted',
-            sentryDsn: 'sentryDsnEncrypted',
         };
 
         for (const [virtual, real] of Object.entries(secretFields)) {
@@ -97,11 +78,6 @@ export class SystemManagementService {
                 }
                 delete dbUpdates[virtual];
             }
-        }
-
-        // Handle meta keywords string -> array conversion
-        if (typeof updates.metaKeywords === 'string') {
-            dbUpdates.metaKeywords = updates.metaKeywords.split(',').map(k => k.trim()).filter(Boolean);
         }
 
         // Remove virtual fields that aren't columns
@@ -139,14 +115,7 @@ export class SystemManagementService {
             systemTagline: settings.systemTagline,
             systemDescription: settings.systemDescription,
             logoUrl: settings.logoUrl,
-            logoDarkUrl: settings.logoDarkUrl,
-            logoLightUrl: settings.logoLightUrl,
             faviconUrl: settings.faviconUrl,
-            loginLogoUrl: settings.loginLogoUrl,
-            emailLogoUrl: settings.emailLogoUrl,
-            metaTitle: settings.metaTitle,
-            metaDescription: settings.metaDescription,
-            metaKeywords: Array.isArray(settings.metaKeywords) ? settings.metaKeywords.join(', ') : (settings.metaKeywords || ''),
             // Contact
             supportEmail: settings.supportEmail,
             supportPhone: settings.supportPhone,
@@ -167,14 +136,6 @@ export class SystemManagementService {
     async getSeoSettings() {
         const settings = await this.getSettings();
         return {
-            meta_title: settings.metaTitle,
-            meta_description: settings.metaDescription,
-            meta_keywords: Array.isArray(settings.metaKeywords) ? settings.metaKeywords.join(', ') : (settings.metaKeywords || ''),
-            og_title: settings.ogTitle,
-            og_description: settings.ogDescription,
-            og_image_url: settings.ogImageUrl,
-            twitter_card_type: settings.twitterCardType,
-            twitter_site: settings.twitterSite,
             facebook_url: settings.facebookUrl,
             twitter_url: settings.twitterUrl,
             linkedin_url: settings.linkedinUrl,

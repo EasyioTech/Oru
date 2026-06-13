@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GSTService, type GSTSettings, type GSTReturn, type GSTTransaction, type GSTLiability } from '@/services/api/financial';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,7 +15,7 @@ export const useGST = () => {
   const { toast } = useToast();
   const { user, profile, loading: authLoading } = useAuth();
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     if (!user) {
       return;
     }
@@ -40,9 +40,9 @@ export const useGST = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
-  const fetchReturns = async () => {
+  const fetchReturns = useCallback(async () => {
     if (!user) {
       return;
     }
@@ -67,9 +67,9 @@ export const useGST = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
-  const fetchTransactions = async (filters?: { 
+  const fetchTransactions = useCallback(async (filters?: { 
     transaction_type?: string; 
     start_date?: string; 
     end_date?: string;
@@ -99,7 +99,7 @@ export const useGST = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   const fetchLiability = async (startDate: string, endDate: string) => {
     if (!user) {
@@ -387,7 +387,7 @@ export const useGST = () => {
       
       return () => clearTimeout(timeoutId);
     }
-  }, [user?.id, profile?.agency_id, authLoading, hasFetched]); // Track if we've already fetched
+  }, [user, user?.id, profile?.agency_id, authLoading, hasFetched, fetchSettings, fetchReturns, fetchTransactions]); // Track if we've already fetched
 
   // For super_admin, check if they have agency_database context instead of agency_id
   const hasAgencyContext = typeof window !== 'undefined' && localStorage.getItem('agency_database');

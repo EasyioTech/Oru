@@ -11,11 +11,11 @@ export interface AsyncOptions {
   retryCount?: number;
   retryDelay?: number;
   timeout?: number;
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: unknown) => void;
   onError?: (error: Error) => void;
 }
 
-export const useAsyncOperation = <T = any>(options: AsyncOptions = {}) => {
+export const useAsyncOperation = <T = unknown>(options: AsyncOptions = {}) => {
   const {
     retryCount = 3,
     retryDelay = 1000,
@@ -23,6 +23,9 @@ export const useAsyncOperation = <T = any>(options: AsyncOptions = {}) => {
     onSuccess,
     onError
   } = options;
+
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   const [state, setState] = useState<AsyncState<T>>({
     loading: false,
@@ -84,13 +87,13 @@ export const useAsyncOperation = <T = any>(options: AsyncOptions = {}) => {
             success: true
           });
 
-          onSuccess?.(result);
+          optionsRef.current.onSuccess?.(result);
           return result;
         } catch (error) {
           clearTimeout(timeoutId);
           throw error;
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Handle abort
         if (error.name === 'AbortError') {
           setState(prev => ({
@@ -128,14 +131,14 @@ export const useAsyncOperation = <T = any>(options: AsyncOptions = {}) => {
             success: false
           });
 
-          onError?.(error);
+          optionsRef.current.onError?.(error);
           return null;
         }
       }
     };
 
     return executeWithRetry();
-  }, [retryCount, retryDelay, timeout, onSuccess, onError, cleanup]);
+  }, [retryCount, retryDelay, timeout, cleanup]);
 
   // Reset state
   const reset = useCallback(() => {
@@ -173,7 +176,7 @@ export const useAsyncOperation = <T = any>(options: AsyncOptions = {}) => {
 };
 
 // Utility hook for simple async operations
-export const useAsyncCallback = <T extends any[], R>(
+export const useAsyncCallback = <T extends unknown[], R>(
   asyncFunction: (...args: T) => Promise<R>,
   options: AsyncOptions = {}
 ) => {

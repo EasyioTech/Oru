@@ -43,9 +43,9 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
-  const [clients, setClients] = useState<any[]>([]);
-  const [jobCategories, setJobCategories] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [clients, setClients] = useState<unknown[]>([]);
+  const [jobCategories, setJobCategories] = useState<unknown[]>([]);
+  const [employees, setEmployees] = useState<unknown[]>([]);
   const [formData, setFormData] = useState<Job>({
     title: job?.title || '',
     description: job?.description || '',
@@ -60,62 +60,7 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
     profit_margin: job?.profit_margin || 0,
     assigned_to: job?.assigned_to || '',
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      // Reset form data first
-      setFormData({
-        title: '',
-        description: '',
-        client_id: '',
-        category_id: '',
-        status: 'planning',
-        start_date: '',
-        end_date: '',
-        estimated_hours: 0,
-        estimated_cost: 0,
-        budget: 0,
-        profit_margin: 0,
-        assigned_to: '',
-      });
-      
-      // Fetch data first, then set form data after data is loaded
-      const loadData = async () => {
-        setDataLoading(true);
-        try {
-          await Promise.all([
-            fetchClients(),
-            fetchJobCategories(),
-            fetchEmployees(),
-          ]);
-          
-          // After data is loaded, set form data if editing
-          if (job) {
-            setFormData({
-              title: job.title || '',
-              description: job.description || '',
-              client_id: job.client_id || '',
-              category_id: job.category_id || '',
-              status: job.status || 'planning',
-              start_date: job.start_date || '',
-              end_date: job.end_date || '',
-              estimated_hours: job.estimated_hours || 0,
-              estimated_cost: job.estimated_cost || 0,
-              budget: job.budget || 0,
-              profit_margin: job.profit_margin || 0,
-              assigned_to: job.assigned_to || '',
-            });
-          }
-        } finally {
-          setDataLoading(false);
-        }
-      };
-      
-      loadData();
-    }
-  }, [isOpen, job]);
-
-  const fetchClients = async () => {
+  const fetchClients = React.useCallback(async () => {
     try {
       if (!user?.id) {
         setClients([]);
@@ -131,7 +76,7 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
         company_name: c.company_name || c.name,
         name: c.name
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching clients:', error);
       toast({
         title: "Error",
@@ -140,9 +85,9 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
       });
       setClients([]);
     }
-  };
+  }, [user?.id, profile, toast]);
 
-  const fetchJobCategories = async () => {
+  const fetchJobCategories = React.useCallback(async () => {
     try {
       const categoriesData = await selectRecords('job_categories', {
         orderBy: 'name ASC',
@@ -152,9 +97,9 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
       console.error('Error fetching job categories:', error);
       setJobCategories([]);
     }
-  };
+  }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     try {
       if (!user?.id) {
         setEmployees([]);
@@ -175,7 +120,7 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
       console.error('Error fetching employees:', error);
       setEmployees([]);
     }
-  };
+  }, [user?.id, profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,7 +139,7 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
       }
 
       // Clean up empty string values for UUID fields
-      const cleanedData: any = {
+      const cleanedData: unknown = {
         title: formData.title.trim(),
         description: formData.description.trim() || null,
         status: formData.status,
@@ -249,7 +194,7 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
 
       onJobSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving job:', error);
       toast({
         title: 'Error',
@@ -260,6 +205,59 @@ const JobFormDialog: React.FC<JobFormDialogProps> = ({ isOpen, onClose, job, onJ
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (isOpen) {
+          // Reset form data first
+          setFormData({
+            title: '',
+            description: '',
+            client_id: '',
+            category_id: '',
+            status: 'planning',
+            start_date: '',
+            end_date: '',
+            estimated_hours: 0,
+            estimated_cost: 0,
+            budget: 0,
+            profit_margin: 0,
+            assigned_to: '',
+          });
+          
+          // Fetch data first, then set form data after data is loaded
+          const loadData = async () => {
+            setDataLoading(true);
+            try {
+              await Promise.all([
+                fetchClients(),
+                fetchJobCategories(),
+                fetchEmployees(),
+              ]);
+              
+              // After data is loaded, set form data if editing
+              if (job) {
+                setFormData({
+                  title: job.title || '',
+                  description: job.description || '',
+                  client_id: job.client_id || '',
+                  category_id: job.category_id || '',
+                  status: job.status || 'planning',
+                  start_date: job.start_date || '',
+                  end_date: job.end_date || '',
+                  estimated_hours: job.estimated_hours || 0,
+                  estimated_cost: job.estimated_cost || 0,
+                  budget: job.budget || 0,
+                  profit_margin: job.profit_margin || 0,
+                  assigned_to: job.assigned_to || '',
+                });
+              }
+            } finally {
+              setDataLoading(false);
+            }
+          };
+          
+          loadData();
+        }
+      }, [isOpen, job, fetchClients, fetchJobCategories, fetchEmployees]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

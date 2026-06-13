@@ -414,16 +414,14 @@ export default function OnboardingWizard() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#000000] text-white antialiased selection:bg-blue-500/20 overflow-hidden">
-      <GridPattern />
-
+    <div className="h-screen flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased selection:bg-blue-500/20 overflow-hidden">
       {/* Creation Progress Overlay */}
       <AnimatePresence>
         {renderCreationOverlay()}
       </AnimatePresence>
 
-      {/* Header with progress - wide container, generous padding and gaps */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex-shrink-0 bg-[#000000]/80 backdrop-blur-sm border-b border-white/[0.06]">
+      {/* Header with progress */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex-shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-7">
           <div className="flex items-center justify-between gap-6 sm:gap-8">
             <button
@@ -433,7 +431,7 @@ export default function OnboardingWizard() {
               }}
               disabled={isLoading}
               className={cn(
-                "text-zinc-500 hover:text-white transition-colors text-sm flex items-center gap-2 py-2 -my-1 rounded-lg hover:bg-white/5 min-w-[4rem] sm:min-w-0",
+                "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors text-sm flex items-center gap-2 py-2 -my-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2 min-w-[4rem] sm:min-w-0",
                 isLoading && "opacity-50 cursor-not-allowed"
               )}
             >
@@ -446,12 +444,12 @@ export default function OnboardingWizard() {
                 <div key={step.id} className="flex items-center flex-shrink-0">
                   <div
                     className={cn(
-                      "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300 flex-shrink-0",
+                      "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors duration-200 flex-shrink-0",
                       currentStep > step.id
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                        ? "bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30"
                         : currentStep === step.id
-                        ? "bg-white text-black"
-                        : "bg-zinc-900 text-zinc-600 border border-zinc-800"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-zinc-500 border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700"
                     )}
                   >
                     {currentStep > step.id ? '✓' : step.id}
@@ -459,8 +457,8 @@ export default function OnboardingWizard() {
                   {index < ONBOARDING_STEPS.length - 1 && (
                     <div
                       className={cn(
-                        "w-6 sm:w-8 h-[2px] mx-1.5 sm:mx-2 flex-shrink-0 transition-colors duration-300",
-                        currentStep > step.id ? "bg-emerald-500/30" : "bg-zinc-800"
+                        "w-6 sm:w-8 h-[2px] mx-1.5 sm:mx-2 flex-shrink-0 transition-colors duration-200",
+                        currentStep > step.id ? "bg-blue-600" : "bg-zinc-200 dark:bg-zinc-800"
                       )}
                     />
                   )}
@@ -480,7 +478,7 @@ export default function OnboardingWizard() {
         className="relative z-10 flex-1 min-h-0 overflow-y-auto overflow-x-hidden pt-24 sm:pt-28 pb-32 sm:pb-36 px-6 sm:px-8 lg:px-12"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <div className="max-w-4xl mx-auto w-full py-6 sm:py-8">
+        <div className="max-w-3xl mx-auto w-full py-6 sm:py-8">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={currentStep}
@@ -497,18 +495,18 @@ export default function OnboardingWizard() {
         </div>
       </main>
 
-      {/* Footer with navigation - wide container, generous padding and gaps */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex-shrink-0 bg-[#000000]/80 backdrop-blur-sm border-t border-white/[0.06]">
+      {/* Footer with navigation */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex-shrink-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
         <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-7">
           <div className="flex items-center justify-between gap-6 sm:gap-10">
             <button
               onClick={handleBack}
               disabled={currentStep === 1 || isLoading}
               className={cn(
-                "flex items-center gap-2.5 px-5 sm:px-6 py-3 rounded-xl text-sm font-medium transition-all min-h-12",
+                "flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-md text-sm font-medium transition-colors border",
                 currentStep === 1 || isLoading
-                  ? "text-zinc-700 cursor-not-allowed"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  ? "text-zinc-400 border-transparent cursor-not-allowed"
+                  : "text-zinc-600 border-transparent hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
               )}
             >
               <ArrowLeft className="w-4 h-4 flex-shrink-0" />
@@ -520,10 +518,10 @@ export default function OnboardingWizard() {
                 onClick={handleNext}
                 disabled={!canProceed || isLoading}
                 className={cn(
-                  "flex items-center gap-2.5 px-7 sm:px-8 py-3 rounded-xl text-sm font-medium transition-all min-h-12",
+                  "flex items-center gap-2 px-6 sm:px-8 py-2.5 rounded-md text-sm font-medium transition-colors",
                   canProceed && !isLoading
-                    ? "bg-white text-black hover:bg-zinc-200"
-                    : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                    ? "bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                    : "bg-zinc-100 text-zinc-400 cursor-not-allowed dark:bg-zinc-800 dark:text-zinc-500"
                 )}
               >
                 Continue
@@ -534,10 +532,10 @@ export default function OnboardingWizard() {
                 onClick={handleSubmit}
                 disabled={!canProceed || isLoading}
                 className={cn(
-                  "flex items-center gap-2.5 px-8 sm:px-10 py-3 rounded-xl text-sm font-medium transition-all min-h-12",
+                  "flex items-center gap-2 px-8 sm:px-10 py-2.5 rounded-md text-sm font-medium transition-colors",
                   canProceed && !isLoading
-                    ? "bg-white text-black hover:bg-zinc-200"
-                    : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                    ? "bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                    : "bg-zinc-100 text-zinc-400 cursor-not-allowed dark:bg-zinc-800 dark:text-zinc-500"
                 )}
               >
                 {isLoading ? (

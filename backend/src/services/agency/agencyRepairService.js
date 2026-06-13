@@ -177,19 +177,23 @@ async function fixCommonIssues(agencyDatabase) {
   try {
     await client.query('BEGIN');
 
+    // Fetch agency_id for tenant-scoped inserts
+    const agencyIdRow = await client.query(`SELECT agency_id FROM public.agency_settings LIMIT 1`).catch(() => ({ rows: [] }));
+    const agencyId = agencyIdRow.rows[0]?.agency_id || null;
+
     // Fix orphaned users by creating profiles
     const orphanedUsers = await client.query(`
-      SELECT u.id, u.email 
-      FROM public.users u 
-      LEFT JOIN public.profiles p ON u.id = p.user_id 
+      SELECT u.id, u.email
+      FROM public.users u
+      LEFT JOIN public.profiles p ON u.id = p.user_id
       WHERE p.id IS NULL
     `);
 
     for (const user of orphanedUsers.rows) {
       await client.query(
-        `INSERT INTO public.profiles (id, user_id, full_name, is_active)
-         VALUES (gen_random_uuid(), $1, $2, true)`,
-        [user.id, user.email.split('@')[0]]
+        `INSERT INTO public.profiles (id, user_id, full_name, is_active, agency_id)
+         VALUES (gen_random_uuid(), $1, $2, true, $3)`,
+        [user.id, user.email.split('@')[0], agencyId]
       );
       fixes.push(`Created profile for orphaned user: ${user.email}`);
     }

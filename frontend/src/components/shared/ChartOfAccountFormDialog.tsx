@@ -36,7 +36,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [parentAccounts, setParentAccounts] = useState<any[]>([]);
+  const [parentAccounts, setParentAccounts] = useState<unknown[]>([]);
   const [formData, setFormData] = useState<ChartOfAccount>({
     account_code: account?.account_code || '',
     account_name: account?.account_name || '',
@@ -45,33 +45,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
     is_active: account?.is_active !== undefined ? account.is_active : true,
     description: account?.description || '',
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchParentAccounts();
-      if (account) {
-        setFormData({
-          account_code: account.account_code,
-          account_name: account.account_name,
-          account_type: account.account_type,
-          parent_account_id: account.parent_account_id || null,
-          is_active: account.is_active !== undefined ? account.is_active : true,
-          description: account.description || '',
-        });
-      } else {
-        setFormData({
-          account_code: '',
-          account_name: '',
-          account_type: 'asset',
-          parent_account_id: null,
-          is_active: true,
-          description: '',
-        });
-      }
-    }
-  }, [isOpen, account]);
-
-  const fetchParentAccounts = async () => {
+  const fetchParentAccounts = React.useCallback(async () => {
     try {
       if (!user?.id) return;
       
@@ -79,7 +53,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
       const userProfile = profile || await selectOne('profiles', { user_id: user.id });
       const agencyId = await getAgencyId(userProfile, user.id);
       
-      let where: Record<string, any> = { is_active: true };
+      const where: Record<string, unknown> = { is_active: true };
       if (agencyId) {
         where.agency_id = agencyId;
       }
@@ -89,7 +63,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
         orderBy: 'account_code ASC',
       });
       setParentAccounts(accounts || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Fallback if agency_id column doesn't exist
       if (error?.code === '42703' || String(error?.message || '').includes('agency_id')) {
         const accounts = await selectRecords('chart_of_accounts', {
@@ -101,7 +75,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
         console.error('Error fetching parent accounts:', error);
       }
     }
-  };
+  }, [user?.id, profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +123,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
 
       // Validate account code is unique within agency (if creating new or changing code)
       if (!account?.id || formData.account_code !== account.account_code) {
-        let where: Record<string, any> = { account_code: formData.account_code.trim() };
+        const where: Record<string, unknown> = { account_code: formData.account_code.trim() };
         if (agencyId) {
           where.agency_id = agencyId;
         }
@@ -166,7 +140,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
         }
       }
 
-      const cleanedData: any = {
+      const cleanedData: unknown = {
         account_code: formData.account_code.trim(),
         account_name: formData.account_name.trim(),
         account_type: formData.account_type,
@@ -198,7 +172,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
 
       onAccountSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving account:', error);
       // Check for unique constraint violation
       if (error.message?.includes('unique') || error.message?.includes('duplicate')) {
@@ -218,6 +192,30 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (isOpen) {
+          fetchParentAccounts();
+          if (account) {
+            setFormData({
+              account_code: account.account_code,
+              account_name: account.account_name,
+              account_type: account.account_type,
+              parent_account_id: account.parent_account_id || null,
+              is_active: account.is_active !== undefined ? account.is_active : true,
+              description: account.description || '',
+            });
+          } else {
+            setFormData({
+              account_code: '',
+              account_name: '',
+              account_type: 'asset',
+              parent_account_id: null,
+              is_active: true,
+              description: '',
+            });
+          }
+        }
+      }, [isOpen, account, fetchParentAccounts]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -245,7 +243,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
               <Label htmlFor="account_type">Account Type *</Label>
               <Select 
                 value={formData.account_type} 
-                onValueChange={(value: any) => setFormData(prev => ({ ...prev, account_type: value }))}
+                onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, account_type: value }))}
               >
                 <SelectTrigger>
                   <SelectValue />

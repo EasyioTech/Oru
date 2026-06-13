@@ -1,0 +1,401 @@
+﻿
+   71:6   warning  React Hook useEffect has missing dependencies: 'fetchCostItems' and 'resetForm'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+  60:6  warning  React Hook useEffect has a missing dependency: 'fetchBalances'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  120:6   warning  React Hook useEffect has a missing dependency: 'loadNotifications'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  102:6   warning  React Hook useEffect has a missing dependency: 'fetchQuotationData'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+  117:6   warning  React Hook useCallback has a missing dependency: 'validateFile'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   52:6   warning  React Hook useEffect has a missing dependency: 'fetchAttachments'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   66:6   warning  React Hook useEffect has a missing dependency: 'fetchAttachments'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  243:6   warning  React Hook useEffect has missing dependencies: 'fetchRequest', 'fetchWorkflow', 'loadRequest', and 
+'loadWorkflow'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  50:6  warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   41:6   warning  React Hook useEffect has a missing dependency: 'fetchInsights'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   58:6   warning  React Hook useEffect has a missing dependency: 'fetchPredictiveData'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+   58:6   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  126:6   warning  React Hook useEffect has missing dependencies: 'fetchReports', 'fetchWidgets', and 'profile'. 
+Either include them or remove the dependency array                                                                     
+          react-hooks/exhaustive-deps
+  220:6   warning  React Hook useEffect has a missing dependency: 'fetchWidgetData'. Either include it or remove the 
+dependency array                                                                                                       
+      react-hooks/exhaustive-deps
+  447:8   warning  React Hook useEffect has a missing dependency: 'widget'. Either include it or remove the dependency 
+array. Outer scope values like 'agencyId' aren't valid dependencies because mutating them doesn't re-render the 
+component  react-hooks/exhaustive-deps
+  166:6   warning  React Hook useEffect has missing dependencies: 'currentUser.id' and 'profile'. Either include them 
+or remove the dependency array  react-hooks/exhaustive-deps
+   51:6   warning  React Hook useEffect has a missing dependency: 'fetchCalendarData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  152:6   warning  React Hook useEffect has missing dependencies: 'fetchDocuments', 'fetchFolders', and 'profile'. 
+Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  102:6  warning  React Hook useEffect has missing dependencies: 'fetchLiability' and 'fetchTransactions'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+  132:6  warning  React Hook useEffect has a missing dependency: 'calculateTaxes'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  58:6  warning  React Hook useEffect has a missing dependency: 'updateFormData'. Either include it or remove the 
+dependency array. If 'updateFormData' changes too often, find the parent component that defines it and wrap that 
+definition in useCallback  react-hooks/exhaustive-deps
+  30:6   warning  React Hook useEffect has a missing dependency: 'fetchEmployees'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  28:6   warning  React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   90:6   warning  React Hook useEffect has a missing dependency: 'fetchTasks'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  125:6   warning  React Hook useEffect has a missing dependency: 'fetchEmployees'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   72:6   warning  React Hook useEffect has a missing dependency: 'fetchParentAccounts'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+   89:6   warning  React Hook useEffect has missing dependencies: 'fetchClients' and 'fetchProjects'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+  160:6   warning  React Hook useEffect has a missing dependency: 'calculateTotal'. Either include it or remove the 
+dependency array                      react-hooks/exhaustive-deps
+  116:6   warning  React Hook useEffect has missing dependencies: 'fetchClients' and 'fetchEmployees'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+   84:6   warning  React Hook useEffect has a missing dependency: 'fetchAccounts'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  125:6   warning  React Hook useEffect has a missing dependency: 'fetchEmployees'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   83:6    warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   85:6   warning  React Hook useEffect has a missing dependency: 'fetchInvoices'. Either include it or remove the 
+dependency array    react-hooks/exhaustive-deps
+  112:6   warning  React Hook useEffect has a missing dependency: 'formData.amount'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  104:6   warning  React Hook useEffect has a missing dependency: 'fetchEmployees'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  274:6   warning  React Hook useEffect has missing dependencies: 'fetchClients', 'fetchDepartments', and 
+'fetchEmployees'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  180:6   warning  React Hook useEffect has missing dependencies: 'fetchClients' and 'fetchTemplates'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+   85:6   warning  React Hook useEffect has a missing dependency: 'fetchCategories'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   87:6   warning  React Hook React.useEffect has a missing dependency: 'fetchCategories'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+  130:6   warning  React Hook useEffect has missing dependencies: 'fetchEmployees' and 'fetchProjects'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+  135:6   warning  React Hook useEffect has a missing dependency: 'fetchUsageMetrics'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   77:6    warning  React Hook useEffect has a missing dependency: 'loadTicketStats'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  40:6   warning  React Hook useEffect has a missing dependency: 'loadSettings'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  179:6   warning  React Hook useEffect has a missing dependency: 'fetchAgencyMetrics'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+   66:6   warning  React Hook useCallback has a missing dependency: 'profile?.agency_id'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+  117:6   warning  React Hook useCallback has a missing dependency: 'profile?.agency_id'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+  309:6   warning  React Hook useEffect has a missing dependency: 'fetchSettings'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+  390:6  warning  React Hook useEffect has missing dependencies: 'fetchReturns', 'fetchSettings', 'fetchTransactions', 
+and 'user'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  200:6   warning  React Hook useEffect has missing dependencies: 'loadAvailableFeatures' and 'loadPlans'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+  48:6   warning  React Hook useEffect has a missing dependency: 'loadSystemMetrics'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\agency-setup\agency-setup-progress\index.tsx
+  121:6   warning  React Hook useEffect has a missing dependency: 'userRole'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\categories\index.tsx
+   82:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\depreciation\index.tsx
+   96:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\disposals\index.tsx
+   97:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\index.tsx
+  138:6   warning  React Hook useEffect has missing dependencies: 'fetchAssets' and 'toast'. Either include them or 
+remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\locations\index.tsx
+   78:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\maintenance\index.tsx
+  102:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\reports\index.tsx
+  58:6   warning  React Hook useEffect has a missing dependency: 'loadReports'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\assets\settings\index.tsx
+   86:6   warning  React Hook useEffect has a missing dependency: 'loadSettings'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\attendance\index.tsx
+D:\Oru\frontend\src\pages\auth\index.tsx
+D:\Oru\frontend\src\pages\crm\activity-detail\index.tsx
+   27:6   warning  React Hook useEffect has a missing dependency: 'fetchActivityDetails'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\crm\clients\index.tsx
+   49:6   warning  React Hook useEffect has a missing dependency: 'fetchClients'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\crm\components\ActivitiesTab.tsx
+D:\Oru\frontend\src\pages\crm\components\LeadsTab.tsx
+D:\Oru\frontend\src\pages\crm\components\ReportsTab.tsx
+D:\Oru\frontend\src\pages\crm\create-client\index.tsx
+D:\Oru\frontend\src\pages\crm\hooks\useActivities.ts
+D:\Oru\frontend\src\pages\crm\hooks\useActivityActions.ts
+D:\Oru\frontend\src\pages\crm\hooks\useLeadActions.ts
+D:\Oru\frontend\src\pages\crm\hooks\useLeadStatusChange.ts
+D:\Oru\frontend\src\pages\crm\hooks\useLeads.ts
+D:\Oru\frontend\src\pages\crm\index.tsx
+D:\Oru\frontend\src\pages\crm\lead-detail\index.tsx
+   37:6   warning  React Hook useEffect has missing dependencies: 'fetchActivities', 'fetchLeadDetails', and 
+'fetchRelatedRecords'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\crm\utils\crmUtils.ts
+D:\Oru\frontend\src\pages\dashboards\agency-admin\index.tsx
+D:\Oru\frontend\src\pages\dashboards\agency\index.tsx
+D:\Oru\frontend\src\pages\dashboards\system-health\index.tsx
+  114:6  warning  React Hook useEffect has a missing dependency: 'fetchHealth'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\dashboards\system\index.tsx
+D:\Oru\frontend\src\pages\department-management\components\DepartmentFormDialog.tsx
+  93:6  warning  React Hook useEffect has missing dependencies: 'fetchDepartments' and 'fetchProfiles'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\department-management\components\DepartmentHierarchy.tsx
+  471:6   warning  React Hook useCallback has missing dependencies: 'fetchDepartmentMembers', 'setEdges', and 
+'setNodes'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\department-management\index.tsx
+  90:6  warning  React Hook useEffect has missing dependencies: 'fetchManagers' and 'fetchParentDepartments'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\assign-user-roles\index.tsx
+   44:6   warning  React Hook useEffect has a missing dependency: 'fetchEmployees'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\components\EmployeeCard.tsx
+D:\Oru\frontend\src\pages\employees\components\EmployeeViewDialog.tsx
+D:\Oru\frontend\src\pages\employees\create-employee\index.tsx
+  674:6    warning  React Hook useEffect has missing dependencies: 'fetchDepartments', 'fetchEmploymentTypes', 
+'fetchPositions', and 'fetchRoles'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\employee-performance\index.tsx
+D:\Oru\frontend\src\pages\employees\employee-projects\index.tsx
+  22:6   warning  React Hook useEffect has a missing dependency: 'fetchAssignedWork'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\hooks\useEmployeeActions.ts
+D:\Oru\frontend\src\pages\employees\hooks\useEmployeeFilters.ts
+D:\Oru\frontend\src\pages\employees\hooks\useEmployeeProjects.ts
+D:\Oru\frontend\src\pages\employees\hooks\useEmployees.ts
+  117:6   warning  React Hook useCallback has a missing dependency: 'toast'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\index.tsx
+D:\Oru\frontend\src\pages\employees\my-attendance\index.tsx
+   62:6   warning  React Hook useEffect has a missing dependency: 'fetchMyAttendance'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\my-leave\index.tsx
+   49:6   warning  React Hook useEffect has a missing dependency: 'fetchMyLeaveData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\my-profile\index.tsx
+  307:6   warning  React Hook useEffect has missing dependencies: 'fetchHistory' and 'fetchProfile'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\my-team\index.tsx
+   53:6   warning  React Hook useEffect has a missing dependency: 'fetchTeamMembers'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\employees\utils\employeePermissions.ts
+D:\Oru\frontend\src\pages\employees\utils\employeeUtils.ts
+D:\Oru\frontend\src\pages\financial\components\ChartOfAccountsTab.tsx
+D:\Oru\frontend\src\pages\financial\components\JobsTab.tsx
+D:\Oru\frontend\src\pages\financial\components\JournalEntriesTab.tsx
+D:\Oru\frontend\src\pages\financial\components\TransactionsTab.tsx
+D:\Oru\frontend\src\pages\financial\create-journal-entry\index.tsx
+D:\Oru\frontend\src\pages\financial\hooks\useAccountBalances.ts
+D:\Oru\frontend\src\pages\financial\hooks\useChartOfAccounts.ts
+D:\Oru\frontend\src\pages\financial\hooks\useFinancialData.ts
+   75:6   warning  React Hook useEffect has a missing dependency: 'profile'. Either include it or remove the 
+dependency array                                                                                                       
+ react-hooks/exhaustive-deps
+  109:6   warning  React Hook useEffect has missing dependencies: 'fetchChartOfAccounts', 'fetchJobs', 
+'fetchJournalEntries', 'fetchProjects', 'fetchTransactions', and 'toast'. Either include them or remove the dependency 
+array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\financial\hooks\useFinancialReports.ts
+D:\Oru\frontend\src\pages\financial\hooks\useJobs.ts
+D:\Oru\frontend\src\pages\financial\hooks\useJournalEntries.ts
+D:\Oru\frontend\src\pages\financial\hooks\useProjects.ts
+D:\Oru\frontend\src\pages\financial\hooks\useTransactions.ts
+D:\Oru\frontend\src\pages\financial\index.tsx
+D:\Oru\frontend\src\pages\financial\invoices\index.tsx
+  47:6   warning  React Hook useEffect has a missing dependency: 'fetchInvoices'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\financial\ledger\index.tsx
+D:\Oru\frontend\src\pages\financial\payments\index.tsx
+D:\Oru\frontend\src\pages\financial\payroll\index.tsx
+   71:6   warning  React Hook useEffect has missing dependencies: 'fetchPayrollData' and 'fetchPayrollPeriods'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+   77:6   warning  React Hook useEffect has a missing dependency: 'fetchPayrollData'. Either include it or remove the 
+dependency array                              react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\financial\receipts\index.tsx
+D:\Oru\frontend\src\pages\financial\reimbursements\index.tsx
+   57:6   warning  React Hook useEffect has a missing dependency: 'fetchReimbursements'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\financial\utils\financialCalculations.ts
+D:\Oru\frontend\src\pages\hr\leave-requests\index.tsx
+   73:6   warning  React Hook useEffect has a missing dependency: 'fetchLeaveRequests'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\adjustments\index.tsx
+  137:6   warning  React Hook useEffect has missing dependencies: 'fetchAdjustments' and 'toast'. Either include them 
+or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\bom\index.tsx
+   90:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\components\OverviewTab.tsx
+D:\Oru\frontend\src\pages\inventory\components\ProductsTab.tsx
+D:\Oru\frontend\src\pages\inventory\components\TransactionsTab.tsx
+D:\Oru\frontend\src\pages\inventory\components\WarehousesTab.tsx
+D:\Oru\frontend\src\pages\inventory\hooks\useInventoryData.ts
+D:\Oru\frontend\src\pages\inventory\hooks\useProductForm.ts
+D:\Oru\frontend\src\pages\inventory\hooks\useTransactionForm.ts
+D:\Oru\frontend\src\pages\inventory\hooks\useWarehouseForm.ts
+D:\Oru\frontend\src\pages\inventory\index.tsx
+D:\Oru\frontend\src\pages\inventory\products\index.tsx
+  131:6   warning  React Hook useEffect has missing dependencies: 'fetchProducts' and 'toast'. Either include them or 
+remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\reports\index.tsx
+   78:6   warning  React Hook useEffect has a missing dependency: 'loadReports'. Either include it or remove the 
+dependency array           react-hooks/exhaustive-deps
+   83:6   warning  React Hook useEffect has a missing dependency: 'loadStockValueReport'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+   87:6   warning  React Hook useEffect has a missing dependency: 'loadMovementReport'. Either include it or remove 
+the dependency array    react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\serial-batch\index.tsx
+   135:6   warning  React Hook useEffect has missing dependencies: 'loadBatches' and 'loadSerialNumbers'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\settings\index.tsx
+   85:6   warning  React Hook useEffect has a missing dependency: 'loadSettings'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\stock-levels\index.tsx
+  127:6   warning  React Hook useEffect has missing dependencies: 'fetchInventoryLevels' and 'toast'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\transfers\index.tsx
+  151:6   warning  React Hook useEffect has missing dependencies: 'fetchTransfers' and 'toast'. Either include them or 
+remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\inventory\warehouses\index.tsx
+   97:6   warning  React Hook useEffect has a missing dependency: 'fetchWarehouses'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\job-costing\index.tsx
+   42:6   warning  React Hook useEffect has missing dependencies: 'fetchClients' and 'fetchJobs'. Either include them 
+or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\notifications\index.tsx
+  229:6   warning  React Hook useEffect has missing dependencies: 'isAdmin', 'loadNotifications', and 'loadUsers'. 
+Either include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\goods-receipts\index.tsx
+  141:6    warning  React Hook useEffect has missing dependencies: 'fetchGoodsReceipts' and 'toast'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\index.tsx
+  137:6    warning  React Hook useEffect has missing dependencies: 'fetchGoodsReceipts', 'fetchPurchaseOrders', and 
+'fetchRequisitions'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\purchase-orders\index.tsx
+  146:6   warning  React Hook useEffect has missing dependencies: 'fetchPurchaseOrders' and 'toast'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\reports\index.tsx
+  58:6   warning  React Hook useEffect has a missing dependency: 'loadReports'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\requisitions\index.tsx
+  130:6    warning  React Hook useEffect has missing dependencies: 'fetchRequisitions' and 'toast'. Either include 
+them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\rfq\index.tsx
+  132:6    warning  React Hook useEffect has missing dependencies: 'fetchRfqs' and 'toast'. Either include them or 
+remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\settings\index.tsx
+   84:6   warning  React Hook useEffect has a missing dependency: 'loadSettings'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\vendor-contracts\index.tsx
+   97:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\vendor-performance\index.tsx
+   96:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\procurement\vendors\index.tsx
+  112:6   warning  React Hook useEffect has a missing dependency: 'fetchSuppliers'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\project-details\components\BudgetTab.tsx
+D:\Oru\frontend\src\pages\project-details\components\OverviewTab.tsx
+D:\Oru\frontend\src\pages\project-details\components\TeamTab.tsx
+D:\Oru\frontend\src\pages\project-details\hooks\useProjectDetails.ts
+D:\Oru\frontend\src\pages\project-details\hooks\useProjectIntegration.ts
+D:\Oru\frontend\src\pages\project-details\hooks\useProjectTasks.ts
+D:\Oru\frontend\src\pages\project-details\task-details\index.tsx
+D:\Oru\frontend\src\pages\project-details\utils\projectDetailsUtils.ts
+D:\Oru\frontend\src\pages\project-management\components\ProjectsTab.tsx
+D:\Oru\frontend\src\pages\project-management\hooks\useDragAndDrop.ts
+D:\Oru\frontend\src\pages\project-management\hooks\useProjectActions.ts
+D:\Oru\frontend\src\pages\project-management\hooks\useProjectFilters.ts
+D:\Oru\frontend\src\pages\project-management\hooks\useProjects.ts
+D:\Oru\frontend\src\pages\project-management\hooks\useResources.ts
+D:\Oru\frontend\src\pages\project-management\hooks\useTasks.ts
+D:\Oru\frontend\src\pages\project-management\index.tsx
+D:\Oru\frontend\src\pages\project-management\utils\projectUtils.ts
+D:\Oru\frontend\src\pages\projects\components\ProjectCard.tsx
+D:\Oru\frontend\src\pages\projects\hooks\useProjectFilterOptions.ts
+D:\Oru\frontend\src\pages\projects\hooks\useProjectFilters.ts
+D:\Oru\frontend\src\pages\projects\hooks\useProjectPipeline.ts
+D:\Oru\frontend\src\pages\projects\hooks\useProjects.ts
+  132:6   warning  React Hook useCallback has a missing dependency: 'clientFilterId'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\projects\index.tsx
+  114:6  warning  React Hook useEffect has a missing dependency: 'searchTerm'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\projects\utils\projectUtils.ts
+D:\Oru\frontend\src\pages\quotations\index.tsx
+   81:6   warning  React Hook useEffect has missing dependencies: 'fetchQuotations' and 'fetchTemplates'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\reports\custom-reports\index.tsx
+D:\Oru\frontend\src\pages\reports\hooks\useReportsData.ts
+D:\Oru\frontend\src\pages\reports\index.tsx
+D:\Oru\frontend\src\pages\reports\report-exports\index.tsx
+   84:6   warning  React Hook useEffect has a missing dependency: 'loadExports'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\reports\reporting-dashboard\index.tsx
+D:\Oru\frontend\src\pages\reports\scheduled-reports\index.tsx
+   91:6   warning  React Hook useEffect has a missing dependency: 'loadReports'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\reports\utils\reportExport.ts
+D:\Oru\frontend\src\pages\settings\components\LogoUpload.tsx
+D:\Oru\frontend\src\pages\settings\hooks\useAgencySettingsExtended.ts
+D:\Oru\frontend\src\pages\settings\hooks\useNotificationSettings.ts
+  117:6  warning  React Hook useEffect has a missing dependency: 'fetchNotificationSettings'. Either include it or 
+remove the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\settings\hooks\useProfileSettings.ts
+  148:6   warning  React Hook useEffect has a missing dependency: 'fetchProfileSettings'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\settings\hooks\useSecuritySettings.ts
+  166:6   warning  React Hook useEffect has a missing dependency: 'fetch2FAStatus'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\super-admin\AgencyDataViewer.tsx
+   53:6   warning  React Hook useEffect has a missing dependency: 'fetchAgencyData'. Either include it or remove the 
+dependency array            react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\super-admin\AgencyManagement.tsx
+D:\Oru\frontend\src\pages\super-admin\Analytics.tsx
+D:\Oru\frontend\src\pages\super-admin\SuperAdminDashboard.tsx
+D:\Oru\frontend\src\pages\super-admin\SystemEmail.tsx
+D:\Oru\frontend\src\pages\super-admin\SystemHealth.tsx
+  52:8   warning  React Hook useEffect has a missing dependency: 'loadHealth'. Either include it or remove the 
+dependency array                 react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\system\email-testing\index.tsx
+   59:6   warning  React Hook useEffect has a missing dependency: 'loadProviderStatus'. Either include it or remove 
+the dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\system\page-request-center\index.tsx
+D:\Oru\frontend\src\pages\system\users\index.tsx
+  42:6   warning  React Hook useEffect has a missing dependency: 'fetchUsers'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+D:\Oru\frontend\src\pages\system\view-as-user\index.tsx
+   65:6   warning  React Hook useEffect has a missing dependency: 'fetchUsers'. Either include it or remove the 
+dependency array  react-hooks/exhaustive-deps
+   509:6   warning  React Hook useEffect has a missing dependency: 'isVisualEditMode'. Either include it or remove the 
+dependency array                           react-hooks/exhaustive-deps
+   954:6   warning  React Hook useEffect has missing dependencies: 'handleStyleChange' and 'updateFocusBox'. Either 
+include them or remove the dependency array   react-hooks/exhaustive-deps
+  1291:6   warning  React Hook useEffect has a missing dependency: 'cleanupEditingElement'. Either include it or 
+remove the dependency array                      react-hooks/exhaustive-deps
+  1332:6   warning  React Hook useEffect has a missing dependency: 'updateFocusBox'. Either include it or remove the 
+dependency array                             react-hooks/exhaustive-deps
+  2008:6   warning  React Hook useEffect has missing dependencies: 'cleanupEditingElement' and 'isScrolling'. Either 
+include them or remove the dependency array  react-hooks/exhaustive-deps
+
+

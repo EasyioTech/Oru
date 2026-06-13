@@ -60,7 +60,7 @@ interface QuotationTemplate {
   id: string;
   name: string;
   description?: string;
-  template_data?: any;
+  template_data?: unknown;
 }
 
 interface QuotationFormDialogProps {
@@ -115,71 +115,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
   };
 
   // Update formData when quotation prop changes
-  useEffect(() => {
-    if (quotation && quotation.id) {
-      setFormData({
-        client_id: quotation.client_id || '',
-        title: quotation.title || '',
-        description: quotation.description || '',
-        status: quotation.status || 'draft',
-        issue_date: formatDateForInput(quotation.issue_date),
-        expiry_date: formatDateForInput(quotation.expiry_date),
-        valid_until: formatDateForInput(quotation.valid_until),
-        subtotal: Number(quotation.subtotal) || 0,
-        tax_rate: Number(quotation.tax_rate) || 18,
-        tax_amount: Number(quotation.tax_amount) || 0,
-        discount: Number(quotation.discount) || 0,
-        total_amount: Number(quotation.total_amount) || 0,
-        terms_conditions: quotation.terms_conditions || quotation.terms_and_conditions || '',
-        notes: quotation.notes || '',
-        template_id: quotation.template_id || null,
-      });
-    } else if (!quotation) {
-      // Reset form for new quotation
-      const today = new Date().toISOString().split('T')[0];
-      setFormData({
-        client_id: '',
-        title: '',
-        description: '',
-        status: 'draft',
-        issue_date: today,
-        expiry_date: '',
-        valid_until: '',
-        subtotal: 0,
-        tax_rate: 18,
-        tax_amount: 0,
-        discount: 0,
-        total_amount: 0,
-        terms_conditions: '',
-        notes: '',
-        template_id: null,
-      });
-      setLastSaved(null);
-    }
-  }, [quotation]);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchClients();
-      fetchTemplates();
-      if (quotation?.id) {
-        fetchLineItems(quotation.id);
-      } else {
-        // Add one empty line item for new quotations
-        setLineItems([{
-          id: generateUUID(),
-          item_name: '',
-          description: '',
-          quantity: 1,
-          unit_price: 0,
-          discount_percentage: 0,
-          sort_order: 0,
-        }]);
-      }
-    }
-  }, [isOpen, quotation?.id]);
-
-  const fetchClients = async () => {
+  const fetchClients = React.useCallback(async () => {
     try {
       setLoadingClients(true);
       if (!user?.id) {
@@ -196,7 +132,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
         name: c.name,
         company_name: c.company_name || c.name
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching clients:', error);
       toast({
         title: 'Error',
@@ -207,9 +143,9 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
     } finally {
       setLoadingClients(false);
     }
-  };
+  }, [profile, user?.id, toast]);
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = React.useCallback(async () => {
     try {
       const agencyId = await getAgencyId(profile, user?.id);
       if (!agencyId) {
@@ -227,7 +163,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
 
       if (error) throw error;
       setTemplates(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching templates:', error);
       toast({
         title: 'Error',
@@ -235,9 +171,9 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
         variant: 'destructive',
       });
     }
-  };
+  }, [profile, user?.id, toast]);
 
-  const fetchLineItems = async (quotationId: string) => {
+  const fetchLineItems = React.useCallback(async (quotationId: string) => {
     try {
       const { data, error } = await db
         .from('quotation_line_items')
@@ -255,7 +191,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
         discount_percentage: 0,
         sort_order: 0,
       }]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching line items:', error);
       setLineItems([{
         id: generateUUID(),
@@ -267,7 +203,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
         sort_order: 0,
       }]);
     }
-  };
+  }, []);
 
   const calculateLineTotal = (item: QuotationLineItem): number => {
     const subtotal = item.quantity * item.unit_price;
@@ -276,41 +212,6 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
   };
 
   // Calculate totals when line items, tax rate, or discount changes
-  useEffect(() => {
-    const subtotal = lineItems.reduce((sum, item) => {
-      if (item.item_name && item.item_name.trim()) {
-        const itemSubtotal = item.quantity * item.unit_price;
-        const itemDiscount = itemSubtotal * ((item.discount_percentage || 0) / 100);
-        return sum + (itemSubtotal - itemDiscount);
-      }
-      return sum;
-    }, 0);
-    
-    const discountAmount = Number(formData.discount) || 0;
-    const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
-    const taxAmount = subtotalAfterDiscount * (formData.tax_rate / 100);
-    const totalAmount = subtotalAfterDiscount + taxAmount;
-
-    setFormData(prev => {
-      // Only update if values actually changed to prevent infinite loops
-      const prevSubtotal = Number(prev.subtotal) || 0;
-      const prevTaxAmount = Number(prev.tax_amount) || 0;
-      const prevTotalAmount = Number(prev.total_amount) || 0;
-      
-      if (Math.abs(prevSubtotal - subtotal) > 0.01 || 
-          Math.abs(prevTaxAmount - taxAmount) > 0.01 || 
-          Math.abs(prevTotalAmount - totalAmount) > 0.01) {
-        return {
-          ...prev,
-          subtotal: Number(subtotal.toFixed(2)),
-          tax_amount: Number(taxAmount.toFixed(2)),
-          total_amount: Number(totalAmount.toFixed(2)),
-        };
-      }
-      return prev;
-    });
-  }, [lineItems, formData.tax_rate, formData.discount]);
-
   // Auto-save draft functionality
   const saveDraft = useCallback(async () => {
     if (!formData.title.trim() || !formData.client_id) {
@@ -362,7 +263,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
       }
 
       setLastSaved(new Date());
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving draft:', error);
       // Don't show error toast for auto-save failures
     } finally {
@@ -371,19 +272,114 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
   }, [formData, quotation, profile, user]);
 
   // Auto-save draft every 30 seconds when form has changes
-  useEffect(() => {
-    if (!isOpen || !formData.title.trim() || !formData.client_id) {
-      return;
-    }
+    useEffect(() => {
+        if (!isOpen || !formData.title.trim() || !formData.client_id) {
+          return;
+        }
 
-    const autoSaveInterval = setInterval(() => {
-      saveDraft();
-    }, 30000); // Auto-save every 30 seconds
+        const autoSaveInterval = setInterval(() => {
+          saveDraft();
+        }, 30000); // Auto-save every 30 seconds
 
-    return () => clearInterval(autoSaveInterval);
-  }, [isOpen, formData.title, formData.client_id, saveDraft]);
+        return () => clearInterval(autoSaveInterval);
+      }, [isOpen, formData.title, formData.client_id, saveDraft]);
+    useEffect(() => {
+        const subtotal = lineItems.reduce((sum, item) => {
+          if (item.item_name && item.item_name.trim()) {
+            const itemSubtotal = item.quantity * item.unit_price;
+            const itemDiscount = itemSubtotal * ((item.discount_percentage || 0) / 100);
+            return sum + (itemSubtotal - itemDiscount);
+          }
+          return sum;
+        }, 0);
+        
+        const discountAmount = Number(formData.discount) || 0;
+        const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
+        const taxAmount = subtotalAfterDiscount * (formData.tax_rate / 100);
+        const totalAmount = subtotalAfterDiscount + taxAmount;
 
-  const handleLineItemChange = (id: string, field: keyof QuotationLineItem, value: any) => {
+        setFormData(prev => {
+          // Only update if values actually changed to prevent infinite loops
+          const prevSubtotal = Number(prev.subtotal) || 0;
+          const prevTaxAmount = Number(prev.tax_amount) || 0;
+          const prevTotalAmount = Number(prev.total_amount) || 0;
+          
+          if (Math.abs(prevSubtotal - subtotal) > 0.01 || 
+              Math.abs(prevTaxAmount - taxAmount) > 0.01 || 
+              Math.abs(prevTotalAmount - totalAmount) > 0.01) {
+            return {
+              ...prev,
+              subtotal: Number(subtotal.toFixed(2)),
+              tax_amount: Number(taxAmount.toFixed(2)),
+              total_amount: Number(totalAmount.toFixed(2)),
+            };
+          }
+          return prev;
+        });
+      }, [lineItems, formData.tax_rate, formData.discount]);
+    useEffect(() => {
+        if (isOpen) {
+          fetchClients();
+          fetchTemplates();
+          if (quotation?.id) {
+            fetchLineItems(quotation.id);
+          } else {
+            // Add one empty line item for new quotations
+            setLineItems([{
+              id: generateUUID(),
+              item_name: '',
+              description: '',
+              quantity: 1,
+              unit_price: 0,
+              discount_percentage: 0,
+              sort_order: 0,
+            }]);
+          }
+        }
+      }, [isOpen, quotation?.id, fetchClients, fetchTemplates, fetchLineItems]);
+    useEffect(() => {
+        if (quotation && quotation.id) {
+          setFormData({
+            client_id: quotation.client_id || '',
+            title: quotation.title || '',
+            description: quotation.description || '',
+            status: quotation.status || 'draft',
+            issue_date: formatDateForInput(quotation.issue_date),
+            expiry_date: formatDateForInput(quotation.expiry_date),
+            valid_until: formatDateForInput(quotation.valid_until),
+            subtotal: Number(quotation.subtotal) || 0,
+            tax_rate: Number(quotation.tax_rate) || 18,
+            tax_amount: Number(quotation.tax_amount) || 0,
+            discount: Number(quotation.discount) || 0,
+            total_amount: Number(quotation.total_amount) || 0,
+            terms_conditions: quotation.terms_conditions || quotation.terms_and_conditions || '',
+            notes: quotation.notes || '',
+            template_id: quotation.template_id || null,
+          });
+        } else if (!quotation) {
+          // Reset form for new quotation
+          const today = new Date().toISOString().split('T')[0];
+          setFormData({
+            client_id: '',
+            title: '',
+            description: '',
+            status: 'draft',
+            issue_date: today,
+            expiry_date: '',
+            valid_until: '',
+            subtotal: 0,
+            tax_rate: 18,
+            tax_amount: 0,
+            discount: 0,
+            total_amount: 0,
+            terms_conditions: '',
+            notes: '',
+            template_id: null,
+          });
+          setLastSaved(null);
+        }
+      }, [quotation]);
+  const handleLineItemChange = (id: string, field: keyof QuotationLineItem, value: unknown) => {
     setLineItems(prev => prev.map(item => {
       if (item.id === id) {
         const updated = { ...item, [field]: value };
@@ -433,7 +429,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
         : template.template_data;
 
       if (content.lineItems && Array.isArray(content.lineItems)) {
-        setLineItems(content.lineItems.map((item: any, index: number) => ({
+        setLineItems(content.lineItems.map((item: unknown, index: number) => ({
           id: generateUUID(),
           item_name: item.item_name || '',
           description: item.description || '',
@@ -458,7 +454,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
         title: 'Success',
         description: 'Template applied successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error applying template:', error);
       toast({
         title: 'Error',
@@ -686,7 +682,7 @@ const QuotationFormDialog: React.FC<QuotationFormDialogProps> = ({ isOpen, onClo
 
       onQuotationSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving quotation:', error);
       toast({
         title: 'Error',

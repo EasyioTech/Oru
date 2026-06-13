@@ -5,6 +5,7 @@ import { users } from './users.js';
 import { agencies } from './agency.js';
 import { userRoleEnum } from './enums.js';
 
+
 /**
  * User Sessions Table
  * Tracks active user sessions with tokens
@@ -12,11 +13,11 @@ import { userRoleEnum } from './enums.js';
 export const userSessions = pgTable('user_sessions', {
     id: uuid('id').defaultRandom().primaryKey(),
     userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    agencyId: uuid('agency_id').references(() => agencies.id, { onDelete: 'cascade' }),
     tokenHash: text('token_hash').notNull(),
     refreshTokenHash: text('refresh_token_hash'),
     ipAddress: inet('ip_address'),
     userAgent: text('user_agent'),
-    deviceFingerprint: text('device_fingerprint'),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     refreshExpiresAt: timestamp('refresh_expires_at', { withTimezone: true }),
     lastActivityAt: timestamp('last_activity_at', { withTimezone: true }).defaultNow().notNull(),
@@ -29,6 +30,7 @@ export const userSessions = pgTable('user_sessions', {
 }, (table) => ({
     tokenHashIdx: uniqueIndex('idx_user_sessions_token_hash').on(table.tokenHash).where(sql`is_active = true AND revoked_at IS NULL`),
     userIdIdx: index('idx_user_sessions_user_id').on(table.userId).where(sql`is_active = true`),
+    agencyIdIdx: index('idx_user_sessions_agency_id').on(table.agencyId).where(sql`agency_id IS NOT NULL AND is_active = true`),
     expiresAtIdx: index('idx_user_sessions_expires_at').on(table.expiresAt).where(sql`is_active = true`),
     refreshTokenHashIdx: index('idx_user_sessions_refresh_token_hash').on(table.refreshTokenHash).where(sql`refresh_token_hash IS NOT NULL AND is_active = true AND revoked_at IS NULL`),
 }));
@@ -82,9 +84,6 @@ export const profiles = pgTable('profiles', {
     employeeCode: text('employee_code'),
     hireDate: date('hire_date'),
     avatarUrl: text('avatar_url'),
-    personalEmail: text('personal_email'),
-    personalEmailVerified: boolean('personal_email_verified').default(false).notNull(),
-    personalEmailVerifiedAt: timestamp('personal_email_verified_at', { withTimezone: true }),
     timezone: text('timezone').default('UTC'),
     language: text('language').default('en'),
     dateFormat: text('date_format').default('YYYY-MM-DD'),
@@ -92,8 +91,6 @@ export const profiles = pgTable('profiles', {
     notificationPreferences: jsonb('notification_preferences').default({}).notNull(),
     themePreferences: jsonb('theme_preferences').default({}).notNull(),
     isActive: boolean('is_active').default(true).notNull(),
-    bio: text('bio'),
-    socialLinks: jsonb('social_links'),
     metadata: jsonb('metadata').default({}).notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

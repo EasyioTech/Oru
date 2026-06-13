@@ -1,36 +1,15 @@
-/**
- * Route Permissions - Single Source of Truth
- * 
- * This file defines the exact role requirements for each route in the application.
- * It ensures consistency between:
- * - Route protection in App.tsx
- * - Sidebar navigation in dashboard-shell (src/components/layout/dashboard-shell/sidebar)
- * - Role-to-page mappings in rolePages.ts
- * 
- * IMPORTANT: When adding or modifying routes, update this file first,
- * then update App.tsx and rolePages.ts to match.
- */
-
 import { AppRole, hasRoleOrHigher } from './roleUtils';
 import { hasPageAccess } from './agencyPageAccess';
 
-/**
- * Route permission configuration
- * Maps route paths to required roles
- */
 export interface RoutePermission {
   path: string;
-  requiredRoles: AppRole[]; // Empty array means all authenticated users can access
-  allowHigherRoles: boolean; // If true, roles higher in hierarchy can access
+  requiredRoles: AppRole[];
+  allowHigherRoles: boolean;
   description?: string;
 }
 
-/**
- * Route permissions mapping
- * This is the authoritative source for route access control
- */
 export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
-  // Public routes (no authentication required)
+  // Public routes
   '/': { path: '/', requiredRoles: [], allowHigherRoles: false },
   '/pricing': { path: '/pricing', requiredRoles: [], allowHigherRoles: false },
   '/auth': { path: '/auth', requiredRoles: [], allowHigherRoles: false },
@@ -38,31 +17,32 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/signup-success': { path: '/signup-success', requiredRoles: [], allowHigherRoles: false },
   '/forgot-password': { path: '/forgot-password', requiredRoles: [], allowHigherRoles: false },
 
-  // Agency setup (admin only)
+  // Agency setup
   '/agency-setup': {
     path: '/agency-setup',
-    requiredRoles: ['admin'],
+    requiredRoles: ['agency_admin'],
     allowHigherRoles: true,
     description: 'Agency configuration and setup'
   },
   '/agency-setup-progress': {
     path: '/agency-setup-progress',
-    requiredRoles: [], // All authenticated users during setup
+    requiredRoles: [],
     allowHigherRoles: false
   },
 
-  // Dashboard (all authenticated users)
-  '/dashboard': {
-    path: '/dashboard',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Main dashboard for all users'
+  // Dashboards
+  '/dashboard': { path: '/dashboard', requiredRoles: [], allowHigherRoles: false },
+  '/agency': {
+    path: '/agency',
+    requiredRoles: ['agency_admin'],
+    allowHigherRoles: true,
+    description: 'Agency dashboard'
   },
 
-  // View As User (Admin only)
+  // View As User
   '/view-as-user': {
     path: '/view-as-user',
-    requiredRoles: ['admin'],
+    requiredRoles: ['agency_admin'],
     allowHigherRoles: true,
     description: 'View dashboard as another user'
   },
@@ -70,19 +50,19 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Employee Management
   '/employee-management': {
     path: '/employee-management',
-    requiredRoles: ['admin'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Employee management and administration'
   },
   '/create-employee': {
     path: '/create-employee',
-    requiredRoles: ['admin'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Create new employee'
   },
   '/assign-user-roles': {
     path: '/assign-user-roles',
-    requiredRoles: ['admin'],
+    requiredRoles: ['agency_admin'],
     allowHigherRoles: true,
     description: 'Assign roles to users'
   },
@@ -92,724 +72,282 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
     allowHigherRoles: false,
     description: 'Employee performance tracking'
   },
+  '/department-management': {
+    path: '/department-management',
+    requiredRoles: ['manager'],
+    allowHigherRoles: true,
+    description: 'Department management'
+  },
 
   // Project Management
   '/project-management': {
     path: '/project-management',
-    requiredRoles: [],
-    allowHigherRoles: false,
+    requiredRoles: ['manager'],
+    allowHigherRoles: true,
     description: 'Project management interface'
   },
   '/projects': {
     path: '/projects',
-    requiredRoles: ['admin'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
-    description: 'Projects overview (admin view)'
+    description: 'Projects overview'
   },
-  '/projects/:id': {
-    path: '/projects/:id',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Project details'
-  },
-  '/tasks/:id': {
-    path: '/tasks/:id',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Task details'
-  },
+  '/projects/:id': { path: '/projects/:id', requiredRoles: [], allowHigherRoles: false },
+  '/tasks/:id': { path: '/tasks/:id', requiredRoles: [], allowHigherRoles: false },
   '/my-projects': {
     path: '/my-projects',
     requiredRoles: ['employee'],
     allowHigherRoles: true,
     description: 'Employee view of assigned projects'
   },
+  '/jobs': { path: '/jobs', requiredRoles: ['manager'], allowHigherRoles: true, description: 'Job costing' },
 
-  // Settings (all authenticated users)
-  '/settings': {
-    path: '/settings',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'User settings'
-  },
-  '/page-requests': {
-    path: '/page-requests',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Request additional pages for your agency'
-  },
+  // Settings
+  '/settings': { path: '/settings', requiredRoles: [], allowHigherRoles: false },
+  '/page-requests': { path: '/page-requests', requiredRoles: [], allowHigherRoles: false },
+  '/permissions': { path: '/permissions', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
   // HR Management
   '/attendance': {
     path: '/attendance',
-    requiredRoles: ['hr'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
-    description: 'Attendance management (HR)'
+    description: 'Attendance management'
   },
   '/leave-requests': {
     path: '/leave-requests',
-    requiredRoles: ['hr'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
-    description: 'Leave request management (HR)'
+    description: 'Leave request management'
   },
   '/holiday-management': {
     path: '/holiday-management',
-    requiredRoles: ['hr'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Holiday calendar management'
   },
   '/role-requests': {
     path: '/role-requests',
-    requiredRoles: ['hr'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Role change requests'
   },
-  '/calendar': {
-    path: '/calendar',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Calendar view'
-  },
+  '/calendar': { path: '/calendar', requiredRoles: [], allowHigherRoles: false },
+
+  // Personal pages
+  '/my-profile': { path: '/my-profile', requiredRoles: [], allowHigherRoles: false },
+  '/my-attendance': { path: '/my-attendance', requiredRoles: [], allowHigherRoles: false },
+  '/my-leave': { path: '/my-leave', requiredRoles: [], allowHigherRoles: false },
+  '/notifications': { path: '/notifications', requiredRoles: [], allowHigherRoles: false },
+  '/documents': { path: '/documents', requiredRoles: [], allowHigherRoles: false },
+  '/ai-features': { path: '/ai-features', requiredRoles: [], allowHigherRoles: false },
 
   // Financial Management
+  '/financial-management': {
+    path: '/financial-management',
+    requiredRoles: ['agency_admin'],
+    allowHigherRoles: true,
+    description: 'Financial management dashboard'
+  },
   '/payroll': {
     path: '/payroll',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Payroll management'
   },
   '/invoices': {
     path: '/invoices',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Invoice management'
   },
   '/payments': {
     path: '/payments',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Payment tracking'
   },
   '/receipts': {
     path: '/receipts',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Receipt management'
   },
   '/ledger': {
     path: '/ledger',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['agency_admin'],
     allowHigherRoles: true,
     description: 'General ledger'
   },
   '/ledger/create-entry': {
     path: '/ledger/create-entry',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['agency_admin'],
     allowHigherRoles: true,
     description: 'Create journal entry'
   },
-  '/financial-management': {
-    path: '/financial-management',
-    requiredRoles: ['admin', 'finance_manager', 'ceo', 'cfo'],
-    allowHigherRoles: true,
-    description: 'Financial management dashboard'
-  },
   '/gst-compliance': {
     path: '/gst-compliance',
-    requiredRoles: ['admin', 'finance_manager', 'cfo'],
+    requiredRoles: ['agency_admin'],
     allowHigherRoles: true,
     description: 'GST compliance management'
   },
-  '/quotations': {
-    path: '/quotations',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Quotation management'
-  },
-  '/reimbursements': {
-    path: '/reimbursements',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Reimbursement requests'
-  },
-  '/jobs': {
-    path: '/jobs',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Job costing'
-  },
-
-  // Personal Pages (all authenticated users)
-  '/my-profile': {
-    path: '/my-profile',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'User profile'
-  },
-  '/my-attendance': {
-    path: '/my-attendance',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Personal attendance view'
-  },
-  '/my-leave': {
-    path: '/my-leave',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Personal leave management'
-  },
+  '/quotations': { path: '/quotations', requiredRoles: ['manager'], allowHigherRoles: true },
+  '/reimbursements': { path: '/reimbursements', requiredRoles: [], allowHigherRoles: false },
 
   // Clients & CRM
-  '/clients': {
-    path: '/clients',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Client management'
-  },
+  '/clients': { path: '/clients', requiredRoles: ['manager'], allowHigherRoles: true },
   '/clients/create': {
     path: '/clients/create',
-    requiredRoles: ['sales_manager'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Create new client'
   },
   '/clients/edit/:id': {
     path: '/clients/edit/:id',
-    requiredRoles: ['sales_manager'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'Edit client'
   },
-  '/clients-old': {
-    path: '/clients',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Client management'
-  },
   '/crm': {
     path: '/crm',
-    requiredRoles: ['hr'],
+    requiredRoles: ['manager'],
     allowHigherRoles: true,
     description: 'CRM system'
   },
   '/crm/leads/:leadId': {
     path: '/crm/leads/:leadId',
-    requiredRoles: ['hr'],
-    allowHigherRoles: true,
-    description: 'Lead details'
+    requiredRoles: ['manager'],
+    allowHigherRoles: true
   },
   '/crm/activities/:activityId': {
     path: '/crm/activities/:activityId',
-    requiredRoles: ['hr'],
-    allowHigherRoles: true,
-    description: 'Activity details'
+    requiredRoles: ['manager'],
+    allowHigherRoles: true
   },
 
   // Reports & Analytics
   '/reports': {
     path: '/reports',
-    requiredRoles: ['admin'],
+    requiredRoles: ['auditor'],
     allowHigherRoles: true,
     description: 'Reports dashboard'
   },
-  '/analytics': {
-    path: '/analytics',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Analytics dashboard'
-  },
+  '/reports/dashboard': { path: '/reports/dashboard', requiredRoles: ['auditor'], allowHigherRoles: true },
+  '/reports/custom': { path: '/reports/custom', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/reports/scheduled': { path: '/reports/scheduled', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/reports/exports': { path: '/reports/exports', requiredRoles: ['agency_admin'], allowHigherRoles: true },
   '/centralized-reports': {
     path: '/centralized-reports',
-    requiredRoles: ['admin', 'finance_manager', 'cfo', 'ceo'],
+    requiredRoles: ['auditor'],
     allowHigherRoles: true,
     description: 'Centralized reporting'
   },
 
-  // Department Management
-  '/department-management': {
-    path: '/department-management',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Department management'
-  },
+  // Inventory
+  '/inventory': { path: '/inventory', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/products': { path: '/inventory/products', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/bom': { path: '/inventory/bom', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/serial-batch': { path: '/inventory/serial-batch', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/reports': { path: '/inventory/reports', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/settings': { path: '/inventory/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/warehouses': { path: '/inventory/warehouses', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/stock-levels': { path: '/inventory/stock-levels', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/transfers': { path: '/inventory/transfers', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/inventory/adjustments': { path: '/inventory/adjustments', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
-  // AI Features
-  '/ai-features': {
-    path: '/ai-features',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'AI-powered features'
-  },
+  // Procurement
+  '/procurement': { path: '/procurement', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/vendors': { path: '/procurement/vendors', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/purchase-orders': { path: '/procurement/purchase-orders', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/requisitions': { path: '/procurement/requisitions', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/goods-receipts': { path: '/procurement/goods-receipts', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/rfq': { path: '/procurement/rfq', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/vendor-contracts': { path: '/procurement/vendor-contracts', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/vendor-performance': { path: '/procurement/vendor-performance', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/reports': { path: '/procurement/reports', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/procurement/settings': { path: '/procurement/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
-  // Agency Management
-  '/agency': {
-    path: '/agency',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Agency dashboard'
-  },
+  // Assets
+  '/assets': { path: '/assets', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/categories': { path: '/assets/categories', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/locations': { path: '/assets/locations', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/maintenance': { path: '/assets/maintenance', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/depreciation': { path: '/assets/depreciation', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/disposals': { path: '/assets/disposals', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/reports': { path: '/assets/reports', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/assets/settings': { path: '/assets/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
-  // System & Super Admin
-  // Super Admin Routes (system-level only, no agency context)
-  '/super-admin': {
-    path: '/super-admin',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'Super admin dashboard'
-  },
-  '/super-admin/agencies': {
-    path: '/super-admin/agencies',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'Agency management'
-  },
-  '/super-admin/agencies/:id': {
-    path: '/super-admin/agencies/:id',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'Agency details'
-  },
-  '/super-admin/agencies/:id/data': {
-    path: '/super-admin/agencies/:id/data',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'View agency data (read-only)'
-  },
-  '/super-admin/system-settings': {
-    path: '/super-admin/system-settings',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'System settings management'
-  },
-  '/super-admin/plans': {
-    path: '/super-admin/plans',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'Subscription plan management'
-  },
-  '/super-admin/page-catalog': {
-    path: '/super-admin/page-catalog',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'Page catalog management'
-  },
-  '/super-admin/analytics': {
-    path: '/super-admin/analytics',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'System analytics'
-  },
-  '/system': {
-    path: '/system',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'System administration dashboard (legacy - redirects to /super-admin)'
-  },
-  '/system-health': {
-    path: '/system-health',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'System health monitoring'
-  },
-  '/system-email': {
-    path: '/system-email',
-    requiredRoles: ['super_admin'],
-    allowHigherRoles: false,
-    description: 'Email service testing and configuration'
-  },
+  // Workflows & Integrations
+  '/workflows': { path: '/workflows', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/workflows/instances': { path: '/workflows/instances', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/workflows/approvals': { path: '/workflows/approvals', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/workflows/automation': { path: '/workflows/automation', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/workflows/settings': { path: '/workflows/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/workflows/builder': { path: '/workflows/builder', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/integrations': { path: '/integrations', requiredRoles: ['agency_admin'], allowHigherRoles: true },
+  '/integrations/settings': { path: '/integrations/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
-  // Advanced Features
-  '/permissions': {
-    path: '/permissions',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Advanced permissions management'
-  },
-  '/advanced-dashboard': {
-    path: '/advanced-dashboard',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Advanced analytics dashboard'
-  },
-  '/documents': {
-    path: '/documents',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Document management'
-  },
-  '/notifications': {
-    path: '/notifications',
-    requiredRoles: [],
-    allowHigherRoles: false,
-    description: 'Notifications'
-  },
-
-  // Inventory sub-pages
-  '/inventory/products': {
-    path: '/inventory/products',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Product catalog management'
-  },
-  '/inventory/bom': {
-    path: '/inventory/bom',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Bill of Materials management'
-  },
-  '/inventory/serial-batch': {
-    path: '/inventory/serial-batch',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Serial numbers and batch tracking'
-  },
-  '/inventory/reports': {
-    path: '/inventory/reports',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Inventory reports and analytics'
-  },
-  '/inventory/settings': {
-    path: '/inventory/settings',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Inventory module settings'
-  },
-  '/reports/dashboard': {
-    path: '/reports/dashboard',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Advanced reporting dashboard'
-  },
-  '/reports/custom': {
-    path: '/reports/custom',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Custom report builder'
-  },
-  '/reports/scheduled': {
-    path: '/reports/scheduled',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Scheduled reports management'
-  },
-  '/reports/exports': {
-    path: '/reports/exports',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Report exports management'
-  },
-  '/reports/analytics': {
-    path: '/reports/analytics',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Analytics dashboard for reporting'
-  },
-  '/inventory/warehouses': {
-    path: '/inventory/warehouses',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Warehouse management'
-  },
-  '/inventory/stock-levels': {
-    path: '/inventory/stock-levels',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Stock levels and inventory tracking'
-  },
-  '/inventory/transfers': {
-    path: '/inventory/transfers',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Inter-warehouse inventory transfers'
-  },
-  '/inventory/adjustments': {
-    path: '/inventory/adjustments',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Inventory adjustments and corrections'
-  },
-  '/procurement/vendors': {
-    path: '/procurement/vendors',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Vendor and supplier management'
-  },
-  '/procurement/purchase-orders': {
-    path: '/procurement/purchase-orders',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Purchase order management'
-  },
-  '/procurement/requisitions': {
-    path: '/procurement/requisitions',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Purchase requisition management'
-  },
-  '/procurement/goods-receipts': {
-    path: '/procurement/goods-receipts',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Goods receipt note (GRN) management'
-  },
-  '/procurement/rfq': {
-    path: '/procurement/rfq',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'RFQ/RFP management'
-  },
-  '/procurement/vendor-contracts': {
-    path: '/procurement/vendor-contracts',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Vendor contracts management'
-  },
-  '/procurement/vendor-performance': {
-    path: '/procurement/vendor-performance',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Vendor performance tracking'
-  },
-  '/procurement/reports': {
-    path: '/procurement/reports',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Procurement reports and analytics'
-  },
-  '/procurement/settings': {
-    path: '/procurement/settings',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Procurement module settings'
-  },
-  '/assets': {
-    path: '/assets',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset management'
-  },
-  '/assets/categories': {
-    path: '/assets/categories',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset category management'
-  },
-  '/assets/locations': {
-    path: '/assets/locations',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset location management'
-  },
-  '/assets/maintenance': {
-    path: '/assets/maintenance',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset maintenance tracking'
-  },
-  '/assets/depreciation': {
-    path: '/assets/depreciation',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset depreciation tracking'
-  },
-  '/assets/disposals': {
-    path: '/assets/disposals',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset disposal management'
-  },
-  '/assets/reports': {
-    path: '/assets/reports',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset reports and analytics'
-  },
-  '/assets/settings': {
-    path: '/assets/settings',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Asset management settings'
-  },
-  '/workflows': {
-    path: '/workflows',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Workflow engine management'
-  },
-  '/workflows/instances': {
-    path: '/workflows/instances',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Workflow instance tracking'
-  },
-  '/workflows/approvals': {
-    path: '/workflows/approvals',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Workflow approval queue'
-  },
-  '/workflows/automation': {
-    path: '/workflows/automation',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Workflow automation rules'
-  },
-  '/workflows/settings': {
-    path: '/workflows/settings',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Workflow engine settings'
-  },
-  '/workflows/builder': {
-    path: '/workflows/builder',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Visual workflow builder'
-  },
-  '/integrations': {
-    path: '/integrations',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Integration hub management'
-  },
-  '/integrations/settings': {
-    path: '/integrations/settings',
-    requiredRoles: ['admin'],
-    allowHigherRoles: true,
-    description: 'Integration hub settings'
-  },
+  // Super Admin (system-level only)
+  '/super-admin': { path: '/super-admin', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/agencies': { path: '/super-admin/agencies', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/agencies/:id': { path: '/super-admin/agencies/:id', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/agencies/:id/data': { path: '/super-admin/agencies/:id/data', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/system-settings': { path: '/super-admin/system-settings', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/plans': { path: '/super-admin/plans', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/page-catalog': { path: '/super-admin/page-catalog', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/super-admin/analytics': { path: '/super-admin/analytics', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/system-health': { path: '/system-health', requiredRoles: ['super_admin'], allowHigherRoles: false },
+  '/system-email': { path: '/system-email', requiredRoles: ['super_admin'], allowHigherRoles: false },
 };
 
-/**
- * Get required roles for a specific route path
- * Handles both exact matches and parameterized routes
- */
 export function getRequiredRolesForRoute(path: string): AppRole[] {
-  // Try exact match first
   if (ROUTE_PERMISSIONS[path]) {
     return ROUTE_PERMISSIONS[path].requiredRoles;
   }
-
-  // Try to match parameterized routes
   for (const [routePath, permission] of Object.entries(ROUTE_PERMISSIONS)) {
-    // Convert route path to regex pattern
     const pattern = routePath.replace(/:[^/]+/g, '[^/]+');
-    const regex = new RegExp(`^${pattern}$`);
-
-    if (regex.test(path)) {
+    if (new RegExp(`^${pattern}$`).test(path)) {
       return permission.requiredRoles;
     }
   }
-
-  // Default: require authentication but no specific role
   return [];
 }
 
-/**
- * Check if a user role can access a route
- * Now also checks agency page assignments for non-super-admin users
- */
 export async function canAccessRoute(userRole: AppRole | null, routePath: string): Promise<boolean> {
-  if (!userRole) {
-    return false;
-  }
+  if (!userRole) return false;
 
-  // Only system-level super admin (no agency database) always has access to all routes
-  // Agency admins (role='admin' with agency database) should go through page access check
   const hasAgencyDatabase = typeof window !== 'undefined' && !!localStorage.getItem('agency_database');
   const isSystemSuperAdmin = userRole === 'super_admin' && !hasAgencyDatabase;
+  if (isSystemSuperAdmin) return true;
 
-  if (isSystemSuperAdmin) {
-    return true;
-  }
-
-  // Check page assignments for non-super-admin users
   try {
     const hasAccess = await hasPageAccess(routePath);
-    if (!hasAccess) {
-      return false; // Agency doesn't have this page assigned
-    }
-  } catch (error) {
-    console.warn('Error checking page access, falling back to role check:', error);
-    // Fall through to role-based check if page access check fails
+    if (!hasAccess) return false;
+  } catch {
+    // fall through to role check
   }
 
-  const permission = ROUTE_PERMISSIONS[routePath];
-
-  // If route not found, try parameterized matching
-  let routePermission: RoutePermission | undefined = permission;
-  if (!routePermission) {
-    for (const [routePathPattern, perm] of Object.entries(ROUTE_PERMISSIONS)) {
-      const pattern = routePathPattern.replace(/:[^/]+/g, '[^/]+');
-      const regex = new RegExp(`^${pattern}$`);
-      if (regex.test(routePath)) {
-        routePermission = perm;
-        break;
-      }
-    }
-  }
-
-  // If still not found, default to requiring authentication (which we have)
-  if (!routePermission) {
-    return true; // Authenticated users can access unknown routes (if page is assigned)
-  }
-
-  // If no roles required, all authenticated users can access
-  if (routePermission.requiredRoles.length === 0) {
-    return true;
-  }
-
-  // Check if user's role is in the required roles
-  if (routePermission.requiredRoles.includes(userRole)) {
-    return true;
-  }
-
-  // Check if higher roles can access
-  if (routePermission.allowHigherRoles) {
-    return routePermission.requiredRoles.some(role => hasRoleOrHigher(userRole, role));
-  }
-
-  return false;
+  return canAccessRouteSync(userRole, routePath);
 }
 
-/**
- * Synchronous version for backward compatibility (checks role only, not page assignments)
- */
 export function canAccessRouteSync(userRole: AppRole | null, routePath: string): boolean {
-  if (!userRole) {
-    return false;
-  }
+  if (!userRole) return false;
 
-  const permission = ROUTE_PERMISSIONS[routePath];
-
-  // If route not found, try parameterized matching
-  let routePermission: RoutePermission | undefined = permission;
+  let routePermission: RoutePermission | undefined = ROUTE_PERMISSIONS[routePath];
   if (!routePermission) {
     for (const [routePathPattern, perm] of Object.entries(ROUTE_PERMISSIONS)) {
       const pattern = routePathPattern.replace(/:[^/]+/g, '[^/]+');
-      const regex = new RegExp(`^${pattern}$`);
-      if (regex.test(routePath)) {
+      if (new RegExp(`^${pattern}$`).test(routePath)) {
         routePermission = perm;
         break;
       }
     }
   }
 
-  // If still not found, default to requiring authentication (which we have)
-  if (!routePermission) {
-    return true; // Authenticated users can access unknown routes
-  }
+  if (!routePermission) return true;
+  if (routePermission.requiredRoles.length === 0) return true;
+  if (routePermission.requiredRoles.includes(userRole)) return true;
 
-  // If no roles required, all authenticated users can access
-  if (routePermission.requiredRoles.length === 0) {
-    return true;
-  }
-
-  // Check if user's role is in the required roles
-  if (routePermission.requiredRoles.includes(userRole)) {
-    return true;
-  }
-
-  // Check if higher roles can access
   if (routePermission.allowHigherRoles) {
     return routePermission.requiredRoles.some(role => hasRoleOrHigher(userRole, role));
   }
@@ -817,41 +355,17 @@ export function canAccessRouteSync(userRole: AppRole | null, routePath: string):
   return false;
 }
 
-/**
- * Get all routes accessible by a specific role
- */
 export function getAccessibleRoutes(role: AppRole): string[] {
-  const accessibleRoutes: string[] = [];
-
-  for (const [routePath, permission] of Object.entries(ROUTE_PERMISSIONS)) {
-    if (canAccessRoute(role, routePath)) {
-      accessibleRoutes.push(routePath);
-    }
-  }
-
-  return accessibleRoutes;
+  return Object.keys(ROUTE_PERMISSIONS).filter(routePath =>
+    canAccessRouteSync(role, routePath)
+  );
 }
 
-/**
- * Get route permission configuration
- * Handles both exact matches and parameterized routes
- */
 export function getRoutePermission(path: string): RoutePermission | undefined {
-  // Try exact match first
-  if (ROUTE_PERMISSIONS[path]) {
-    return ROUTE_PERMISSIONS[path];
-  }
-
-  // Try to match parameterized routes
+  if (ROUTE_PERMISSIONS[path]) return ROUTE_PERMISSIONS[path];
   for (const [routePath, permission] of Object.entries(ROUTE_PERMISSIONS)) {
-    // Convert route path to regex pattern
     const pattern = routePath.replace(/:[^/]+/g, '[^/]+');
-    const regex = new RegExp(`^${pattern}$`);
-
-    if (regex.test(path)) {
-      return permission;
-    }
+    if (new RegExp(`^${pattern}$`).test(path)) return permission;
   }
-
   return undefined;
 }

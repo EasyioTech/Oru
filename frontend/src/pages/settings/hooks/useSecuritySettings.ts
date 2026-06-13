@@ -2,7 +2,7 @@
  * Hook for Security Settings (Password Change & 2FA)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { getTwoFactorStatus, disableTwoFactor, changePassword } from '@/services/api/auth';
@@ -36,7 +36,7 @@ export const useSecuritySettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const fetch2FAStatus = async () => {
+  const fetch2FAStatus = useCallback(async () => {
     if (!user?.id) {
       setTwoFactorEnabled(false);
       return;
@@ -58,7 +58,7 @@ export const useSecuritySettings = () => {
     } finally {
       setLoading2FA(false);
     }
-  };
+  }, [user?.id]);
 
   const saveSecuritySettings = async () => {
     if (!user?.id) return;
@@ -114,7 +114,7 @@ export const useSecuritySettings = () => {
         new_password: '',
         confirm_password: '',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error changing password:', error);
       toast({
         title: "Error",
@@ -148,7 +148,7 @@ export const useSecuritySettings = () => {
         title: "Success",
         description: "Two-factor authentication has been disabled",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to disable 2FA",
@@ -163,7 +163,7 @@ export const useSecuritySettings = () => {
     if (user?.id) {
       fetch2FAStatus();
     }
-  }, [user?.id]);
+  }, [user?.id, fetch2FAStatus]);
 
   return {
     securitySettings,

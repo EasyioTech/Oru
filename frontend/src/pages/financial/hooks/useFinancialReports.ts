@@ -8,11 +8,11 @@ import { useToast } from '@/hooks/use-toast';
 import { logWarn } from '@/utils/consoleLogger';
 
 export const useFinancialReports = (
-  chartOfAccounts: any[],
+  chartOfAccounts: unknown[],
   accountBalances: Record<string, number>,
-  jobs: any[],
-  ledgerSummary: any,
-  accountingStats: any,
+  jobs: unknown[],
+  ledgerSummary: unknown,
+  accountingStats: unknown,
   agencyId: string | null,
   userId: string | undefined
 ) => {
@@ -20,16 +20,16 @@ export const useFinancialReports = (
   const navigate = useNavigate();
   const [reportGenerating, setReportGenerating] = useState<string | null>(null);
   const [reportViewOpen, setReportViewOpen] = useState(false);
-  const [reportViewData, setReportViewData] = useState<{ title: string; data: any } | null>(null);
+  const [reportViewData, setReportViewData] = useState<{ title: string; data: unknown } | null>(null);
 
   const handleGenerateReport = async (reportType: string) => {
     setReportGenerating(reportType);
     try {
-      let reportData: any = {};
+      let reportData: unknown = {};
       let reportTitle = '';
 
       switch (reportType) {
-        case 'balance-sheet':
+        case 'balance-sheet': {
           reportTitle = 'Balance Sheet';
           const assets = chartOfAccounts
             .filter(acc => acc.account_type === 'asset')
@@ -59,8 +59,9 @@ export const useFinancialReports = (
             totalEquity: accountingStats.totalEquity,
           };
           break;
+        }
 
-        case 'profit-loss':
+        case 'profit-loss': {
           reportTitle = 'Profit & Loss Statement';
           const revenue = chartOfAccounts
             .filter(acc => acc.account_type === 'revenue')
@@ -83,6 +84,7 @@ export const useFinancialReports = (
             netIncome: revenue.reduce((sum, r) => sum + r.balance, 0) - expenses.reduce((sum, e) => sum + e.balance, 0),
           };
           break;
+        }
 
         case 'trial-balance':
           reportTitle = 'Trial Balance';
@@ -107,7 +109,7 @@ export const useFinancialReports = (
           }));
           break;
 
-        case 'cash-flow':
+        case 'cash-flow': {
           reportTitle = 'Cash Flow Statement';
           const cashAccounts = chartOfAccounts.filter(acc => 
             acc.account_type === 'asset' && 
@@ -121,6 +123,7 @@ export const useFinancialReports = (
             totalCash: cashAccounts.reduce((sum, acc) => sum + (accountBalances[acc.id] || 0), 0),
           };
           break;
+        }
 
         case 'monthly-summary':
           reportTitle = 'Monthly Summary';
@@ -170,7 +173,7 @@ export const useFinancialReports = (
         } else {
           throw new Error(response.error || 'Failed to save report');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         logWarn('Could not save report to database:', error);
         
         setReportViewData({ title: reportTitle, data: reportData });
@@ -181,7 +184,7 @@ export const useFinancialReports = (
           description: `${reportTitle} has been generated. View it below or navigate to Reports page.`,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to generate report',

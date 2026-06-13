@@ -2,7 +2,7 @@
  * Hook for Profile Settings
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { selectOne, updateRecord, insertRecord } from '@/services/api/core';
@@ -36,7 +36,7 @@ export const useProfileSettings = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
 
-  const fetchProfileSettings = async () => {
+  const fetchProfileSettings = useCallback(async () => {
     if (!user?.id) return;
     
     try {
@@ -68,7 +68,7 @@ export const useProfileSettings = () => {
     } catch (error) {
       console.error('Error fetching profile settings:', error);
     }
-  };
+  }, [user?.id, profile]);
 
   const saveProfileSettings = async () => {
     if (!user?.id) {
@@ -92,7 +92,7 @@ export const useProfileSettings = () => {
           const fileBuffer = await avatarFile.arrayBuffer();
           await uploadFile('avatars', pathWithinBucket, fileBuffer, user.id, avatarFile.type);
           avatarUrl = `${getApiRoot().replace(/\/$/, '')}/files/avatars/${encodeURIComponent(pathWithinBucket)}`;
-        } catch (uploadError: any) {
+        } catch (uploadError: unknown) {
           console.error('Error uploading avatar:', uploadError);
           avatarUrl = avatarPreview;
         }
@@ -129,7 +129,7 @@ export const useProfileSettings = () => {
         title: "Success",
         description: "Profile settings updated successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving profile settings:', error);
       toast({
         title: "Error",
@@ -145,7 +145,7 @@ export const useProfileSettings = () => {
     if (user?.id) {
       fetchProfileSettings();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchProfileSettings]);
 
   return {
     profileSettings,

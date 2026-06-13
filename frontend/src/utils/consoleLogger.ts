@@ -51,28 +51,28 @@ class ConsoleLogger {
     try {
       // Intercept console.error
       const originalError = console.error;
-      console.error = (...args: any[]) => {
+      console.error = (...args: unknown[]) => {
         this.captureLog('error', args);
         originalError.apply(console, args);
       };
 
       // Intercept console.warn
       const originalWarn = console.warn;
-      console.warn = (...args: any[]) => {
+      console.warn = (...args: unknown[]) => {
         this.captureLog('warn', args);
         originalWarn.apply(console, args);
       };
 
       // Intercept console.log (optional, for debugging)
       const originalLog = console.log;
-      console.log = (...args: any[]) => {
+      console.log = (...args: unknown[]) => {
         this.captureLog('log', args);
         originalLog.apply(console, args);
       };
 
       // Intercept console.info
       const originalInfo = console.info;
-      console.info = (...args: any[]) => {
+      console.info = (...args: unknown[]) => {
         this.captureLog('info', args);
         originalInfo.apply(console, args);
       };
@@ -103,7 +103,7 @@ class ConsoleLogger {
     });
   }
 
-  private captureLog(level: ConsoleLogEntry['level'], args: any[]) {
+  private captureLog(level: ConsoleLogEntry['level'], args: unknown[]) {
     try {
       const message = args
         .map((arg) => {
@@ -126,7 +126,7 @@ class ConsoleLogger {
       // Try to extract stack trace from error objects
       if (args[0] instanceof Error && args[0].stack) {
         entry.stack = args[0].stack;
-      } else if (typeof args[0] === 'string' && args[1]?.stack) {
+      } else if (typeof args[0] === 'string' && args[1] instanceof Error && args[1].stack) {
         entry.stack = args[1].stack;
       }
 
@@ -230,21 +230,21 @@ if (typeof window !== 'undefined') {
 
 export const logDebug = (...args: unknown[]): void => {
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
+     
     console.log(...args);
   }
 };
 
 export const logInfo = (...args: unknown[]): void => {
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
+     
     console.info(...args);
   }
 };
 
 export const logWarn = (...args: unknown[]): void => {
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
+     
     console.warn(...args);
   }
 };
@@ -252,6 +252,6 @@ export const logWarn = (...args: unknown[]): void => {
 // For errors, we still allow logging in production, but callers should also
 // surface a user-facing message (toast, notification, etc.) where appropriate.
 export const logError = (...args: unknown[]): void => {
-  // eslint-disable-next-line no-console
+   
   console.error(...args);
 };

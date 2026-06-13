@@ -64,7 +64,7 @@ export function QuickActionsPanel({ onEventCreated, onHolidayCreated }: QuickAct
   const [showQuickActionDialog, setShowQuickActionDialog] = useState(false);
   const [actionType, setActionType] = useState<'event' | 'holiday' | 'task' | 'announcement'>('event');
   const [loading, setLoading] = useState(false);
-  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [recentActivities, setRecentActivities] = useState<unknown[]>([]);
 
   // Event form state
   const [eventForm, setEventForm] = useState({
@@ -94,7 +94,7 @@ export function QuickActionsPanel({ onEventCreated, onHolidayCreated }: QuickAct
     priority: 'normal' as 'low' | 'normal' | 'high' | 'urgent'
   });
 
-  const canManageEvents = userRole === 'admin' || userRole === 'hr' || userRole === 'super_admin';
+  const canManageEvents = userRole === 'agency_admin' || userRole === 'manager' || userRole === 'super_admin';
 
   // Fetch recent activities
   useEffect(() => {
@@ -261,7 +261,7 @@ export function QuickActionsPanel({ onEventCreated, onHolidayCreated }: QuickAct
       resetForms();
       setShowQuickActionDialog(false);
       onEventCreated?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating event:', error);
       toast({
         title: 'Error',
@@ -371,7 +371,7 @@ export function QuickActionsPanel({ onEventCreated, onHolidayCreated }: QuickAct
       resetForms();
       setShowQuickActionDialog(false);
       onHolidayCreated?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating holiday:', error);
       toast({
         title: 'Error',
@@ -449,7 +449,7 @@ export function QuickActionsPanel({ onEventCreated, onHolidayCreated }: QuickAct
 
       resetForms();
       setShowQuickActionDialog(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating announcement:', error);
       toast({
         title: 'Error',
@@ -805,7 +805,7 @@ export function QuickActionsPanel({ onEventCreated, onHolidayCreated }: QuickAct
                 <Label>Priority</Label>
                 <Select
                   value={announcementForm.priority}
-                  onValueChange={(value: any) => setAnnouncementForm(prev => ({ ...prev, priority: value }))}
+                  onValueChange={(value: unknown) => setAnnouncementForm(prev => ({ ...prev, priority: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />

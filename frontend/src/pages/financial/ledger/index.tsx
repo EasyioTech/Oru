@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, Filter, Download, TrendingUp, TrendingDown, DollarSign, Calendar, ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from '@/lib/database';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { selectRecords, selectOne } from '@/services/api/core';
@@ -64,21 +63,16 @@ const Ledger = () => {
       }
 
       // Fetch all posted journal entries
-      let query = db
-        .from('journal_entries')
-        .select('*')
-        .eq('status', 'posted')
-        .order('entry_date', { ascending: false })
-        .limit(500);
-
-      const { data: entries, error: entriesError } = await query;
+      const entries = await selectRecords('journal_entries', {
+        where: { status: 'posted' },
+        orderBy: 'entry_date DESC',
+        limit: 500,
+      }).catch((err: unknown) => {
+        if ((err as {code?: string})?.code === '42P01') return [];
+        throw err;
+      });
 
       logDebug('Fetched journal entries:', entries?.length || 0, 'entries');
-
-      if (entriesError) {
-        logError('Error fetching journal entries:', entriesError);
-        throw entriesError;
-      }
 
       // If no entries, still show the page with empty state
       if (!entries || entries.length === 0) {
@@ -95,31 +89,27 @@ const Ledger = () => {
       }
 
       // Filter by agency_id if available
-      const agencyEntries = (entries || []).filter((e: any) => 
+      const agencyEntries = (entries || []).filter((e: unknown) => 
         !agencyId || !e.agency_id || e.agency_id === agencyId
       );
 
       // Fetch journal entry lines to get account details
-      const entryIds = agencyEntries.map((e: any) => e.id) || [];
-      let lines: any[] = [];
+      const entryIds = agencyEntries.map((e: unknown) => e.id) || [];
+      let lines: unknown[] = [];
       
       if (entryIds.length > 0) {
-        const { data: linesData, error: linesError } = await db
-          .from('journal_entry_lines')
-          .select('*')
-          .in('journal_entry_id', entryIds);
-
-        if (linesError) {
-          logError('Error fetching journal entry lines:', linesError);
-          throw linesError;
-        }
-        lines = linesData || [];
+        lines = await selectRecords('journal_entry_lines', {
+          filters: [{ column: 'journal_entry_id', operator: 'in', value: entryIds }],
+        }).catch((err: unknown) => {
+          if ((err as {code?: string})?.code === '42P01') return [];
+          throw err;
+        });
       }
 
       // Fetch chart of accounts for category mapping
-      let accounts: any[] = [];
+      let accounts: unknown[] = [];
       try {
-        const where: Record<string, any> = { is_active: true };
+        const where: Record<string, unknown> = { is_active: true };
         if (agencyId) {
           // Prefer agency scoped data when column exists
           where.agency_id = agencyId;
@@ -128,7 +118,7 @@ const Ledger = () => {
           where,
           orderBy: 'account_code ASC'
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Fallback if agency_id column does not exist in current schema
         if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
           logWarn('chart_of_accounts has no agency_id column, falling back to global accounts');
@@ -141,14 +131,14 @@ const Ledger = () => {
         }
       }
 
-      const accountMap = new Map((accounts || []).map((acc: any) => [acc.id, acc]));
+      const accountMap = new Map((accounts || []).map((acc: unknown) => [acc.id, acc]));
 
       // Calculate total balance from all posted entries
       let totalBalance = 0;
       const accountBalances: Record<string, number> = {};
 
       // Calculate balances per account
-      lines.forEach((line: any) => {
+      lines.forEach((line: unknown) => {
         if (!line || !line.account_id) return;
         
         const account = accountMap.get(line.account_id);
@@ -186,12 +176,12 @@ const Ledger = () => {
       const transformedTransactions: Transaction[] = [];
       let runningBalance = 0;
 
-      agencyEntries.forEach((entry: any) => {
+      agencyEntries.forEach((entry: unknown) => {
         if (!entry || !entry.id) return;
         
-        const entryLines = lines.filter((l: any) => l && l.journal_entry_id === entry.id);
+        const entryLines = lines.filter((l: unknown) => l && l.journal_entry_id === entry.id);
         
-        entryLines.forEach((line: any) => {
+        entryLines.forEach((line: unknown) => {
           if (!line || !line.id) return;
           
           const account = line.account_id ? accountMap.get(line.account_id) : null;
@@ -274,7 +264,7 @@ const Ledger = () => {
         netProfit: (monthlyIncome || 0) - (monthlyExpenses || 0)
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching ledger data:', error);
       const errorMessage = error?.message || 'Failed to load ledger data. Please try again.';
       setError(errorMessage);
@@ -339,7 +329,7 @@ const Ledger = () => {
         title: "Success",
         description: "Ledger exported successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error exporting ledger:', error);
       toast({
         title: "Error",

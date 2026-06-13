@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
-import { db } from '@/lib/database';
+import { getApiEndpoint } from '@/config/services';
 import { useToast } from '@/hooks/use-toast';
 import { LoadingSpinner } from './LoadingSpinner';
 import { useAsyncOperation } from '@/hooks/useAsyncOperation';
@@ -20,7 +20,7 @@ interface Notification {
   category: 'approval' | 'reminder' | 'update' | 'alert' | 'system';
   title: string;
   message: string;
-  metadata: any;
+  metadata: unknown;
   read_at: string | null;
   sent_at: string | null;
   priority: 'low' | 'normal' | 'high' | 'urgent';
@@ -53,74 +53,43 @@ export const NotificationCenter: React.FC = () => {
     }
   });
 
-  const loadNotifications = async () => {
-    if (!user) return;
-    
-    return fetchNotifications(async () => {
-      const { data, error } = await db
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
+  const getAuthHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
+  });
 
-      // Handle case where notifications table doesn't exist
-      if (error) {
-        // If table doesn't exist, just return empty array (don't show error to user)
-        if (error.message?.includes('does not exist') || error.message?.includes('42P01')) {
-          setNotifications([]);
-          setUnreadCount(0);
-          return [];
-        }
-        throw error;
+  const loadNotifications = React.useCallback(async () => {
+    if (!user) return;
+
+    return fetchNotifications(async () => {
+      const endpoint = getApiEndpoint('/notifications');
+      const response = await fetch(endpoint, { headers: getAuthHeaders() });
+      if (!response.ok) {
+        if (response.status === 403) return [];
+        throw new Error(`Failed to load notifications: ${response.status}`);
       }
-      
-      setNotifications((data || []) as Notification[]);
-      
-      // Get unread count - count unread notifications
-      const unreadNotifications = (data || []).filter(n => !n.read_at);
-      setUnreadCount(unreadNotifications.length);
-      
+      const json = await response.json();
+      const data: Notification[] = json?.data?.notifications ?? json?.data ?? [];
+      setNotifications(Array.isArray(data) ? data : []);
+      setUnreadCount(json?.data?.pagination?.unreadCount ?? data.filter((n: Notification) => !n.read_at).length);
       return data;
     });
-  };
+  }, [user, fetchNotifications]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     return markAsRead(async () => {
-      // Try to use RPC function, but if it doesn't exist, just update locally
-      try {
-        const { error } = await db.rpc('mark_notification_read', {
-          p_notification_id: notificationId
-        });
-
-        if (error && !error.message?.includes('does not exist') && !error.message?.includes('42P01')) {
-          throw error;
-        }
-      } catch (error: any) {
-        // If RPC doesn't exist or table doesn't exist, just update locally
-        if (!error.message?.includes('does not exist') && !error.message?.includes('42P01')) {
-          throw error;
-        }
-      }
-
-      // Update local state
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === notificationId 
-            ? { ...notif, read_at: new Date().toISOString() }
-            : notif
-        )
+      const endpoint = getApiEndpoint(`/notifications/${notificationId}/read`);
+      await fetch(endpoint, { method: 'PUT', headers: getAuthHeaders() });
+      setNotifications(prev =>
+        prev.map(n => n.id === notificationId ? { ...n, read_at: new Date().toISOString() } : n)
       );
     });
   };
 
   const handleMarkAllAsRead = async () => {
-    const unreadNotifications = notifications.filter(n => !n.read_at);
-    
-    for (const notification of unreadNotifications) {
-      await handleMarkAsRead(notification.id);
-    }
-    
+    const endpoint = getApiEndpoint('/notifications/read-all');
+    await fetch(endpoint, { method: 'PUT', headers: getAuthHeaders() });
+    setNotifications(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })));
     setUnreadCount(0);
     toast({ title: 'All notifications marked as read' });
   };
@@ -148,7 +117,7 @@ export const NotificationCenter: React.FC = () => {
         clearInterval(pollInterval);
       };
     }
-  }, [user]);
+  }, [user, loadNotifications]);
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {

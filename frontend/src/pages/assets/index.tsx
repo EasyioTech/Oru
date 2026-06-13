@@ -3,7 +3,7 @@
  * Fixed asset management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,66 +114,13 @@ export default function Assets() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchAssets(),
-          fetchCategories(),
-          fetchLocations(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading assets data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load assets',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = assets;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(asset =>
-        asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        asset.asset_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        asset.serial_number?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(asset => asset.status === statusFilter);
-    }
-
-    // Category filter
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(asset => asset.category_id === categoryFilter);
-    }
-
-    // Location filter
-    if (locationFilter !== 'all') {
-      filtered = filtered.filter(asset => asset.location_id === locationFilter);
-    }
-
-    setFilteredAssets(filtered);
-  }, [assets, searchTerm, statusFilter, categoryFilter, locationFilter]);
-
-  const fetchAssets = async () => {
+  const fetchAssets = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getAssets();
       setAssets(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch assets',
@@ -182,25 +129,25 @@ export default function Assets() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const data = await getAssetCategories();
       setCategories(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, []);
 
-  const fetchLocations = async () => {
+  const fetchLocations = useCallback(async () => {
     try {
       const data = await getAssetLocations();
       setLocations(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching locations:', error);
     }
-  };
+  }, []);
 
   const handleCreateAsset = async () => {
     try {
@@ -214,7 +161,7 @@ export default function Assets() {
       }
 
       setLoading(true);
-      const assetData: any = {
+      const assetData: unknown = {
         ...assetForm,
         purchase_cost: assetForm.purchase_cost ? parseFloat(assetForm.purchase_cost.toString()) : 0,
         current_value: assetForm.current_value ? parseFloat(assetForm.current_value.toString()) : assetForm.purchase_cost ? parseFloat(assetForm.purchase_cost.toString()) : 0,
@@ -242,7 +189,7 @@ export default function Assets() {
       setShowAssetDialog(false);
       resetForm();
       fetchAssets();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || `Failed to ${isEditing ? 'update' : 'create'} asset`,
@@ -309,6 +256,57 @@ export default function Assets() {
     resetForm();
     setShowAssetDialog(true);
   };
+    useEffect(() => {
+        let filtered = assets;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(asset =>
+            asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            asset.asset_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            asset.serial_number?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(asset => asset.status === statusFilter);
+        }
+
+        // Category filter
+        if (categoryFilter !== 'all') {
+          filtered = filtered.filter(asset => asset.category_id === categoryFilter);
+        }
+
+        // Location filter
+        if (locationFilter !== 'all') {
+          filtered = filtered.filter(asset => asset.location_id === locationFilter);
+        }
+
+        setFilteredAssets(filtered);
+      }, [assets, searchTerm, statusFilter, categoryFilter, locationFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchAssets(),
+              fetchCategories(),
+              fetchLocations(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading assets data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load assets',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchAssets, fetchCategories, fetchLocations, toast]);
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; label: string }> = {

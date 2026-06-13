@@ -83,7 +83,7 @@ export async function getClientsForSelection(
 
   try {
     // Build filters
-    const filters: any[] = [];
+    const filters: unknown[] = [];
     
     // Always filter by agency_id
     filters.push({
@@ -120,7 +120,7 @@ export async function getClientsForSelection(
     }
 
     // Build query options
-    const queryOptions: any = {
+    const queryOptions: unknown = {
       filters,
       orderBy: 'name ASC'
     };
@@ -139,7 +139,7 @@ export async function getClientsForSelection(
     // Apply search filter in memory (for better performance with large datasets, consider SQL LIKE)
     if (search) {
       const searchLower = search.toLowerCase();
-      clients = clients.filter((client: any) =>
+      clients = clients.filter((client: unknown) =>
         client.name?.toLowerCase().includes(searchLower) ||
         client.company_name?.toLowerCase().includes(searchLower) ||
         client.email?.toLowerCase().includes(searchLower) ||
@@ -149,7 +149,7 @@ export async function getClientsForSelection(
     }
 
     // Transform to ClientOption format
-    const clientOptions: ClientOption[] = clients.map((client: any) => ({
+    const clientOptions: ClientOption[] = clients.map((client: unknown) => ({
       id: client.id,
       name: client.name || 'Unnamed Client',
       company_name: client.company_name,
@@ -165,7 +165,7 @@ export async function getClientsForSelection(
     }));
 
     return clientOptions;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getClientsForSelection:', error);
     throw new Error(`Failed to fetch clients: ${error.message}`);
   }
@@ -211,7 +211,7 @@ export async function getClientById(
       payment_terms: client.payment_terms,
       is_active: client.is_active !== false
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getClientById:', error);
     throw new Error(`Failed to fetch client: ${error.message}`);
   }

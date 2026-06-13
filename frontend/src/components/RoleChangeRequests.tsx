@@ -47,7 +47,7 @@ export function RoleChangeRequests() {
     requested_role: '' as AppRole,
     reason: ''
   });
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<unknown[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'expired'>('all');
   const [selectedRequest, setSelectedRequest] = useState<RoleChangeRequest | null>(null);
@@ -60,8 +60,8 @@ export function RoleChangeRequests() {
   const [processing, setProcessing] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const canManageRoleChanges = userRole && ['super_admin', 'ceo'].includes(userRole);
-  const canCreateRequests = userRole && ['admin', 'hr', 'department_head'].includes(userRole);
+  const canManageRoleChanges = userRole && ['super_admin', 'agency_admin'].includes(userRole);
+  const canCreateRequests = userRole && ['agency_admin', 'manager'].includes(userRole);
 
   const fetchRequests = async () => {
     try {
@@ -115,7 +115,7 @@ export function RoleChangeRequests() {
       }));
 
       setRequests(enrichedRequests);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching role change requests:', error);
       const errorMessage = error?.message || String(error);
       if (errorMessage.includes('does not exist') || errorMessage.includes('42P01') || 
@@ -144,7 +144,7 @@ export function RoleChangeRequests() {
 
       // Fetch emails from users table
       const userIds = profiles.map(p => p.user_id).filter(Boolean);
-      let emailMap = new Map<string, string>();
+      const emailMap = new Map<string, string>();
       if (userIds.length > 0) {
         const users = await selectRecords<{ id: string; email: string }>('users', {
           filters: [{ column: 'id', operator: 'in', value: userIds }]
@@ -210,7 +210,7 @@ export function RoleChangeRequests() {
       setShowCreateDialog(false);
       setNewRequest({ user_id: '', requested_role: '' as AppRole, reason: '' });
       await fetchRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating role change request:', error);
       toast.error(error?.message || 'Failed to create role change request');
     } finally {
@@ -268,7 +268,7 @@ export function RoleChangeRequests() {
       setActionRequestId(null);
       setActionType(null);
       await fetchRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error ${action} request:`, error);
       toast.error(error?.message || `Failed to ${action} request`);
     } finally {
@@ -287,7 +287,7 @@ export function RoleChangeRequests() {
       setActionRequestId(null);
       setActionType(null);
       await fetchRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting request:', error);
       toast.error(error?.message || 'Failed to delete request');
     } finally {

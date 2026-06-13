@@ -52,12 +52,7 @@ export function PredictiveAnalytics() {
   const [projectData, setProjectData] = useState<PredictionData[]>([]);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchPredictiveData();
-  }, [user?.id, profile?.agency_id]);
-
-  const fetchPredictiveData = async () => {
+  const fetchPredictiveData = React.useCallback(async () => {
     try {
       setLoading(true);
       const agencyId = await getAgencyId(profile, user?.id);
@@ -69,28 +64,28 @@ export function PredictiveAnalytics() {
       }
 
       // Fetch invoices for revenue data
-      let invoices: any[] = [];
+      let invoices: unknown[] = [];
       try {
         invoices = await selectRecords('invoices', {
           where: { agency_id: agencyId },
           orderBy: 'created_at DESC',
           limit: 1000
         }) || [];
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error?.code !== '42703' && !error?.message?.includes('agency_id')) {
           console.error('Error fetching invoices:', error);
         }
       }
 
       // Fetch projects for project completion data
-      let projects: any[] = [];
+      let projects: unknown[] = [];
       try {
         projects = await selectRecords('projects', {
           where: { agency_id: agencyId },
           orderBy: 'created_at DESC',
           limit: 1000
         }) || [];
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error?.code !== '42703' && !error?.message?.includes('agency_id')) {
           console.error('Error fetching projects:', error);
         }
@@ -106,12 +101,12 @@ export function PredictiveAnalytics() {
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
         
-        const monthInvoices = (invoices || []).filter((inv: any) => {
+        const monthInvoices = (invoices || []).filter((inv: unknown) => {
           const invDate = new Date(inv.created_at || inv.issue_date);
           return invDate >= monthStart && invDate <= monthEnd;
         });
         
-        const actual = monthInvoices.reduce((sum: number, inv: any) => 
+        const actual = monthInvoices.reduce((sum: number, inv: unknown) => 
           sum + (Number(inv.total_amount) || 0), 0
         );
         
@@ -137,7 +132,7 @@ export function PredictiveAnalytics() {
         const weekStart = new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000));
         const weekEnd = new Date(weekStart.getTime() + (7 * 24 * 60 * 60 * 1000));
         
-        const weekProjects = (projects || []).filter((p: any) => {
+        const weekProjects = (projects || []).filter((p: unknown) => {
           const projDate = new Date(p.created_at);
           return projDate >= weekStart && projDate < weekEnd;
         });
@@ -165,7 +160,7 @@ export function PredictiveAnalytics() {
         ? ((predictedRevenue - currentRevenue) / currentRevenue) * 100 
         : 0;
 
-      const completedProjects = (projects || []).filter((p: any) => p.status === 'completed').length;
+      const completedProjects = (projects || []).filter((p: unknown) => p.status === 'completed').length;
       const totalProjects = projects.length || 1;
       const completionRate = (completedProjects / totalProjects) * 100;
       const predictedCompletion = Math.min(100, completionRate + 5);
@@ -212,7 +207,7 @@ export function PredictiveAnalytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile, user?.id]);
 
   const generateAdvancedPrediction = async (type: string) => {
     setLoading(true);
@@ -227,6 +222,9 @@ export function PredictiveAnalytics() {
       setLoading(false);
     }
   };
+    useEffect(() => {
+        fetchPredictiveData();
+      }, [fetchPredictiveData]);
 
   return (
     <div className="space-y-6">

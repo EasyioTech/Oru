@@ -85,11 +85,6 @@ export default function ScheduledReports() {
     format: 'pdf',
     is_active: true,
   });
-
-  useEffect(() => {
-    loadReports();
-  }, []);
-
   const loadReports = async () => {
     try {
       setLoading(true);
@@ -97,7 +92,7 @@ export default function ScheduledReports() {
       const data = await ReportService.getScheduledReports();
       // Ensure data is always an array
       setReports(Array.isArray(data) ? data : []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load scheduled reports',
@@ -164,7 +159,7 @@ export default function ScheduledReports() {
       });
       setIsDialogOpen(false);
       loadReports();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save report',
@@ -186,7 +181,7 @@ export default function ScheduledReports() {
         description: 'Report deleted successfully',
       });
       loadReports();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete report',
@@ -204,7 +199,7 @@ export default function ScheduledReports() {
         description: report.is_active ? 'Report paused' : 'Report activated',
       });
       loadReports();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update report',
@@ -232,6 +227,10 @@ export default function ScheduledReports() {
     report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.report_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
+    useEffect(() => {
+        loadReports();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -392,7 +391,7 @@ export default function ScheduledReports() {
                 <Select
                   value={formData.report_type}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, report_type: value as any })
+                    setFormData({ ...formData, report_type: value as unknown })
                   }
                 >
                   <SelectTrigger>
@@ -412,7 +411,7 @@ export default function ScheduledReports() {
                 <Select
                   value={formData.format}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, format: value as any })
+                    setFormData({ ...formData, format: value as unknown })
                   }
                 >
                   <SelectTrigger>
@@ -432,7 +431,7 @@ export default function ScheduledReports() {
                 <Select
                   value={formData.schedule_type}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, schedule_type: value as any })
+                    setFormData({ ...formData, schedule_type: value as unknown })
                   }
                 >
                   <SelectTrigger>

@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { db } from '@/lib/database';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { getAgencyId } from '@/utils/agencyUtils';
+import { fetchJson } from '@/utils/authApi';
 import { getDepartmentsForSelectionAuto } from '@/services/api/departments';
 import { createDepartment, updateDepartment, fetchDepartmentsList } from '@/services/api/departments';
 
@@ -52,6 +52,38 @@ export function DepartmentFormDialog({
   const { toast } = useToast();
   const { user, profile } = useAuth();
 
+  const fetchDepartments = useCallback(async () => {
+    try {
+      if (!user?.id) {
+        setDepartments([]);
+        return;
+      }
+      const departmentsData = await getDepartmentsForSelectionAuto(profile, user.id);
+      const filteredDepartments = department && department.id
+        ? departmentsData.filter(d => d.id !== department.id)
+        : departmentsData;
+      setDepartments(filteredDepartments.map(d => ({ id: d.id, name: d.name })));
+    } catch (error: unknown) {
+      console.error("Error fetching departments:", error);
+      toast({ title: "Error", description: "Failed to fetch departments", variant: "destructive" });
+      setDepartments([]);
+    }
+  }, [user?.id, profile, department, toast]);
+
+  const fetchProfiles = useCallback(async () => {
+    try {
+      const res = await fetchJson(`/hr/employees`);
+      if (res) {
+        setProfiles(res.map((emp: { id: string; first_name: string; last_name: string }) => ({
+          user_id: emp.id,
+          full_name: `${emp.first_name} ${emp.last_name}`
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
+    }
+  }, []);
+
   useEffect(() => {
     if (open) {
       fetchDepartments();
@@ -90,38 +122,7 @@ export function DepartmentFormDialog({
         budget: "",
       });
     }
-  }, [open, department]);
-
-  const fetchDepartments = async () => {
-    try {
-      if (!user?.id) {
-        setDepartments([]);
-        return;
-      }
-      const departmentsData = await getDepartmentsForSelectionAuto(profile, user.id);
-      const filteredDepartments = department && department.id
-        ? departmentsData.filter(d => d.id !== department.id)
-        : departmentsData;
-      setDepartments(filteredDepartments.map(d => ({ id: d.id, name: d.name })));
-    } catch (error: unknown) {
-      console.error("Error fetching departments:", error);
-      toast({ title: "Error", description: "Failed to fetch departments", variant: "destructive" });
-      setDepartments([]);
-    }
-  };
-
-  const fetchProfiles = async () => {
-    try {
-      const agencyId = profile?.agency_id;
-      let query = db.from("profiles").select("user_id, full_name").eq("is_active", true);
-      if (agencyId) query = query.eq("agency_id", agencyId);
-      const { data, error } = await query.order("full_name");
-      if (error) throw error;
-      if (data) setProfiles(data);
-    } catch (error) {
-      console.error("Error fetching profiles:", error);
-    }
-  };
+  }, [open, department, fetchDepartments, fetchProfiles]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

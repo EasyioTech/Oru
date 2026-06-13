@@ -45,7 +45,7 @@ export function TwoFactorVerification({
     try {
       // Pass token to onVerified callback for login completion
       onVerified(token);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Invalid verification code');
       toast({
         title: 'Verification Failed',
@@ -69,7 +69,7 @@ export function TwoFactorVerification({
     try {
       // Pass recovery code to onVerified callback for login completion
       onVerified(undefined, recoveryCode);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Invalid recovery code');
       toast({
         title: 'Verification Failed',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
   fetchPlans as fetchPlansApi,
@@ -43,7 +43,7 @@ export const usePlanManagement = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const loadPlans = async () => {
+  const loadPlans = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -60,9 +60,9 @@ export const usePlanManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const loadAvailableFeatures = async () => {
+  const loadAvailableFeatures = useCallback(async () => {
     try {
       const features = await fetchFeaturesApi();
       setAvailableFeatures(features || []);
@@ -75,7 +75,7 @@ export const usePlanManagement = () => {
       });
       setAvailableFeatures([]); // Set empty array on error
     }
-  };
+  }, [toast]);
 
   const updatePlan = async (planId: string, updates: Partial<SubscriptionPlan>) => {
     try {
@@ -147,7 +147,7 @@ export const usePlanManagement = () => {
       });
 
       await loadAvailableFeatures();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating feature:', error);
       toast({
         title: "Error",
@@ -168,7 +168,7 @@ export const usePlanManagement = () => {
       });
 
       await loadAvailableFeatures();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating feature:', error);
       toast({
         title: "Error",
@@ -183,7 +183,7 @@ export const usePlanManagement = () => {
     try {
       await deleteFeatureApi(featureId);
       await loadAvailableFeatures();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting feature:', error);
       toast({
         title: "Error",
@@ -197,7 +197,7 @@ export const usePlanManagement = () => {
   useEffect(() => {
     loadPlans();
     loadAvailableFeatures();
-  }, []);
+  }, [loadPlans, loadAvailableFeatures]);
 
   return {
     plans,

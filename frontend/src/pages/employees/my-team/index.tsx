@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users2, Mail, Phone, MapPin, Calendar, Crown, Star, Shield, Loader2, UserPlus, Edit, Eye } from 'lucide-react';
 import { getRoleDisplayName, ROLE_CATEGORIES } from '@/utils/roleUtils';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { db } from '@/lib/database';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -28,14 +28,14 @@ interface TeamMember {
 }
 
 const getRoleIcon = (role: string) => {
-  if (ROLE_CATEGORIES.executive.includes(role as any)) return Crown;
-  if (ROLE_CATEGORIES.management.includes(role as any)) return Shield;
+  if (ROLE_CATEGORIES.system.includes(role as unknown)) return Crown;
+  if (ROLE_CATEGORIES.management.includes(role as unknown)) return Shield;
   return Star;
 };
 
 const getRoleBadgeVariant = (role: string) => {
-  if (ROLE_CATEGORIES.executive.includes(role as any)) return 'default';
-  if (ROLE_CATEGORIES.management.includes(role as any)) return 'secondary';
+  if (ROLE_CATEGORIES.system.includes(role as unknown)) return 'default';
+  if (ROLE_CATEGORIES.management.includes(role as unknown)) return 'secondary';
   return 'outline';
 };
 
@@ -47,12 +47,7 @@ export default function MyTeam() {
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [showMemberDialog, setShowMemberDialog] = useState(false);
-  
-  useEffect(() => {
-    fetchTeamMembers();
-  }, [userRole, profile]);
-
-  const fetchTeamMembers = async () => {
+  const fetchTeamMembers = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -74,7 +69,7 @@ export default function MyTeam() {
 
       // Create role map
       const roleMap = new Map<string, string>();
-      rolesData?.forEach((r: any) => {
+      rolesData?.forEach((r: unknown) => {
         roleMap.set(r.user_id, r.role);
       });
 
@@ -84,14 +79,14 @@ export default function MyTeam() {
         .select('user_id, work_location');
 
       const locationMap = new Map<string, string>();
-      employeeData?.forEach((e: any) => {
+      employeeData?.forEach((e: unknown) => {
         if (e.work_location) {
           locationMap.set(e.user_id, e.work_location);
         }
       });
 
       // Transform profiles to team members
-      let members: TeamMember[] = (profilesData || []).map((p: any) => ({
+      let members: TeamMember[] = (profilesData || []).map((p: unknown) => ({
         id: p.id,
         user_id: p.user_id,
         full_name: p.full_name || 'Unknown User',
@@ -107,8 +102,8 @@ export default function MyTeam() {
       }));
 
       // Filter based on user role hierarchy
-      if (userRole && !ROLE_CATEGORIES.executive.includes(userRole as any) && 
-          !ROLE_CATEGORIES.management.includes(userRole as any)) {
+      if (userRole && !ROLE_CATEGORIES.system.includes(userRole as unknown) && 
+          !ROLE_CATEGORIES.management.includes(userRole as unknown)) {
         // Regular employees only see their department
         if (profile?.department) {
           members = members.filter(m => 
@@ -131,16 +126,16 @@ export default function MyTeam() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userRole, profile, user?.id, toast]);
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   const getScopeDescription = (role: string) => {
-    if (ROLE_CATEGORIES.executive.includes(role as any)) {
+    if (ROLE_CATEGORIES.system.includes(role as unknown)) {
       return 'Organization-wide team overview';
-    } else if (ROLE_CATEGORIES.management.includes(role as any)) {
+    } else if (ROLE_CATEGORIES.management.includes(role as unknown)) {
       return 'Your direct reports and managed teams';
     } else {
       return 'Your project collaborators and teammates';
@@ -151,6 +146,9 @@ export default function MyTeam() {
     setSelectedMember(member);
     setShowMemberDialog(true);
   };
+    useEffect(() => {
+        fetchTeamMembers();
+      }, [fetchTeamMembers]);
 
   if (loading) {
     return (
@@ -173,7 +171,7 @@ export default function MyTeam() {
             </p>
           </div>
         </div>
-        {(userRole === 'super_admin' || userRole === 'admin' || userRole === 'hr') && (
+        {(userRole === 'super_admin' || userRole === 'agency_admin' || userRole === 'manager') && (
           <Button onClick={() => navigate('/create-employee')}>
             <UserPlus className="mr-2 h-4 w-4" />
             Add Team Member
@@ -192,7 +190,7 @@ export default function MyTeam() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">
-              {teamMembers.filter(m => ROLE_CATEGORIES.management.includes(m.role as any)).length}
+              {teamMembers.filter(m => ROLE_CATEGORIES.management.includes(m.role as unknown)).length}
             </div>
             <p className="text-sm text-muted-foreground">Managers</p>
           </CardContent>
@@ -236,7 +234,7 @@ export default function MyTeam() {
                     <div className="flex items-center space-x-2 mt-1">
                       <RoleIcon className="h-4 w-4 text-muted-foreground" />
                       <Badge variant={getRoleBadgeVariant(member.role)} className="text-xs">
-                        {getRoleDisplayName(member.role as any)}
+                        {getRoleDisplayName(member.role as unknown)}
                       </Badge>
                     </div>
                   </div>
@@ -323,7 +321,7 @@ export default function MyTeam() {
                   <h3 className="text-xl font-semibold">{selectedMember.full_name}</h3>
                   <p className="text-muted-foreground">{selectedMember.position || 'No position'}</p>
                   <Badge variant={getRoleBadgeVariant(selectedMember.role)} className="mt-1">
-                    {getRoleDisplayName(selectedMember.role as any)}
+                    {getRoleDisplayName(selectedMember.role as unknown)}
                   </Badge>
                 </div>
               </div>

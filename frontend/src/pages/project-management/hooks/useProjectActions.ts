@@ -51,7 +51,7 @@ export const useProjectActions = (
       });
       
       onProjectsChange();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to delete project. Please try again.",
@@ -64,13 +64,13 @@ export const useProjectActions = (
 
   const handleArchiveProject = useCallback(async (project: Project) => {
     try {
-      await projectService.updateProject(project.id, { status: 'archived' as any }, profile, user?.id);
+      await projectService.updateProject(project.id, { status: 'archived' as unknown }, profile, user?.id);
       toast({
         title: 'Success',
         description: `Project "${project.name}" has been archived`,
       });
       onProjectsChange();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to archive project',
@@ -88,9 +88,9 @@ export const useProjectActions = (
         progress: 0,
         actual_cost: 0,
       };
-      delete (newProject as any).id;
-      delete (newProject as any).created_at;
-      delete (newProject as any).updated_at;
+      delete (newProject as unknown).id;
+      delete (newProject as unknown).created_at;
+      delete (newProject as unknown).updated_at;
       
       await projectService.createProject(newProject, profile, user?.id);
       toast({
@@ -98,7 +98,7 @@ export const useProjectActions = (
         description: `Project "${project.name}" duplicated successfully`,
       });
       onProjectsChange();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to duplicate project',
@@ -111,7 +111,7 @@ export const useProjectActions = (
     try {
       await Promise.all(
         Array.from(selectedProjectIds).map(projectId => 
-          projectService.updateProject(projectId, { status: newStatus as any }, profile, user?.id)
+          projectService.updateProject(projectId, { status: newStatus as unknown }, profile, user?.id)
         )
       );
       toast({
@@ -121,7 +121,7 @@ export const useProjectActions = (
       setSelectedProjectIds(new Set());
       setBulkActionOpen(false);
       onProjectsChange();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update projects',
@@ -151,7 +151,7 @@ export const useProjectActions = (
       setSelectedProjectIds(new Set());
       setBulkActionOpen(false);
       onProjectsChange();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete projects',

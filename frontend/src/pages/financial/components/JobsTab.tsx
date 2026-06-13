@@ -13,16 +13,16 @@ import { getStatusColor } from '../utils/financialFormatters';
 import { formatCurrencySymbol } from '../utils/financialFormatters';
 
 interface JobsTabProps {
-  jobs: any[];
+  jobs: unknown[];
   loading: boolean;
   searchTerm: string;
   statusFilter: string;
   dateRange: { start: string; end: string };
   pageSize: number;
   onNewJob: () => void;
-  onEditJob: (job: any) => void;
-  onDeleteJob: (job: any) => void;
-  onManageCosts: (job: any) => void;
+  onEditJob: (job: unknown) => void;
+  onDeleteJob: (job: unknown) => void;
+  onManageCosts: (job: unknown) => void;
   deleteLoading: boolean;
 }
 

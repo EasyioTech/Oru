@@ -17,8 +17,8 @@ interface TransactionsTabProps {
   products: ProductType[];
   warehouses: WarehouseType[];
   loading: boolean;
-  transactionForm: any;
-  onTransactionFormChange: (form: any) => void;
+  transactionForm: unknown;
+  onTransactionFormChange: (form: unknown) => void;
   showTransactionDialog: boolean;
   onShowTransactionDialogChange: (show: boolean) => void;
   onCreateTransaction: () => void;

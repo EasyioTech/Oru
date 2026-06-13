@@ -3,7 +3,7 @@
  * Real-time stock tracking and inventory visibility
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -102,66 +102,8 @@ export default function InventoryStockLevels() {
   const [viewMode, setViewMode] = useState<'all' | 'low-stock' | 'out-of-stock'>('all');
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchInventoryLevels(),
-          fetchLowStockAlerts(),
-          fetchProducts(),
-          fetchWarehouses(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading stock data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load stock levels',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, [productFilter, warehouseFilter]);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = inventoryLevels;
-
-    // Product filter
-    if (productFilter !== 'all') {
-      filtered = filtered.filter(level => level.product_id === productFilter);
-    }
-
-    // Warehouse filter
-    if (warehouseFilter !== 'all') {
-      filtered = filtered.filter(level => level.warehouse_id === warehouseFilter);
-    }
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(level =>
-        level.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        level.product_sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        level.warehouse_name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // View mode filter
-    if (viewMode === 'low-stock') {
-      filtered = filtered.filter(level => 
-        level.available_quantity <= level.reorder_point && level.reorder_point > 0
-      );
-    } else if (viewMode === 'out-of-stock') {
-      filtered = filtered.filter(level => level.available_quantity <= 0);
-    }
-
-    setFilteredLevels(filtered);
-  }, [inventoryLevels, productFilter, warehouseFilter, searchTerm, viewMode]);
-
-  const fetchInventoryLevels = async () => {
+  const fetchInventoryLevels = useCallback(async () => {
     try {
       setLoading(true);
       let levels: InventoryLevel[] = [];
@@ -169,7 +111,7 @@ export default function InventoryStockLevels() {
       if (productFilter !== 'all') {
         // Get levels for specific product
         const productLevels = await getInventoryLevels(productFilter);
-        levels = productLevels as any;
+        levels = productLevels as unknown;
       } else {
         // Get all products and their levels
         const allProducts = await getProducts();
@@ -179,7 +121,7 @@ export default function InventoryStockLevels() {
           try {
             const productLevels = await getInventoryLevels(product.id);
             if (Array.isArray(productLevels)) {
-              allLevels.push(...(productLevels as any));
+              allLevels.push(...(productLevels as unknown));
             }
           } catch (error) {
             // Product might not have inventory levels yet
@@ -191,7 +133,7 @@ export default function InventoryStockLevels() {
       }
 
       setInventoryLevels(levels);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching inventory levels:', error);
       toast({
         title: 'Error',
@@ -201,34 +143,34 @@ export default function InventoryStockLevels() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [productFilter, toast]);
 
-  const fetchLowStockAlerts = async () => {
+  const fetchLowStockAlerts = useCallback(async () => {
     try {
       const alerts = await getLowStockAlerts();
-      setLowStockAlerts(alerts as any);
-    } catch (error: any) {
+      setLowStockAlerts(alerts as unknown);
+    } catch (error: unknown) {
       console.error('Error fetching low stock alerts:', error);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await getProducts();
       setProducts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
     }
-  };
+  }, []);
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching warehouses:', error);
     }
-  };
+  }, []);
 
   const handleRefresh = () => {
     fetchInventoryLevels();
@@ -238,6 +180,62 @@ export default function InventoryStockLevels() {
       description: 'Stock levels updated',
     });
   };
+    useEffect(() => {
+        let filtered = inventoryLevels;
+
+        // Product filter
+        if (productFilter !== 'all') {
+          filtered = filtered.filter(level => level.product_id === productFilter);
+        }
+
+        // Warehouse filter
+        if (warehouseFilter !== 'all') {
+          filtered = filtered.filter(level => level.warehouse_id === warehouseFilter);
+        }
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(level =>
+            level.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            level.product_sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            level.warehouse_name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // View mode filter
+        if (viewMode === 'low-stock') {
+          filtered = filtered.filter(level => 
+            level.available_quantity <= level.reorder_point && level.reorder_point > 0
+          );
+        } else if (viewMode === 'out-of-stock') {
+          filtered = filtered.filter(level => level.available_quantity <= 0);
+        }
+
+        setFilteredLevels(filtered);
+      }, [inventoryLevels, productFilter, warehouseFilter, searchTerm, viewMode]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchInventoryLevels(),
+              fetchLowStockAlerts(),
+              fetchProducts(),
+              fetchWarehouses(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading stock data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load stock levels',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [productFilter, warehouseFilter, fetchInventoryLevels, fetchLowStockAlerts, fetchProducts, fetchWarehouses, toast]);
 
   // Calculate statistics
   const totalValue = inventoryLevels.reduce((sum, level) => {
@@ -399,7 +397,7 @@ export default function InventoryStockLevels() {
             </div>
             <div className="space-y-2">
               <Label>View Mode</Label>
-              <Select value={viewMode} onValueChange={(value: any) => setViewMode(value)}>
+              <Select value={viewMode} onValueChange={(value: unknown) => setViewMode(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

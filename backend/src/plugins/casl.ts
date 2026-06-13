@@ -5,7 +5,7 @@ import { createMongoAbility, MongoAbility, AbilityBuilder } from '@casl/ability'
 import { FastifyPluginAsync } from 'fastify';
 
 export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-export type Subjects = 'Agency' | 'User' | 'System' | 'Catalog' | 'Ticket' | 'Project' | 'Client' | 'all';
+export type Subjects = 'Agency' | 'User' | 'System' | 'Catalog' | 'Ticket' | 'Project' | 'Client' | 'Lead' | 'CRMActivity' | 'Department' | 'Employee' | 'all';
 
 export type AppAbility = MongoAbility<[Actions, Subjects]>;
 
@@ -32,15 +32,29 @@ const caslPlugin: FastifyPluginAsync = async (fastify) => {
             can('manage', 'all');
         } else if (roles.includes('agency_admin')) {
             // Agency Admins can manage their own resources
-            can('manage', 'Agency');
-            can('manage', 'User');
-            can('manage', 'Ticket');
+            can('manage', 'all'); // Agency admins can manage everything within their agency context
+        } else if (roles.includes('manager')) {
             can('manage', 'Project');
             can('manage', 'Client');
-            can('read', 'System');
+            can('manage', 'Lead');
+            can('manage', 'CRMActivity');
+            can('read', 'Employee');
+            can('read', 'Department');
+            can('read', 'User');
+            can('read', 'Agency');
+        } else if (roles.includes('employee')) {
+            can('read', 'Project');
+            can('read', 'Client');
+            can('read', 'Lead');
+            can('create', 'CRMActivity');
+            can('read', 'CRMActivity');
+            can('update', 'CRMActivity');
+            can('read', 'Employee');
+            can('read', 'Department');
+            can('read', 'User');
+        } else if (roles.includes('auditor') || roles.includes('viewer')) {
+            can('read', 'all');
         }
-
-        // TODO: Add more role mappings as needed
 
         request.ability = build();
     });

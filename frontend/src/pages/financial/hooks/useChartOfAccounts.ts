@@ -9,7 +9,7 @@ import { logWarn, logError } from '@/utils/consoleLogger';
 
 export const useChartOfAccounts = (agencyId: string | null) => {
   const { toast } = useToast();
-  const [chartOfAccounts, setChartOfAccounts] = useState<any[]>([]);
+  const [chartOfAccounts, setChartOfAccounts] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchChartOfAccounts = async (agencyIdParam?: string | null) => {
@@ -24,13 +24,13 @@ export const useChartOfAccounts = (agencyId: string | null) => {
         setChartOfAccounts(accounts || []);
         return;
       }
-      let accounts: any[] = [];
+      let accounts: unknown[] = [];
       try {
         accounts = await selectRecords('chart_of_accounts', {
           where: { agency_id: effectiveAgencyId },
           orderBy: 'account_code ASC',
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
           logWarn('chart_of_accounts has no agency_id column, falling back to global accounts');
           accounts = await selectRecords('chart_of_accounts', {

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, Eye, Loader2, Search, Filter, Users as UsersIcon, UserCheck, UserX, Shield } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { db } from '@/lib/database';
 import { useToast } from "@/hooks/use-toast";
 import UserFormDialog from "@/components/auth/UserFormDialog";
@@ -16,7 +16,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'hr' | 'finance_manager' | 'employee' | 'super_admin' | string;
+  role: 'super_admin' | 'agency_admin' | 'manager' | 'employee' | 'auditor' | 'viewer' | 'custom' | string;
   status: string;
   userId: string;
   position?: string;
@@ -36,12 +36,7 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -70,17 +65,17 @@ const Users = () => {
 
       // Create maps for easy lookup
       const roleMap = new Map<string, string>();
-      rolesData?.forEach((r: any) => {
+      rolesData?.forEach((r: unknown) => {
         roleMap.set(r.user_id, r.role);
       });
 
       const emailMap = new Map<string, string>();
-      usersData?.forEach((u: any) => {
+      usersData?.forEach((u: unknown) => {
         emailMap.set(u.id, u.email);
       });
 
       // Transform data
-      const formattedUsers: User[] = (profilesData || []).map((profile: any) => ({
+      const formattedUsers: User[] = (profilesData || []).map((profile: unknown) => ({
         id: profile.user_id,
         name: profile.full_name || 'Unknown User',
         email: emailMap.get(profile.user_id) || `${(profile.full_name || 'user').toLowerCase().replace(/\s+/g, '.')}@company.com`,
@@ -95,7 +90,7 @@ const Users = () => {
       }));
 
       setUsers(formattedUsers);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fetch users error:', err);
       setError(err.message);
       toast({
@@ -106,7 +101,7 @@ const Users = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleNewUser = () => {
     setSelectedUser(null);
@@ -142,21 +137,24 @@ const Users = () => {
     total: users.length,
     active: users.filter(u => u.status === 'active').length,
     inactive: users.filter(u => u.status === 'inactive').length,
-    admins: users.filter(u => ['super_admin', 'admin'].includes(u.role)).length,
+    admins: users.filter(u => ['super_admin', 'agency_admin'].includes(u.role)).length,
   };
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'super_admin':
-      case 'admin':
+      case 'agency_admin':
         return 'default';
-      case 'hr':
-      case 'finance_manager':
+      case 'manager':
+      case 'auditor':
         return 'secondary';
       default:
         return 'outline';
     }
   };
+    useEffect(() => {
+        fetchUsers();
+      }, [fetchUsers]);
 
   if (loading) {
     return (

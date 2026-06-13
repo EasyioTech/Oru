@@ -3,7 +3,7 @@
  * Purchase requisition management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,60 +107,13 @@ export default function ProcurementRequisitions() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchRequisitions(),
-          fetchProducts(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading requisitions data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load requisitions',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = requisitions;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(req =>
-        req.requisition_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.requested_by_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.requested_by_email?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(req => req.status === statusFilter);
-    }
-
-    // Priority filter
-    if (priorityFilter !== 'all') {
-      filtered = filtered.filter(req => req.priority === priorityFilter);
-    }
-
-    setFilteredRequisitions(filtered);
-  }, [requisitions, searchTerm, statusFilter, priorityFilter]);
-
-  const fetchRequisitions = async () => {
+  const fetchRequisitions = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getPurchaseRequisitions();
       setRequisitions(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch requisitions',
@@ -169,16 +122,16 @@ export default function ProcurementRequisitions() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await getProducts({ is_active: true });
       setProducts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
     }
-  };
+  }, []);
 
   const handleCreateRequisition = async () => {
     try {
@@ -215,7 +168,7 @@ export default function ProcurementRequisitions() {
       setShowRequisitionDialog(false);
       resetForm();
       fetchRequisitions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create requisition',
@@ -253,7 +206,7 @@ export default function ProcurementRequisitions() {
     });
   };
 
-  const updateItem = (index: number, field: keyof RequisitionItem, value: any) => {
+  const updateItem = (index: number, field: keyof RequisitionItem, value: unknown) => {
     const updatedItems = [...requisitionForm.items];
     updatedItems[index] = {
       ...updatedItems[index],
@@ -286,9 +239,54 @@ export default function ProcurementRequisitions() {
     resetForm();
     setShowRequisitionDialog(true);
   };
+    useEffect(() => {
+        let filtered = requisitions;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(req =>
+            req.requisition_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.requested_by_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.requested_by_email?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(req => req.status === statusFilter);
+        }
+
+        // Priority filter
+        if (priorityFilter !== 'all') {
+          filtered = filtered.filter(req => req.priority === priorityFilter);
+        }
+
+        setFilteredRequisitions(filtered);
+      }, [requisitions, searchTerm, statusFilter, priorityFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchRequisitions(),
+              fetchProducts(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading requisitions data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load requisitions',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchRequisitions, fetchProducts, toast]);
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: any; label: string }> = {
+    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: unknown; label: string }> = {
       draft: { variant: 'secondary', icon: FileText, label: 'Draft' },
       pending: { variant: 'outline', icon: Clock, label: 'Pending' },
       approved: { variant: 'default', icon: CheckCircle2, label: 'Approved' },

@@ -18,6 +18,7 @@
         "lint": "eslint src --ext .ts",
         "test": "vitest",
         "seed:admin": "tsx src/scripts/seed-super-admin.ts",
+        "seed:roles": "tsx src/scripts/seed-all-roles.ts",
         "seed:blog": "tsx src/scripts/seed-blog.ts"
     },
     "keywords": [

@@ -91,11 +91,11 @@ export async function getDepartmentsForSelection(
           is_active: includeInactive ? undefined : true,
           parent_department_id: parentDepartmentId ?? undefined,
         });
-        return list.map((d: any) => ({
+        return list.map((d) => ({
           id: d.id,
           name: d.name || 'Unnamed Department',
-          code: d.code ?? null,
-          description: d.description,
+          code: null,
+          description: d.description || null,
           manager_id: d.manager_id,
           manager_name: d.manager?.full_name ?? null,
           parent_department_id: d.parent_department_id,
@@ -103,79 +103,16 @@ export async function getDepartmentsForSelection(
           member_count: d._count?.team_assignments ?? 0,
           is_active: d.is_active !== false,
         }));
-      } catch (apiErr) {
-        console.warn('getDepartmentsForSelection: list API failed, falling back to selectRecords', apiErr);
+      } catch (apiErr: unknown) {
+        console.error('getDepartmentsForSelection: list API failed', apiErr);
+        throw apiErr;
       }
     }
 
-    // Fallback: selectRecords + per-row fetches (e.g. SSR or API unavailable)
-    const filters: any[] = [];
-    if (!includeInactive) {
-      filters.push({ column: 'is_active', operator: 'eq', value: true });
-    }
-    if (parentDepartmentId) {
-      filters.push({ column: 'parent_department_id', operator: 'eq', value: parentDepartmentId });
-    }
-    const queryOptions: any = {
-      filters: filters.length > 0 ? filters : undefined,
-      orderBy: 'name ASC',
-    };
-    if (limit) queryOptions.limit = limit;
-    if (offset) queryOptions.offset = offset;
-    let departments = await selectRecords('departments', queryOptions);
-
-    if (search) {
-      const searchLower = search.toLowerCase();
-      departments = departments.filter((dept: any) =>
-        dept.name?.toLowerCase().includes(searchLower) ||
-        dept.description?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    const departmentOptions: DepartmentOption[] = await Promise.all(
-      departments.map(async (dept: any) => {
-        let managerName: string | null = null;
-        let parentDepartmentName: string | null = null;
-        let memberCount = 0;
-        if (dept.manager_id) {
-          try {
-            const manager = await selectOne('profiles', { user_id: dept.manager_id });
-            if (manager) managerName = manager.full_name || null;
-          } catch { /* ignore */ }
-        }
-        if (dept.parent_department_id) {
-          try {
-            const parent = await selectOne('departments', { id: dept.parent_department_id });
-            if (parent) parentDepartmentName = parent.name || null;
-          } catch { /* ignore */ }
-        }
-        try {
-          const teamAssignments = await selectRecords('team_assignments', {
-            filters: [
-              { column: 'department_id', operator: 'eq', value: dept.id },
-              { column: 'is_active', operator: 'eq', value: true }
-            ]
-          });
-          memberCount = teamAssignments.length;
-        } catch { /* ignore */ }
-        return {
-          id: dept.id,
-          name: dept.name || 'Unnamed Department',
-          code: dept.code ?? null,
-          description: dept.description,
-          manager_id: dept.manager_id,
-          manager_name: managerName,
-          parent_department_id: dept.parent_department_id,
-          parent_department_name: parentDepartmentName,
-          member_count: memberCount,
-          is_active: dept.is_active !== false
-        };
-      })
-    );
-    return departmentOptions;
-  } catch (error: any) {
+    throw new Error('getDepartmentsForSelection: Only supported in browser environment with fetch API');
+  } catch (error: unknown) {
     console.error('Error in getDepartmentsForSelection:', error);
-    throw new Error(`Failed to fetch departments: ${error.message}`);
+    throw new Error(`Failed to fetch departments: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -191,67 +128,26 @@ export async function getDepartmentById(
   options: DepartmentFetchOptions = {}
 ): Promise<DepartmentOption | null> {
   try {
-    const dept = await selectOne('departments', { id: departmentId });
-
-    if (!dept) {
-      return null;
-    }
-
-    // Get manager name
-    let managerName: string | null = null;
-    if (dept.manager_id) {
-      try {
-        const manager = await selectOne('profiles', { user_id: dept.manager_id });
-        if (manager) {
-          managerName = manager.full_name || null;
-        }
-      } catch (error) {
-        console.warn(`Failed to fetch manager for department ${dept.id}:`, error);
-      }
-    }
-
-    // Get parent department name
-    let parentDepartmentName: string | null = null;
-    if (dept.parent_department_id) {
-      try {
-        const parent = await selectOne('departments', { id: dept.parent_department_id });
-        if (parent) {
-          parentDepartmentName = parent.name || null;
-        }
-      } catch (error) {
-        console.warn(`Failed to fetch parent department for ${dept.id}:`, error);
-      }
-    }
-
-    // Get member count
-    let memberCount = 0;
-    try {
-      const teamAssignments = await selectRecords('team_assignments', {
-        filters: [
-          { column: 'department_id', operator: 'eq', value: dept.id },
-          { column: 'is_active', operator: 'eq', value: true }
-        ]
-      });
-      memberCount = teamAssignments.length;
-    } catch (error) {
-      console.warn(`Failed to fetch member count for department ${dept.id}:`, error);
-    }
+    const { departments } = await fetchDepartmentsList({ limit: 1000 });
+    const dept = departments.find((d) => d.id === departmentId);
+    
+    if (!dept) return null;
 
     return {
       id: dept.id,
       name: dept.name || 'Unnamed Department',
-      code: dept.code ?? null,
-      description: dept.description,
-      manager_id: dept.manager_id,
-      manager_name: managerName,
-      parent_department_id: dept.parent_department_id,
-      parent_department_name: parentDepartmentName,
-      member_count: memberCount,
+      code: null,
+      description: dept.description || null,
+      manager_id: dept.manager_id || null,
+      manager_name: dept.manager?.full_name || null,
+      parent_department_id: dept.parent_department_id || null,
+      parent_department_name: dept.parent_department?.name || null,
+      member_count: dept._count?.team_assignments || 0,
       is_active: dept.is_active !== false
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in getDepartmentById:', error);
-    throw new Error(`Failed to fetch department: ${error.message}`);
+    throw new Error(`Failed to fetch department: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

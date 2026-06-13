@@ -3,7 +3,7 @@
  * Complete asset depreciation tracking interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,28 +89,22 @@ export default function AssetDepreciation() {
     journal_entry_id: '',
     notes: '',
   });
-
-  useEffect(() => {
-    loadAssets();
-    loadData();
-  }, [filterAsset, filterPosted, filterMethod, dateFrom, dateTo]);
-
-  const loadAssets = async () => {
+  const loadAssets = useCallback(async () => {
     try {
       setAssetsLoading(true);
       const data = await getAssets();
       setAssets(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load assets:', error);
     } finally {
       setAssetsLoading(false);
     }
-  };
+  }, []);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (filterAsset !== 'all') filters.asset_id = filterAsset;
       if (filterPosted !== 'all') filters.is_posted = filterPosted === 'posted';
       if (filterMethod !== 'all') filters.depreciation_method = filterMethod;
@@ -120,7 +114,7 @@ export default function AssetDepreciation() {
 
       const data = await getAllDepreciation(filters);
       setDepreciation(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load depreciation records',
@@ -129,7 +123,7 @@ export default function AssetDepreciation() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterAsset, filterPosted, filterMethod, dateFrom, dateTo, searchTerm, toast]);
 
   const handleCreate = () => {
     setFormData({
@@ -174,7 +168,7 @@ export default function AssetDepreciation() {
         description: 'Depreciation record deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete depreciation record',
@@ -211,7 +205,7 @@ export default function AssetDepreciation() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save depreciation record',
@@ -221,6 +215,10 @@ export default function AssetDepreciation() {
       setIsSubmitting(false);
     }
   };
+    useEffect(() => {
+        loadAssets();
+        loadData();
+      }, [loadAssets, loadData]);
 
   const stats = {
     total: depreciation.length,
@@ -564,7 +562,7 @@ export default function AssetDepreciation() {
                   <Label htmlFor="depreciation_method">Method</Label>
                   <Select
                     value={formData.depreciation_method || 'straight_line'}
-                    onValueChange={(value: any) =>
+                    onValueChange={(value: unknown) =>
                       setFormData({ ...formData, depreciation_method: value })
                     }
                   >

@@ -3,7 +3,7 @@
  * Comprehensive inventory analytics and reporting
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,8 +59,8 @@ export default function InventoryReports() {
   const [stockValueReport, setStockValueReport] = useState<StockValueReportItem[]>([]);
   const [movementReport, setMovementReport] = useState<MovementReportItem[]>([]);
   const [warehouseUtilization, setWarehouseUtilization] = useState<WarehouseUtilizationItem[]>([]);
-  const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<unknown[]>([]);
+  const [products, setProducts] = useState<unknown[]>([]);
 
   // Filters
   const [dateFrom, setDateFrom] = useState(
@@ -70,41 +70,25 @@ export default function InventoryReports() {
   const [filterWarehouse, setFilterWarehouse] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [lowStockOnly, setLowStockOnly] = useState(false);
-
-  useEffect(() => {
-    loadWarehouses();
-    loadProducts();
-    loadReports();
-  }, [dateFrom, dateTo]);
-
-  useEffect(() => {
-    loadStockValueReport();
-    loadWarehouseUtilization();
-  }, [filterWarehouse, filterCategory, lowStockOnly]);
-
-  useEffect(() => {
-    loadMovementReport();
-  }, [dateFrom, dateTo, filterWarehouse]);
-
-  const loadWarehouses = async () => {
+  const loadWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data.filter((w) => w.is_active));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load warehouses:', error);
     }
-  };
+  }, []);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       const data = await getProducts({ is_active: true });
       setProducts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load products:', error);
     }
-  };
+  }, []);
 
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getInventoryReports({
@@ -112,7 +96,7 @@ export default function InventoryReports() {
         date_to: dateTo,
       });
       setReports(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load reports',
@@ -121,25 +105,25 @@ export default function InventoryReports() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateFrom, dateTo, toast]);
 
-  const loadStockValueReport = async () => {
+  const loadStockValueReport = useCallback(async () => {
     try {
-      const filters: any = {};
+      const filters: unknown = {};
       if (filterWarehouse !== 'all') filters.warehouse_id = filterWarehouse;
       if (filterCategory !== 'all') filters.category_id = filterCategory;
       if (lowStockOnly) filters.low_stock_only = true;
 
       const data = await getStockValueReport(filters);
       setStockValueReport(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load stock value report:', error);
     }
-  };
+  }, [filterWarehouse, filterCategory, lowStockOnly]);
 
-  const loadMovementReport = async () => {
+  const loadMovementReport = useCallback(async () => {
     try {
-      const filters: any = {
+      const filters: unknown = {
         date_from: dateFrom,
         date_to: dateTo,
       };
@@ -147,19 +131,31 @@ export default function InventoryReports() {
 
       const data = await getMovementReport(filters);
       setMovementReport(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load movement report:', error);
     }
-  };
+  }, [dateFrom, dateTo, filterWarehouse]);
 
-  const loadWarehouseUtilization = async () => {
+  const loadWarehouseUtilization = useCallback(async () => {
     try {
       const data = await getWarehouseUtilizationReport();
       setWarehouseUtilization(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load warehouse utilization:', error);
     }
-  };
+  }, []);
+    useEffect(() => {
+        loadMovementReport();
+      }, [dateFrom, dateTo, filterWarehouse, loadMovementReport]);
+    useEffect(() => {
+        loadStockValueReport();
+        loadWarehouseUtilization();
+      }, [filterWarehouse, filterCategory, lowStockOnly, loadStockValueReport, loadWarehouseUtilization]);
+    useEffect(() => {
+        loadWarehouses();
+        loadProducts();
+        loadReports();
+      }, [dateFrom, dateTo, loadWarehouses, loadProducts, loadReports]);
 
   const handleExport = () => {
     toast({

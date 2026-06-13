@@ -62,15 +62,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
     'overhead',
     'other'
   ];
-
-  useEffect(() => {
-    if (isOpen && jobId) {
-      fetchCostItems();
-      resetForm();
-    }
-  }, [isOpen, jobId]);
-
-  const fetchCostItems = async () => {
+  const fetchCostItems = React.useCallback(async () => {
     try {
       setLoading(true);
       const costItems = await selectRecords('job_cost_items', {
@@ -78,7 +70,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
         orderBy: 'date_incurred DESC, created_at DESC',
       });
       setItems(costItems || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching cost items:', error);
       toast({
         title: 'Error',
@@ -88,9 +80,9 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [jobId, toast]);
 
-  const resetForm = () => {
+  const resetForm = React.useCallback(() => {
     setFormData({
       job_id: jobId,
       category: '',
@@ -102,7 +94,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
       date_incurred: new Date().toISOString().split('T')[0],
     });
     setEditingItem(null);
-  };
+  }, [jobId]);
 
   const calculateTotal = (quantity: number, unitCost: number) => {
     return quantity * unitCost;
@@ -170,7 +162,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
     setLoading(true);
 
     try {
-      const cleanedData: any = {
+      const cleanedData: unknown = {
         job_id: jobId,
         category: formData.category.trim(),
         description: formData.description.trim(),
@@ -202,7 +194,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
       resetForm();
       // Trigger update of job's actual_cost
       onItemsUpdated?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving cost item:', error);
       toast({
         title: 'Error',
@@ -242,7 +234,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
       await fetchCostItems();
       // Trigger update of job's actual_cost
       onItemsUpdated?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting cost item:', error);
       toast({
         title: 'Error',
@@ -253,6 +245,12 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
   };
 
   const totalCost = items.reduce((sum, item) => sum + (parseFloat(item.total_cost?.toString() || '0') || 0), 0);
+    useEffect(() => {
+        if (isOpen && jobId) {
+          fetchCostItems();
+          resetForm();
+        }
+      }, [isOpen, jobId, fetchCostItems, resetForm]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

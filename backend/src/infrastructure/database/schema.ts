@@ -15,3 +15,4 @@ export * from './schemas/features.js';
 export * from './schemas/crm.js';
 export * from './schemas/projects.js';
 export * from './schemas/blog.js';
+export * from './schemas/hr.js';

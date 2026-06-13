@@ -45,7 +45,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<unknown[]>([]);
   const [formData, setFormData] = useState<JournalEntry>({
     entry_date: entry?.entry_date || new Date().toISOString().split('T')[0],
     description: entry?.description || '',
@@ -56,48 +56,21 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
       { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 2 },
     ],
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchAccounts();
-      if (entry) {
-        setFormData({
-          entry_date: entry.entry_date,
-          description: entry.description,
-          reference: entry.reference || '',
-          status: entry.status,
-          lines: entry.lines || [],
-        });
-      } else {
-        setFormData({
-          entry_date: new Date().toISOString().split('T')[0],
-          description: '',
-          reference: '',
-          status: 'draft',
-          lines: [
-            { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 1 },
-            { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 2 },
-          ],
-        });
-      }
-    }
-  }, [isOpen, entry]);
-
-  const fetchAccounts = async () => {
+  const fetchAccounts = React.useCallback(async () => {
     try {
       if (!user?.id) return;
       // Get agency_id from profile
       const profile = await selectOne('profiles', { user_id: user.id });
       if (!profile?.agency_id) return;
 
-      let accountsData: any[] = [];
+      let accountsData: unknown[] = [];
       try {
         // Prefer agency-scoped accounts when the column exists
         accountsData = await selectRecords('chart_of_accounts', {
           where: { is_active: true, agency_id: profile.agency_id },
           orderBy: 'account_code ASC',
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Fallback if agency_id column does not exist in current schema
         if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
           console.warn('chart_of_accounts has no agency_id column, falling back to global accounts');
@@ -114,7 +87,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
     } catch (error) {
       console.error('Error fetching accounts:', error);
     }
-  };
+  }, [user?.id]);
 
   const addLine = () => {
     setFormData(prev => ({
@@ -147,7 +120,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
     }));
   };
 
-  const updateLine = (index: number, field: keyof JournalEntryLine, value: any) => {
+  const updateLine = (index: number, field: keyof JournalEntryLine, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       lines: prev.lines.map((line, i) => 
@@ -237,7 +210,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
       const totalDebits = formData.lines.reduce((sum, line) => sum + (line.debit_amount || 0), 0);
       const totalCredits = formData.lines.reduce((sum, line) => sum + (line.credit_amount || 0), 0);
 
-      const entryData: any = {
+      const entryData: unknown = {
         entry_date: formData.entry_date,
         description: formData.description.trim(),
         reference: formData.reference?.trim() || null,
@@ -250,7 +223,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
       if (entry?.id) {
         
         // Use transaction for atomic update
-        await executeTransaction(async (client: any) => {
+        await executeTransaction(async (client: unknown) => {
           // Update entry
           await client.query(
             `UPDATE journal_entries 
@@ -322,7 +295,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
           agency_id: profile.agency_id,
         }, user?.id);
 
-        const newEntryId = (newEntry as any).id;
+        const newEntryId = (newEntry as unknown).id;
 
         // Insert lines
         for (const line of formData.lines) {
@@ -344,7 +317,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
 
       onEntrySaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving journal entry:', error);
       toast({
         title: 'Error',
@@ -359,6 +332,31 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
   const totalDebits = formData.lines.reduce((sum, line) => sum + (line.debit_amount || 0), 0);
   const totalCredits = formData.lines.reduce((sum, line) => sum + (line.credit_amount || 0), 0);
   const isBalanced = Math.abs(totalDebits - totalCredits) < 0.01;
+    useEffect(() => {
+        if (isOpen) {
+          fetchAccounts();
+          if (entry) {
+            setFormData({
+              entry_date: entry.entry_date,
+              description: entry.description,
+              reference: entry.reference || '',
+              status: entry.status,
+              lines: entry.lines || [],
+            });
+          } else {
+            setFormData({
+              entry_date: new Date().toISOString().split('T')[0],
+              description: '',
+              reference: '',
+              status: 'draft',
+              lines: [
+                { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 1 },
+                { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 2 },
+              ],
+            });
+          }
+        }
+      }, [isOpen, entry, fetchAccounts]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -386,7 +384,7 @@ const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({
               <Label htmlFor="status">Status</Label>
               <Select 
                 value={formData.status} 
-                onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}
+                onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, status: value }))}
               >
                 <SelectTrigger>
                   <SelectValue />

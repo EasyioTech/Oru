@@ -10,7 +10,7 @@ interface SEOProps {
   ogType?: string;
   canonical?: string;
   twitterHandle?: string;
-  schema?: Record<string, any>; // For extra JSON-LD data
+  schema?: Record<string, unknown>; // For extra JSON-LD data
 }
 
 /**

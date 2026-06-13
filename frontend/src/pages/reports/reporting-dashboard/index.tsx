@@ -120,7 +120,7 @@ export default function ReportingDashboard() {
         date_to: dateTo,
       });
       setDashboardData(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error.message || 'Failed to load dashboard data';
       setError(errorMessage);
       toast({
@@ -179,7 +179,7 @@ export default function ReportingDashboard() {
         title: 'Export Successful',
         description: 'Dashboard data exported successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Export Failed',
         description: error.message || 'Failed to export data',

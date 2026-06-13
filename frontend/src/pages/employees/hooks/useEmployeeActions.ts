@@ -5,10 +5,9 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { selectRecords, updateRecord, deleteRecord, insertRecord } from '@/services/api/core';
-import { generateUUID } from '@/lib/uuid';
-import { getAgencyId } from '@/utils/agencyUtils';
+import { fetchMutate } from '@/utils/authApi';
 import { normalizeEmploymentType } from '../utils/employeeUtils';
+import type { UnifiedEmployee } from '../hooks/useEmployees';
 
 export const useEmployeeActions = () => {
   const { toast } = useToast();
@@ -16,8 +15,8 @@ export const useEmployeeActions = () => {
   const [saving, setSaving] = useState(false);
 
   const saveEmployee = async (
-    selectedEmployee: any,
-    editForm: any,
+    selectedEmployee: UnifiedEmployee | null,
+    editForm: Partial<UnifiedEmployee>,
     onSuccess?: () => void
   ) => {
     if (!selectedEmployee || !user?.id) {
@@ -35,55 +34,23 @@ export const useEmployeeActions = () => {
       const isNowActive = editForm.is_active;
       const statusChangedToActive = wasInactive && isNowActive;
 
-      // Update all three tables sequentially
-      const existingProfiles = await selectRecords('profiles', {
-        filters: [{ column: 'user_id', operator: 'eq', value: selectedEmployee.user_id }]
-      });
+      const nameParts = (editForm.full_name || '').trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      const normalizedEmploymentType = normalizeEmploymentType(editForm.employment_type);
 
-      if (existingProfiles.length > 0) {
-        await updateRecord('profiles', {
-          full_name: editForm.full_name,
-          phone: editForm.phone,
-          department: editForm.department,
-          position: editForm.position,
-          is_active: editForm.is_active,
-        }, { user_id: selectedEmployee.user_id }, user.id);
-      } else {
-        const agencyId = await getAgencyId(profile, user?.id);
-        await insertRecord('profiles', {
-          id: generateUUID(),
-          user_id: selectedEmployee.user_id,
-          agency_id: agencyId || '00000000-0000-0000-0000-000000000000',
-          full_name: editForm.full_name,
-          phone: editForm.phone,
-          department: editForm.department,
-          position: editForm.position,
-          is_active: editForm.is_active,
-        }, user.id);
-      }
+      const payload = {
+        first_name: firstName,
+        last_name: lastName,
+        phone: editForm.phone,
+        department_id: editForm.department,
+        position: editForm.position,
+        employment_type: normalizedEmploymentType,
+        work_location: editForm.work_location,
+        status: editForm.is_active ? 'active' : 'inactive'
+      };
 
-      await updateRecord('users', {
-        is_active: editForm.is_active,
-      }, { id: selectedEmployee.user_id }, user.id);
-
-      const employeeDetails = await selectRecords('employee_details', {
-        filters: [{ column: 'user_id', operator: 'eq', value: selectedEmployee.user_id }]
-      });
-
-      if (employeeDetails.length > 0) {
-        const nameParts = (editForm.full_name || '').trim().split(/\s+/);
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-        const normalizedEmploymentType = normalizeEmploymentType(editForm.employment_type);
-        
-        await updateRecord('employee_details', {
-          first_name: firstName,
-          last_name: lastName,
-          employment_type: normalizedEmploymentType,
-          work_location: editForm.work_location,
-          is_active: editForm.is_active,
-        }, { user_id: selectedEmployee.user_id }, user.id);
-      }
+      await fetchMutate(`/hr/employees/${selectedEmployee.user_id}`, 'PUT', payload);
 
       toast({
         title: "Success",
@@ -92,9 +59,9 @@ export const useEmployeeActions = () => {
           : "Employee updated successfully",
       });
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating employee:', error);
-      const message = error?.message ?? error?.detail ?? "Failed to update employee. Please try again.";
+      const message = error instanceof Error ? error.message : "Failed to update employee. Please try again.";
       toast({
         title: "Error",
         description: message,
@@ -106,7 +73,7 @@ export const useEmployeeActions = () => {
   };
 
   const deleteEmployee = async (
-    selectedEmployee: any,
+    selectedEmployee: UnifiedEmployee | null,
     onSuccess?: () => void
   ) => {
     if (!selectedEmployee?.user_id || !user?.id) {
@@ -119,123 +86,24 @@ export const useEmployeeActions = () => {
     }
 
     try {
-      const errors: string[] = [];
-      let successCount = 0;
-
-      // Soft delete employee_details
-      try {
-        const employeeDetails = await selectRecords('employee_details', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedEmployee.user_id }]
-        });
-
-        if (employeeDetails.length > 0) {
-          if (employeeDetails[0].is_active !== false) {
-            await updateRecord('employee_details', {
-              is_active: false
-            }, { id: employeeDetails[0].id }, user.id);
-            successCount++;
-          } else {
-            successCount++;
-          }
-        }
-      } catch (error: any) {
-        console.error('Error deleting employee_details:', error);
-        errors.push(`Employee details: ${error.message || 'Failed to delete'}`);
-      }
-
-      // Soft delete profile
-      try {
-        const existingProfiles = await selectRecords('profiles', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedEmployee.user_id }]
-        });
-
-        if (existingProfiles.length > 0) {
-          if (existingProfiles[0].is_active !== false) {
-            await updateRecord('profiles', {
-              is_active: false
-            }, { user_id: selectedEmployee.user_id }, user.id);
-            successCount++;
-          } else {
-            successCount++;
-          }
-        }
-      } catch (error: any) {
-        console.error('Error deleting profile:', error);
-        errors.push(`Profile: ${error.message || 'Failed to delete'}`);
-      }
-
-      // Soft delete user
-      try {
-        const existingUsers = await selectRecords('users', {
-          filters: [{ column: 'id', operator: 'eq', value: selectedEmployee.user_id }]
-        });
-
-        if (existingUsers.length > 0) {
-          if (existingUsers[0].is_active !== false) {
-            await updateRecord('users', {
-              is_active: false
-            }, { id: selectedEmployee.user_id }, user.id);
-            successCount++;
-          } else {
-            successCount++;
-          }
-        } else {
-          errors.push('User record not found');
-        }
-      } catch (error: any) {
-        console.error('Error deleting user:', error);
-        errors.push(`User: ${error.message || 'Failed to delete'}`);
-      }
-
-      // Verify deletion
-      let verificationFailed = false;
-      try {
-        const verifyData = await selectRecords('unified_employees', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedEmployee.user_id }]
-        });
-        
-        if (verifyData.length > 0 && verifyData[0].is_fully_active === true) {
-          verificationFailed = true;
-          errors.push('Verification failed: Employee still appears as active in view');
-        }
-      } catch (verifyError: any) {
-        console.error('Error verifying deletion:', verifyError);
-      }
-
-      if (errors.length > 0 && successCount === 0) {
-        toast({
-          title: "Error",
-          description: `Failed to delete employee: ${errors.join('; ')}`,
-          variant: "destructive",
-        });
-      } else if (errors.length > 0 || verificationFailed) {
-        toast({
-          title: verificationFailed ? "Warning" : "Partial Success",
-          description: verificationFailed 
-            ? `Employee marked as deleted but may still appear. Please refresh the page.`
-            : `Employee partially deleted. Some errors: ${errors.join('; ')}`,
-          variant: "default",
-        });
-        if (onSuccess) onSuccess();
-      } else {
-        toast({
-          title: "Success",
-          description: "Employee deleted successfully",
-        });
-        if (onSuccess) onSuccess();
-      }
-    } catch (error: any) {
+      await fetchMutate(`/hr/employees/${selectedEmployee.user_id}`, 'DELETE');
+      toast({
+        title: "Success",
+        description: "Employee deleted successfully",
+      });
+      if (onSuccess) onSuccess();
+    } catch (error: unknown) {
       console.error('Error deleting employee:', error);
       toast({
         title: "Error",
-        description: error.message || error.detail || "Failed to delete employee. Please check console for details.",
+        description: error instanceof Error ? error.message : "Failed to delete employee.",
         variant: "destructive",
       });
     }
   };
 
   const deleteUser = async (
-    selectedUser: any,
+    selectedUser: UnifiedEmployee | null,
     onSuccess?: () => void
   ) => {
     if (!selectedUser?.user_id || !user?.id) {
@@ -248,139 +116,17 @@ export const useEmployeeActions = () => {
     }
 
     try {
-      let wasAlreadyInactive = false;
-      try {
-        const checkData = await selectRecords('unified_employees', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedUser.user_id }]
-        });
-        if (checkData.length > 0 && checkData[0].is_fully_active === false) {
-          wasAlreadyInactive = true;
-        }
-      } catch (checkError) {
-        // Ignore check errors
-      }
-
-      const errors: string[] = [];
-      let successCount = 0;
-      let actuallyUpdated = 0;
-
-      // Soft delete profile
-      try {
-        const existingProfiles = await selectRecords('profiles', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedUser.user_id }]
-        });
-
-        if (existingProfiles.length > 0) {
-          if (existingProfiles[0].is_active !== false) {
-            await updateRecord('profiles', {
-              is_active: false
-            }, { user_id: selectedUser.user_id }, user.id);
-            successCount++;
-            actuallyUpdated++;
-          } else {
-            successCount++;
-          }
-        }
-      } catch (error: any) {
-        console.error('Error deleting profile:', error);
-        errors.push(`Profile: ${error.message || 'Failed to delete'}`);
-      }
-
-      // Soft delete user
-      try {
-        const existingUsers = await selectRecords('users', {
-          filters: [{ column: 'id', operator: 'eq', value: selectedUser.user_id }]
-        });
-
-        if (existingUsers.length > 0) {
-          if (existingUsers[0].is_active !== false) {
-            await updateRecord('users', {
-              is_active: false
-            }, { id: selectedUser.user_id }, user.id);
-            successCount++;
-            actuallyUpdated++;
-          } else {
-            successCount++;
-          }
-        } else {
-          errors.push('User record not found');
-        }
-      } catch (error: any) {
-        console.error('Error deleting user:', error);
-        errors.push(`User: ${error.message || 'Failed to delete'}`);
-      }
-
-      // Soft delete employee_details if exists
-      try {
-        const employeeDetails = await selectRecords('employee_details', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedUser.user_id }]
-        });
-
-        if (employeeDetails.length > 0) {
-          if (employeeDetails[0].is_active !== false) {
-            await updateRecord('employee_details', {
-              is_active: false
-            }, { id: employeeDetails[0].id }, user.id);
-            successCount++;
-            actuallyUpdated++;
-          } else {
-            successCount++;
-          }
-        }
-      } catch (error: any) {
-        console.error('Error deleting employee_details:', error);
-        errors.push(`Employee details: ${error.message || 'Failed to delete'}`);
-      }
-
-      // Verify deletion
-      let verificationFailed = false;
-      try {
-        const verifyData = await selectRecords('unified_employees', {
-          filters: [{ column: 'user_id', operator: 'eq', value: selectedUser.user_id }]
-        });
-        
-        if (verifyData.length > 0 && verifyData[0].is_fully_active === true) {
-          verificationFailed = true;
-          errors.push('Verification failed: User still appears as active in view');
-        }
-      } catch (verifyError: any) {
-        console.error('Error verifying user deletion:', verifyError);
-      }
-
-      if (errors.length > 0 && successCount === 0) {
-        toast({
-          title: "Error",
-          description: `Failed to delete user: ${errors.join('; ')}`,
-          variant: "destructive",
-        });
-      } else if (wasAlreadyInactive && actuallyUpdated === 0) {
-        toast({
-          title: "Already Deleted",
-          description: "This user is already deleted. They appear in the 'Trash' tab.",
-          variant: "default",
-        });
-        if (onSuccess) onSuccess();
-      } else if (errors.length > 0 || verificationFailed) {
-        toast({
-          title: verificationFailed ? "Warning" : "Partial Success",
-          description: verificationFailed 
-            ? `User marked as deleted but may still appear. Please refresh the page.`
-            : `User partially deleted. Some errors: ${errors.join('; ')}`,
-          variant: "default",
-        });
-        if (onSuccess) onSuccess();
-      } else {
-        toast({
-          title: "Success",
-          description: "User deleted successfully. They will now appear in the 'Trash' tab.",
-        });
-        if (onSuccess) onSuccess();
-      }
-    } catch (error: any) {
+      await fetchMutate(`/hr/employees/${selectedUser.user_id}`, 'DELETE');
+      toast({
+        title: "Success",
+        description: "User deleted successfully. They will now appear in the 'Trash' tab.",
+      });
+      if (onSuccess) onSuccess();
+    } catch (error: unknown) {
       console.error('Error deleting user:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete user. Please check console for details.",
+        description: error instanceof Error ? error.message : "Failed to delete user. Please check console for details.",
         variant: "destructive",
       });
     }

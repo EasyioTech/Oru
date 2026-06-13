@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchSystemMetrics as fetchSystemMetricsApi } from '@/services/api/system';
 import type { SystemMetrics, AgencySummary as AgencyData } from '@/types/system';
@@ -15,7 +15,7 @@ export const useSystemAnalytics = ({ userId, userRole }: UseSystemAnalyticsProps
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const loadSystemMetrics = async () => {
+  const loadSystemMetrics = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -29,7 +29,7 @@ export const useSystemAnalytics = ({ userId, userRole }: UseSystemAnalyticsProps
       setMetrics(metrics);
       setAgencies(agencies);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching system metrics:', error);
       toast({
         title: "Error loading system metrics",
@@ -39,13 +39,13 @@ export const useSystemAnalytics = ({ userId, userRole }: UseSystemAnalyticsProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [userRole, toast]);
 
   useEffect(() => {
     if (userId && userRole) {
       loadSystemMetrics();
     }
-  }, [userId, userRole]);
+  }, [userId, userRole, loadSystemMetrics]);
 
   const refreshMetrics = () => {
     loadSystemMetrics();

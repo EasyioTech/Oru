@@ -87,9 +87,9 @@ export interface SupportTicket {
   user_id?: string | null;
   agency_id?: string | null;
   department?: string | null;
-  console_logs?: any;
-  error_details?: any;
-  browser_info?: any;
+  console_logs?: unknown;
+  error_details?: unknown;
+  browser_info?: unknown;
   page_url?: string | null;
   screenshot_url?: string | null;
   created_at: string;
@@ -103,9 +103,9 @@ export interface CreateTicketData {
   priority?: 'low' | 'medium' | 'high';
   category?: string;
   status?: 'open' | 'in_progress' | 'resolved' | 'closed';
-  console_logs?: any;
-  error_details?: any;
-  browser_info?: any;
+  console_logs?: unknown;
+  error_details?: unknown;
+  browser_info?: unknown;
   page_url?: string;
   department?: string;
 }
@@ -115,9 +115,9 @@ export interface CreatePublicTicketData {
   description: string;
   priority?: 'low' | 'medium' | 'high';
   category?: string;
-  console_logs?: any;
-  error_details?: any;
-  browser_info?: any;
+  console_logs?: unknown;
+  error_details?: unknown;
+  browser_info?: unknown;
   page_url?: string;
   department?: string;
 }

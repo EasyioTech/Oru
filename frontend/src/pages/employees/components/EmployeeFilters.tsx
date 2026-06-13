@@ -41,20 +41,20 @@ export const EmployeeFilters = ({
   onClearFilters,
 }: EmployeeFiltersProps) => {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
+    <Card className="shadow-sm border-muted/60 bg-gradient-to-r from-card to-card/50">
+      <CardContent className="p-4 lg:p-5">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4 lg:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name, email, ID, department, or position..."
-              className="pl-10"
-              value={searchTerm}
+              <Input
+                placeholder="Search by name, email, ID, department, or position..."
+                className="pl-10 bg-background/50 border-muted-foreground/20 focus-visible:ring-primary/30 transition-all shadow-sm"
+                value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
           <Select value={roleFilter} onValueChange={onRoleFilterChange}>
-            <SelectTrigger className="w-full lg:w-[180px]">
+            <SelectTrigger className="w-full lg:w-[180px] bg-background/50 border-muted-foreground/20 shadow-sm focus:ring-primary/30 transition-all">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
             <SelectContent>
@@ -67,7 +67,7 @@ export const EmployeeFilters = ({
             </SelectContent>
           </Select>
           <Select value={departmentFilter} onValueChange={onDepartmentFilterChange}>
-            <SelectTrigger className="w-full lg:w-[180px]">
+            <SelectTrigger className="w-full lg:w-[180px] bg-background/50 border-muted-foreground/20 shadow-sm focus:ring-primary/30 transition-all">
               <SelectValue placeholder="Filter by department" />
             </SelectTrigger>
             <SelectContent>
@@ -80,7 +80,7 @@ export const EmployeeFilters = ({
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-            <SelectTrigger className="w-full lg:w-[180px]">
+            <SelectTrigger className="w-full lg:w-[180px] bg-background/50 border-muted-foreground/20 shadow-sm focus:ring-primary/30 transition-all">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>

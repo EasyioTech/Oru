@@ -14,7 +14,7 @@ import { useBranding } from '@/contexts/BrandingContext';
 import {
   Loader2, CheckCircle2, ArrowRight, KeyRound, Mail,
   Shield, BarChart3, Users, Briefcase, Eye, EyeOff,
-  Sparkles, TrendingUp, FolderKanban, Zap, Home
+  TrendingUp, FolderKanban, Zap, Home
 } from 'lucide-react';
 
 const GridPattern = () => (
@@ -86,7 +86,7 @@ const BentoCard = ({
   color,
   delay = 0
 }: {
-  icon: any;
+  icon: unknown;
   title: string;
   value: string;
   trend?: string;
@@ -161,21 +161,6 @@ const LiveIndicator = ({ delay = 0 }: { delay?: number }) => (
   </motion.div>
 );
 
-const AIBadge = ({ delay = 0 }: { delay?: number }) => (
-  <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay, duration: 0.4 }}
-    className="absolute -left-2 bottom-12 px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.08] shadow-lg dark:shadow-xl z-10"
-  >
-    <div className="flex items-center gap-2">
-      <div className="w-6 h-6 rounded-lg bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
-        <Sparkles className="w-3 h-3 text-violet-600 dark:text-violet-400" />
-      </div>
-      <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">AI-powered</span>
-    </div>
-  </motion.div>
-);
 
 const SocialButton = ({
   provider,
@@ -225,7 +210,7 @@ const Auth = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
-  const [signInData, setSignInData] = useState({ email: '', password: '', domain: '' });
+  const [signInData, setSignInData] = useState({ email: '', password: '' });
 
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
   const [twoFactorUserId, setTwoFactorUserId] = useState<string>('');
@@ -277,33 +262,29 @@ const Auth = () => {
     }
 
     try {
+      const extractedDomain = signInData.email.split('@')[1];
+
       const loginResult = await loginUser({
         email: signInData.email,
         password: signInData.password,
-        domain: signInData.domain?.trim() || undefined,
+        domain: extractedDomain,
       });
 
-      if ((loginResult as any).requiresTwoFactor) {
-        setTwoFactorUserId((loginResult as any).userId);
-        setTwoFactorAgencyDatabase((loginResult as any).agencyDatabase);
+      if ((loginResult as unknown).requiresTwoFactor) {
+        setTwoFactorUserId((loginResult as unknown).userId);
+        setTwoFactorAgencyDatabase((loginResult as unknown).agencyDatabase);
         setRequiresTwoFactor(true);
         setIsLoading(false);
         return;
       }
 
-      const { error: signInError } = await signIn(signInData.email, signInData.password, signInData.domain?.trim() || undefined);
+      const { error: signInError } = await signIn(signInData.email, signInData.password, extractedDomain);
 
       if (signInError) {
-        const hint = !signInData.domain?.trim()
-          ? ' Invalid email or password. Agency users: enter your workspace URL (domain).'
-          : '';
-        setError('Invalid email or password. Please try again.' + hint);
+        setError('Invalid email or password. Please try again.');
       }
-    } catch (err: any) {
-      const hint = !signInData.domain?.trim()
-        ? ' Agency users: enter your workspace URL (domain).'
-        : '';
-      setError((err.message || 'Invalid email or password. Please try again.') + hint);
+    } catch (err: unknown) {
+      setError(err.message || 'Invalid email or password. Please try again.');
     }
 
     setIsLoading(false);
@@ -312,19 +293,21 @@ const Auth = () => {
   const handleTwoFactorVerified = async (token?: string, recoveryCode?: string) => {
     try {
       setIsLoading(true);
+      const extractedDomain = signInData.email.split('@')[1];
+
       const loginResult = await loginUser({
         email: signInData.email,
         password: signInData.password,
-        domain: signInData.domain?.trim() || undefined,
+        domain: extractedDomain,
         twoFactorToken: token,
         recoveryCode: recoveryCode,
-      } as any);
+      } as unknown);
 
-      if (!(loginResult as any).requiresTwoFactor && loginResult.token) {
+      if (!(loginResult as unknown).requiresTwoFactor && loginResult.token) {
         localStorage.setItem('auth_token', loginResult.token);
-        if ((loginResult.user as any).agency?.databaseName) {
-          localStorage.setItem('agency_database', (loginResult.user as any).agency.databaseName);
-          localStorage.setItem('agency_id', (loginResult.user as any).agency.id);
+        if ((loginResult.user as unknown).agency?.databaseName) {
+          localStorage.setItem('agency_database', (loginResult.user as unknown).agency.databaseName);
+          localStorage.setItem('agency_id', (loginResult.user as unknown).agency.id);
         }
 
         window.location.href = '/dashboard';
@@ -332,7 +315,7 @@ const Auth = () => {
         setError('Login failed after 2FA verification');
         setRequiresTwoFactor(false);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Login failed after 2FA verification');
       setRequiresTwoFactor(false);
     } finally {
@@ -366,7 +349,6 @@ const Auth = () => {
                 transition={{ duration: 0.6 }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-white/[0.03] border border-zinc-200/50 dark:border-white/[0.08] mb-6"
               >
-                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   Trusted by 500+ agencies
                 </span>
@@ -401,7 +383,6 @@ const Auth = () => {
 
           <div className="relative">
             <LiveIndicator delay={1.4} />
-            <AIBadge delay={1.6} />
 
             <div className="grid grid-cols-2 gap-4">
               <BentoCard
@@ -509,7 +490,7 @@ const Auth = () => {
                   <span>Home</span>
                 </Link>
                 <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <KeyRound className="w-4 h-4 text-white" />
                 </div>
               </div>
 
@@ -582,29 +563,6 @@ const Auth = () => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signin-workspace" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Workspace <span className="text-zinc-400 font-normal">(optional for platform admin)</span>
-                  </Label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                    <Input
-                      id="signin-workspace"
-                      type="text"
-                      placeholder="e.g. acme or acme.app"
-                      value={signInData.domain}
-                      onChange={(e) => {
-                        setSignInData(prev => ({ ...prev, domain: e.target.value }));
-                        setError('');
-                      }}
-                      className="pl-10 h-12 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 focus:border-blue-500 dark:focus:border-blue-500 rounded-xl text-zinc-900 dark:text-white placeholder:text-zinc-400"
-                    />
-                  </div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Enter your workspace URL for agency login. Leave blank for platform admin.
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">

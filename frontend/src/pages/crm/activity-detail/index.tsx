@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, Calendar, Users2, FileText, CheckCircle2, XCircle, Clock, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/database';
+import { fetchJson } from '@/utils/authApi';
 import ActivityFormDialog from '@/components/shared/ActivityFormDialog';
 import DeleteConfirmDialog from '@/components/shared/DeleteConfirmDialog';
 
@@ -13,51 +13,38 @@ const ActivityDetail = () => {
   const { activityId } = useParams<{ activityId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activity, setActivity] = useState<any>(null);
-  const [relatedLead, setRelatedLead] = useState<any>(null);
-  const [relatedClient, setRelatedClient] = useState<any>(null);
+  const [activity, setActivity] = useState<unknown>(null);
+  const [relatedLead, setRelatedLead] = useState<unknown>(null);
+  const [relatedClient, setRelatedClient] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [activityFormOpen, setActivityFormOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (activityId) {
-      fetchActivityDetails();
-    }
-  }, [activityId]);
-
-  const fetchActivityDetails = async () => {
+  const fetchActivityDetails = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await db
-        .from('crm_activities')
-        .select('*')
-        .eq('id', activityId)
-        .single();
-
-      if (error) throw error;
+      const data = await fetchJson(`/crm/activities/${activityId}`);
       setActivity(data);
 
       // Fetch related lead
       if (data.lead_id) {
-        const { data: leadData } = await db
-          .from('leads')
-          .select('*')
-          .eq('id', data.lead_id)
-          .single();
-        setRelatedLead(leadData);
+        try {
+          const leadData = await fetchJson(`/crm/leads/${data.lead_id}`);
+          setRelatedLead(leadData);
+        } catch (e) {
+          console.error('Error fetching related lead:', e);
+        }
       }
 
       // Fetch related client
       if (data.client_id) {
-        const { data: clientData } = await db
-          .from('clients')
-          .select('*')
-          .eq('id', data.client_id)
-          .single();
-        setRelatedClient(clientData);
+        try {
+          const clientData = await fetchJson(`/crm/clients/${data.client_id}`);
+          setRelatedClient(clientData);
+        } catch (e) {
+          console.error('Error fetching related client:', e);
+        }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching activity:', error);
       toast({
         title: 'Error',
@@ -67,7 +54,7 @@ const ActivityDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activityId, toast]);
 
   const handleEdit = () => {
     setActivityFormOpen(true);
@@ -119,6 +106,11 @@ const ActivityDetail = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+    useEffect(() => {
+        if (activityId) {
+          fetchActivityDetails();
+        }
+      }, [activityId, fetchActivityDetails]);
 
   if (loading) {
     return (
@@ -276,7 +268,7 @@ const ActivityDetail = () => {
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Attachments</p>
                   <div className="space-y-2">
-                    {activity.attachments.map((attachment: any, index: number) => (
+                    {activity.attachments.map((attachment: unknown, index: number) => (
                       <div key={index} className="flex items-center gap-2 p-2 border rounded">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{attachment.name || attachment.filename}</span>

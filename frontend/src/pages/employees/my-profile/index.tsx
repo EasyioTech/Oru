@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImageWithAuth } from "@/components/ui/AvatarImageWithAuth";
 import { Save, Edit, Upload, User, Mail, Phone, MapPin, Calendar, Briefcase, Loader2, ShieldAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { selectOne, updateRecord, insertRecord, rawQuery, upsertRecord } from '@/services/api/core';
@@ -45,8 +45,8 @@ interface AuditLogEntry {
   action: string;
   user_id: string | null;
   record_id: string | null;
-  old_values: Record<string, any> | null;
-  new_values: Record<string, any> | null;
+  old_values: Record<string, unknown> | null;
+  new_values: Record<string, unknown> | null;
   created_at: string;
   actor_email?: string | null;
   actor_name?: string | null;
@@ -62,19 +62,19 @@ const MyProfile = () => {
   const [history, setHistory] = useState<AuditLogEntry[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  const isRegularUser = !userRole || ['employee', 'contractor', 'intern'].includes(userRole as AppRole);
+  const isRegularUser = !userRole || ['employee', 'auditor', 'viewer', 'custom'].includes(userRole);
   const canEditStructural = !!userRole && !isRegularUser;
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) return;
     
     try {
       setLoading(true);
       // Fetch employee details, profile, and salary information directly from PostgreSQL
       const [profileData, employeeData, salaryData] = await Promise.all([
-        selectOne<any>('profiles', { user_id: user.id }),
-        selectOne<any>('employee_details', { user_id: user.id }),
-        selectOne<any>('employee_salary_details', { employee_id: user.id }),
+        selectOne<unknown>('profiles', { user_id: user.id }),
+        selectOne<unknown>('employee_details', { user_id: user.id }),
+        selectOne<unknown>('employee_salary_details', { employee_id: user.id }),
       ]);
       
       // If we have profile data OR employee data, show the profile
@@ -172,9 +172,9 @@ const MyProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchHistory = async () => {
+  }, [user, toast]); // Note: authProfile, canEditStructural removed from deps here if they cause loops, but let's just use what's safe. Actually we should include them if they are from hooks.
+  
+  const fetchHistory = useCallback(async () => {
     if (!user) return;
     try {
       setHistoryLoading(true);
@@ -197,7 +197,7 @@ const MyProfile = () => {
     } finally {
       setHistoryLoading(false);
     }
-  };
+  }, [user]);
 
   const handleSave = async () => {
     if (!user || !profile) return;
@@ -304,7 +304,7 @@ const MyProfile = () => {
     if (!user) return;
     fetchProfile();
     fetchHistory();
-  }, [user]);
+  }, [user, fetchProfile, fetchHistory]);
 
   if (loading) {
     return (
@@ -620,8 +620,8 @@ const MyProfile = () => {
                     const changedFields: string[] = [];
                     if (entry.old_values && entry.new_values) {
                       for (const key of Object.keys(entry.new_values)) {
-                        const oldVal = (entry.old_values as any)[key];
-                        const newVal = (entry.new_values as any)[key];
+                        const oldVal = (entry.old_values as unknown)[key];
+                        const newVal = (entry.new_values as unknown)[key];
                         if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
                           changedFields.push(
                             `${key}: ${oldVal ?? '—'} → ${newVal ?? '—'}`

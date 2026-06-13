@@ -27,7 +27,7 @@ export const useInventoryData = () => {
       setLoading(true);
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error.message || 'Failed to fetch warehouses';
       if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
         toast({
@@ -52,7 +52,7 @@ export const useInventoryData = () => {
       setLoading(true);
       const data = await getProducts();
       setProducts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch products',
@@ -67,7 +67,7 @@ export const useInventoryData = () => {
     try {
       const data = await getInventoryLevels(productId);
       setInventoryLevels(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch inventory levels',
@@ -80,7 +80,7 @@ export const useInventoryData = () => {
     try {
       const data = await getLowStockAlerts();
       setLowStockAlerts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch low stock alerts:', error);
     }
   }, []);

@@ -57,34 +57,7 @@ export const ReceiptFormDialog: React.FC<ReceiptFormDialogProps> = ({
     description: "",
     business_purpose: "",
   });
-
-  useEffect(() => {
-    if (open) {
-      fetchCategories();
-      if (receipt) {
-        // Load receipt data for editing
-        setFormData({
-          category_id: receipt.category_id || "",
-          amount: receipt.amount.toString(),
-          expense_date: receipt.date,
-          description: receipt.description || "",
-          business_purpose: receipt.business_purpose || "",
-        });
-      } else {
-        // Reset form for new receipt
-        setFormData({
-          category_id: "",
-          amount: "",
-          expense_date: new Date().toISOString().split('T')[0],
-          description: "",
-          business_purpose: "",
-        });
-      }
-      setSelectedFiles(null);
-    }
-  }, [open, receipt]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = React.useCallback(async () => {
     try {
       if (!profile?.agency_id) {
         setCategories([]);
@@ -99,12 +72,12 @@ export const ReceiptFormDialog: React.FC<ReceiptFormDialogProps> = ({
         orderBy: 'name ASC',
       });
       
-      setCategories((categoriesData || []).map((cat: any) => ({
+      setCategories((categoriesData || []).map((cat: unknown) => ({
         id: cat.id,
         name: cat.name,
         description: cat.description
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching categories:", error);
       toast({
         title: "Error",
@@ -113,7 +86,7 @@ export const ReceiptFormDialog: React.FC<ReceiptFormDialogProps> = ({
       });
       setCategories([]);
     }
-  };
+  }, [profile?.agency_id, toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(e.target.files);
@@ -123,7 +96,7 @@ export const ReceiptFormDialog: React.FC<ReceiptFormDialogProps> = ({
     if (!selectedFiles || !user?.id) return;
 
     // Set userId for file storage
-    (window as any).__currentUserId = user.id;
+    (window as unknown).__currentUserId = user.id;
 
     const uploadPromises = Array.from(selectedFiles).map(async (file) => {
       const fileExt = file.name.split('.').pop();
@@ -269,7 +242,7 @@ export const ReceiptFormDialog: React.FC<ReceiptFormDialogProps> = ({
       
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving receipt:", error);
       toast({
         title: "Error",
@@ -280,6 +253,31 @@ export const ReceiptFormDialog: React.FC<ReceiptFormDialogProps> = ({
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (open) {
+          fetchCategories();
+          if (receipt) {
+            // Load receipt data for editing
+            setFormData({
+              category_id: receipt.category_id || "",
+              amount: receipt.amount.toString(),
+              expense_date: receipt.date,
+              description: receipt.description || "",
+              business_purpose: receipt.business_purpose || "",
+            });
+          } else {
+            // Reset form for new receipt
+            setFormData({
+              category_id: "",
+              amount: "",
+              expense_date: new Date().toISOString().split('T')[0],
+              description: "",
+              business_purpose: "",
+            });
+          }
+          setSelectedFiles(null);
+        }
+      }, [open, receipt, fetchCategories]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

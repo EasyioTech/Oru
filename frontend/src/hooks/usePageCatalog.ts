@@ -98,7 +98,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       } else {
         throw new Error(data.error?.message || 'Failed to fetch page catalog');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Don't show error for aborted requests
       if (error.name === 'AbortError') {
         return;
@@ -168,7 +168,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       } else {
         throw new Error(data.error?.message || 'Failed to create page');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create page',
@@ -215,7 +215,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       } else {
         throw new Error(data.error?.message || 'Failed to update page');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update page',
@@ -260,7 +260,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       } else {
         throw new Error(data.error?.message || 'Failed to delete page');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete page',
@@ -312,7 +312,7 @@ export function usePageCatalog(options: UsePageCatalogOptions = {}) {
       } else {
         throw new Error(data.error?.message || 'Failed to create recommendation rule');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create recommendation rule',

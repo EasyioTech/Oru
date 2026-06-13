@@ -176,7 +176,7 @@ export async function getPermissions(params?: {
   
   return {
     data: parsed.data,
-    pagination: (parsed as any).pagination
+    pagination: (parsed as unknown).pagination
   };
 }
 

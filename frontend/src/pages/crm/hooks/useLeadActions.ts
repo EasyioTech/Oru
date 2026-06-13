@@ -5,29 +5,27 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/database';
-
 export const useLeadActions = (onLeadsChange: () => void) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [selectedLead, setSelectedLead] = useState<unknown | null>(null);
   const [leadFormOpen, setLeadFormOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
-  const [leadToConvert, setLeadToConvert] = useState<any>(null);
+  const [leadToConvert, setLeadToConvert] = useState<unknown | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [leadToDelete, setLeadToDelete] = useState<any>(null);
+  const [leadToDelete, setLeadToDelete] = useState<unknown | null>(null);
 
   const handleNewLead = useCallback(() => {
     setSelectedLead(null);
     setLeadFormOpen(true);
   }, []);
 
-  const handleEditLead = useCallback((lead: any) => {
+  const handleEditLead = useCallback((lead: unknown) => {
     setSelectedLead(lead);
     setLeadFormOpen(true);
   }, []);
 
-  const handleDeleteLead = useCallback((lead: any) => {
+  const handleDeleteLead = useCallback((lead: unknown) => {
     setLeadToDelete(lead);
     setDeleteDialogOpen(true);
   }, []);
@@ -44,7 +42,7 @@ export const useLeadActions = (onLeadsChange: () => void) => {
     setLeadToDelete(null);
   }, [onLeadsChange]);
 
-  const handleConvertToClient = useCallback((lead: any) => {
+  const handleConvertToClient = useCallback((lead: unknown) => {
     setLeadToConvert(lead);
     setConvertDialogOpen(true);
   }, []);
@@ -55,7 +53,7 @@ export const useLeadActions = (onLeadsChange: () => void) => {
     setConvertDialogOpen(false);
   }, [onLeadsChange]);
 
-  const handleCreateQuotation = useCallback(async (lead: any) => {
+  const handleCreateQuotation = useCallback(async (lead: { company_name?: string; contact_name?: string; email?: string; phone?: string; estimated_value?: number; notes?: string }) => {
     try {
       navigate('/quotations', { 
         state: { 
@@ -70,10 +68,10 @@ export const useLeadActions = (onLeadsChange: () => void) => {
           }
         } 
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to create quotation',
+        description: (error as Error).message || 'Failed to create quotation',
         variant: 'destructive',
       });
     }

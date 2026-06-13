@@ -74,7 +74,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
       setSelectedAgency(details);
       setEditForm(details);
       setIsDetailsDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load agency details',
@@ -93,7 +93,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
       setAgencyUsers(users);
       setSelectedAgency(details);
       setIsUsersDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load agency users',
@@ -112,7 +112,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
       setAgencyUsage(usage);
       setSelectedAgency(details);
       setIsUsageDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load agency usage',
@@ -136,7 +136,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
         description: `Agency ${currentStatus ? 'deactivated' : 'activated'} successfully`,
       });
       onRefresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update agency status',
@@ -159,7 +159,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
       });
       setIsEditDialogOpen(false);
       onRefresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update agency',
@@ -193,7 +193,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
       setAgencyToDelete(null);
       setDeleteConfirmName('');
       onRefresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete agency',
@@ -335,7 +335,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
                             try {
                               const details = await fetchAgencyDetails(agency.id);
                               openEditDialog(details);
-                            } catch (error: any) {
+                            } catch (error: unknown) {
                               toast({
                                 title: 'Error',
                                 description: error.message || 'Failed to load agency details',
@@ -366,7 +366,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
                               try {
                                 const details = await fetchAgencyDetails(agency.id);
                                 openDeleteDialog(details);
-                              } catch (error: any) {
+                              } catch (error: unknown) {
                                 toast({
                                   title: 'Error',
                                   description: error.message || 'Failed to load agency details',
@@ -699,7 +699,7 @@ export const AgencyManagement = ({ agencies, onRefresh }: AgencyManagementProps)
           <DialogHeader>
             <DialogTitle className="text-destructive">Delete agency permanently</DialogTitle>
             <DialogDescription>
-              This will delete the agency database and remove all traces of this agency. This action cannot be undone.
+              This will permanently delete the agency and all of its associated data. This action cannot be undone.
               Type the agency name below to confirm.
             </DialogDescription>
           </DialogHeader>

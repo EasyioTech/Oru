@@ -1,25 +1,15 @@
-/**
- * Hook for handling lead status changes (drag and drop)
- */
-
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/database';
+import { useLeadMutations } from './useCrm';
 
 export const useLeadStatusChange = (onLeadsChange: () => void) => {
   const { toast } = useToast();
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
+  const { updateLead } = useLeadMutations();
 
   const handleLeadStatusChange = useCallback(async (leadId: string, newStatus: string) => {
     try {
-      const { data, error } = await db
-        .from('leads')
-        .update({ status: newStatus })
-        .eq('id', leadId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      await updateLead.mutateAsync({ id: leadId, data: { status: newStatus } });
 
       toast({
         title: 'Success',
@@ -27,15 +17,15 @@ export const useLeadStatusChange = (onLeadsChange: () => void) => {
       });
 
       onLeadsChange();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating lead status:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to update lead status',
+        description: (error as Error).message || 'Failed to update lead status',
         variant: 'destructive',
       });
     }
-  }, [toast, onLeadsChange]);
+  }, [toast, onLeadsChange, updateLead]);
 
   const onDragStart = useCallback((e: React.DragEvent, leadId: string) => {
     setDraggedLead(leadId);
@@ -74,7 +64,7 @@ export const useLeadStatusChange = (onLeadsChange: () => void) => {
     }
   }, []);
 
-  const onDrop = useCallback((e: React.DragEvent, newStatus: string, leads: any[]) => {
+  const onDrop = useCallback((e: React.DragEvent, newStatus: string, leads: {id: string; status: string}[]) => {
     e.preventDefault();
     e.stopPropagation();
     const leadId = e.dataTransfer.getData('text/plain');
@@ -105,4 +95,3 @@ export const useLeadStatusChange = (onLeadsChange: () => void) => {
     onDrop,
   };
 };
-

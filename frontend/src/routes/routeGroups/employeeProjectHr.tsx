@@ -16,7 +16,7 @@ export const EmployeeRoutes = () => [
     key="/employee-management"
     path="/employee-management"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "hr", "ceo", "cto", "cfo", "coo", "department_head"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.EmployeeManagement /></SuspenseRoute>
         </DashboardLayout>
@@ -30,7 +30,7 @@ export const EmployeeRoutes = () => [
     key="/create-employee"
     path="/create-employee"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "hr", "ceo", "cto", "cfo", "coo", "department_head"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.CreateEmployee /></SuspenseRoute>
         </DashboardLayout>
@@ -41,7 +41,7 @@ export const EmployeeRoutes = () => [
     key="/assign-user-roles"
     path="/assign-user-roles"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "ceo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.AssignUserRoles /></SuspenseRoute>
         </DashboardLayout>
@@ -146,7 +146,7 @@ export const ProjectRoutes = () => [
     key="/projects"
     path="/projects"
     element={
-      <ProtectedRoute requiredRole="admin">
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Projects /></SuspenseRoute>
         </DashboardLayout>
@@ -163,7 +163,7 @@ export const HRRoutes = () => [
     key="/attendance"
     path="/attendance"
     element={
-      <ProtectedRoute requiredRole={["hr", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Attendance /></SuspenseRoute>
         </DashboardLayout>
@@ -174,7 +174,7 @@ export const HRRoutes = () => [
     key="/leave-requests"
     path="/leave-requests"
     element={
-      <ProtectedRoute requiredRole="hr">
+      <ProtectedRoute requiredRole={["agency_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.LeaveRequests /></SuspenseRoute>
         </DashboardLayout>
@@ -185,7 +185,7 @@ export const HRRoutes = () => [
     key="/holiday-management"
     path="/holiday-management"
     element={
-      <ProtectedRoute requiredRole={["hr", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.HolidayManagement /></SuspenseRoute>
         </DashboardLayout>

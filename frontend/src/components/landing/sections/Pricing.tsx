@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Check, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { SectionTitle } from '../fragments';
@@ -117,8 +117,8 @@ export const Pricing = () => {
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium shadow-xl shadow-primary/20">
-                    <Sparkles className="w-3 h-3" />
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full flex items-center gap-1 shadow-sm">
+                    <Star className="w-3 h-3" />
                     Most Popular
                   </div>
                 </div>
@@ -176,14 +176,14 @@ export const Pricing = () => {
                   ))}
                 </ul>
 
-                <Link to="/waitlist">
+                <Link to="/agency-signup">
                   <Button
                     className={`w-full h-11 font-medium rounded-xl transition-all duration-300 ${plan.popular
                       ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20'
                       : 'bg-muted hover:bg-muted/80 text-foreground border border-border'
                       }`}
                   >
-                    Join Waitlist
+                    Start Free Trial
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
@@ -202,8 +202,8 @@ export const Pricing = () => {
             All plans include SSL security, daily backups, and 99.9% uptime SLA.
             <br />
             <span className="text-muted-foreground">Need a custom plan?</span>
-            <Link to="/waitlist" className="text-primary hover:text-primary/80 ml-1">
-              Join the waitlist
+            <Link to="/agency-signup" className="text-primary hover:text-primary/80 ml-1">
+              Contact Sales
             </Link>
           </p>
         </motion.div>

@@ -27,7 +27,7 @@ export default function PageRequestCenter() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [selectedPage, setSelectedPage] = useState<any>(null);
+  const [selectedPage, setSelectedPage] = useState<unknown>(null);
   const [requestReason, setRequestReason] = useState('');
   const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
 

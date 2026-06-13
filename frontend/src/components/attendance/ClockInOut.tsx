@@ -420,7 +420,7 @@ const ClockInOut = ({ compact = false }: ClockInOutProps) => {
         title: "✅ Clocked In Successfully",
         description: `Checked in at ${format(new Date(), 'HH:mm:ss')}${statusMessage}${locationData.address && locationData.address !== 'Location unavailable' ? ` • ${locationData.address}` : ''}`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Clock in error:', error);
       toast({
         title: "Clock In Failed",
@@ -484,7 +484,7 @@ const ClockInOut = ({ compact = false }: ClockInOutProps) => {
         title: "✅ Clocked Out Successfully",
         description: `Total hours worked: ${totalHours.toFixed(2)} hours${overtimeHours > 0 ? ` (${overtimeHours.toFixed(2)} overtime)` : ''}`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Clock out error:', error);
       toast({
         title: "Clock Out Failed",

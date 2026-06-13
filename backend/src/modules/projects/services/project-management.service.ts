@@ -61,7 +61,6 @@ export class ProjectManagementService {
                 agencyId,
                 createdBy: userId,
                 budget: input.budget?.toString(),
-                allocatedBudget: input.allocatedBudget?.toString(),
                 startDate: input.startDate ? new Date(input.startDate) : null,
                 endDate: input.endDate ? new Date(input.endDate) : null,
                 deadline: input.deadline ? new Date(input.deadline) : null,
@@ -76,7 +75,6 @@ export class ProjectManagementService {
 
         const updateData: any = { ...input, updatedAt: new Date() };
         if (input.budget) updateData.budget = input.budget.toString();
-        if (input.allocatedBudget) updateData.allocatedBudget = input.allocatedBudget.toString();
         if (input.startDate) updateData.startDate = new Date(input.startDate);
         if (input.endDate) updateData.endDate = new Date(input.endDate);
         if (input.deadline) updateData.deadline = new Date(input.deadline);

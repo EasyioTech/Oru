@@ -99,7 +99,7 @@ export const GSTDashboard: React.FC = () => {
       
       return () => clearTimeout(timeoutId);
     }
-  }, [selectedPeriod, isAuthenticated, lastFetchedPeriod]); // Track last fetched period
+  }, [selectedPeriod, isAuthenticated, lastFetchedPeriod, fetchLiability, fetchTransactions]); // Track last fetched period
 
   const getStatusColor = (status: GSTReturn['status']) => {
     switch (status) {

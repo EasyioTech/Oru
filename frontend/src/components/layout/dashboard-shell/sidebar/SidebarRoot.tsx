@@ -42,9 +42,9 @@ export function SidebarRoot() {
     return (
       <Sidebar className="w-14" collapsible="icon">
         <SidebarContent className="flex flex-col">
-          <SidebarHeader className="p-3 sm:p-4 border-b border-sidebar-border bg-sidebar-background">
-            <div className="h-9 w-9 sm:h-10 sm:w-10 bg-sidebar-primary rounded-lg flex items-center justify-center">
-              <Building className="h-4 w-4 sm:h-5 sm:w-5 text-sidebar-primary-foreground" />
+          <SidebarHeader className="p-3 border-b border-sidebar-border/50">
+            <div className="h-9 w-9 bg-sidebar-primary/20 rounded-lg flex items-center justify-center">
+              <Building className="h-4 w-4 text-sidebar-primary" />
             </div>
           </SidebarHeader>
         </SidebarContent>
@@ -56,8 +56,7 @@ export function SidebarRoot() {
     <TooltipProvider delayDuration={100} skipDelayDuration={200}>
       <Sidebar
         className={cn(
-          'border-r border-sidebar-border bg-sidebar transition-[width] duration-150 ease-out',
-          'shadow-[2px_0_8px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_8px_rgba(0,0,0,0.2)]',
+          'border-r border-sidebar-border/50 bg-sidebar transition-[width] duration-150 ease-out',
           isMobile && 'w-full'
         )}
         collapsible={isMobile ? 'offcanvas' : 'icon'}
@@ -67,7 +66,7 @@ export function SidebarRoot() {
         <SidebarContent className="flex flex-col overflow-hidden">
           <SidebarHeader
             className={cn(
-              'border-b border-sidebar-border bg-sidebar-background flex-shrink-0',
+              'border-b border-sidebar-border/50 flex-shrink-0',
               collapsed && !isMobile ? 'p-2 flex justify-center' : 'p-3 sm:p-4'
             )}
           >

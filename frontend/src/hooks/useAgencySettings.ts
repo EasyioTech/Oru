@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { selectOne, updateRecord, insertRecord } from '@/services/api/core';
 import { fetchAgencySettings, updateAgencySettingsApi } from '@/services/api/agencies';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,7 +46,7 @@ export const useAgencySettings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     // Skip for super admins - they don't use agency settings
     if (userRole === 'super_admin') {
       setLoading(false);
@@ -54,32 +54,29 @@ export const useAgencySettings = () => {
       return;
     }
 
-    const agencyDatabase = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
-    
+    const storedAgencyId = typeof window !== 'undefined' ? localStorage.getItem('agency_id') : null;
+
     try {
       setLoading(true);
       setError(null);
 
-      // Prefer agencies API when agency_database exists (normalized tables)
+      // Fetch agency settings via the proper API endpoint
       let agencySettings: AgencySettings | null = null;
-      if (agencyDatabase) {
+      if (storedAgencyId) {
         try {
-          const { settings } = await fetchAgencySettings(agencyDatabase);
+          const { settings } = await fetchAgencySettings(storedAgencyId);
           if (settings && Object.keys(settings).length > 0) {
             agencySettings = settings as AgencySettings;
           }
         } catch (apiErr) {
-          console.warn('[useAgencySettings] Agencies API failed, falling back to selectOne:', apiErr);
+          console.warn('[useAgencySettings] Agencies API failed:', apiErr);
+          // Don't fall back to raw SQL — it's blocked for non-admins
         }
-      }
-      if (!agencySettings) {
-        agencySettings = await selectOne<AgencySettings>('agency_settings', {});
       }
 
       // Also fetch from main database if agency_name is missing or default
       let mainDbSettings = null;
-      const agencyId = await getAgencyId(profile, user?.id);
-      // Skip API call if agencyId is the placeholder UUID
+      const agencyId = storedAgencyId || await getAgencyId(profile, user?.id);
       const isValidAgencyId = agencyId && agencyId !== '00000000-0000-0000-0000-000000000000';
       if (isValidAgencyId && (!agencySettings?.agency_name || agencySettings.agency_name === 'My Agency' || agencySettings.agency_name === '')) {
         try {
@@ -177,7 +174,7 @@ export const useAgencySettings = () => {
           ...DEFAULT_SETTINGS,
         } as AgencySettings);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching agency settings:', err);
       setError(err.message || 'Failed to fetch agency settings');
       // Use defaults on error
@@ -188,7 +185,7 @@ export const useAgencySettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userRole, profile, user]);
 
   const saveSettings = async (newSettings: Partial<AgencySettings>) => {
     const agencyDatabase = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
@@ -200,11 +197,11 @@ export const useAgencySettings = () => {
       const { agency_id: _, ...settingsWithoutAgencyId } = newSettings;
       
       // Only include fields that are actually provided (not undefined)
-      const settingsToSave: any = {};
+      const settingsToSave: unknown = {};
       
       // Copy only defined fields, but exclude large logo_url unless it's actually new
       Object.keys(settingsWithoutAgencyId).forEach(key => {
-        const value = (settingsWithoutAgencyId as any)[key];
+        const value = (settingsWithoutAgencyId as unknown)[key];
         
         // Special handling for logo_url: only include if it's a new/changed value
         // Don't send existing large base64 strings that haven't changed
@@ -291,7 +288,7 @@ export const useAgencySettings = () => {
       }
 
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving agency settings:', err);
       setError(err.message || 'Failed to save agency settings');
       return { success: false, error: err.message };
@@ -309,7 +306,7 @@ export const useAgencySettings = () => {
     if (profile || user) {
       fetchSettings();
     }
-  }, [profile?.agency_id, userRole, profile, user]);
+  }, [profile?.agency_id, userRole, profile, user, fetchSettings]);
 
   return {
     settings,

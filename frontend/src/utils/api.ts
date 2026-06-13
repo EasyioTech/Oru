@@ -24,7 +24,7 @@ export const api = {
     return { data };
   },
   
-  post: async (endpoint: string, body: any) => {
+  post: async (endpoint: string, body: unknown) => {
     const baseUrl = getApiBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
     

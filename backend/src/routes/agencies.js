@@ -8,7 +8,7 @@
 const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
-const { authenticate } = require('../middleware/authMiddleware');
+const { authenticate, requireRole } = require('../middleware/authMiddleware');
 const {
   // Creation (sync - used by provisioning worker)
   createAgency,
@@ -129,7 +129,7 @@ router.get('/check-domain', asyncHandler(async (req, res) => {
  * GET /api/agencies/check-setup
  * Check agency setup status
  */
-router.get('/check-setup', asyncHandler(async (req, res) => {
+router.get('/check-setup', authenticate, requireRole(['super_admin', 'agency_admin']), asyncHandler(async (req, res) => {
   const agencyDatabase = req.headers['x-agency-database'] || req.query.database || null;
 
   if (!agencyDatabase) {
@@ -325,7 +325,7 @@ router.put('/agency-settings', authenticate, asyncHandler(async (req, res) => {
  * POST /api/agencies/complete-setup
  * Complete agency setup with extended settings
  */
-router.post('/complete-setup', asyncHandler(async (req, res) => {
+router.post('/complete-setup', authenticate, requireRole(['super_admin', 'agency_admin']), asyncHandler(async (req, res) => {
   const agencyDatabase = req.headers['x-agency-database'] || req.body.database;
 
   if (!agencyDatabase) {
@@ -359,7 +359,7 @@ router.post('/complete-setup', asyncHandler(async (req, res) => {
  * GET /api/agencies/provisioning/:jobId
  * Poll provisioning job status (async agency creation).
  */
-router.get('/provisioning/:jobId', asyncHandler(async (req, res) => {
+router.get('/provisioning/:jobId', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const { jobId } = req.params;
   const job = await getJobById(jobId);
   if (!job) {
@@ -386,7 +386,7 @@ router.get('/provisioning/:jobId', asyncHandler(async (req, res) => {
  * Create a new agency asynchronously (202 Accepted + poll GET /provisioning/:jobId).
  * Idempotency-Key header: same key returns same job/result.
  */
-router.post('/create', asyncHandler(async (req, res) => {
+router.post('/create', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const {
     agencyName,
     domain,
@@ -506,7 +506,7 @@ router.post('/create', asyncHandler(async (req, res) => {
  * POST /api/agencies/repair-database
  * Repair agency database by adding missing tables
  */
-router.post('/repair-database', asyncHandler(async (req, res) => {
+router.post('/repair-database', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const agencyDatabase = req.headers['x-agency-database'] || req.body.database;
 
   if (!agencyDatabase) {
@@ -546,7 +546,7 @@ router.post('/repair-database', asyncHandler(async (req, res) => {
  * GET /api/agencies/verify-database
  * Verify agency database integrity
  */
-router.get('/verify-database', authenticate, asyncHandler(async (req, res) => {
+router.get('/verify-database', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const agencyDatabase = req.headers['x-agency-database'] || req.query.database;
 
   if (!agencyDatabase) {
@@ -578,7 +578,7 @@ router.get('/verify-database', authenticate, asyncHandler(async (req, res) => {
  * POST /api/agencies/fix-issues
  * Fix common database issues
  */
-router.post('/fix-issues', authenticate, asyncHandler(async (req, res) => {
+router.post('/fix-issues', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const agencyDatabase = req.headers['x-agency-database'] || req.body.database;
 
   if (!agencyDatabase) {

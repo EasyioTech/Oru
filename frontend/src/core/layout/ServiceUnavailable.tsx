@@ -6,7 +6,6 @@
 
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface ServiceUnavailableProps {
   title?: string;
@@ -21,8 +20,6 @@ export function ServiceUnavailable({
   showRetry = true,
   onRetry
 }: ServiceUnavailableProps) {
-  // useNavigate will work if component is inside Router, otherwise we'll use window.location
-  const navigate = useNavigate();
 
   const handleRetry = () => {
     if (onRetry) {
@@ -33,12 +30,7 @@ export function ServiceUnavailable({
   };
 
   const handleGoHome = () => {
-    try {
-      navigate('/');
-    } catch {
-      // Fallback if navigate fails (not in Router context)
-      window.location.href = '/';
-    }
+    window.location.href = '/';
   };
 
   return (

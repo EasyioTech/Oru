@@ -7,26 +7,19 @@ const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const { authenticate, requireRole, requireAgencyContext } = require('../middleware/authMiddleware');
-const { parseDatabaseUrl } = require('../infrastructure/database/poolManager');
-const { Pool } = require('pg');
+const { pool } = require('../infrastructure/database/index');
 const reportingDashboardService = require('../services/reportingDashboardService');
 const { cacheMiddleware } = require('../services/cacheService');
 const logger = require('../utils/logger');
 
-// Helper to get agency database connection
-async function getAgencyDb(agencyDatabase) {
-  const { host, port, user, password } = parseDatabaseUrl();
-  const agencyDbUrl = `postgresql://${user}:${password}@${host}:${port}/${agencyDatabase}`;
-  return new Pool({ connectionString: agencyDbUrl, max: 1 });
-}
+
 
 /**
  * GET /api/reports/permission-distribution
  * Generate permission distribution report
  */
-router.get('/permission-distribution', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
-  const agencyDatabase = req.user.agencyDatabase;
-  const pool = await getAgencyDb(agencyDatabase);
+router.get('/permission-distribution', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+  const agencyId = req.user.agencyId;
   const client = await pool.connect();
 
   try {
@@ -49,7 +42,6 @@ router.get('/permission-distribution', authenticate, requireRole(['super_admin',
     });
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 
@@ -57,9 +49,8 @@ router.get('/permission-distribution', authenticate, requireRole(['super_admin',
  * GET /api/reports/user-permissions
  * Generate user permissions report
  */
-router.get('/user-permissions', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
-  const agencyDatabase = req.user.agencyDatabase;
-  const pool = await getAgencyDb(agencyDatabase);
+router.get('/user-permissions', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+  const agencyId = req.user.agencyId;
   const client = await pool.connect();
 
   try {
@@ -86,7 +77,6 @@ router.get('/user-permissions', authenticate, requireRole(['super_admin', 'ceo',
     });
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 
@@ -94,9 +84,8 @@ router.get('/user-permissions', authenticate, requireRole(['super_admin', 'ceo',
  * GET /api/reports/unused-permissions
  * Find permissions that are never granted
  */
-router.get('/unused-permissions', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
-  const agencyDatabase = req.user.agencyDatabase;
-  const pool = await getAgencyDb(agencyDatabase);
+router.get('/unused-permissions', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+  const agencyId = req.user.agencyId;
   const client = await pool.connect();
 
   try {
@@ -117,7 +106,6 @@ router.get('/unused-permissions', authenticate, requireRole(['super_admin', 'ceo
     });
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 
@@ -125,9 +113,8 @@ router.get('/unused-permissions', authenticate, requireRole(['super_admin', 'ceo
  * GET /api/reports/compliance
  * Generate compliance report
  */
-router.get('/compliance', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
-  const agencyDatabase = req.user.agencyDatabase;
-  const pool = await getAgencyDb(agencyDatabase);
+router.get('/compliance', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+  const agencyId = req.user.agencyId;
   const client = await pool.connect();
 
   try {
@@ -169,7 +156,6 @@ router.get('/compliance', authenticate, requireRole(['super_admin', 'ceo', 'admi
     });
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 
@@ -242,7 +228,6 @@ router.post('/custom', authenticate, requireAgencyContext, asyncHandler(async (r
   const agencyId = req.user.agencyId;
   const { module, filters, columns, groupBy, orderBy } = req.body;
 
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
 
   try {
@@ -349,7 +334,6 @@ router.post('/custom', authenticate, requireAgencyContext, asyncHandler(async (r
     throw error;
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 

@@ -42,7 +42,7 @@ export const LeaveBalanceWidget: React.FC<LeaveBalanceWidgetProps> = ({
     })
   });
 
-  const fetchBalances = async () => {
+  const fetchBalances = React.useCallback(async () => {
     return loadBalances(async () => {
       const { data, error } = await db.rpc('get_leave_balance_summary', {
         p_employee_id: employeeId || undefined,
@@ -53,11 +53,11 @@ export const LeaveBalanceWidget: React.FC<LeaveBalanceWidgetProps> = ({
       setBalances((data || []) as LeaveBalance[]);
       return data;
     });
-  };
+  }, [employeeId, year, loadBalances]);
 
   useEffect(() => {
     fetchBalances();
-  }, [employeeId, year]);
+  }, [fetchBalances]);
 
   const getUsageColor = (percentage: number) => {
     if (percentage >= 90) return 'text-red-600';

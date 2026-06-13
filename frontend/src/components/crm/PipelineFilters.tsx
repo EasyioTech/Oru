@@ -33,7 +33,7 @@ interface PipelineFiltersProps {
     dateFrom?: string;
     dateTo?: string;
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: unknown) => void;
   onClearFilters: () => void;
 }
 
@@ -50,7 +50,7 @@ export const PipelineFilters: React.FC<PipelineFiltersProps> = ({
     filters.dateTo ? new Date(filters.dateTo) : undefined
   );
 
-  const updateFilter = (key: string, value: any) => {
+  const updateFilter = (key: string, value: unknown) => {
     onFiltersChange({
       ...filters,
       [key]: value,

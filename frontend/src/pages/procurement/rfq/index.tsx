@@ -3,7 +3,7 @@
  * Request for Quotation/Proposal management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -109,60 +109,13 @@ export default function ProcurementRFQ() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchRfqs(),
-          fetchProducts(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading RFQ data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load RFQ/RFP',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = rfqs;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(rfq =>
-        rfq.rfq_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rfq.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rfq.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(rfq => rfq.status === statusFilter);
-    }
-
-    // Type filter
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(rfq => rfq.type === typeFilter);
-    }
-
-    setFilteredRfqs(filtered);
-  }, [rfqs, searchTerm, statusFilter, typeFilter]);
-
-  const fetchRfqs = async () => {
+  const fetchRfqs = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getRfqRfp();
       setRfqs(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch RFQ/RFP',
@@ -171,16 +124,16 @@ export default function ProcurementRFQ() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await getProducts({ is_active: true });
       setProducts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
     }
-  };
+  }, []);
 
   const handleCreateRfq = async () => {
     try {
@@ -220,7 +173,7 @@ export default function ProcurementRFQ() {
       setShowRfqDialog(false);
       resetForm();
       fetchRfqs();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create RFQ/RFP',
@@ -257,7 +210,7 @@ export default function ProcurementRFQ() {
     });
   };
 
-  const updateItem = (index: number, field: keyof RfqItem, value: any) => {
+  const updateItem = (index: number, field: keyof RfqItem, value: unknown) => {
     const updatedItems = [...rfqForm.items];
     updatedItems[index] = {
       ...updatedItems[index],
@@ -281,6 +234,51 @@ export default function ProcurementRFQ() {
     setSelectedRfq(null);
     setIsEditing(false);
   };
+    useEffect(() => {
+        let filtered = rfqs;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(rfq =>
+            rfq.rfq_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            rfq.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            rfq.description?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(rfq => rfq.status === statusFilter);
+        }
+
+        // Type filter
+        if (typeFilter !== 'all') {
+          filtered = filtered.filter(rfq => rfq.type === typeFilter);
+        }
+
+        setFilteredRfqs(filtered);
+      }, [rfqs, searchTerm, statusFilter, typeFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchRfqs(),
+              fetchProducts(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading RFQ data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load RFQ/RFP',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchRfqs, fetchProducts, toast]);
 
   const openCreateDialog = () => {
     resetForm();
@@ -288,7 +286,7 @@ export default function ProcurementRFQ() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: any; label: string }> = {
+    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: unknown; label: string }> = {
       draft: { variant: 'secondary', icon: FileSearch, label: 'Draft' },
       published: { variant: 'default', icon: CheckCircle2, label: 'Published' },
       closed: { variant: 'outline', icon: XCircle, label: 'Closed' },

@@ -14,7 +14,7 @@ import { formatDate, formatCurrency } from '../utils/projectDetailsUtils';
 interface BudgetTabProps {
   project: Project;
   revenue: number;
-  invoices: any[];
+  invoices: unknown[];
   onNavigate: (path: string) => void;
 }
 
@@ -121,7 +121,7 @@ export const BudgetTab = ({ project, revenue, invoices, onNavigate }: BudgetTabP
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoices.map((invoice: any) => (
+                {invoices.map((invoice: unknown) => (
                   <TableRow key={invoice.id}>
                     <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
                     <TableCell>{formatDate(invoice.issue_date)}</TableCell>

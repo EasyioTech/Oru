@@ -54,7 +54,7 @@ export const SupportTicketsWidget = () => {
       // Also load all tickets for the list view
       const tickets = await fetchTickets({ limit: 100 });
       setAllTickets(Array.isArray(tickets) ? tickets : []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Set safe defaults on error to prevent crashes
       setStats(null);
       setRecentTickets([]);
@@ -101,7 +101,7 @@ export const SupportTicketsWidget = () => {
         status: 'open',
       });
       loadTicketStats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create ticket',
@@ -115,7 +115,7 @@ export const SupportTicketsWidget = () => {
       const ticket = await fetchTicket(ticketId);
       setSelectedTicket(ticket);
       setIsViewDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load ticket details',
@@ -142,7 +142,7 @@ export const SupportTicketsWidget = () => {
       setIsEditDialogOpen(false);
       setSelectedTicket(null);
       loadTicketStats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update ticket',
@@ -164,7 +164,7 @@ export const SupportTicketsWidget = () => {
         description: 'Ticket deleted successfully',
       });
       loadTicketStats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete ticket',
@@ -177,13 +177,13 @@ export const SupportTicketsWidget = () => {
 
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {
-      await updateTicket(ticketId, { status: newStatus as any });
+      await updateTicket(ticketId, { status: newStatus as unknown });
       toast({
         title: 'Success',
         description: 'Ticket status updated',
       });
       loadTicketStats();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update ticket status',
@@ -297,7 +297,7 @@ export const SupportTicketsWidget = () => {
                       <Label htmlFor="priority">Priority</Label>
                       <Select
                         value={ticketForm.priority}
-                        onValueChange={(value) => setTicketForm(prev => ({ ...prev, priority: value as any }))}
+                        onValueChange={(value) => setTicketForm(prev => ({ ...prev, priority: value as unknown }))}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -616,7 +616,7 @@ export const SupportTicketsWidget = () => {
                     Console Logs ({Array.isArray(selectedTicket.console_logs) ? selectedTicket.console_logs.length : 0} entries)
                   </Label>
                   <div className="max-h-48 overflow-y-auto space-y-2">
-                    {Array.isArray(selectedTicket.console_logs) && selectedTicket.console_logs.map((log: any, idx: number) => (
+                    {Array.isArray(selectedTicket.console_logs) && selectedTicket.console_logs.map((log: unknown, idx: number) => (
                       <div key={idx} className="text-xs font-mono bg-white dark:bg-gray-800 p-2 rounded border">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant={log.level === 'error' ? 'destructive' : log.level === 'warn' ? 'outline' : 'secondary'} className="text-xs">
@@ -658,7 +658,7 @@ export const SupportTicketsWidget = () => {
                       <div className="mt-2">
                         <Label className="text-xs text-muted-foreground">Recent Errors:</Label>
                         <div className="mt-1 space-y-1">
-                          {selectedTicket.error_details.recent_errors.slice(0, 5).map((err: any, idx: number) => (
+                          {selectedTicket.error_details.recent_errors.slice(0, 5).map((err: unknown, idx: number) => (
                             <div key={idx} className="text-xs bg-white dark:bg-gray-800 p-2 rounded">
                               {err.message}
                             </div>
@@ -786,7 +786,7 @@ export const SupportTicketsWidget = () => {
                 <Label htmlFor="edit-status">Status</Label>
                 <Select
                   value={ticketForm.status}
-                  onValueChange={(value) => setTicketForm(prev => ({ ...prev, status: value as any }))}
+                  onValueChange={(value) => setTicketForm(prev => ({ ...prev, status: value as unknown }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -803,7 +803,7 @@ export const SupportTicketsWidget = () => {
                 <Label htmlFor="edit-priority">Priority</Label>
                 <Select
                   value={ticketForm.priority}
-                  onValueChange={(value) => setTicketForm(prev => ({ ...prev, priority: value as any }))}
+                  onValueChange={(value) => setTicketForm(prev => ({ ...prev, priority: value as unknown }))}
                 >
                   <SelectTrigger>
                     <SelectValue />

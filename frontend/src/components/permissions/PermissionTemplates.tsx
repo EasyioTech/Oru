@@ -33,19 +33,12 @@ export function PermissionTemplates() {
   });
 
   const allRoles = Object.keys(ROLE_HIERARCHY) as AppRole[];
-
-  useEffect(() => {
-    fetchTemplates();
-    fetchPermissions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getPermissionTemplates();
       setTemplates(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show empty state gracefully
       console.warn('Templates API not available:', error);
       setTemplates([]);
@@ -63,7 +56,7 @@ export function PermissionTemplates() {
     try {
       const result = await permissionsService.getPermissions();
       setPermissions(result.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show empty state gracefully
       console.warn('Permissions API not available:', error);
       setPermissions([]);
@@ -101,7 +94,7 @@ export function PermissionTemplates() {
       setShowCreateDialog(false);
       setTemplateForm({ name: '', description: '', selectedPermissions: [] });
       await fetchTemplates();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to create template');
     }
   };
@@ -117,7 +110,7 @@ export function PermissionTemplates() {
       setShowApplyDialog(false);
       setSelectedTemplate(null);
       setSelectedTargets([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to apply template');
     }
   };
@@ -140,6 +133,11 @@ export function PermissionTemplates() {
       return acc;
     }, {} as Record<string, permissionsService.Permission[]>);
   }, [permissions]);
+    useEffect(() => {
+        fetchTemplates();
+        fetchPermissions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
 
   return (
     <div className="space-y-6">

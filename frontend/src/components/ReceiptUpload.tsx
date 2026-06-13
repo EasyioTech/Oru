@@ -20,8 +20,8 @@ interface ReceiptFile {
 
 interface ReceiptUploadProps {
   reimbursementId: string;
-  existingReceipts?: any[];
-  onUploadComplete?: (files: any[]) => void;
+  existingReceipts?: unknown[];
+  onUploadComplete?: (files: unknown[]) => void;
   maxFiles?: number;
   maxFileSize?: number; // in MB
 }
@@ -45,7 +45,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
     })
   });
 
-  const validateFile = (file: File): string | null => {
+  const validateFile = React.useCallback((file: File): string | null => {
     // Check file size
     if (file.size > maxFileSize * 1024 * 1024) {
       return `File size must be less than ${maxFileSize}MB`;
@@ -65,7 +65,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
     }
 
     return null;
-  };
+  }, [maxFileSize]);
 
   const processFiles = useCallback((fileList: FileList) => {
     const newFiles: ReceiptFile[] = [];
@@ -114,7 +114,7 @@ export const ReceiptUpload: React.FC<ReceiptUploadProps> = ({
     if (newFiles.length > 0) {
       setFiles(prev => [...prev, ...newFiles]);
     }
-  }, [files.length, maxFiles, toast]);
+  }, [files.length, maxFiles, toast, validateFile]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

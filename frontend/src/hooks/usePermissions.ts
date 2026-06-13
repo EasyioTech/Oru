@@ -118,7 +118,7 @@ export function usePermissions() {
       await permissionsService.updateRolePermissions(role, permissions);
       toast.success('Role permissions updated successfully');
       await fetchPermissions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to update role permissions');
       throw error;
     }
@@ -136,7 +136,7 @@ export function usePermissions() {
     try {
       await permissionsService.updateUserPermissions(userId, permissions);
       toast.success('User permissions updated successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to update user permissions');
       throw error;
     }
@@ -145,7 +145,7 @@ export function usePermissions() {
   const getPermissionCategories = useCallback(async (): Promise<string[]> => {
     try {
       return await permissionsService.getPermissionCategories();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to load categories');
       return [];
     }
@@ -154,7 +154,7 @@ export function usePermissions() {
   const getPermissionTemplates = useCallback(async (): Promise<PermissionTemplate[]> => {
     try {
       return await permissionsService.getPermissionTemplates();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to load templates');
       return [];
     }
@@ -169,7 +169,7 @@ export function usePermissions() {
       await permissionsService.applyTemplate(templateId, type, targetRoles);
       toast.success('Template applied successfully');
       await fetchPermissions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to apply template');
       throw error;
     }
@@ -178,7 +178,7 @@ export function usePermissions() {
   const exportPermissions = useCallback(async () => {
     try {
       return await permissionsService.exportPermissions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to export permissions');
       throw error;
     }
@@ -186,15 +186,15 @@ export function usePermissions() {
 
   const importPermissions = useCallback(async (data: {
     permissions: ServicePermission[];
-    role_permissions: any[];
-    user_permissions?: any[];
+    role_permissions: unknown[];
+    user_permissions?: unknown[];
     templates?: PermissionTemplate[];
   }): Promise<void> => {
     try {
       await permissionsService.importPermissions(data);
       toast.success('Permissions imported successfully');
       await fetchPermissions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to import permissions');
       throw error;
     }

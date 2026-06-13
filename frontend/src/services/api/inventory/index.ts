@@ -122,7 +122,7 @@ export async function getWarehouses(): Promise<Warehouse[]> {
 
     const result = await response.json();
     return result.data || [];
-  } catch (error: any) {
+  } catch (error) {
     if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
       throw new Error('Unable to reach the API server. Please check your connection and try again.');
     }
@@ -196,7 +196,7 @@ export async function getProducts(filters?: {
 
     const result = await response.json();
     return result.data || [];
-  } catch (error: any) {
+  } catch (error) {
     if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
       throw new Error('Unable to reach the API server. Please check your connection and try again.');
     }
@@ -468,7 +468,7 @@ export async function getProductCategories(): Promise<Array<{ id: string; name: 
 /**
  * Create product category
  */
-export async function createProductCategory(categoryData: { name: string; description?: string; parent_id?: string }): Promise<any> {
+export async function createProductCategory(categoryData: { name: string; description?: string; parent_id?: string }): Promise<unknown> {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Authentication required');
@@ -503,7 +503,7 @@ export async function createTransfer(transferData: {
   to_warehouse_id: string;
   quantity: number;
   notes?: string;
-}): Promise<any> {
+}): Promise<unknown> {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Authentication required');
@@ -539,7 +539,7 @@ export async function createAdjustment(adjustmentData: {
   unit_cost?: number;
   reason?: string;
   notes?: string;
-}): Promise<any> {
+}): Promise<unknown> {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Authentication required');

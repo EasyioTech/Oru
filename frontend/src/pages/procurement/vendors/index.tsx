@@ -3,7 +3,7 @@
  * Complete vendor/supplier management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,47 +107,14 @@ export default function ProcurementVendors() {
   });
 
   // Fetch data
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = suppliers;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.email?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(s =>
-        statusFilter === 'active' ? s.is_active : !s.is_active
-      );
-    }
-
-    // Rating filter
-    if (ratingFilter !== 'all') {
-      const minRating = parseInt(ratingFilter);
-      filtered = filtered.filter(s => (s.rating || 0) >= minRating);
-    }
-
-    setFilteredSuppliers(filtered);
-  }, [suppliers, searchTerm, statusFilter, ratingFilter]);
-
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     try {
       setInitialLoad(true);
       setLoading(true);
       const data = await getSuppliers();
       setSuppliers(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch suppliers',
@@ -157,7 +124,7 @@ export default function ProcurementVendors() {
       setLoading(false);
       setInitialLoad(false);
     }
-  };
+  }, [toast]);
 
   const handleCreateSupplier = async () => {
     try {
@@ -184,7 +151,7 @@ export default function ProcurementVendors() {
       setShowSupplierDialog(false);
       resetForm();
       fetchSuppliers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save supplier',
@@ -221,7 +188,7 @@ export default function ProcurementVendors() {
         notes: fullSupplier.notes || '',
       });
       setShowSupplierDialog(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load supplier details',
@@ -235,7 +202,7 @@ export default function ProcurementVendors() {
       const fullSupplier = await getSupplierById(supplier.id);
       setSelectedSupplier(fullSupplier);
       setShowViewDialog(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load supplier details',
@@ -243,6 +210,37 @@ export default function ProcurementVendors() {
       });
     }
   };
+    useEffect(() => {
+        let filtered = suppliers;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(s =>
+            s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(s =>
+            statusFilter === 'active' ? s.is_active : !s.is_active
+          );
+        }
+
+        // Rating filter
+        if (ratingFilter !== 'all') {
+          const minRating = parseInt(ratingFilter);
+          filtered = filtered.filter(s => (s.rating || 0) >= minRating);
+        }
+
+        setFilteredSuppliers(filtered);
+      }, [suppliers, searchTerm, statusFilter, ratingFilter]);
+    useEffect(() => {
+        fetchSuppliers();
+      }, [fetchSuppliers]);
 
   const resetForm = () => {
     setSupplierForm({

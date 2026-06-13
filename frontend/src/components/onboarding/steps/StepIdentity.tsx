@@ -89,13 +89,14 @@ export default function StepIdentity({
       return;
     }
 
-    checkTimeoutRef.current = setTimeout(() => checkDomain(formData.domain), 400);
+    const fullDomain = formData.domain + formData.domainSuffix;
+    checkTimeoutRef.current = setTimeout(() => checkDomain(fullDomain), 400);
 
     return () => {
       if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
       if (abortRef.current) abortRef.current.abort();
     };
-  }, [formData.domain, checkDomain]);
+  }, [formData.domain, formData.domainSuffix, checkDomain]);
 
   // Validate and update canProceed
   useEffect(() => {
@@ -140,12 +141,12 @@ export default function StepIdentity({
           <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
             <Building2 className="w-5 h-5 text-blue-400" />
           </div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-white">
+          <h1 className="text-2xl md:text-3xl font-medium text-zinc-900 dark:text-zinc-100">
             Name your agency
           </h1>
         </div>
-        <p className="text-zinc-400">
-          Choose a name and claim your workspace URL.
+        <p className="text-zinc-600 dark:text-zinc-400 max-w-lg leading-relaxed">
+          Your agency name will be visible to your team and clients. Claim a unique workspace URL to serve as your team's home.
         </p>
       </motion.div>
 
@@ -159,8 +160,8 @@ export default function StepIdentity({
         {/* Agency Name */}
         <div className="space-y-2">
           <div className="flex justify-between">
-            <label htmlFor="agency-name" className="text-sm font-medium text-zinc-300">
-              Agency Name <span className="text-red-400">*</span>
+            <label htmlFor="agency-name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Agency Name <span className="text-red-600">*</span>
             </label>
             <span className="text-xs text-zinc-500">
               {formData.agencyName.length}/{NAME_CONSTRAINTS.MAX_LENGTH}
@@ -175,11 +176,11 @@ export default function StepIdentity({
             onBlur={() => setNameTouched(true)}
             placeholder="e.g., Acme Corporation"
             className={cn(
-              "w-full h-12 px-4 rounded-lg bg-white/[0.03] border text-white",
-              "placeholder:text-zinc-600 focus:outline-none transition-colors",
+              "w-full h-11 px-3 rounded-md border text-zinc-900 dark:text-zinc-100",
+              "placeholder:text-zinc-400 focus:outline-none transition-shadow duration-200",
               nameTouched && nameError
-                ? "border-red-500/50"
-                : "border-white/[0.08] focus:border-white/[0.15]"
+                ? "border-red-500 focus:ring-2 focus:ring-red-500/20 bg-red-50 dark:bg-red-900/10"
+                : "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             )}
             autoFocus
             maxLength={NAME_CONSTRAINTS.MAX_LENGTH}
@@ -203,8 +204,8 @@ export default function StepIdentity({
         {/* Workspace URL */}
         <div className="space-y-2">
           <div className="flex justify-between">
-            <label htmlFor="workspace-url" className="text-sm font-medium text-zinc-300">
-              Workspace URL <span className="text-red-400">*</span>
+            <label htmlFor="workspace-url" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Workspace URL <span className="text-red-600">*</span>
             </label>
             <span className="text-xs text-zinc-500">
               {formData.domain.length}/{DOMAIN_CONSTRAINTS.MAX_LENGTH}
@@ -221,11 +222,11 @@ export default function StepIdentity({
                 onBlur={() => setDomainTouched(true)}
                 placeholder="acme-corp"
                 className={cn(
-                  "w-full h-12 px-4 pr-10 rounded-lg bg-white/[0.03] border text-white",
-                  "font-mono text-sm placeholder:text-zinc-600 focus:outline-none transition-colors",
-                  domainStatus === 'available' ? "border-emerald-500/50" :
-                  (domainStatus === 'taken' || domainStatus === 'error') ? "border-red-500/50" :
-                  "border-white/[0.08] focus:border-white/[0.15]"
+                  "w-full h-11 px-3 pr-10 rounded-md border text-zinc-900 dark:text-zinc-100",
+                  "font-mono text-sm placeholder:text-zinc-400 focus:outline-none transition-shadow duration-200",
+                  domainStatus === 'available' ? "bg-white dark:bg-zinc-900 border-green-600 focus:ring-2 focus:ring-green-600/20" :
+                  (domainStatus === 'taken' || domainStatus === 'error') ? "bg-red-50 dark:bg-red-900/10 border-red-500 focus:ring-2 focus:ring-red-500/20" :
+                  "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 )}
                 maxLength={DOMAIN_CONSTRAINTS.MAX_LENGTH}
               />
@@ -246,10 +247,10 @@ export default function StepIdentity({
             <select
               value={formData.domainSuffix}
               onChange={(e) => updateFormData({ domainSuffix: e.target.value })}
-              className="h-12 px-3 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none cursor-pointer"
+              className="h-11 px-3 rounded-md bg-white border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-shadow duration-200 cursor-pointer"
             >
               {DOMAIN_SUFFIXES.map((s) => (
-                <option key={s.value} value={s.value} className="bg-zinc-900">
+                <option key={s.value} value={s.value} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
                   {s.label}
                 </option>
               ))}
@@ -298,26 +299,26 @@ export default function StepIdentity({
 
         {/* Preview */}
         <div className={cn(
-          "p-4 rounded-xl border transition-colors",
+          "p-4 rounded-md border transition-colors bg-white dark:bg-zinc-900",
           domainStatus === 'available'
-            ? "bg-emerald-500/5 border-emerald-500/20"
-            : "bg-white/[0.02] border-white/[0.06]"
+            ? "border-green-600/30"
+            : "border-zinc-200 dark:border-zinc-800"
         )}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center",
-              domainStatus === 'available' ? "bg-emerald-500/10" : "bg-white/[0.05]"
+              "w-10 h-10 rounded-md flex items-center justify-center",
+              domainStatus === 'available' ? "bg-green-50 dark:bg-green-900/20" : "bg-zinc-100 dark:bg-zinc-800"
             )}>
               <Globe className={cn(
                 "w-5 h-5",
-                domainStatus === 'available' ? "text-emerald-400" : "text-zinc-400"
+                domainStatus === 'available' ? "text-green-600 dark:text-green-500" : "text-zinc-500"
               )} />
             </div>
             <div>
               <p className="text-xs text-zinc-500">Your workspace</p>
-              <p className="text-sm font-mono text-white">
+              <p className="text-sm font-mono text-zinc-900 dark:text-zinc-100 font-medium">
                 {formData.domain || 'your-agency'}
-                <span className="text-blue-400">{formData.domainSuffix}</span>
+                <span className="text-blue-600 dark:text-blue-400">{formData.domainSuffix}</span>
               </p>
             </div>
           </div>

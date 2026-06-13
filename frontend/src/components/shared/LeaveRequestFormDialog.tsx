@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { insertRecord, updateRecord, selectRecords } from '@/services/api/core';
+import { fetchLeaveTypes, createLeaveRequest, updateLeaveRequest } from '@/services/api/hr/leaves';
 import { LeaveRequest, LeaveType } from '@/integrations/postgresql/types';
 import { getEmployeesForAssignmentAuto } from '@/services/api/selectors';
 
@@ -30,7 +30,7 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
   const { user, userRole, profile } = useAuth();
   
   // Check if user is admin/HR (can manage all requests)
-  const isAdminOrHR = userRole === 'admin' || userRole === 'super_admin' || userRole === 'hr';
+  const isAdminOrHR = userRole === 'agency_admin' || userRole === 'super_admin' || userRole === 'manager';
   const canManageRequests = isAdminOrHR && !isEmployeeView;
   const [loading, setLoading] = useState(false);
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
@@ -78,13 +78,6 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
   // Fetch leave types and employees when dialog opens
   useEffect(() => {
     if (isOpen) {
-      fetchData();
-    }
-  }, [isOpen]);
-
-  // Update form data when leaveRequest prop changes
-  useEffect(() => {
-    if (isOpen) {
       if (leaveRequest && leaveRequest.id) {
         // Editing existing leave request
         setFormData({
@@ -112,15 +105,13 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
     }
   }, [leaveRequest, isOpen, user, isEmployeeView]);
 
-  const fetchData = async () => {
+  // Define fetchData before using it in useEffect
+  const fetchData = React.useCallback(async () => {
     try {
       setLoadingData(true);
 
       // Fetch leave types
-      const types = await selectRecords<LeaveType>('leave_types', {
-        filters: [{ column: 'is_active', operator: 'eq', value: true }],
-        orderBy: 'name ASC'
-      });
+      const types = await fetchLeaveTypes();
       setLeaveTypes(types);
 
       // Only fetch employees list if user is admin/HR and not in employee view
@@ -153,7 +144,13 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [canManageRequests, profile, user?.id, toast]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchData();
+    }
+  }, [isOpen, fetchData]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -220,19 +217,15 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
 
       if (leaveRequest && leaveRequest.id) {
         // Update existing leave request
-        await updateRecord<LeaveRequest>(
-          'leave_requests',
-          {
+        await updateLeaveRequest(leaveRequest.id, {
             employee_id: formData.employee_id,
             leave_type_id: formData.leave_type_id,
             start_date: formData.start_date,
             end_date: formData.end_date,
             total_days: totalDays,
             reason: formData.reason.trim(),
-            status: formData.status,
-          },
-          { id: leaveRequest.id },
-          user.id
+            status: formData.status as any,
+          }
         );
 
         toast({
@@ -244,42 +237,15 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
         // For employee view, always set status to 'pending'
         const requestStatus = isEmployeeView ? 'pending' : formData.status;
         
-        // Get agency_id from user's profile or employee_details
-        let agencyId = '';
-        try {
-          const profile = await selectRecords('profiles', {
-            where: { user_id: user.id },
-            limit: 1
-          });
-          if (profile.length > 0 && profile[0].agency_id) {
-            agencyId = profile[0].agency_id;
-          } else {
-            const empDetail = await selectRecords('employee_details', {
-              where: { user_id: user.id },
-              limit: 1
-            });
-            if (empDetail.length > 0 && empDetail[0].agency_id) {
-              agencyId = empDetail[0].agency_id;
-            }
-          }
-        } catch (err) {
-          console.error('Error fetching agency_id:', err);
-        }
-
-        await insertRecord<LeaveRequest>(
-          'leave_requests',
-          {
+        await createLeaveRequest({
             employee_id: formData.employee_id,
             leave_type_id: formData.leave_type_id,
             start_date: formData.start_date,
             end_date: formData.end_date,
             total_days: totalDays,
             reason: formData.reason.trim(),
-            status: requestStatus, // Always pending for employees
-            agency_id: agencyId || user.id, // Fallback to user.id if no agency_id found
-          },
-          user.id
-        );
+            status: requestStatus as any,
+        });
 
         toast({
           title: 'Success',
@@ -373,10 +339,10 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
                 <SelectValue placeholder="Select leave type" />
               </SelectTrigger>
               <SelectContent>
-                {leaveTypes.map((type) => (
+                {leaveTypes.map((type: any) => (
                   <SelectItem key={type.id} value={type.id}>
                     {type.name}
-                    {((type as any).max_days_per_year || (type as any).max_days) && ` (Max: ${(type as any).max_days_per_year || (type as any).max_days} days)`}
+                    {(type.max_days_per_year || type.max_days) && ` (Max: ${type.max_days_per_year || type.max_days} days)`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -480,4 +446,3 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
 };
 
 export default LeaveRequestFormDialog;
-

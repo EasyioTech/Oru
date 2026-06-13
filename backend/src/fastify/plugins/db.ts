@@ -2,20 +2,19 @@ import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { db, getAgencyDb } from '../../infrastructure/database/index.js';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as coreSchema from '../../infrastructure/database/schema-core.js';
-import * as tenantSchema from '../../infrastructure/database/schema-tenant.js';
+import * as schema from '../../infrastructure/database/schema.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
 declare module 'fastify' {
     interface FastifyInstance {
         db: typeof db;
-        getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof tenantSchema>>;
+        getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof schema>>;
     }
 
     interface FastifyRequest {
         db: typeof db;
-        getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof tenantSchema>>;
+        getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof schema>>;
     }
 }
 

@@ -3,7 +3,7 @@
  * Comprehensive procurement analytics and reporting
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,12 +52,7 @@ export default function ProcurementReports() {
   const [dateTo, setDateTo] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
-
-  useEffect(() => {
-    loadReports();
-  }, [dateFrom, dateTo]);
-
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getProcurementReports({
@@ -65,7 +60,7 @@ export default function ProcurementReports() {
         date_to: dateTo,
       });
       setReports(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load procurement reports',
@@ -74,7 +69,7 @@ export default function ProcurementReports() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateFrom, dateTo, toast]);
 
   const formatCurrency = (value: number | undefined) => {
     if (value === undefined || value === null) return '₹0.00';
@@ -98,6 +93,9 @@ export default function ProcurementReports() {
       description: 'Export functionality coming soon',
     });
   };
+    useEffect(() => {
+        loadReports();
+      }, [dateFrom, dateTo, loadReports]);
 
   if (loading && !reports) {
     return (

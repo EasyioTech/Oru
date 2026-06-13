@@ -45,9 +45,9 @@ interface AuthContextType {
   userRole: AppRole | null;
   loading: boolean;
   isSystemSuperAdmin: boolean; // Flag to identify system-level super admin
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signInSauth: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: unknown }>;
+  signIn: (email: string, password: string) => Promise<{ error: unknown }>;
+  signInSauth: (email: string, password: string) => Promise<{ error: unknown }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -72,81 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if it's base64 (our format) or JWT (legacy format with dots)
     return base64Regex.test(token) || (token.includes('.') && token.split('.').length === 3);
   };
-
-  useEffect(() => {
-    // Check for existing session on mount
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      // Validate token format first
-      if (!isValidTokenFormat(token)) {
-        logWarn('[Auth] Invalid token format detected, clearing corrupted token');
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('agency_database');
-        localStorage.removeItem('agency_id');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // Verify token is still valid
-        // Token can be either:
-        // 1. Simple base64-encoded JSON (our format): btoa(JSON.stringify({...}))
-        // 2. JWT format (legacy): header.payload.signature
-        let decoded: { id?: string; userId?: string; email?: string; exp?: number };
-
-        if (token.includes('.')) {
-          // JWT format - decode the payload part
-          const parts = token.split('.');
-          if (parts.length !== 3) {
-            throw new Error('Invalid JWT format');
-          }
-          decoded = JSON.parse(atob(parts[1]));
-        } else {
-          // Simple base64 format - decode directly
-          decoded = JSON.parse(atob(token));
-        }
-
-        if (decoded.exp && decoded.exp * 1000 > Date.now()) {
-          // Token is still valid – restore minimal user from token,
-          // then hydrate full user/profile/roles from the database where possible
-          const restoredUser: User = {
-            id: decoded.id || decoded.userId || '',
-            email: decoded.email || '',
-            email_confirmed: true,
-            is_active: true
-          };
-          setUser(restoredUser);
-
-          // Prefer stored role from previous real login if available
-          const storedRole = localStorage.getItem('user_role') as AppRole | null;
-          if (storedRole) {
-            setUserRole(storedRole);
-            // Check if stored role is super_admin and user has no agency context
-            if (storedRole === 'super_admin' && !localStorage.getItem('agency_database')) {
-              setIsSystemSuperAdmin(true);
-            }
-          } else if (decoded.id || decoded.userId) {
-            // Fallback to client-side DB lookup for legacy/mock flows
-            const actualId = decoded.id || decoded.userId || '';
-            fetchUserProfile(actualId);
-            fetchUserRole(actualId);
-          }
-        } else {
-          // Token expired
-          localStorage.removeItem('auth_token');
-        }
-      } catch (error) {
-        logWarn('[Auth] Failed to decode token, clearing corrupted token:', error);
-        // Clear all auth-related localStorage items
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('agency_database');
-        localStorage.removeItem('agency_id');
-        localStorage.removeItem('user_role');
-      }
-    }
-    setLoading(false);
-  }, []);
-
   const fetchUserProfile = async (userId: string) => {
     try {
       // Don't fetch profile if user is super admin (they use main DB, not agency DB)
@@ -179,31 +104,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Define role hierarchy (lower number = higher priority)
       const roleHierarchy: Record<AppRole, number> = {
         'super_admin': 1,
-        'ceo': 2,
-        'cto': 3,
-        'cfo': 4,
-        'coo': 5,
-        'admin': 6,
-        'operations_manager': 7,
-        'department_head': 8,
-        'team_lead': 9,
-        'project_manager': 10,
-        'hr': 11,
-        'finance_manager': 12,
-        'sales_manager': 13,
-        'marketing_manager': 14,
-        'quality_assurance': 15,
-        'it_support': 16,
-        'legal_counsel': 17,
-        'business_analyst': 18,
-        'customer_success': 19,
-        'employee': 20,
-        'contractor': 21,
-        'intern': 22
+        'agency_admin': 2,
+        'manager': 3,
+        'employee': 4,
+        'auditor': 5,
+        'viewer': 6,
+        'custom': 7,
       };
 
       // Find the highest priority role
-      const userRoles = (data as any[]).map(r => r.role as AppRole);
+      const userRoles = (data as unknown[]).map(r => (r as {role: AppRole}).role);
       const highestRole = userRoles.reduce((highest, current) => {
         const currentPriority = roleHierarchy[current] || 99;
         const highestPriority = roleHierarchy[highest] || 99;
@@ -246,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('auth_token', result.token);
 
       // Set user state
-      setUser(result.user as any);
+      setUser(result.user as unknown as User);
 
       toast({
         title: "Sign up successful",
@@ -254,10 +164,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       return { error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Sign up failed",
-        description: error.message,
+        description: (error as Error).message,
         variant: "destructive"
       });
       return { error };
@@ -273,11 +183,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('auth_token', result.token);
 
       // Set user state from server response
-      setUser(result.user as any);
+      setUser(result.user as unknown as User);
 
       // Check if user is super admin - super admins don't need agency profiles
-      const serverRoles = ((result.user as any).roles || []) as Array<{ role: AppRole } | AppRole>;
-      const hasSuperAdminRole = serverRoles.some((r: any) => {
+      const serverRoles = ((result.user as Record<string, unknown>).roles || []) as Array<{ role: AppRole } | AppRole>;
+      const hasSuperAdminRole = serverRoles.some((r: unknown) => {
         const role = typeof r === 'string' ? r : r.role;
         return role === 'super_admin';
       });
@@ -285,7 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check if this is a system-level super admin (no agency database)
       // IMPORTANT: Only system-level super admins (with super_admin role AND no agency database)
       // should be treated as super_admin. Agency admins should NOT be treated as super_admin.
-      const userAgency = (result.user as any).agency;
+      const userAgency = (result.user as Record<string, unknown>).agency as Record<string, unknown> | undefined;
       const hasAgencyDatabase = !!(userAgency && userAgency.databaseName);
       const isSystemLevelSuperAdmin = hasSuperAdminRole && !hasAgencyDatabase;
       setIsSystemSuperAdmin(isSystemLevelSuperAdmin);
@@ -306,9 +216,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // If profile came back from server, use it directly
-      const serverProfile = (result.user as any).profile;
+      const serverProfile = (result.user as Record<string, unknown>).profile;
       if (serverProfile) {
-        setProfile(serverProfile as any);
+        setProfile(serverProfile as unknown as Profile);
       } else if (!isSystemLevelSuperAdmin) {
         // Only fetch profile for non-system-super-admin users (system super admins use main DB, not agency DB)
         fetchUserProfile(result.user.id);
@@ -322,27 +232,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Same hierarchy rules as fetchUserRole
         const roleHierarchy: Record<AppRole, number> = {
           'super_admin': 1,
-          'ceo': 2,
-          'cto': 3,
-          'cfo': 4,
-          'coo': 5,
-          'admin': 6,
-          'operations_manager': 7,
-          'department_head': 8,
-          'team_lead': 9,
-          'project_manager': 10,
-          'hr': 11,
-          'finance_manager': 12,
-          'sales_manager': 13,
-          'marketing_manager': 14,
-          'quality_assurance': 15,
-          'it_support': 16,
-          'legal_counsel': 17,
-          'business_analyst': 18,
-          'customer_success': 19,
-          'employee': 20,
-          'contractor': 21,
-          'intern': 22
+          'agency_admin': 2,
+          'manager': 3,
+          'employee': 4,
+          'auditor': 5,
+          'viewer': 6,
+          'custom': 7,
         };
 
         const roleArray = serverRoles.map(r => typeof r === 'string' ? r : r.role);
@@ -366,10 +261,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       return { error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Login failed",
-        description: error.message,
+        description: (error as Error).message,
         variant: "destructive"
       });
       return { error };
@@ -380,7 +275,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const result = await loginSauth({ email, password });
       localStorage.setItem('auth_token', result.token);
-      setUser(result.user as any);
+      setUser(result.user as unknown as User);
       setIsSystemSuperAdmin(true);
       localStorage.removeItem('agency_database');
       localStorage.removeItem('agency_id');
@@ -388,7 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserRole('super_admin');
       localStorage.setItem('user_role', 'super_admin');
       return { error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error };
     }
   };
@@ -409,14 +304,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Logged out",
         description: "You have been logged out successfully"
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Logout failed",
-        description: error.message,
+        description: (error as Error).message,
         variant: "destructive"
       });
     }
   };
+    useEffect(() => {
+        // Check for existing session on mount
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          // Validate token format first
+          if (!isValidTokenFormat(token)) {
+            logWarn('[Auth] Invalid token format detected, clearing corrupted token');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('agency_database');
+            localStorage.removeItem('agency_id');
+            setLoading(false);
+            return;
+          }
+
+          try {
+            // Verify token is still valid
+            // Token can be either:
+            // 1. Simple base64-encoded JSON (our format): btoa(JSON.stringify({...}))
+            // 2. JWT format (legacy): header.payload.signature
+            let decoded: { id?: string; userId?: string; email?: string; exp?: number };
+
+            if (token.includes('.')) {
+              // JWT format - decode the payload part
+              const parts = token.split('.');
+              if (parts.length !== 3) {
+                throw new Error('Invalid JWT format');
+              }
+              decoded = JSON.parse(atob(parts[1]));
+            } else {
+              // Simple base64 format - decode directly
+              decoded = JSON.parse(atob(token));
+            }
+
+            if (decoded.exp && decoded.exp * 1000 > Date.now()) {
+              // Token is still valid – restore minimal user from token,
+              // then hydrate full user/profile/roles from the database where possible
+              const restoredUser: User = {
+                id: decoded.id || decoded.userId || '',
+                email: decoded.email || '',
+                email_confirmed: true,
+                is_active: true
+              };
+              setUser(restoredUser);
+
+              // Prefer stored role from previous real login if available
+              const storedRole = localStorage.getItem('user_role') as AppRole | null;
+              if (storedRole) {
+                setUserRole(storedRole);
+                // Check if stored role is super_admin and user has no agency context
+                if (storedRole === 'super_admin' && !localStorage.getItem('agency_database')) {
+                  setIsSystemSuperAdmin(true);
+                }
+              } else if (decoded.id || decoded.userId) {
+                // Fallback to client-side DB lookup for legacy/mock flows
+                const actualId = decoded.id || decoded.userId || '';
+                fetchUserProfile(actualId);
+                fetchUserRole(actualId);
+              }
+            } else {
+              // Token expired
+              localStorage.removeItem('auth_token');
+            }
+          } catch (error) {
+            logWarn('[Auth] Failed to decode token, clearing corrupted token:', error);
+            // Clear all auth-related localStorage items
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('agency_database');
+            localStorage.removeItem('agency_id');
+            localStorage.removeItem('user_role');
+          }
+        }
+        setLoading(false);
+      }, []);
 
   const value = {
     user,

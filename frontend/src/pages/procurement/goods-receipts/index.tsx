@@ -3,7 +3,7 @@
  * Goods Receipt Note (GRN) management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -117,61 +117,13 @@ export default function ProcurementGoodsReceipts() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchGoodsReceipts(),
-          fetchPurchaseOrders(),
-          fetchWarehouses(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading goods receipts data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load goods receipts',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = goodsReceipts;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(grn =>
-        grn.grn_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        grn.po_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        grn.warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(grn => grn.status === statusFilter);
-    }
-
-    // PO filter
-    if (poFilter !== 'all') {
-      filtered = filtered.filter(grn => grn.po_id === poFilter);
-    }
-
-    setFilteredReceipts(filtered);
-  }, [goodsReceipts, searchTerm, statusFilter, poFilter]);
-
-  const fetchGoodsReceipts = async () => {
+  const fetchGoodsReceipts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getGoodsReceipts();
       setGoodsReceipts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch goods receipts',
@@ -180,25 +132,25 @@ export default function ProcurementGoodsReceipts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchPurchaseOrders = async () => {
+  const fetchPurchaseOrders = useCallback(async () => {
     try {
       const data = await getPurchaseOrders();
       setPurchaseOrders(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching purchase orders:', error);
     }
-  };
+  }, []);
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching warehouses:', error);
     }
-  };
+  }, []);
 
   const handlePOSelection = async (poId: string) => {
     try {
@@ -206,8 +158,8 @@ export default function ProcurementGoodsReceipts() {
       if (po) {
         setSelectedPO(po);
         // Load PO items if available
-        if ((po as any).items) {
-          const items: GRNItem[] = (po as any).items.map((item: any) => ({
+        if ((po as unknown).items) {
+          const items: GRNItem[] = (po as unknown).items.map((item: unknown) => ({
             po_item_id: item.id || '',
             product_id: item.product_id,
             ordered_quantity: typeof item.quantity === 'number' ? item.quantity : parseFloat(String(item.quantity || 0)),
@@ -222,7 +174,7 @@ export default function ProcurementGoodsReceipts() {
           setGrnForm({ ...grnForm, po_id: poId, items });
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading PO details:', error);
     }
   };
@@ -265,7 +217,7 @@ export default function ProcurementGoodsReceipts() {
       setShowGRNDialog(false);
       resetForm();
       fetchGoodsReceipts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create goods receipt',
@@ -281,7 +233,7 @@ export default function ProcurementGoodsReceipts() {
     setShowViewDialog(true);
   };
 
-  const updateItem = (index: number, field: keyof GRNItem, value: any) => {
+  const updateItem = (index: number, field: keyof GRNItem, value: unknown) => {
     const updatedItems = [...grnForm.items];
     updatedItems[index] = {
       ...updatedItems[index],
@@ -316,9 +268,55 @@ export default function ProcurementGoodsReceipts() {
     resetForm();
     setShowGRNDialog(true);
   };
+    useEffect(() => {
+        let filtered = goodsReceipts;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(grn =>
+            grn.grn_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            grn.po_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            grn.warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(grn => grn.status === statusFilter);
+        }
+
+        // PO filter
+        if (poFilter !== 'all') {
+          filtered = filtered.filter(grn => grn.po_id === poFilter);
+        }
+
+        setFilteredReceipts(filtered);
+      }, [goodsReceipts, searchTerm, statusFilter, poFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchGoodsReceipts(),
+              fetchPurchaseOrders(),
+              fetchWarehouses(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading goods receipts data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load goods receipts',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchGoodsReceipts, fetchPurchaseOrders, fetchWarehouses, toast]);
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: any; label: string }> = {
+    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: unknown; label: string }> = {
       pending: { variant: 'outline', icon: Clock, label: 'Pending' },
       inspected: { variant: 'default', icon: PackageCheck, label: 'Inspected' },
       approved: { variant: 'default', icon: CheckCircle2, label: 'Approved' },

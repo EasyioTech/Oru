@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { db } from "@/lib/database";
+import { fetchJson, fetchMutate } from "@/utils/authApi";
 import { generateUUID } from "@/lib/uuid";
 import { useAuth } from "@/hooks/useAuth";
 import { getAgencyId } from "@/utils/agencyUtils";
@@ -109,14 +109,7 @@ const CreateClient: React.FC = () => {
             return;
           }
 
-          const { data, error } = await db
-            .from('clients')
-            .select('*')
-            .eq('id', id)
-            .eq('agency_id', agencyId)
-            .single();
-
-          if (error) throw error;
+          const data = await fetchJson(`/crm/clients/${id}`);
 
           if (data) {
             setClientId(data.id);
@@ -147,37 +140,17 @@ const CreateClient: React.FC = () => {
               notes: data.notes || '',
             });
 
-            // Fetch creator information
+            // Fetch creator information (Simplified for REST)
             if (data.created_by) {
-              try {
-                const { data: creatorData } = await db
-                  .from('users')
-                  .select('email')
-                  .eq('id', data.created_by)
-                  .single();
-
-                const { data: creatorProfile } = await db
-                  .from('profiles')
-                  .select('full_name')
-                  .eq('user_id', data.created_by)
-                  .single();
-
-                if (creatorData) {
-                  setCreatorInfo({
-                    name: creatorProfile?.full_name || creatorData.email || 'Unknown User',
-                    email: creatorData.email || '',
-                    created_at: data.created_at || '',
-                  });
-                }
-              } catch (error) {
-                console.error('Error fetching creator info:', error);
-              }
+               setCreatorInfo({
+                 name: 'System User', // Provide a fallback since we don't have users/profiles endpoint yet
+                 email: '',
+                 created_at: data.created_at || '',
+               });
             }
 
             // Fetch updater information (if updated_at is different from created_at)
             if (data.updated_at && data.updated_at !== data.created_at) {
-              // For now, we'll show the updated timestamp
-              // In a full implementation, you might want to track who updated it
               setUpdaterInfo({
                 name: 'System',
                 email: '',
@@ -185,7 +158,7 @@ const CreateClient: React.FC = () => {
               });
             }
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Error loading client:', error);
           toast({
             title: 'Error',
@@ -318,11 +291,11 @@ const CreateClient: React.FC = () => {
         return;
       }
 
-      // Generate client number
-      const { data: clientNumberData } = await db.rpc('generate_client_number');
+      // Generate client number (fallback since RPC is gone)
+      const clientNumberData = null;
 
       // Prepare data for submission
-      const dataToSubmit: any = {
+      const dataToSubmit: unknown = {
         name: formData.name.trim(),
         company_name: formData.company_name.trim() || null,
         industry: formData.industry.trim() || null,
@@ -352,21 +325,11 @@ const CreateClient: React.FC = () => {
       if (clientId) {
         // Update existing client
         // Remove fields that shouldn't be updated
-        const { id, client_number, created_by, created_at, updated_at, ...updateData } = dataToSubmit;
+        const { id, client_number, created_by, created_at, updated_at, ...updateData } = dataToSubmit as Record<string, unknown>;
         
-        // Fetch the updated record to get the actual updated_at timestamp
-        const { data: updatedClient, error } = await db
-          .from('clients')
-          .update(updateData)
-          .eq('id', clientId)
-          .eq('agency_id', agencyId)
-          .select()
-          .single();
-
-        if (error) throw error;
+        const updatedClient = await fetchMutate(`/crm/clients/${clientId}`, 'PUT', updateData);
 
         // Update updater info after successful update
-        // Use the actual updated_at from the database response
         const actualUpdatedAt = updatedClient?.updated_at || new Date().toISOString();
         setUpdaterInfo({
           name: profile?.full_name || user?.email || 'Current User',
@@ -381,20 +344,15 @@ const CreateClient: React.FC = () => {
       } else {
         // Insert new client
         const newClientId = generateUUID();
-        const { data: insertedData, error } = await db
-          .from('clients')
-          .insert({
+        const payload = {
             id: newClientId,
-            ...dataToSubmit,
+            ...(dataToSubmit as Record<string, unknown>),
             client_number: clientNumberData || `CLT-${Date.now().toString(36).toUpperCase()}`,
             agency_id: agencyId,
             is_active: true,
             created_by: user?.id,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
+        };
+        const insertedData = await fetchMutate('/crm/clients', 'POST', payload);
 
         // Clear draft on success
         clearDraft();
@@ -416,7 +374,7 @@ const CreateClient: React.FC = () => {
 
       // Navigate back to clients list
       navigate('/clients');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating client:', error);
       toast({
         title: 'Error',

@@ -3,7 +3,7 @@
  * Displays comprehensive system health metrics and monitoring with high performance
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,7 +27,7 @@ export default function SystemHealth() {
   const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
 
-  const fetchHealth = async () => {
+  const fetchHealth = useCallback(async () => {
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) {
@@ -105,13 +105,13 @@ export default function SystemHealth() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchHealth();
     const interval = setInterval(fetchHealth, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchHealth]);
 
   const handleRefresh = () => {
     setRefreshing(true);

@@ -3,7 +3,7 @@
  * Complete serial number and batch tracking interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -120,45 +120,31 @@ export default function InventorySerialBatch() {
     status: 'active',
     notes: '',
   });
-
-  useEffect(() => {
-    loadProducts();
-    loadWarehouses();
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'serial') {
-      loadSerialNumbers();
-    } else {
-      loadBatches();
-    }
-  }, [activeTab, serialFilterProduct, serialFilterWarehouse, serialFilterStatus, batchFilterProduct, batchFilterWarehouse, batchFilterStatus]);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setProductsLoading(true);
       const data = await getProducts({ is_active: true });
       setProducts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load products:', error);
     } finally {
       setProductsLoading(false);
     }
-  };
+  }, []);
 
-  const loadWarehouses = async () => {
+  const loadWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data.filter((w) => w.is_active));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load warehouses:', error);
     }
-  };
+  }, []);
 
-  const loadSerialNumbers = async () => {
+  const loadSerialNumbers = useCallback(async () => {
     try {
       setSerialLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (serialFilterProduct !== 'all') filters.product_id = serialFilterProduct;
       if (serialFilterWarehouse !== 'all') filters.warehouse_id = serialFilterWarehouse;
       if (serialFilterStatus !== 'all') filters.status = serialFilterStatus;
@@ -166,7 +152,7 @@ export default function InventorySerialBatch() {
 
       const data = await getSerialNumbers(filters);
       setSerialNumbers(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load serial numbers',
@@ -175,12 +161,12 @@ export default function InventorySerialBatch() {
     } finally {
       setSerialLoading(false);
     }
-  };
+  }, [serialFilterProduct, serialFilterWarehouse, serialFilterStatus, serialSearch, toast]);
 
-  const loadBatches = async () => {
+  const loadBatches = useCallback(async () => {
     try {
       setBatchLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (batchFilterProduct !== 'all') filters.product_id = batchFilterProduct;
       if (batchFilterWarehouse !== 'all') filters.warehouse_id = batchFilterWarehouse;
       if (batchFilterStatus !== 'all') filters.status = batchFilterStatus;
@@ -188,7 +174,7 @@ export default function InventorySerialBatch() {
 
       const data = await getBatches(filters);
       setBatches(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load batches',
@@ -197,7 +183,7 @@ export default function InventorySerialBatch() {
     } finally {
       setBatchLoading(false);
     }
-  };
+  }, [batchFilterProduct, batchFilterWarehouse, batchFilterStatus, batchSearch, toast]);
 
   // Serial Number Handlers
   const handleCreateSerial = () => {
@@ -237,7 +223,7 @@ export default function InventorySerialBatch() {
         description: 'Serial number deleted successfully',
       });
       loadSerialNumbers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete serial number',
@@ -274,7 +260,7 @@ export default function InventorySerialBatch() {
       }
       setIsSerialDialogOpen(false);
       loadSerialNumbers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save serial number',
@@ -314,6 +300,17 @@ export default function InventorySerialBatch() {
     setSelectedBatch(batch);
     setIsBatchViewDialogOpen(true);
   };
+    useEffect(() => {
+        if (activeTab === 'serial') {
+          loadSerialNumbers();
+        } else {
+          loadBatches();
+        }
+      }, [activeTab, serialFilterProduct, serialFilterWarehouse, serialFilterStatus, batchFilterProduct, batchFilterWarehouse, batchFilterStatus, loadSerialNumbers, loadBatches]);
+    useEffect(() => {
+        loadProducts();
+        loadWarehouses();
+      }, [loadProducts, loadWarehouses]);
 
   const handleDeleteBatch = async (batch: Batch) => {
     if (!confirm(`Are you sure you want to delete batch "${batch.batch_number}"?`)) {
@@ -327,7 +324,7 @@ export default function InventorySerialBatch() {
         description: 'Batch deleted successfully',
       });
       loadBatches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete batch',
@@ -364,7 +361,7 @@ export default function InventorySerialBatch() {
       }
       setIsBatchDialogOpen(false);
       loadBatches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save batch',
@@ -383,7 +380,7 @@ export default function InventorySerialBatch() {
       returned: 'outline',
       damaged: 'destructive',
     };
-    const icons: Record<string, any> = {
+    const icons: Record<string, unknown> = {
       available: CheckCircle2,
       reserved: Clock,
       sold: Package,
@@ -948,7 +945,7 @@ export default function InventorySerialBatch() {
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={serialFormData.status || 'available'}
-                    onValueChange={(value: any) => setSerialFormData({ ...serialFormData, status: value })}
+                    onValueChange={(value: unknown) => setSerialFormData({ ...serialFormData, status: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1182,7 +1179,7 @@ export default function InventorySerialBatch() {
                 <Label htmlFor="status_batch">Status</Label>
                 <Select
                   value={batchFormData.status || 'active'}
-                  onValueChange={(value: any) => setBatchFormData({ ...batchFormData, status: value })}
+                  onValueChange={(value: unknown) => setBatchFormData({ ...batchFormData, status: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />

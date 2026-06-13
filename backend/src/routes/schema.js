@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { pool, getAgencyPool } = require('../config/database');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { authenticate, requireAgencyContext } = require('../middleware/authMiddleware');
+const { authenticate, requireAgencyContext, requireRole } = require('../middleware/authMiddleware');
 const { quickSyncSchema } = require('../infrastructure/database/schemaSyncService');
 const logger = require('../utils/logger');
 
@@ -20,6 +20,8 @@ const logger = require('../utils/logger');
  */
 router.get(
   '/overview',
+  authenticate,
+  requireRole(['super_admin']),
   asyncHandler(async (_req, res) => {
     // List of tables we care most about for auth + agencies
     const coreTables = [

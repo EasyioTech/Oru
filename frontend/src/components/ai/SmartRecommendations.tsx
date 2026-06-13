@@ -52,12 +52,7 @@ export function SmartRecommendations() {
   const [automations, setAutomations] = useState<Automation[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchData();
-  }, [user?.id, profile?.agency_id]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       setLoading(true);
       const agencyId = await getAgencyId(profile, user?.id);
@@ -94,8 +89,8 @@ export function SmartRecommendations() {
       const generatedAutomations: Automation[] = [];
       
       // Invoice automation - if there are completed projects without invoices
-      const completedProjectsWithoutInvoices = (projects || []).filter((p: any) => 
-        p.status === 'completed' && !invoices?.some((inv: any) => inv.project_id === p.id)
+      const completedProjectsWithoutInvoices = (projects || []).filter((p: unknown) => 
+        p.status === 'completed' && !invoices?.some((inv: unknown) => inv.project_id === p.id)
       );
       if (completedProjectsWithoutInvoices.length > 0) {
         generatedAutomations.push({
@@ -113,7 +108,7 @@ export function SmartRecommendations() {
       }
 
       // Task reminder automation
-      const overdueTasks = (tasks || []).filter((t: any) => {
+      const overdueTasks = (tasks || []).filter((t: unknown) => {
         if (!t.due_date) return false;
         return new Date(t.due_date) < new Date() && t.status !== 'completed';
       });
@@ -133,7 +128,7 @@ export function SmartRecommendations() {
       }
 
       // Attendance tracking automation
-      const recentAttendance = (attendance || []).filter((a: any) => {
+      const recentAttendance = (attendance || []).filter((a: unknown) => {
         const date = new Date(a.date);
         const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         return date > weekAgo;
@@ -157,7 +152,7 @@ export function SmartRecommendations() {
       const generatedRecommendations: Recommendation[] = [];
       
       // Budget alert recommendation
-      const projectsNearBudget = (projects || []).filter((p: any) => {
+      const projectsNearBudget = (projects || []).filter((p: unknown) => {
         if (!p.budget || !p.actual_cost) return false;
         const budgetPercent = (p.actual_cost / p.budget) * 100;
         return budgetPercent >= 75 && budgetPercent < 100;
@@ -190,7 +185,7 @@ export function SmartRecommendations() {
       }
 
       // Client follow-up recommendation
-      const pendingInvoices = (invoices || []).filter((inv: any) => 
+      const pendingInvoices = (invoices || []).filter((inv: unknown) => 
         inv.status === 'sent' || inv.status === 'pending'
       );
       if (pendingInvoices.length > 0) {
@@ -215,7 +210,7 @@ export function SmartRecommendations() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile, user?.id]);
 
   const toggleAutomation = async (automationId: string) => {
     setAutomations(prev => 
@@ -268,6 +263,9 @@ export function SmartRecommendations() {
     .reduce((total, automation) => total + (automation.time_saved * automation.actions_count), 0);
 
   const activeAutomations = automations.filter(a => a.enabled).length;
+    useEffect(() => {
+        fetchData();
+      }, [fetchData]);
 
   return (
     <div className="space-y-6">

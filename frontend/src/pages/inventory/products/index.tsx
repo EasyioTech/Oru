@@ -3,7 +3,7 @@
  * Complete product catalog management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -108,62 +108,13 @@ export default function InventoryProducts() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchProducts(),
-          fetchCategories(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading products data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load products',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = products;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.barcode && p.barcode.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Category filter
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(p => p.category_id === categoryFilter);
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(p =>
-        statusFilter === 'active' ? p.is_active : !p.is_active
-      );
-    }
-
-    setFilteredProducts(filtered);
-  }, [products, searchTerm, categoryFilter, statusFilter]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getProducts();
       setProducts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch products',
@@ -172,16 +123,16 @@ export default function InventoryProducts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const data = await getProductCategories();
       setCategories(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, []);
 
   const handleCreateProduct = async () => {
     try {
@@ -212,7 +163,7 @@ export default function InventoryProducts() {
       setShowProductDialog(false);
       resetForm();
       fetchProducts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save product',
@@ -222,6 +173,53 @@ export default function InventoryProducts() {
       setLoading(false);
     }
   };
+    useEffect(() => {
+        let filtered = products;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (p.barcode && p.barcode.toLowerCase().includes(searchTerm.toLowerCase()))
+          );
+        }
+
+        // Category filter
+        if (categoryFilter !== 'all') {
+          filtered = filtered.filter(p => p.category_id === categoryFilter);
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(p =>
+            statusFilter === 'active' ? p.is_active : !p.is_active
+          );
+        }
+
+        setFilteredProducts(filtered);
+      }, [products, searchTerm, categoryFilter, statusFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchProducts(),
+              fetchCategories(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading products data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load products',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchProducts, fetchCategories, toast]);
 
   const handleEditProduct = async (product: Product) => {
     setSelectedProduct(product);
@@ -247,7 +245,7 @@ export default function InventoryProducts() {
       const product = await getProductById(productId);
       setSelectedProduct(product);
       setShowViewDialog(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch product details',
@@ -269,7 +267,7 @@ export default function InventoryProducts() {
         description: 'Product deleted successfully',
       });
       fetchProducts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete product',
@@ -289,7 +287,7 @@ export default function InventoryProducts() {
         description: `${codeType.toUpperCase()} code generated: ${code}`,
       });
       fetchProducts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to generate code',

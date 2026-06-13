@@ -60,18 +60,18 @@ const FinancialManagement = () => {
   
   // Dialog states
   const [jobFormOpen, setJobFormOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<unknown>(null);
   const [accountFormOpen, setAccountFormOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<any>(null);
+  const [selectedAccount, setSelectedAccount] = useState<unknown>(null);
   const [entryFormOpen, setEntryFormOpen] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [selectedEntry, setSelectedEntry] = useState<unknown>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState<any>(null);
-  const [accountToDelete, setAccountToDelete] = useState<any>(null);
-  const [entryToDelete, setEntryToDelete] = useState<any>(null);
+  const [jobToDelete, setJobToDelete] = useState<unknown>(null);
+  const [accountToDelete, setAccountToDelete] = useState<unknown>(null);
+  const [entryToDelete, setEntryToDelete] = useState<unknown>(null);
   const [costItemsDialogOpen, setCostItemsDialogOpen] = useState(false);
-  const [selectedJobForCosts, setSelectedJobForCosts] = useState<any>(null);
-  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [selectedJobForCosts, setSelectedJobForCosts] = useState<unknown>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<unknown>(null);
   const [transactionDetailsOpen, setTransactionDetailsOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
@@ -134,12 +134,12 @@ const FinancialManagement = () => {
     setJobFormOpen(true);
   };
 
-  const handleEditJob = (job: any) => {
+  const handleEditJob = (job: unknown) => {
     setSelectedJob(job);
     setJobFormOpen(true);
   };
 
-  const handleDeleteJob = (job: any) => {
+  const handleDeleteJob = (job: unknown) => {
     setJobToDelete(job);
     setDeleteDialogOpen(true);
   };
@@ -161,7 +161,7 @@ const FinancialManagement = () => {
           description: 'Job deleted successfully',
         });
         await fetchJobs(agencyId);
-      } catch (error: any) {
+      } catch (error: unknown) {
         setJobs(originalJobs);
         toast({
           title: 'Error',
@@ -181,12 +181,12 @@ const FinancialManagement = () => {
     setAccountFormOpen(true);
   };
 
-  const handleEditAccount = (account: any) => {
+  const handleEditAccount = (account: unknown) => {
     setSelectedAccount(account);
     setAccountFormOpen(true);
   };
 
-  const handleDeleteAccount = (account: any) => {
+  const handleDeleteAccount = (account: unknown) => {
     setAccountToDelete(account);
     setDeleteDialogOpen(true);
   };
@@ -226,7 +226,7 @@ const FinancialManagement = () => {
           description: 'Account deleted successfully',
         });
         await fetchChartOfAccounts(agencyId);
-      } catch (error: any) {
+      } catch (error: unknown) {
         setChartOfAccounts(chartOfAccounts);
         toast({
           title: 'Error',
@@ -245,7 +245,7 @@ const FinancialManagement = () => {
     navigate('/ledger/create-entry', { state: { from: 'financial-management' } });
   };
 
-  const handleEditEntry = async (entry: any) => {
+  const handleEditEntry = async (entry: unknown) => {
     try {
       const lines = await selectRecords('journal_entry_lines', {
         where: { journal_entry_id: entry.id },
@@ -259,7 +259,7 @@ const FinancialManagement = () => {
     }
   };
 
-  const handleDeleteEntry = (entry: any) => {
+  const handleDeleteEntry = (entry: unknown) => {
     if (entry.status === 'posted') {
       const confirmed = window.confirm(
         `Warning: This journal entry is POSTED and may affect your financial records.\n\n` +
@@ -307,7 +307,7 @@ const FinancialManagement = () => {
         await fetchJournalEntries(agencyId);
         await refetchAll();
         setAccountBalances({});
-      } catch (error: any) {
+      } catch (error: unknown) {
         setJournalEntries(originalEntries);
         toast({
           title: 'Error',
@@ -329,7 +329,7 @@ const FinancialManagement = () => {
         title: 'Success',
         description: 'Financial data exported to CSV successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to export report',
@@ -536,7 +536,7 @@ const FinancialManagement = () => {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {projects.map((project: any) => (
+                  {projects.map((project: unknown) => (
                     <Card key={project.id} className="hover:shadow-md transition-shadow">
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
@@ -763,7 +763,7 @@ const FinancialManagement = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedTransaction.lines.map((line: any, index: number) => {
+                        {selectedTransaction.lines.map((line: unknown, index: number) => {
                           const account = chartOfAccounts.find(acc => acc.id === line.account_id);
                           return (
                             <tr key={line.id || index} className="border-t">

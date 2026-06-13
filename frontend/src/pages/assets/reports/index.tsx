@@ -3,7 +3,7 @@
  * Comprehensive asset analytics and reporting
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,12 +52,7 @@ export default function AssetReports() {
   const [dateTo, setDateTo] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
-
-  useEffect(() => {
-    loadReports();
-  }, [dateFrom, dateTo]);
-
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getAssetReports({
@@ -65,7 +60,7 @@ export default function AssetReports() {
         date_to: dateTo,
       });
       setReports(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load asset reports',
@@ -74,7 +69,7 @@ export default function AssetReports() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateFrom, dateTo, toast]);
 
   const formatCurrency = (value: number | undefined) => {
     if (value === undefined || value === null) return '₹0.00';
@@ -108,6 +103,9 @@ export default function AssetReports() {
     };
     return <Badge variant={variants[status] || 'secondary'}>{status}</Badge>;
   };
+    useEffect(() => {
+        loadReports();
+      }, [loadReports]);
 
   if (loading && !reports) {
     return (

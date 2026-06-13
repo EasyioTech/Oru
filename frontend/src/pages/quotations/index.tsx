@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, Filter, FileCheck, Send, DollarSign, Calendar, Edit, Trash2, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +51,7 @@ interface QuotationTemplate {
   id: string;
   name: string;
   description?: string;
-  template_data?: any;
+  template_data?: unknown;
   is_active: boolean;
   last_used?: string;
   created_at: string;
@@ -74,13 +74,7 @@ const Quotations = () => {
   const [previewQuotationId, setPreviewQuotationId] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const clientFilterId = searchParams.get('client_id');
-
-  useEffect(() => {
-    fetchQuotations();
-    fetchTemplates();
-  }, []);
-
-  const fetchQuotations = async () => {
+  const fetchQuotations = useCallback(async () => {
     try {
       setLoading(true);
       const agencyId = await getAgencyId(profile, user?.id);
@@ -91,7 +85,7 @@ const Quotations = () => {
         return;
       }
 
-      let query = db
+      const query = db
         .from('quotations')
         .select('*')
         .eq('agency_id', agencyId)
@@ -102,7 +96,7 @@ const Quotations = () => {
       if (error) throw error;
 
       // Fetch client names (filtered by agency)
-      const clientIds = [...new Set((data || []).map((q: any) => q.client_id).filter(Boolean))];
+      const clientIds = [...new Set((data || []).map((q: unknown) => q.client_id).filter(Boolean))];
       let clientsMap = new Map();
 
       if (clientIds.length > 0) {
@@ -114,13 +108,13 @@ const Quotations = () => {
           .in('id', clientIds);
 
         if (!clientsError && clientsData) {
-          clientsMap = new Map(clientsData.map((c: any) => [c.id, c]));
+          clientsMap = new Map(clientsData.map((c: unknown) => [c.id, c]));
         }
       }
 
       // Fetch line items for all quotations
-      const quotationIds = (data || []).map((q: any) => q.id);
-      let lineItemsMap = new Map();
+      const quotationIds = (data || []).map((q: unknown) => q.id);
+      const lineItemsMap = new Map();
 
       if (quotationIds.length > 0) {
         const { data: lineItemsData, error: lineItemsError } = await db
@@ -130,7 +124,7 @@ const Quotations = () => {
           .order('sort_order', { ascending: true });
 
         if (!lineItemsError && lineItemsData) {
-          lineItemsData.forEach((item: any) => {
+          lineItemsData.forEach((item: unknown) => {
             if (!lineItemsMap.has(item.quotation_id)) {
               lineItemsMap.set(item.quotation_id, []);
             }
@@ -140,7 +134,7 @@ const Quotations = () => {
       }
 
       // Combine data
-      let quotationsWithDetails = (data || []).map((quote: any) => ({
+      let quotationsWithDetails = (data || []).map((quote: unknown) => ({
         ...quote,
         client: clientsMap.get(quote.client_id),
         line_items: lineItemsMap.get(quote.id) || [],
@@ -148,11 +142,11 @@ const Quotations = () => {
 
       // If filtering by client from URL, apply client filter
       if (clientFilterId) {
-        quotationsWithDetails = quotationsWithDetails.filter((q: any) => q.client_id === clientFilterId);
+        quotationsWithDetails = quotationsWithDetails.filter((q: unknown) => q.client_id === clientFilterId);
       }
 
       setQuotations(quotationsWithDetails);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching quotations:', error);
       toast({
         title: 'Error',
@@ -162,9 +156,9 @@ const Quotations = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile, user?.id, clientFilterId, toast]);
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     try {
       const agencyId = await getAgencyId(profile, user?.id);
       if (!agencyId) {
@@ -181,7 +175,7 @@ const Quotations = () => {
 
       if (error) throw error;
       setTemplates(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching templates:', error);
       toast({
         title: 'Error',
@@ -189,7 +183,7 @@ const Quotations = () => {
         variant: 'destructive',
       });
     }
-  };
+  }, [profile, user?.id, toast]);
 
   const handleNewQuotation = () => {
     navigate('/quotations/new');
@@ -243,7 +237,7 @@ const Quotations = () => {
       });
 
       fetchQuotations();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting quotation:', error);
       toast({
         title: 'Error',
@@ -281,7 +275,7 @@ const Quotations = () => {
       });
 
       fetchQuotations();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error sending quotation:', error);
       toast({
         title: 'Error',
@@ -397,7 +391,7 @@ const Quotations = () => {
       });
 
       fetchTemplates();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting template:', error);
       
       // Provide user-friendly error messages
@@ -446,6 +440,10 @@ const Quotations = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+    useEffect(() => {
+        fetchQuotations();
+        fetchTemplates();
+      }, [fetchQuotations, fetchTemplates]);
 
   const filteredQuotations = quotations.filter(quote => {
     const matchesSearch = 

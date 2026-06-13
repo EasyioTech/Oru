@@ -3,7 +3,7 @@
  * Multi-warehouse management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -92,40 +92,14 @@ export default function InventoryWarehouses() {
   });
 
   // Fetch data
-  useEffect(() => {
-    fetchWarehouses();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = warehouses;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(w =>
-        w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        w.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (w.city && w.city.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(w =>
-        statusFilter === 'active' ? w.is_active : !w.is_active
-      );
-    }
-
-    setFilteredWarehouses(filtered);
-  }, [warehouses, searchTerm, statusFilter]);
-
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       setInitialLoad(true);
       setLoading(true);
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch warehouses',
@@ -135,7 +109,7 @@ export default function InventoryWarehouses() {
       setLoading(false);
       setInitialLoad(false);
     }
-  };
+  }, [toast]);
 
   const handleCreateWarehouse = async () => {
     try {
@@ -156,7 +130,7 @@ export default function InventoryWarehouses() {
       setShowWarehouseDialog(false);
       resetForm();
       fetchWarehouses();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save warehouse',
@@ -166,6 +140,30 @@ export default function InventoryWarehouses() {
       setLoading(false);
     }
   };
+    useEffect(() => {
+        let filtered = warehouses;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(w =>
+            w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            w.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (w.city && w.city.toLowerCase().includes(searchTerm.toLowerCase()))
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(w =>
+            statusFilter === 'active' ? w.is_active : !w.is_active
+          );
+        }
+
+        setFilteredWarehouses(filtered);
+      }, [warehouses, searchTerm, statusFilter]);
+    useEffect(() => {
+        fetchWarehouses();
+      }, [fetchWarehouses]);
 
   const handleEditWarehouse = (warehouse: WarehouseType) => {
     setSelectedWarehouse(warehouse);
@@ -204,7 +202,7 @@ export default function InventoryWarehouses() {
         description: 'Warehouse deleted successfully',
       });
       fetchWarehouses();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete warehouse',

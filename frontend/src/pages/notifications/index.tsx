@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Bell, 
   Check, 
@@ -46,7 +46,7 @@ interface Notification {
   category: 'approval' | 'reminder' | 'update' | 'alert' | 'system';
   title: string;
   message: string;
-  metadata: any;
+  metadata: unknown;
   read_at: string | null;
   sent_at: string | null;
   priority: 'low' | 'normal' | 'high' | 'urgent';
@@ -90,7 +90,7 @@ const Notifications = () => {
     expiresAt: '',
   });
 
-  const isAdmin = userRole === 'admin' || userRole === 'hr' || userRole === 'super_admin';
+  const isAdmin = userRole === 'agency_admin' || userRole === 'manager' || userRole === 'super_admin';
 
   const { execute: fetchNotifications, loading: loadingNotifications } = useAsyncOperation({
     onError: (error) => {
@@ -137,7 +137,7 @@ const Notifications = () => {
     }
   });
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     if (!user) return;
     
     return fetchNotifications(async () => {
@@ -165,9 +165,9 @@ const Notifications = () => {
       
       return data;
     });
-  };
+  }, [user, fetchNotifications]);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     if (!isAdmin) return;
     
     try {
@@ -180,14 +180,14 @@ const Notifications = () => {
       if (error) throw error;
       
       // Transform the data to match User interface
-      const transformedUsers = (data || []).map((user: any) => ({
+      const transformedUsers = (data || []).map((user: unknown) => ({
         id: user.user_id,
         email: user.email,
         full_name: user.full_name || user.display_name || null
       }));
       
       setUsers(transformedUsers as User[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load users:', error);
       // Fallback: get users and profiles separately
       try {
@@ -197,15 +197,15 @@ const Notifications = () => {
           .order('email', { ascending: true });
         
         if (usersData && usersData.length > 0) {
-          const userIds = usersData.map((u: any) => u.id);
+          const userIds = usersData.map((u: unknown) => u.id);
           const { data: profilesData } = await db
             .from('profiles')
             .select('user_id, full_name')
             .in('user_id', userIds);
           
-          const profileMap = new Map((profilesData || []).map((p: any) => [p.user_id, p.full_name]));
+          const profileMap = new Map((profilesData || []).map((p: unknown) => [p.user_id, p.full_name]));
           
-          const usersWithNames = usersData.map((u: any) => ({
+          const usersWithNames = usersData.map((u: unknown) => ({
             id: u.id,
             email: u.email,
             full_name: profileMap.get(u.id) || null
@@ -217,50 +217,8 @@ const Notifications = () => {
         console.error('Fallback also failed:', fallbackErr);
       }
     }
-  };
-
-  useEffect(() => {
-    if (user) {
-      loadNotifications();
-      if (isAdmin) {
-        loadUsers();
-      }
-    }
-  }, [user]);
-
+  }, [isAdmin]);
   // Filter notifications based on search, category, priority, and tab
-  useEffect(() => {
-    let filtered = [...notifications];
-
-    // Apply tab filter
-    if (activeTab === 'unread') {
-      filtered = filtered.filter(n => !n.read_at);
-    } else if (activeTab !== 'all') {
-      filtered = filtered.filter(n => n.category === activeTab);
-    }
-
-    // Apply category filter
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(n => n.category === categoryFilter);
-    }
-
-    // Apply priority filter
-    if (priorityFilter !== 'all') {
-      filtered = filtered.filter(n => n.priority === priorityFilter);
-    }
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(n => 
-        n.title.toLowerCase().includes(query) || 
-        n.message.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredNotifications(filtered);
-  }, [notifications, activeTab, categoryFilter, priorityFilter, searchQuery]);
-
   const handleMarkAsRead = async (notificationId: string) => {
     return markAsRead(async () => {
       try {
@@ -271,7 +229,7 @@ const Notifications = () => {
         if (error && !error.message?.includes('does not exist') && !error.message?.includes('42P01')) {
           throw error;
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!error.message?.includes('does not exist') && !error.message?.includes('42P01')) {
           throw error;
         }
@@ -332,7 +290,7 @@ const Notifications = () => {
       setNotifications(prev => prev.filter(n => !selectedNotifications.has(n.id)));
       setSelectedNotifications(new Set());
       toast({ title: `${ids.length} notification(s) deleted successfully` });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({ variant: 'destructive', title: 'Failed to delete notifications', description: error.message });
     }
   };
@@ -423,6 +381,45 @@ const Notifications = () => {
       default: return <Info className="w-4 h-4 text-blue-500" />;
     }
   };
+    useEffect(() => {
+        let filtered = [...notifications];
+
+        // Apply tab filter
+        if (activeTab === 'unread') {
+          filtered = filtered.filter(n => !n.read_at);
+        } else if (activeTab !== 'all') {
+          filtered = filtered.filter(n => n.category === activeTab);
+        }
+
+        // Apply category filter
+        if (categoryFilter !== 'all') {
+          filtered = filtered.filter(n => n.category === categoryFilter);
+        }
+
+        // Apply priority filter
+        if (priorityFilter !== 'all') {
+          filtered = filtered.filter(n => n.priority === priorityFilter);
+        }
+
+        // Apply search filter
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          filtered = filtered.filter(n => 
+            n.title.toLowerCase().includes(query) || 
+            n.message.toLowerCase().includes(query)
+          );
+        }
+
+        setFilteredNotifications(filtered);
+      }, [notifications, activeTab, categoryFilter, priorityFilter, searchQuery]);
+    useEffect(() => {
+        if (user) {
+          loadNotifications();
+          if (isAdmin) {
+            loadUsers();
+          }
+        }
+      }, [user, isAdmin, loadNotifications, loadUsers]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {

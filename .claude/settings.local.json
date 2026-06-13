@@ -19,5 +19,8 @@
       "Bash(python3 -m json.tool)",
       "Read(//tmp/**)"
     ]
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true
   }
 }

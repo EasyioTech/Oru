@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowRight, Play, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { Button } from '../fragments';
 import { GridPattern, GlowOrb } from '../fragments';
 import { Link } from 'react-router-dom';
@@ -37,7 +37,6 @@ const ShimmerBadge = () => (
     className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted border border-border overflow-hidden group mb-8"
   >
     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
-    <Sparkles className="w-4 h-4 text-muted-foreground" />
     <span className="text-xs sm:text-xs font-bold text-muted-foreground tracking-tight uppercase">
       Optimizing Productivity for Modern Agencies
     </span>
@@ -222,7 +221,7 @@ const DashboardPreview = () => (
     >
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <CheckCircle2 className="w-4 h-4 text-primary" />
         </div>
         <span className="text-[11px] font-bold text-foreground leading-[1.3]">Operational Audit <strong>Completed</strong></span>
       </div>
@@ -274,27 +273,28 @@ export const Hero = () => {
           transition={{ duration: 0.6, delay: 1.2 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Link to="/waitlist">
+          <Link to="/agency-signup">
             <Button
               size="lg"
               variant="primary"
               className="px-8 h-12 text-base rounded-xl"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Join the Waitlist
+                Start Free Trial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>
           </Link>
 
-          <Button
-            size="lg"
-            variant="outline"
-            className="px-8 h-12 text-base rounded-xl"
-          >
-            <Play className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-            Watch Demo
-          </Button>
+          <Link to="/auth">
+            <Button
+              size="lg"
+              variant="outline"
+              className="px-8 h-12 text-base rounded-xl"
+            >
+              Sign In
+            </Button>
+          </Link>
         </motion.div>
 
         <motion.div

@@ -41,7 +41,7 @@ export const useProductForm = (onSuccess: () => void) => {
       setShowDialog(false);
       setForm(initialProductForm);
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create product',

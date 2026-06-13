@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, UserCheck, FileText, Calendar, Phone, Mail, MapPin, Globe, Briefcase, Building2, Tag, Plus, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/database';
+import { fetchJson } from '@/utils/authApi';
 import LeadFormDialog from '@/components/shared/LeadFormDialog';
 import ActivityFormDialog from '@/components/shared/ActivityFormDialog';
 import ConvertLeadToClientDialog from '@/components/shared/ConvertLeadToClientDialog';
@@ -17,37 +17,22 @@ const LeadDetail = () => {
   const { leadId } = useParams<{ leadId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [lead, setLead] = useState<any>(null);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [relatedProjects, setRelatedProjects] = useState<any[]>([]);
-  const [relatedQuotations, setRelatedQuotations] = useState<any[]>([]);
-  const [relatedClient, setRelatedClient] = useState<any>(null);
+  const [lead, setLead] = useState<unknown>(null);
+  const [activities, setActivities] = useState<unknown[]>([]);
+  const [relatedProjects, setRelatedProjects] = useState<unknown[]>([]);
+  const [relatedQuotations, setRelatedQuotations] = useState<unknown[]>([]);
+  const [relatedClient, setRelatedClient] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [leadFormOpen, setLeadFormOpen] = useState(false);
   const [activityFormOpen, setActivityFormOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (leadId) {
-      fetchLeadDetails();
-      fetchActivities();
-      fetchRelatedRecords();
-    }
-  }, [leadId]);
-
-  const fetchLeadDetails = async () => {
+  const fetchLeadDetails = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await db
-        .from('leads')
-        .select('*')
-        .eq('id', leadId)
-        .single();
-
-      if (error) throw error;
+      const data = await fetchJson(`/crm/leads/${leadId}`);
       setLead(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching lead:', error);
       toast({
         title: 'Error',
@@ -57,56 +42,48 @@ const LeadDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [leadId, toast]);
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
-      const { data, error } = await db
-        .from('crm_activities')
-        .select('*')
-        .eq('lead_id', leadId)
-        .order('activity_date', { ascending: false });
-
-      if (error) throw error;
+      const data = await fetchJson(`/crm/activities?leadId=${leadId}`);
       setActivities(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching activities:', error);
     }
-  };
+  }, [leadId]);
 
-  const fetchRelatedRecords = async () => {
+  const fetchRelatedRecords = useCallback(async (currentLead: {converted_to_client_id?: string} = {}) => {
     try {
       // Fetch related client if converted
-      if (lead?.converted_to_client_id) {
-        const { data: clientData } = await db
-          .from('clients')
-          .select('*')
-          .eq('id', lead.converted_to_client_id)
-          .single();
-        setRelatedClient(clientData);
-      }
+      if (currentLead?.converted_to_client_id) {
+        try {
+          const clientData = await fetchJson(`/crm/clients/${currentLead.converted_to_client_id}`);
+          setRelatedClient(clientData);
+        } catch (e) {
+          console.error('Error fetching client:', e);
+        }
 
-      // Fetch related projects (if client exists)
-      if (lead?.converted_to_client_id) {
-        const { data: projectsData } = await db
-          .from('projects')
-          .select('*')
-          .eq('client_id', lead.converted_to_client_id);
-        setRelatedProjects(projectsData || []);
-      }
+        // Fetch related projects (if client exists)
+        try {
+          const projectsData = await fetchJson(`/projects?clientId=${currentLead.converted_to_client_id}`);
+          setRelatedProjects(projectsData || []);
+        } catch (e) {
+          console.error('Error fetching projects:', e);
+        }
 
-      // Fetch related quotations (if client exists)
-      if (lead?.converted_to_client_id) {
-        const { data: quotationsData } = await db
-          .from('quotations')
-          .select('*')
-          .eq('client_id', lead.converted_to_client_id);
-        setRelatedQuotations(quotationsData || []);
+        // Fetch related quotations (if client exists)
+        try {
+          const quotationsData = await fetchJson(`/quotations?clientId=${currentLead.converted_to_client_id}`);
+          setRelatedQuotations(quotationsData || []);
+        } catch (e) {
+          console.error('Error fetching quotations:', e);
+        }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching related records:', error);
     }
-  };
+  }, []);
 
   const handleEdit = () => {
     setLeadFormOpen(true);
@@ -161,7 +138,7 @@ const LeadDetail = () => {
           leadData: lead,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create quotation',
@@ -209,6 +186,17 @@ const LeadDetail = () => {
       default: return Clock;
     }
   };
+    useEffect(() => {
+        if (lead?.converted_to_client_id) {
+          fetchRelatedRecords(lead);
+        }
+      }, [lead?.converted_to_client_id, lead, fetchRelatedRecords]);
+    useEffect(() => {
+        if (leadId) {
+          fetchLeadDetails();
+          fetchActivities();
+        }
+      }, [leadId, fetchLeadDetails, fetchActivities]);
 
   if (loading) {
     return (

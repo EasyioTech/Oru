@@ -1,6 +1,6 @@
 
 import { db } from '../../../infrastructure/database/index.js';
-import { agencies, users, systemHealthMetrics, profiles, tickets, userSessions } from '../../../infrastructure/database/schema.js';
+import { agencies, users, systemHealthMetrics, profiles, tickets, userSessions, projects, clients } from '../../../infrastructure/database/schema.js';
 import { eq, sql, desc, count, isNotNull, and, sum, gte } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { TicketsQueryInput } from '../schemas.js';
@@ -109,14 +109,21 @@ export class SystemMonitoringService {
         const [totalUsersResult] = await db.select({ count: count() }).from(users);
         const [activeUsersResult] = await db.select({ count: count() }).from(users).where(eq(users.status, 'active'));
 
+        const [totalProjectsResult] = await db.select({ count: count() }).from(projects);
+        const [totalClientsResult] = await db.select({ count: count() }).from(clients);
+
         const plansResult = await db.select({ plan: agencies.subscriptionPlan, count: count() }).from(agencies).groupBy(agencies.subscriptionPlan);
         const subscriptionPlans: Record<string, number> = { basic: 0, pro: 0, enterprise: 0 };
         plansResult.forEach(row => { if (row.plan) subscriptionPlans[row.plan] = row.count; });
 
         const [latestHealth] = await db.select().from(systemHealthMetrics).orderBy(desc(systemHealthMetrics.timestamp)).limit(1);
         const agenciesList = await db.select().from(agencies).orderBy(desc(agencies.createdAt)).limit(50);
+        
         const usersPerAgency = await db.select({ agencyId: profiles.agencyId, count: count() }).from(profiles).where(isNotNull(profiles.agencyId)).groupBy(profiles.agencyId);
         const agencyUserMap = new Map(usersPerAgency.map(row => [row.agencyId as string, row.count]));
+
+        const projectsPerAgency = await db.select({ agencyId: projects.agencyId, count: count() }).from(projects).groupBy(projects.agencyId);
+        const agencyProjectMap = new Map(projectsPerAgency.map(row => [row.agencyId as string, row.count]));
 
         return {
             metrics: {
@@ -130,11 +137,11 @@ export class SystemMonitoringService {
                     mrr: 0,
                     arr: 0,
                 },
-                // Usage stats: cross-tenant aggregation not yet implemented
+                // Usage stats: cross-tenant aggregation (invoices & attendance pending implementation)
                 usageStats: {
-                    totalProjects: 0,
+                    totalProjects: totalProjectsResult.count,
                     totalInvoices: 0,
-                    totalClients: 0,
+                    totalClients: totalClientsResult.count,
                     totalAttendanceRecords: 0,
                 },
                 systemHealth: {
@@ -153,7 +160,7 @@ export class SystemMonitoringService {
                 is_active: agency.isActive ?? false,
                 created_at: agency.createdAt?.toISOString() ?? new Date().toISOString(),
                 user_count: agencyUserMap.get(agency.id) ?? 0,
-                project_count: 0,
+                project_count: agencyProjectMap.get(agency.id) ?? 0,
                 invoice_count: 0,
             })),
         };

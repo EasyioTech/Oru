@@ -18,7 +18,7 @@ const Settings = () => {
   const { loading: loadingAgencyData } = useAgencySettings();
   
   // Check if user is admin or super_admin
-  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+  const isAdmin = userRole === 'agency_admin' || userRole === 'super_admin';
 
   if (loadingAgencyData) {
     return (

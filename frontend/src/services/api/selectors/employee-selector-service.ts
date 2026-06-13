@@ -80,7 +80,7 @@ export async function getEmployeesForAssignment(
       // Build query options - use where clause for compatibility
       // Note: unified_employees view may not have agency_id column in all databases
       // So we'll filter after fetching if needed
-      const queryOptions: any = {
+      const queryOptions: unknown = {
         orderBy: 'display_name ASC'
       };
 
@@ -89,23 +89,23 @@ export async function getEmployeesForAssignment(
       
       // Filter by agency_id if the view has it, otherwise filter in memory
       if (unifiedData.length > 0 && unifiedData[0].agency_id !== undefined) {
-        unifiedData = unifiedData.filter((emp: any) => emp.agency_id === agencyId);
+        unifiedData = unifiedData.filter((emp: unknown) => emp.agency_id === agencyId);
       } else {
         // Fallback: filter via profiles if view doesn't have agency_id
         const profiles = await selectRecs('profiles', {
           where: { agency_id: agencyId }
         });
-        const agencyUserIds = new Set(profiles.map((p: any) => p.user_id));
-        unifiedData = unifiedData.filter((emp: any) => agencyUserIds.has(emp.user_id));
+        const agencyUserIds = new Set(profiles.map((p: unknown) => p.user_id));
+        unifiedData = unifiedData.filter((emp: unknown) => agencyUserIds.has(emp.user_id));
       }
       
       // Filter by active status
       if (!includeInactive) {
-        unifiedData = unifiedData.filter((emp: any) => emp.is_fully_active === true);
+        unifiedData = unifiedData.filter((emp: unknown) => emp.is_fully_active === true);
       }
 
       // Transform to EmployeeOption format
-      let employees: EmployeeOption[] = unifiedData.map((emp: any) => ({
+      let employees: EmployeeOption[] = unifiedData.map((emp: unknown) => ({
         id: emp.user_id,
         user_id: emp.user_id,
         full_name: emp.display_name || emp.full_name || emp.email || 'Unknown User',
@@ -144,14 +144,14 @@ export async function getEmployeesForAssignment(
       }
 
       return employees;
-    } catch (viewError: any) {
+    } catch (viewError) {
       // Fallback: unified_employees view doesn't exist or doesn't have agency_id
       console.warn('unified_employees view not available or missing agency_id, using fallback:', viewError.message);
       
       // Fallback to manual join
       return await getEmployeesForAssignmentFallback(agencyId, options);
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getEmployeesForAssignment:', error);
     throw new Error(`Failed to fetch employees: ${error.message}`);
   }
@@ -175,7 +175,7 @@ async function getEmployeesForAssignmentFallback(
     });
 
     // Get user_ids
-    const userIds = profiles.map((p: any) => p.user_id).filter(Boolean);
+    const userIds = profiles.map((p: unknown) => p.user_id).filter(Boolean);
 
     if (userIds.length === 0) {
       return [];
@@ -196,12 +196,12 @@ async function getEmployeesForAssignmentFallback(
     });
 
     // Create maps for quick lookup
-    const userMap = new Map(users.map((u: any) => [u.id, u]));
-    const employeeDetailsMap = new Map(employeeDetails.map((ed: any) => [ed.user_id, ed]));
+    const userMap = new Map(users.map((u: unknown) => [u.id, u]));
+    const employeeDetailsMap = new Map(employeeDetails.map((ed: unknown) => [ed.user_id, ed]));
 
     // Combine data
     const employees: EmployeeOption[] = profiles
-      .filter((p: any) => {
+      .filter((p: unknown) => {
         const user = userMap.get(p.user_id);
         const ed = employeeDetailsMap.get(p.user_id);
         
@@ -215,7 +215,7 @@ async function getEmployeesForAssignmentFallback(
         
         return true;
       })
-      .map((p: any) => {
+      .map((p: unknown) => {
         const user = userMap.get(p.user_id);
         const ed = employeeDetailsMap.get(p.user_id);
         
@@ -238,7 +238,7 @@ async function getEmployeesForAssignmentFallback(
       });
 
     return employees;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getEmployeesForAssignmentFallback:', error);
     throw new Error(`Failed to fetch employees (fallback): ${error.message}`);
   }
@@ -257,7 +257,7 @@ async function getEmployeesForAssignmentFallback(
  * @example
  * ```typescript
  * const employees = await getAccessibleEmployeesForAssignment(
- *   'department_head',
+ *   'manager',
  *   'dept-123',
  *   agencyId
  * );
@@ -274,28 +274,12 @@ export async function getAccessibleEmployeesForAssignment(
     return [];
   }
 
-  // Full access roles can see all employees
-  const fullAccessRoles = ['super_admin', 'ceo', 'cfo', 'hr', 'admin', 'operations_manager'];
-  
+  const fullAccessRoles = ['super_admin', 'agency_admin', 'manager'];
+
   if (fullAccessRoles.includes(userRole)) {
     return await getEmployeesForAssignment(agencyId, options);
   }
 
-  // Department-only access roles
-  const deptAccessRoles = ['department_head', 'team_lead', 'project_manager'];
-  
-  if (deptAccessRoles.includes(userRole) && userDepartmentId) {
-    // For department-based access, we need to filter by team_assignments
-    // This is a simplified version - for production, consider enhancing the query
-    const allEmployees = await getEmployeesForAssignment(agencyId, options);
-    
-    // Filter by department (this is a simplified filter)
-    // For exact filtering, you'd need to join with team_assignments table
-    // For now, return all employees and let the component handle filtering if needed
-    return allEmployees;
-  }
-
-  // Self-only access - return empty array (user can only see themselves)
   return [];
 }
 

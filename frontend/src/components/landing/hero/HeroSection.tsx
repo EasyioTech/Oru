@@ -33,20 +33,21 @@ export function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-            <Link to="/register">
+            <Link to="/agency-signup">
               <Button size="lg" className="h-14 px-8 text-base font-semibold gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/25">
                 Start Free Trial
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="h-14 px-8 text-base font-semibold gap-2 border-2"
-            >
-              <Play className="h-4 w-4" />
-              Watch 2-min Demo
-            </Button>
+            <Link to="/auth">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="h-14 px-8 text-base font-semibold gap-2 border-2"
+              >
+                Sign In
+              </Button>
+            </Link>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '300ms' }}>

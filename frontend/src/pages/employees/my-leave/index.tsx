@@ -4,10 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Calendar, Clock, CheckCircle, XCircle, Plane, Heart, User, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from "@/hooks/use-toast";
-import { selectRecords } from '@/services/api/core';
+import { fetchLeaveTypes, fetchLeaveRequests, LeaveRequest as ApiLeaveRequest } from '@/services/api/hr/leaves';
 import LeaveRequestFormDialog from "@/components/shared/LeaveRequestFormDialog";
 
 interface LeaveRequest {
@@ -34,6 +34,7 @@ const MyLeave = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('all');
   const [showLeaveRequestDialog, setShowLeaveRequestDialog] = useState(false);
+
   const [leaveBalance, setLeaveBalance] = useState<Record<string, LeaveBalance>>({
     annual: { total: 0, used: 0, remaining: 0 },
     sick: { total: 0, used: 0, remaining: 0 },
@@ -42,62 +43,31 @@ const MyLeave = () => {
   });
   const [myLeaveRequests, setMyLeaveRequests] = useState<LeaveRequest[]>([]);
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchMyLeaveData();
-    }
-  }, [user?.id]);
-
-  const fetchMyLeaveData = async () => {
+  const fetchMyLeaveData = useCallback(async () => {
     if (!user?.id) return;
 
     try {
       setLoading(true);
 
-      // Fetch leave types using PostgreSQL service
-      const leaveTypes = await selectRecords('leave_types', {
-        orderBy: 'name ASC'
-      });
+      // Fetch leave types using REST API
+      const leaveTypes = await fetchLeaveTypes();
 
-      // Fetch user's leave requests using PostgreSQL service
-      const leaveRequests = await selectRecords('leave_requests', {
-        filters: [
-          { column: 'employee_id', operator: 'eq', value: user.id }
-        ],
-        orderBy: 'created_at DESC'
-      });
-
-      // Fetch approver names for approved requests
-      const approverIds = leaveRequests
-        .filter((lr: any) => lr.approved_by)
-        .map((lr: any) => lr.approved_by)
-        .filter(Boolean) as string[];
-
-      let approvers: any[] = [];
-      if (approverIds.length > 0) {
-        approvers = await selectRecords('profiles', {
-          select: 'user_id, full_name',
-          filters: [
-            { column: 'user_id', operator: 'in', value: approverIds }
-          ]
-        });
-      }
-
-      const approverMap = new Map(approvers.map((p: any) => [p.user_id, p.full_name]));
+      // Fetch user's leave requests using REST API
+      const leaveRequests = await fetchLeaveRequests();
 
       // Calculate leave balances
       const balances: Record<string, LeaveBalance> = {};
-      const leaveTypeMap = new Map(leaveTypes.map((lt: any) => [lt.id, lt]));
+      const leaveTypeMap = new Map(leaveTypes.map(lt => [lt.id, lt]));
 
-      leaveTypes.forEach((leaveType: any) => {
+      leaveTypes.forEach(leaveType => {
         const typeName = leaveType.name.toLowerCase();
-        const total = (leaveType as any).max_days_per_year || (leaveType as any).max_days || 0;
+        const total = leaveType.max_days_per_year || 0;
         
         // Calculate used days (only approved requests)
         const approvedRequests = leaveRequests.filter(
-          (lr: any) => lr.leave_type_id === leaveType.id && lr.status === 'approved'
+          lr => lr.leave_type_id === leaveType.id && lr.status === 'approved'
         );
-        const used = approvedRequests.reduce((sum: number, lr: any) => sum + (lr.total_days || 0), 0);
+        const used = approvedRequests.reduce((sum, lr) => sum + (lr.total_days || 0), 0);
         const remaining = Math.max(0, total - used);
 
         // Map to common leave types
@@ -125,12 +95,11 @@ const MyLeave = () => {
       setLeaveBalance(balances);
 
       // Transform leave requests
-      const transformedRequests: LeaveRequest[] = leaveRequests.map((request: any) => {
-        const leaveType = leaveTypeMap.get(request.leave_type_id);
-        const leaveTypeName = leaveType?.name || 'Leave';
-        const approverName = request.approved_by 
-          ? approverMap.get(request.approved_by) || 'Unknown'
-          : null;
+      const transformedRequests: LeaveRequest[] = leaveRequests.map((request) => {
+        const leaveTypeName = request.leave_type?.name || 'Leave';
+        // Note: Currently we only show 'Approved By Admin' if approved. 
+        // We could fetch user names for approved_by if needed, but keeping it simple for now.
+        const approverName = request.approved_by ? 'Admin/Manager' : null;
 
         return {
           id: request.id,
@@ -147,7 +116,7 @@ const MyLeave = () => {
 
       setMyLeaveRequests(transformedRequests);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching leave data:', error);
       toast({
         title: "Error",
@@ -157,7 +126,12 @@ const MyLeave = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, toast]);
+    useEffect(() => {
+        if (user?.id) {
+          fetchMyLeaveData();
+        }
+      }, [user?.id, fetchMyLeaveData]);
 
   if (loading) {
     return (
@@ -198,7 +172,7 @@ const MyLeave = () => {
     }
   };
 
-  const LeaveBalanceCard = ({ title, balance, icon, color }: any) => (
+  const LeaveBalanceCard = ({ title, balance, icon, color }: unknown) => (
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between mb-4">

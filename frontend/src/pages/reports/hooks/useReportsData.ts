@@ -97,7 +97,7 @@ export const useReportsData = () => {
         if (previousResponse.success && previousResponse.data) {
           setPreviousMonthData(previousResponse.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || 'Failed to load monthly data');
         addNotification({
           type: 'error',
@@ -135,7 +135,7 @@ export const useReportsData = () => {
         if (previousResponse.success && previousResponse.data) {
           setPreviousYearData(previousResponse.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || 'Failed to load yearly data');
         addNotification({
           type: 'error',
@@ -159,7 +159,7 @@ export const useReportsData = () => {
         if (response.success && response.data) {
           setMonthlyTrends(response.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load trends:', err);
       } finally {
         setLoading(prev => ({ ...prev, trends: false }));
@@ -177,7 +177,7 @@ export const useReportsData = () => {
         if (response.success && response.data) {
           setDepartmentData(response.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load departments:', err);
       } finally {
         setLoading(prev => ({ ...prev, departments: false }));
@@ -196,7 +196,7 @@ export const useReportsData = () => {
         if (response.success && response.data) {
           setProjectReports(response.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load projects:', err);
       } finally {
         setLoading(prev => ({ ...prev, projects: false }));
@@ -216,7 +216,7 @@ export const useReportsData = () => {
         if (response.success && response.data) {
           setCustomReports(response.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load custom reports:', err);
       } finally {
         setLoading(prev => ({ ...prev, custom: false }));
@@ -230,7 +230,7 @@ export const useReportsData = () => {
     const fetchSavedReports = async () => {
       setLoading(prev => ({ ...prev, saved: true }));
       try {
-        const filters: any = {};
+        const filters: unknown = {};
         if (user?.id) {
           filters.generated_by = user.id;
         }
@@ -238,7 +238,7 @@ export const useReportsData = () => {
         if (response.success && response.data) {
           setSavedReports(response.data || []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load saved reports:', err);
       } finally {
         setLoading(prev => ({ ...prev, saved: false }));
@@ -303,7 +303,7 @@ export const useReportsData = () => {
         title: 'Refresh Complete',
         message: 'All reports have been refreshed',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       addNotification({
         type: 'error',
         title: 'Refresh Failed',

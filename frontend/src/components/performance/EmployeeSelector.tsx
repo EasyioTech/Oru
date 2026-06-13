@@ -22,14 +22,7 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!authLoading && user && userRole !== undefined) {
-      fetchEmployees();
-    }
-  }, [userRole, profile, authLoading, user]);
-
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     if (!user || !userRole) {
       setLoading(false);
       return;
@@ -40,8 +33,7 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
       setError(null);
       
       // Check access level
-      const fullAccessRoles = ['super_admin', 'ceo', 'cfo', 'hr', 'admin', 'operations_manager'];
-      const deptAccessRoles = ['department_head', 'team_lead', 'project_manager'];
+      const fullAccessRoles = ['super_admin', 'agency_admin', 'manager'];
       
       if (fullAccessRoles.includes(userRole)) {
         // Full access - get all employees
@@ -56,51 +48,9 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
               onEmployeeChange(currentUserEmployee.user_id);
             }
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error('Error fetching all employees:', err);
           setError('Failed to load employees. Please try again.');
-          // Fallback to self-only
-          setEmployees([{
-            id: user.id,
-            user_id: user.id,
-            full_name: profile?.full_name || 'You',
-            department: profile?.department || null,
-          }]);
-        }
-      } else if (deptAccessRoles.includes(userRole)) {
-        // Department access - get department employees
-        try {
-          const teamAssignments = await selectRecords('team_assignments', {
-            filters: [
-              { column: 'user_id', operator: 'eq', value: user.id },
-              { column: 'is_active', operator: 'eq', value: true }
-            ]
-          });
-          
-          const userDepartmentId = teamAssignments[0]?.department_id || null;
-          if (userDepartmentId) {
-            const deptEmployees = await getAccessibleEmployees(userRole, userDepartmentId);
-            setEmployees(deptEmployees);
-            
-            // Auto-select current user if no selection
-            if (!selectedEmployeeId && user.id) {
-              const currentUserEmployee = deptEmployees.find(emp => emp.user_id === user.id);
-              if (currentUserEmployee) {
-                onEmployeeChange(currentUserEmployee.user_id);
-              }
-            }
-          } else {
-            // No department assigned, fallback to self-only
-            setEmployees([{
-              id: user.id,
-              user_id: user.id,
-              full_name: profile?.full_name || 'You',
-              department: profile?.department || null,
-            }]);
-          }
-        } catch (err: any) {
-          console.error('Error fetching department employees:', err);
-          setError('Failed to load department employees.');
           // Fallback to self-only
           setEmployees([{
             id: user.id,
@@ -123,7 +73,7 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
           onEmployeeChange(user.id);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching employees:', error);
       setError('Failed to load employees. Please refresh the page.');
       // Fallback to self-only
@@ -141,7 +91,12 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, userRole, profile, selectedEmployeeId, onEmployeeChange]);
+    useEffect(() => {
+        if (!authLoading && user && userRole !== undefined) {
+          fetchEmployees();
+        }
+      }, [userRole, profile, authLoading, user, fetchEmployees]);
 
   if (authLoading || loading) {
     return (

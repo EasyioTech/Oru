@@ -32,7 +32,7 @@ export const useProjects = (
     try {
       setLoading(true);
       
-      const filters: any = {};
+      const filters: unknown = {};
       if (statusFilter !== 'all') {
         filters.status = [statusFilter === 'in-progress' ? 'in_progress' : statusFilter === 'on-hold' ? 'on_hold' : statusFilter];
       }
@@ -63,7 +63,7 @@ export const useProjects = (
         
         const userDepartmentMap = new Map<string, string>();
         if (assignments) {
-          assignments.forEach((ta: any) => {
+          assignments.forEach((ta: unknown) => {
             if (ta.user_id) {
               userDepartmentMap.set(ta.user_id, ta.department_id);
             }
@@ -72,7 +72,7 @@ export const useProjects = (
 
         filteredData = filteredData.filter((project: Project) => {
           if (!project.assigned_team) return false;
-          let teamMembers: any[] = [];
+          let teamMembers: unknown[] = [];
           try {
             teamMembers = typeof project.assigned_team === 'string' 
               ? JSON.parse(project.assigned_team) 
@@ -80,7 +80,7 @@ export const useProjects = (
           } catch {
             return false;
           }
-          return teamMembers.some((member: any) => {
+          return teamMembers.some((member: unknown) => {
             const userId = member.user_id || member.id;
             return userId && userDepartmentMap.has(userId);
           });
@@ -90,7 +90,7 @@ export const useProjects = (
       if (urlEmployeeId) {
         filteredData = filteredData.filter((project: Project) => {
           if (!project.assigned_team) return false;
-          let teamMembers: any[] = [];
+          let teamMembers: unknown[] = [];
           try {
             teamMembers = typeof project.assigned_team === 'string' 
               ? JSON.parse(project.assigned_team) 
@@ -98,7 +98,7 @@ export const useProjects = (
           } catch {
             return false;
           }
-          return teamMembers.some((member: any) => {
+          return teamMembers.some((member: unknown) => {
             const userId = member.user_id || member.id;
             return userId === urlEmployeeId;
           });
@@ -119,7 +119,7 @@ export const useProjects = (
       }
 
       setProjects(filteredData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching projects:', error);
       toast({
         title: "Error",
@@ -129,7 +129,7 @@ export const useProjects = (
     } finally {
       setLoading(false);
     }
-  }, [urlDepartmentId, urlEmployeeId, legacyDepartmentId, profile, user?.id, toast]);
+  }, [urlDepartmentId, urlEmployeeId, legacyDepartmentId, clientFilterId, profile, user?.id, toast]);
 
   return {
     projects,

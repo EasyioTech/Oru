@@ -3,7 +3,7 @@
  * Track and evaluate vendor performance metrics
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,16 +89,10 @@ export default function ProcurementVendorPerformance() {
     rejected_items: 0,
     notes: '',
   });
-
-  useEffect(() => {
-    loadData();
-    loadSuppliers();
-  }, [filterSupplier]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (filterSupplier !== 'all') filters.supplier_id = filterSupplier;
 
       const data = await getVendorPerformance(filters);
@@ -112,7 +106,7 @@ export default function ProcurementVendorPerformance() {
       }
 
       setPerformance(filteredData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load vendor performance',
@@ -121,16 +115,16 @@ export default function ProcurementVendorPerformance() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterSupplier, searchTerm, toast]);
 
-  const loadSuppliers = async () => {
+  const loadSuppliers = useCallback(async () => {
     try {
       const data = await getSuppliers({ is_active: true });
       setSuppliers(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load suppliers:', error);
     }
-  };
+  }, []);
 
   const handleCreate = () => {
     setFormData({
@@ -165,7 +159,7 @@ export default function ProcurementVendorPerformance() {
       const fullPerformance = await getVendorPerformanceById(perf.id);
       setSelectedPerformance(fullPerformance);
       setIsViewDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load performance details',
@@ -192,7 +186,7 @@ export default function ProcurementVendorPerformance() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save performance record',
@@ -215,7 +209,7 @@ export default function ProcurementVendorPerformance() {
         description: 'Performance record deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete performance record',
@@ -248,6 +242,10 @@ export default function ProcurementVendorPerformance() {
       currency: 'INR',
     }).format(numValue);
   };
+    useEffect(() => {
+        loadData();
+        loadSuppliers();
+      }, [filterSupplier, loadData, loadSuppliers]);
 
   // Statistics
   const stats = {

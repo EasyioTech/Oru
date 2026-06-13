@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Clock, Target, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,17 +11,10 @@ import { useAuth } from '@/hooks/useAuth';
 const EmployeeProjects = () => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [projects, setProjects] = useState<any[]>([]);
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [projects, setProjects] = useState<unknown[]>([]);
+  const [jobs, setJobs] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      fetchAssignedWork();
-    }
-  }, [user]);
-
-  const fetchAssignedWork = async () => {
+  const fetchAssignedWork = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -55,7 +48,7 @@ const EmployeeProjects = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -77,7 +70,7 @@ const EmployeeProjects = () => {
     }
   };
 
-  const getProgressPercentage = (project: any) => {
+  const getProgressPercentage = (project: unknown) => {
     return project.progress || 0;
   };
 
@@ -100,6 +93,11 @@ const EmployeeProjects = () => {
     totalJobs: jobs.length,
     activeJobs: jobs.filter(j => j.status === 'in_progress').length,
   };
+    useEffect(() => {
+        if (user) {
+          fetchAssignedWork();
+        }
+      }, [user, fetchAssignedWork]);
 
   if (loading) {
     return (

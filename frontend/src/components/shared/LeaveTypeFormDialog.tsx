@@ -43,7 +43,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
     if (isOpen) {
       if (leaveType && leaveType.id) {
         // Editing existing leave type
-        const leaveTypeAny = leaveType as any; // Type assertion for is_active which may exist in DB
+        const leaveTypeAny = leaveType as unknown; // Type assertion for is_active which may exist in DB
         setFormData({
           name: leaveType.name || '',
           description: leaveType.description || '',
@@ -126,7 +126,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
       if (leaveType && leaveType.id) {
         // Update existing leave type
         // Build data object explicitly to ensure correct column names
-        const updateData: Record<string, any> = {
+        const updateData: Record<string, unknown> = {
           name: formData.name.trim(),
           description: formData.description.trim() || null,
           max_days_per_year: formData.max_days_per_year,
@@ -152,7 +152,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
       } else {
         // Create new leave type
         // Build data object explicitly to ensure correct column names
-        const insertData: Record<string, any> = {
+        const insertData: Record<string, unknown> = {
           name: formData.name.trim(),
           description: formData.description.trim() || null,
           max_days_per_year: formData.max_days_per_year,
@@ -179,7 +179,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
 
       onLeaveTypeSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving leave type:', error);
       toast({
         title: 'Error',

@@ -93,7 +93,7 @@ export const ReimbursementWorkflow: React.FC<ReimbursementWorkflowProps> = ({
     }
   });
 
-  const fetchRequest = async () => {
+  const fetchRequest = React.useCallback(async () => {
     // Try with employee_id foreign key first, fall back to user_id if it doesn't exist
     let data, error;
     
@@ -109,7 +109,7 @@ export const ReimbursementWorkflow: React.FC<ReimbursementWorkflowProps> = ({
         .single();
       data = result.data;
       error = result.error;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If employee_id foreign key doesn't exist, try with user_id
       if (err?.message?.includes('employee_id') || err?.code === '42703') {
         const result = await db
@@ -142,9 +142,9 @@ export const ReimbursementWorkflow: React.FC<ReimbursementWorkflowProps> = ({
     if (error) throw error;
     setRequest(data as unknown as ReimbursementRequest);
     return data;
-  };
+  }, [requestId]);
 
-  const fetchWorkflow = async () => {
+  const fetchWorkflow = React.useCallback(async () => {
     const { data, error } = await db
       .from('reimbursement_workflow_states')
       .select(`
@@ -157,7 +157,7 @@ export const ReimbursementWorkflow: React.FC<ReimbursementWorkflowProps> = ({
     if (error) throw error;
     setWorkflowStates((data || []) as unknown as WorkflowState[]);
     return data;
-  };
+  }, [requestId]);
 
   const handleAction = async () => {
     if (!request) return;
@@ -240,7 +240,7 @@ export const ReimbursementWorkflow: React.FC<ReimbursementWorkflowProps> = ({
   useEffect(() => {
     loadRequest(fetchRequest);
     loadWorkflow(fetchWorkflow);
-  }, [requestId]);
+  }, [requestId, loadRequest, fetchRequest, loadWorkflow, fetchWorkflow]);
 
   if (loadingRequest) {
     return (

@@ -30,7 +30,7 @@ export interface Project {
   departments: string[];
   tags: string[];
   categories: string[];
-  custom_fields: Record<string, any>;
+  custom_fields: Record<string, unknown>;
   progress: number;
   agency_id: string;
   created_by: string | null;
@@ -69,10 +69,10 @@ export interface Task {
   created_by: string | null;
   completed_at: string | null;
   tags: string[];
-  attachments: any[];
-  checklist: any[];
+  attachments: unknown[];
+  checklist: unknown[];
   dependencies: string[];
-  custom_fields: Record<string, any>;
+  custom_fields: Record<string, unknown>;
   agency_id: string;
   created_at: string;
   updated_at: string;
@@ -110,7 +110,7 @@ export interface TaskComment {
   user_id: string;
   comment: string;
   parent_comment_id: string | null;
-  attachments: any[];
+  attachments: unknown[];
   mentions: string[];
   agency_id: string;
   created_at: string;
@@ -177,7 +177,7 @@ class ProjectService {
   /**
    * Get agency ID from auth context
    */
-  private async getAgencyId(profile: any, userId: string | null | undefined): Promise<string> {
+  private async getAgencyId(profile: unknown, userId: string | null | undefined): Promise<string> {
     const agencyId = await getAgencyId(profile, userId);
     if (!agencyId) {
       throw new Error('Agency ID not found. Please ensure you are logged in.');
@@ -204,11 +204,11 @@ class ProjectService {
   /**
    * Projects CRUD
    */
-  async getProjects(filters?: ProjectFilters, profile?: any, userId?: string | null): Promise<Project[]> {
+  async getProjects(filters?: ProjectFilters, profile?: unknown, userId?: string | null): Promise<Project[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const where: any = { agency_id: agencyId };
-    const queryFilters: any[] = [];
+    const where: unknown = { agency_id: agencyId };
+    const queryFilters: unknown[] = [];
 
     if (filters?.status && filters.status.length > 0) {
       queryFilters.push({ column: 'status', operator: 'in', value: filters.status });
@@ -237,10 +237,10 @@ class ProjectService {
     });
 
     // Fetch related data
-    const clientIds = [...new Set(projects.map((p: any) => p.client_id).filter(Boolean))];
+    const clientIds = [...new Set(projects.map((p: unknown) => p.client_id).filter(Boolean))];
     const managerIds = [...new Set([
-      ...projects.map((p: any) => p.project_manager_id).filter(Boolean),
-      ...projects.map((p: any) => p.account_manager_id).filter(Boolean)
+      ...projects.map((p: unknown) => p.project_manager_id).filter(Boolean),
+      ...projects.map((p: unknown) => p.account_manager_id).filter(Boolean)
     ])].filter(Boolean);
 
     const clients = clientIds.length > 0 ? await selectRecords('clients', {
@@ -251,10 +251,10 @@ class ProjectService {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: managerIds } }
     }) : [];
 
-    const clientMap = new Map(clients.map((c: any) => [c.id, c]));
-    const managerMap = new Map(managers.map((m: any) => [m.user_id, m]));
+    const clientMap = new Map(clients.map((c: unknown) => [c.id, c]));
+    const managerMap = new Map(managers.map((m: unknown) => [m.user_id, m]));
 
-    return projects.map((project: any) => ({
+    return projects.map((project: unknown) => ({
       ...project,
       assigned_team: Array.isArray(project.assigned_team) ? project.assigned_team : 
                     typeof project.assigned_team === 'string' ? JSON.parse(project.assigned_team || '[]') : [],
@@ -272,7 +272,7 @@ class ProjectService {
     }));
   }
 
-  async getProject(id: string, profile?: any, userId?: string | null): Promise<Project | null> {
+  async getProject(id: string, profile?: unknown, userId?: string | null): Promise<Project | null> {
     const agencyId = await this.getAgencyId(profile, userId);
     const project = await selectOne('projects', { id, agency_id: agencyId });
     
@@ -303,10 +303,10 @@ class ProjectService {
     };
   }
 
-  async createProject(data: Partial<Project>, profile?: any, userId?: string | null): Promise<Project> {
+  async createProject(data: Partial<Project>, profile?: unknown, userId?: string | null): Promise<Project> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const projectData: any = {
+    const projectData: unknown = {
       name: data.name,
       description: data.description || null,
       project_code: data.project_code || await this.generateProjectCode(agencyId),
@@ -338,10 +338,10 @@ class ProjectService {
     return this.getProject(project.id, profile, userId) as Promise<Project>;
   }
 
-  async updateProject(id: string, data: Partial<Project>, profile?: any, userId?: string | null): Promise<Project> {
+  async updateProject(id: string, data: Partial<Project>, profile?: unknown, userId?: string | null): Promise<Project> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const updateData: any = {};
+    const updateData: unknown = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.project_code !== undefined) updateData.project_code = data.project_code;
@@ -370,7 +370,7 @@ class ProjectService {
     return this.getProject(id, profile, userId) as Promise<Project>;
   }
 
-  async deleteProject(id: string, profile?: any, userId?: string | null): Promise<void> {
+  async deleteProject(id: string, profile?: unknown, userId?: string | null): Promise<void> {
     const agencyId = await this.getAgencyId(profile, userId);
     await deleteRecord('projects', { id, agency_id: agencyId }, userId);
   }
@@ -378,11 +378,11 @@ class ProjectService {
   /**
    * Tasks CRUD
    */
-  async getTasks(filters?: TaskFilters, profile?: any, userId?: string | null): Promise<Task[]> {
+  async getTasks(filters?: TaskFilters, profile?: unknown, userId?: string | null): Promise<Task[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const where: any = { agency_id: agencyId };
-    const queryFilters: any[] = [];
+    const where: unknown = { agency_id: agencyId };
+    const queryFilters: unknown[] = [];
 
     if (filters?.project_id) {
       where.project_id = filters.project_id;
@@ -411,8 +411,8 @@ class ProjectService {
     });
 
     // Fetch related data
-    const projectIds = [...new Set(tasks.map((t: any) => t.project_id).filter(Boolean))];
-    const assigneeIds = [...new Set(tasks.map((t: any) => t.assignee_id).filter(Boolean))].filter(Boolean);
+    const projectIds = [...new Set(tasks.map((t: unknown) => t.project_id).filter(Boolean))];
+    const assigneeIds = [...new Set(tasks.map((t: unknown) => t.assignee_id).filter(Boolean))].filter(Boolean);
 
     const projects = projectIds.length > 0 ? await selectRecords('projects', {
       where: { agency_id: agencyId, id: { operator: 'in', value: projectIds } }
@@ -422,10 +422,10 @@ class ProjectService {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: assigneeIds } }
     }) : [];
 
-    const projectMap = new Map(projects.map((p: any) => [p.id, p]));
-    const assigneeMap = new Map(assignees.map((a: any) => [a.user_id, a]));
+    const projectMap = new Map(projects.map((p: unknown) => [p.id, p]));
+    const assigneeMap = new Map(assignees.map((a: unknown) => [a.user_id, a]));
 
-    return tasks.map((task: any) => ({
+    return tasks.map((task: unknown) => ({
       ...task,
       tags: Array.isArray(task.tags) ? task.tags : 
             typeof task.tags === 'string' ? JSON.parse(task.tags || '[]') : [],
@@ -442,7 +442,7 @@ class ProjectService {
     }));
   }
 
-  async getTask(id: string, profile?: any, userId?: string | null): Promise<Task | null> {
+  async getTask(id: string, profile?: unknown, userId?: string | null): Promise<Task | null> {
     const agencyId = await this.getAgencyId(profile, userId);
     const task = await selectOne('tasks', { id, agency_id: agencyId });
     
@@ -455,14 +455,14 @@ class ProjectService {
 
     const assigneeIds = [...new Set([
       task.assignee_id,
-      ...assignments.map((a: any) => a.user_id)
+      ...assignments.map((a: unknown) => a.user_id)
     ].filter(Boolean))].filter(Boolean);
 
     const assignees = assigneeIds.length > 0 ? await selectRecords('profiles', {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: assigneeIds } }
     }) : [];
 
-    const assigneeMap = new Map(assignees.map((a: any) => [a.user_id, a]));
+    const assigneeMap = new Map(assignees.map((a: unknown) => [a.user_id, a]));
 
     // Fetch project if task has project_id
     let project = null;
@@ -487,21 +487,21 @@ class ProjectService {
         id: project.id,
         name: project.name
       } : undefined,
-      assignments: assignments.map((a: any) => ({
+      assignments: assignments.map((a: unknown) => ({
         id: a.id,
         user_id: a.user_id,
         user: assigneeMap.get(a.user_id) ? {
           id: a.user_id,
           full_name: assigneeMap.get(a.user_id).full_name
         } : undefined
-      })).filter((a: any) => a.user)
+      })).filter((a: unknown) => a.user)
     };
   }
 
-  async createTask(data: Partial<Task>, profile?: any, userId?: string | null): Promise<Task> {
+  async createTask(data: Partial<Task>, profile?: unknown, userId?: string | null): Promise<Task> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const taskData: any = {
+    const taskData: unknown = {
       title: data.title,
       description: data.description || null,
       task_type: data.task_type || null,
@@ -537,10 +537,10 @@ class ProjectService {
     return this.getTask(task.id, profile, userId) as Promise<Task>;
   }
 
-  async updateTask(id: string, data: Partial<Task>, profile?: any, userId?: string | null): Promise<Task> {
+  async updateTask(id: string, data: Partial<Task>, profile?: unknown, userId?: string | null): Promise<Task> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const updateData: any = {};
+    const updateData: unknown = {};
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.task_type !== undefined) updateData.task_type = data.task_type;
@@ -585,7 +585,7 @@ class ProjectService {
     return this.getTask(id, profile, userId) as Promise<Task>;
   }
 
-  async deleteTask(id: string, profile?: any, userId?: string | null): Promise<void> {
+  async deleteTask(id: string, profile?: unknown, userId?: string | null): Promise<void> {
     const agencyId = await this.getAgencyId(profile, userId);
     await deleteRecord('tasks', { id, agency_id: agencyId }, userId);
   }
@@ -593,7 +593,7 @@ class ProjectService {
   /**
    * Task Assignments
    */
-  async assignTask(taskId: string, userId: string, assignedBy: string, profile?: any): Promise<TaskAssignment> {
+  async assignTask(taskId: string, userId: string, assignedBy: string, profile?: unknown): Promise<TaskAssignment> {
     const agencyId = await this.getAgencyId(profile, assignedBy);
     
     // Check if assignment already exists
@@ -636,24 +636,24 @@ class ProjectService {
           agency_id: agencyId
         });
         if (assignerProfile) {
-          assignerName = (assignerProfile as any).full_name || 'Someone';
+          assignerName = (assignerProfile as unknown).full_name || 'Someone';
         }
       } catch (error) {
         console.warn('Failed to fetch assigner profile for notification:', error);
       }
       
-      const taskTitle = (task as any).title || 'Task';
+      const taskTitle = (task as unknown).title || 'Task';
       
       // Get project name if project_id exists
       let projectName = '';
-      if ((task as any).project_id) {
+      if ((task as unknown).project_id) {
         try {
           const project = await selectOne('projects', {
-            id: (task as any).project_id,
+            id: (task as unknown).project_id,
             agency_id: agencyId
           });
           if (project) {
-            projectName = ` in ${(project as any).name}`;
+            projectName = ` in ${(project as unknown).name}`;
           }
         } catch (error) {
           // Project fetch failed, but continue without project name
@@ -663,7 +663,7 @@ class ProjectService {
       
       // Determine priority based on task priority
       let notificationPriority: 'low' | 'normal' | 'high' | 'urgent' = 'normal';
-      const taskPriority = (task as any).priority;
+      const taskPriority = (task as unknown).priority;
       if (taskPriority === 'critical' || taskPriority === 'urgent') {
         notificationPriority = 'urgent';
       } else if (taskPriority === 'high') {
@@ -691,7 +691,7 @@ class ProjectService {
           task_id: taskId,
           assigned_by: assignedBy,
           task_title: taskTitle,
-          project_id: (task as any).project_id || null,
+          project_id: (task as unknown).project_id || null,
           project_name: projectName ? projectName.replace(' in ', '') : null,
         },
       }, assignedBy, agencyId);
@@ -703,7 +703,7 @@ class ProjectService {
     return assignment as TaskAssignment;
   }
 
-  async unassignTask(taskId: string, userId: string, profile?: any, currentUserId?: string | null): Promise<void> {
+  async unassignTask(taskId: string, userId: string, profile?: unknown, currentUserId?: string | null): Promise<void> {
     const agencyId = await this.getAgencyId(profile, currentUserId);
     await deleteRecord('task_assignments', { task_id: taskId, user_id: userId, agency_id: agencyId }, currentUserId);
   }
@@ -711,7 +711,7 @@ class ProjectService {
   /**
    * Task Comments
    */
-  async getTaskComments(taskId: string, profile?: any, userId?: string | null): Promise<TaskComment[]> {
+  async getTaskComments(taskId: string, profile?: unknown, userId?: string | null): Promise<TaskComment[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
     const comments = await selectRecords('task_comments', {
@@ -719,14 +719,14 @@ class ProjectService {
       orderBy: 'created_at ASC'
     });
 
-    const userIds = [...new Set(comments.map((c: any) => c.user_id))];
+    const userIds = [...new Set(comments.map((c: unknown) => c.user_id))];
     const users = userIds.length > 0 ? await selectRecords('profiles', {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: userIds } }
     }) : [];
 
-    const userMap = new Map(users.map((u: any) => [u.user_id, u]));
+    const userMap = new Map(users.map((u: unknown) => [u.user_id, u]));
 
-    return comments.map((comment: any) => ({
+    return comments.map((comment: unknown) => ({
       ...comment,
       attachments: Array.isArray(comment.attachments) ? comment.attachments : 
                    typeof comment.attachments === 'string' ? JSON.parse(comment.attachments || '[]') : [],
@@ -740,7 +740,7 @@ class ProjectService {
     }));
   }
 
-  async createTaskComment(taskId: string, comment: string, profile?: any, userId?: string | null): Promise<TaskComment> {
+  async createTaskComment(taskId: string, comment: string, profile?: unknown, userId?: string | null): Promise<TaskComment> {
     const agencyId = await this.getAgencyId(profile, userId);
     
     const commentData = await insertRecord('task_comments', {
@@ -760,7 +760,7 @@ class ProjectService {
   /**
    * Time Tracking
    */
-  async getTaskTimeTracking(taskId: string, profile?: any, userId?: string | null): Promise<TimeTracking[]> {
+  async getTaskTimeTracking(taskId: string, profile?: unknown, userId?: string | null): Promise<TimeTracking[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
     const timeEntries = await selectRecords('task_time_tracking', {
@@ -768,14 +768,14 @@ class ProjectService {
       orderBy: 'date DESC'
     });
 
-    const userIds = [...new Set(timeEntries.map((t: any) => t.user_id))];
+    const userIds = [...new Set(timeEntries.map((t: unknown) => t.user_id))];
     const users = userIds.length > 0 ? await selectRecords('profiles', {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: userIds } }
     }) : [];
 
-    const userMap = new Map(users.map((u: any) => [u.user_id, u]));
+    const userMap = new Map(users.map((u: unknown) => [u.user_id, u]));
 
-    return timeEntries.map((entry: any) => ({
+    return timeEntries.map((entry: unknown) => ({
       ...entry,
       user: userMap.get(entry.user_id) ? {
         id: userMap.get(entry.user_id).user_id,
@@ -784,7 +784,7 @@ class ProjectService {
     }));
   }
 
-  async logTime(taskId: string, hours: number, date: string, description: string | null, profile?: any, userId?: string | null): Promise<TimeTracking> {
+  async logTime(taskId: string, hours: number, date: string, description: string | null, profile?: unknown, userId?: string | null): Promise<TimeTracking> {
     const agencyId = await this.getAgencyId(profile, userId);
     
     // Calculate start_time and end_time based on hours
@@ -825,7 +825,7 @@ class ProjectService {
   /**
    * Get project with full client details
    */
-  async getProjectWithClient(id: string, profile?: any, userId?: string | null): Promise<Project | null> {
+  async getProjectWithClient(id: string, profile?: unknown, userId?: string | null): Promise<Project | null> {
     const project = await this.getProject(id, profile, userId);
     if (!project || !project.client_id) return project;
 
@@ -858,14 +858,14 @@ class ProjectService {
   /**
    * Get project with financial summary (invoices, payments, revenue)
    */
-  async getProjectWithFinancials(id: string, profile?: any, userId?: string | null): Promise<Project & { financials?: any } | null> {
+  async getProjectWithFinancials(id: string, profile?: unknown, userId?: string | null): Promise<Project & { financials?: unknown } | null> {
     const project = await this.getProject(id, profile, userId);
     if (!project) return null;
 
     const agencyId = await this.getAgencyId(profile, userId);
     
     // Fetch invoices for client (if project has client)
-    let financials: any = {
+    let financials: unknown = {
       totalInvoiced: 0,
       totalPaid: 0,
       outstanding: 0,
@@ -882,12 +882,12 @@ class ProjectService {
           orderBy: 'issue_date DESC'
         });
 
-        const totalInvoiced = invoices.reduce((sum: number, inv: any) => {
+        const totalInvoiced = invoices.reduce((sum: number, inv: unknown) => {
           return sum + (parseFloat(inv.total_amount) || 0);
         }, 0);
 
-        const paidInvoices = invoices.filter((inv: any) => inv.status === 'paid' || inv.status === 'partial');
-        const totalPaid = paidInvoices.reduce((sum: number, inv: any) => {
+        const paidInvoices = invoices.filter((inv: unknown) => inv.status === 'paid' || inv.status === 'partial');
+        const totalPaid = paidInvoices.reduce((sum: number, inv: unknown) => {
           return sum + (parseFloat(inv.total_amount) || 0);
         }, 0);
 
@@ -911,7 +911,7 @@ class ProjectService {
   /**
    * Get all projects for a specific client
    */
-  async getProjectsByClient(clientId: string, profile?: any, userId?: string | null): Promise<Project[]> {
+  async getProjectsByClient(clientId: string, profile?: unknown, userId?: string | null): Promise<Project[]> {
     return this.getProjects({ client_id: clientId }, profile, userId);
   }
 
@@ -919,7 +919,7 @@ class ProjectService {
    * Get all projects for a specific employee
    * Checks assigned_team, project_manager_id, and account_manager_id
    */
-  async getProjectsByEmployee(employeeId: string, profile?: any, userId?: string | null): Promise<Project[]> {
+  async getProjectsByEmployee(employeeId: string, profile?: unknown, userId?: string | null): Promise<Project[]> {
     const allProjects = await this.getProjects({}, profile, userId);
     
     return allProjects.filter((project: Project) => {
@@ -930,7 +930,7 @@ class ProjectService {
 
       // Check if employee is in assigned_team
       if (project.assigned_team && Array.isArray(project.assigned_team)) {
-        return project.assigned_team.some((member: any) => {
+        return project.assigned_team.some((member: unknown) => {
           const memberId = typeof member === 'string' ? member : member.user_id || member.id || String(member);
           return memberId === employeeId;
         });
@@ -943,14 +943,14 @@ class ProjectService {
   /**
    * Get project with team member details
    */
-  async getProjectWithTeam(id: string, profile?: any, userId?: string | null): Promise<Project & { teamDetails?: any[] } | null> {
+  async getProjectWithTeam(id: string, profile?: unknown, userId?: string | null): Promise<Project & { teamDetails?: unknown[] } | null> {
     const project = await this.getProject(id, profile, userId);
     if (!project || !project.assigned_team || project.assigned_team.length === 0) {
       return project;
     }
 
     const agencyId = await this.getAgencyId(profile, userId);
-    const teamMemberIds = project.assigned_team.map((m: any) => 
+    const teamMemberIds = project.assigned_team.map((m: unknown) => 
       typeof m === 'string' ? m : m.user_id || m.id || String(m)
     );
 
@@ -962,7 +962,7 @@ class ProjectService {
         ]
       });
 
-      const teamDetails = profiles.map((p: any) => ({
+      const teamDetails = profiles.map((p: unknown) => ({
         user_id: p.user_id,
         full_name: p.full_name,
         email: p.email,

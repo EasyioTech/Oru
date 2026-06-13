@@ -65,71 +65,8 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
   });
 
   // Load task data when editing
-  useEffect(() => {
-    if (task && open) {
-      setFormData({
-        title: task.title || "",
-        description: task.description || "",
-        project_id: task.project_id || null,
-        assignee_id: task.assignee_id || null,
-        status: task.status || "todo",
-        priority: task.priority || "medium",
-        due_date: task.due_date || null,
-        start_date: task.start_date || null,
-        estimated_hours: task.estimated_hours || undefined,
-        task_type: task.task_type || "",
-      });
-      
-      // Load assignees from task assignments
-      if (task.assignments && task.assignments.length > 0) {
-        setAssignees(task.assignments.map(a => a.user_id));
-      } else if (task.assignee_id) {
-        setAssignees([task.assignee_id]);
-      } else {
-        setAssignees([]);
-      }
-      
-      // Load tags, dependencies, checklist
-      setTags(Array.isArray(task.tags) ? task.tags : []);
-      setDependencies(Array.isArray(task.dependencies) ? task.dependencies : []);
-      setChecklistItems(Array.isArray(task.checklist) 
-        ? task.checklist.map((item: any, idx: number) => ({
-            id: item.id || `item-${idx}`,
-            text: typeof item === 'string' ? item : item.text || '',
-            completed: typeof item === 'object' ? (item.completed || false) : false
-          }))
-        : []);
-    } else if (open && !task) {
-      // Reset form for new task
-      setFormData({
-        title: "",
-        description: "",
-        project_id: projectId || null,
-        assignee_id: null,
-        status: "todo",
-        priority: "medium",
-        due_date: null,
-        start_date: null,
-        estimated_hours: undefined,
-        task_type: "",
-      });
-      setAssignees([]);
-      setTags([]);
-      setDependencies([]);
-      setChecklistItems([]);
-      setAssigneeInput("none");
-    }
-  }, [task, open, projectId]);
-
   // Fetch projects and employees when dialog opens
-  useEffect(() => {
-    if (open) {
-      fetchProjects();
-      fetchEmployees();
-    }
-  }, [open]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = React.useCallback(async () => {
     try {
       // Use standardized project fetching service
       const projectsData = await getProjectsForSelectionAuto(profile, user?.id, {
@@ -141,7 +78,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
         id: p.id, 
         name: p.name 
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching projects:', error);
       toast({
         title: "Error",
@@ -149,9 +86,9 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
         variant: "destructive",
       });
     }
-  };
+  }, [profile, user?.id, toast]);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     try {
       // Use standardized employee fetching service
       const employeesData = await getEmployeesForAssignmentAuto(profile, user?.id);
@@ -163,7 +100,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
       }));
       
       setEmployees(transformedEmployees);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching employees:', error);
       toast({
         title: "Error",
@@ -171,7 +108,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
         variant: "destructive",
       });
     }
-  };
+  }, [profile, user?.id, toast]);
 
   const addAssignee = (userId: string) => {
     if (userId && !assignees.includes(userId)) {
@@ -225,6 +162,67 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
   const removeChecklistItem = (itemId: string) => {
     setChecklistItems(checklistItems.filter(item => item.id !== itemId));
   };
+    useEffect(() => {
+        if (open) {
+          fetchProjects();
+          fetchEmployees();
+        }
+      }, [open, fetchProjects, fetchEmployees]);
+    useEffect(() => {
+        if (task && open) {
+          setFormData({
+            title: task.title || "",
+            description: task.description || "",
+            project_id: task.project_id || null,
+            assignee_id: task.assignee_id || null,
+            status: task.status || "todo",
+            priority: task.priority || "medium",
+            due_date: task.due_date || null,
+            start_date: task.start_date || null,
+            estimated_hours: task.estimated_hours || undefined,
+            task_type: task.task_type || "",
+          });
+          
+          // Load assignees from task assignments
+          if (task.assignments && task.assignments.length > 0) {
+            setAssignees(task.assignments.map(a => a.user_id));
+          } else if (task.assignee_id) {
+            setAssignees([task.assignee_id]);
+          } else {
+            setAssignees([]);
+          }
+          
+          // Load tags, dependencies, checklist
+          setTags(Array.isArray(task.tags) ? task.tags : []);
+          setDependencies(Array.isArray(task.dependencies) ? task.dependencies : []);
+          setChecklistItems(Array.isArray(task.checklist) 
+            ? task.checklist.map((item: unknown, idx: number) => ({
+                id: item.id || `item-${idx}`,
+                text: typeof item === 'string' ? item : item.text || '',
+                completed: typeof item === 'object' ? (item.completed || false) : false
+              }))
+            : []);
+        } else if (open && !task) {
+          // Reset form for new task
+          setFormData({
+            title: "",
+            description: "",
+            project_id: projectId || null,
+            assignee_id: null,
+            status: "todo",
+            priority: "medium",
+            due_date: null,
+            start_date: null,
+            estimated_hours: undefined,
+            task_type: "",
+          });
+          setAssignees([]);
+          setTags([]);
+          setDependencies([]);
+          setChecklistItems([]);
+          setAssigneeInput("none");
+        }
+      }, [task, open, projectId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,7 +263,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
         if (assignees.length > 0) {
           // Get current assignments
           const existingTask = await projectService.getTask(task.id, profile, user?.id);
-          const existingAssigneeIds = existingTask?.assignments?.map((a: any) => a.user_id) || [];
+          const existingAssigneeIds = existingTask?.assignments?.map((a: unknown) => a.user_id) || [];
           
           // Remove assignments that are no longer in the list
           for (const existingId of existingAssigneeIds) {
@@ -333,7 +331,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
       // Close dialog and refresh
       setOpen(false);
       onTaskSaved();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving task:', error);
       toast({
         title: "Error",
@@ -422,7 +420,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value: any) => setFormData({ ...formData, status: value })}
+                  onValueChange={(value: unknown) => setFormData({ ...formData, status: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -442,7 +440,7 @@ export function TaskFormDialog({ task, onTaskSaved, trigger, projectId, open: co
                 <Label htmlFor="priority">Priority</Label>
                 <Select
                   value={formData.priority}
-                  onValueChange={(value: any) => setFormData({ ...formData, priority: value })}
+                  onValueChange={(value: unknown) => setFormData({ ...formData, priority: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />

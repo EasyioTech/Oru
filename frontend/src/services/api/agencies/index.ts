@@ -94,7 +94,7 @@ export interface UpdateAgencyData {
 }
 
 export async function fetchAgencyDetails(agencyId: string): Promise<AgencyDetails> {
-  const endpoint = getApiEndpoint(`/system/agencies/${encodeURIComponent(agencyId)}`);
+  const endpoint = getApiEndpoint(`/agencies/${encodeURIComponent(agencyId)}`);
   const response = await fetch(endpoint, {
     method: 'GET',
     headers: authHeaders(),
@@ -110,7 +110,7 @@ export async function updateAgency(
   agencyId: string,
   updates: UpdateAgencyData
 ): Promise<AgencyDetails> {
-  const endpoint = getApiEndpoint(`/system/agencies/${encodeURIComponent(agencyId)}`);
+  const endpoint = getApiEndpoint(`/agencies/${encodeURIComponent(agencyId)}`);
   const response = await fetch(endpoint, {
     method: 'PUT',
     headers: authHeaders(),
@@ -124,7 +124,7 @@ export async function updateAgency(
 }
 
 export async function fetchAgencyUsers(agencyId: string): Promise<AgencyUser[]> {
-  const endpoint = getApiEndpoint(`/system/agencies/${encodeURIComponent(agencyId)}/users`);
+  const endpoint = getApiEndpoint(`/agencies/${encodeURIComponent(agencyId)}/users`);
   const response = await fetch(endpoint, {
     method: 'GET',
     headers: authHeaders(),
@@ -137,7 +137,7 @@ export async function fetchAgencyUsers(agencyId: string): Promise<AgencyUser[]> 
 }
 
 export async function fetchAgencyUsage(agencyId: string): Promise<AgencyUsage> {
-  const endpoint = getApiEndpoint(`/system/agencies/${encodeURIComponent(agencyId)}/usage`);
+  const endpoint = getApiEndpoint(`/agencies/${encodeURIComponent(agencyId)}/usage`);
   const response = await fetch(endpoint, {
     method: 'GET',
     headers: authHeaders(),
@@ -155,7 +155,7 @@ export async function fetchAgencyUsage(agencyId: string): Promise<AgencyUsage> {
  * @returns Promise that resolves when download starts
  */
 export async function exportAgencyBackup(agencyId: string): Promise<void> {
-  const endpoint = getApiEndpoint(`/system/agencies/${encodeURIComponent(agencyId)}/export-backup`);
+  const endpoint = getApiEndpoint(`/agencies/${encodeURIComponent(agencyId)}/export-backup`);
   const headers = authHeaders();
   // Remove Content-Type for blob response
   delete headers['Content-Type'];
@@ -207,7 +207,7 @@ export async function exportAgencyBackup(agencyId: string): Promise<void> {
  * @returns Promise that resolves when deletion is complete
  */
 export async function deleteAgency(agencyId: string): Promise<void> {
-  const endpoint = getApiEndpoint(`/system/agencies/${encodeURIComponent(agencyId)}`);
+  const endpoint = getApiEndpoint(`/agencies/${encodeURIComponent(agencyId)}`);
   const response = await fetch(endpoint, {
     method: 'DELETE',
     headers: authHeaders(),
@@ -231,13 +231,12 @@ export async function deleteAgency(agencyId: string): Promise<void> {
 /**
  * Fetch agency settings from normalized tables (agency_settings, agency_branding, agency_preferences, agency_financial_settings)
  */
-export async function fetchAgencySettings(agencyDatabase: string): Promise<{ settings: Record<string, unknown> }> {
+export async function fetchAgencySettings(agencyId: string): Promise<{ settings: Record<string, unknown> }> {
   const endpoint = getApiEndpoint('/agencies/agency-settings');
   const headers: Record<string, string> = {
     ...authHeaders(),
-    'X-Agency-Database': agencyDatabase,
   };
-  const response = await fetch(`${endpoint}?database=${encodeURIComponent(agencyDatabase)}`, {
+  const response = await fetch(`${endpoint}?agencyId=${encodeURIComponent(agencyId)}`, {
     method: 'GET',
     headers,
   });

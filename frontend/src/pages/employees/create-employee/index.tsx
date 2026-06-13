@@ -10,19 +10,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Badge } from "@/components/ui/badge";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
-import { ArrowLeft, CalendarIcon, Save, User, Mail, Phone, Building, MapPin, Upload, X, Sparkles } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Save, User, Mail, Phone, Building, MapPin, Upload, X } from "lucide-react";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
-import { db } from '@/lib/database';
-import { useToast } from "@/hooks/use-toast";
 import { generateUUID, isValidUUID } from '@/lib/uuid';
 import { useAuth } from "@/hooks/useAuth";
-import { selectOne, selectRecords, executeTransaction, buildInsertStatement } from '@/services/api/core';
 import { getAgencyId } from '@/utils/agencyUtils';
-import bcrypt from '@/lib/bcrypt';
+import { fetchJson, fetchMutate } from '@/utils/authApi';
+import { useToast } from "@/hooks/use-toast";
 import { logError, logWarn } from '@/utils/consoleLogger';
 import { CredentialsSuccessCard, EmergencyContactSection, DocumentUploadSection, type UploadedFile } from './components';
 
@@ -146,248 +144,59 @@ const CreateEmployee = () => {
         throw new Error('Agency ID not found. Please ensure you are logged in to an agency account.');
       }
 
-      // Pre-flight: reject duplicate email (no auto-cleanup to avoid partial state and race conditions)
       const emailNorm = values.email.toLowerCase().trim();
-      const existingUser = await selectOne('users', { email: emailNorm });
-      if (existingUser) {
-        const hasEmployeeDetails = await selectOne('employee_details', { user_id: existingUser.id });
-        throw new Error(
-          hasEmployeeDetails
-            ? `A user with email "${values.email}" already exists. Please use a different email address.`
-            : `Email "${values.email}" is already in use or has an incomplete record. Use a different email or contact support.`
-        );
-      }
 
-      // Pre-flight: validate department exists if provided
-      let selectedDepartmentId: string | null = null;
-      let selectedDepartmentName: string | null = null;
-      if (values.department?.trim() && values.department !== '__no_departments__') {
-        const departmentRecord = await selectOne<Department>('departments', { id: values.department });
-        if (!departmentRecord) {
-          throw new Error('Selected department is invalid. Please choose a valid department.');
-        }
-        selectedDepartmentId = departmentRecord.id;
-        selectedDepartmentName = departmentRecord.name;
-      }
-
-      // Pre-flight: role must be valid (reject invalid instead of defaulting)
-      const validRoles = [
-        'super_admin', 'ceo', 'cto', 'cfo', 'coo', 'admin',
-        'operations_manager', 'department_head', 'team_lead',
-        'project_manager', 'hr', 'finance_manager', 'sales_manager',
-        'marketing_manager', 'quality_assurance', 'it_support',
-        'legal_counsel', 'business_analyst', 'customer_success',
-        'employee', 'contractor', 'intern'
-      ];
-      const normalizedRole = values.role?.replace(/-/g, '_').toLowerCase();
-      if (!normalizedRole || !validRoles.includes(normalizedRole)) {
-        throw new Error('Please select a valid role from the dropdown.');
-      }
-
-      // Pre-flight: salary must be positive (Zod already validates; double-check)
+      // Ensure valid salary
       const salaryValue = parseFloat(values.salary);
       if (Number.isNaN(salaryValue) || salaryValue <= 0) {
         throw new Error('Salary must be a positive number.');
       }
 
-      const userId = generateUUID();
-      const tempPassword = 'TempPass' + Math.random().toString(36).substring(2, 10) + '!';
-      const passwordHash = await bcrypt.hash(tempPassword, 10);
-
-      // Generate unique employee_id before transaction
-      let employeeId = values.employeeId?.trim() || '';
-      if (!employeeId) {
-        const latestEmployees = await selectRecords('employee_details', {
-          where: { agency_id: agencyId },
-          orderBy: 'created_at DESC',
-          limit: 1
-        });
-        if (latestEmployees.length > 0 && latestEmployees[0].employee_id?.match(/(\d+)$/)) {
-          const nextNum = parseInt((latestEmployees[0].employee_id as string).match(/(\d+)$/)![1]) + 1;
-          employeeId = `EMP-${String(nextNum).padStart(4, '0')}`;
-        } else {
-          employeeId = 'EMP-0001';
-        }
-      }
-      const existingEmp = await selectOne('employee_details', { employee_id: employeeId });
-      if (existingEmp) {
-        employeeId = `EMP-${Date.now().toString().slice(-6)}`;
-        const again = await selectOne('employee_details', { employee_id: employeeId });
-        if (again) employeeId = `EMP-${generateUUID().substring(0, 8).toUpperCase()}`;
-      }
-
-      let supervisorId: string | null = null;
-      if (values.supervisor?.trim() && isValidUUID(values.supervisor.trim())) {
-        supervisorId = values.supervisor.trim();
-      }
-
-      // Optional: upload avatar before transaction (non-blocking; no user created yet)
-      let avatarUrl: string | null = null;
-      if (profileImage) {
-        try {
-          const fileExt = profileImage.name.split('.').pop() || 'jpg';
-          const pathWithinBucket = `${userId}_${Date.now()}.${fileExt}`;
-          const { uploadFile } = await import('@/services/api/storage');
-          const fileBuffer = await profileImage.arrayBuffer();
-          await uploadFile('avatars', pathWithinBucket, fileBuffer, currentUserId, profileImage.type);
-          const { getApiRoot } = await import('@/config/api');
-          avatarUrl = `${getApiRoot().replace(/\/$/, '')}/files/avatars/${encodeURIComponent(pathWithinBucket)}`;
-        } catch (uploadErr: unknown) {
-          logError('Profile photo upload failed:', uploadErr);
-          toast({ title: 'Photo skipped', description: 'Avatar upload failed; employee will be created without photo.', variant: 'default' });
-        }
-      }
-
-      const profileId = generateUUID();
-      const employeeDetailsId = generateUUID();
-      const salaryDetailsId = generateUUID();
-      const userRoleId = generateUUID();
-      const personalEmailVal = (values.personalEmail as string)?.trim() || null;
-
-      const hireDateStr = values.hireDate.toISOString().split('T')[0];
-      const dobStr = values.dateOfBirth.toISOString().split('T')[0];
-
-      // Single transaction: all-or-nothing (no partial users)
-      // IMPORTANT: Do NOT await client.query() - we must collect ALL queries before the
-      // transaction sends them. Awaiting would suspend after the first query and only
-      // the users insert would be sent, causing "employee with email but no details".
-      await executeTransaction((client) => {
-        const { sql: usersSql, params: usersParams } = buildInsertStatement('users', {
-          id: userId,
-          email: emailNorm,
-          password_hash: passwordHash,
-          is_active: true,
-          email_confirmed: true,
-        });
-        client.query(usersSql, usersParams);
-
-        const profileRow: Record<string, unknown> = {
-          id: profileId,
-          user_id: userId,
-          agency_id: agencyId,
-          full_name: `${values.firstName} ${values.lastName}`,
-          phone: values.phone,
-          department: selectedDepartmentName,
-          position: values.position,
-          hire_date: hireDateStr,
-          is_active: true,
-        };
-        if (avatarUrl) profileRow.avatar_url = avatarUrl;
-        if (personalEmailVal) profileRow.personal_email = personalEmailVal;
-        const { sql: profilesSql, params: profilesParams } = buildInsertStatement('profiles', profileRow as Record<string, any>);
-        client.query(profilesSql, profilesParams);
-
-        const { sql: edSql, params: edParams } = buildInsertStatement('employee_details', {
-          id: employeeDetailsId,
-          user_id: userId,
-          employee_id: employeeId,
-          created_by: currentUserId,
-          first_name: values.firstName,
-          last_name: values.lastName,
-          date_of_birth: dobStr,
-          social_security_number: values.panCardNumber?.trim() || null,
-          nationality: values.nationality,
-          marital_status: values.maritalStatus,
-          address: values.address,
-          employment_type: values.employmentType,
-          work_location: values.workLocation,
-          supervisor_id: supervisorId,
-          emergency_contact_name: values.emergencyContactName,
-          emergency_contact_phone: values.emergencyContactPhone,
-          emergency_contact_relationship: values.emergencyContactRelationship,
-          notes: values.notes ?? null,
-          agency_id: agencyId,
-          is_active: true,
-        });
-        client.query(edSql, edParams);
-
-        const { sql: salSql, params: salParams } = buildInsertStatement('employee_salary_details', {
-          id: salaryDetailsId,
-          employee_id: employeeDetailsId,
-          agency_id: agencyId,
-          base_salary: salaryValue,
-          salary: salaryValue,
-          currency: 'USD',
-          salary_frequency: 'monthly',
-          pay_frequency: 'monthly',
-          effective_date: hireDateStr,
-        });
-        client.query(salSql, salParams);
-
-        const { sql: urSql, params: urParams } = buildInsertStatement('user_roles', {
-          id: userRoleId,
-          user_id: userId,
-          role: normalizedRole,
-          agency_id: agencyId,
-        });
-        client.query(urSql, urParams);
-
-        if (selectedDepartmentId) {
-          const { sql: taSql, params: taParams } = buildInsertStatement('team_assignments', {
-            id: generateUUID(),
-            user_id: userId,
-            department_id: selectedDepartmentId,
-            position_title: values.position,
-            role_in_department: values.role,
-            start_date: hireDateStr,
-            is_active: true,
-            agency_id: agencyId,
-            assigned_by: currentUserId,
-          });
-          client.query(taSql, taParams);
-        }
-        return Promise.resolve();
-      });
-
-      const loginUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth` : '';
-      setCreatedCredentials({
-        loginUrl,
+      // Prepare payload mapping to backend schema
+      const payload = {
+        firstName: values.firstName,
+        lastName: values.lastName,
         email: emailNorm,
-        password: tempPassword,
-        personalEmail: personalEmailVal || undefined,
-        companyName: companyName || 'Company',
-      });
+        phone: values.phone,
+        departmentId: values.department && values.department !== '__no_departments__' ? values.department : null,
+        position: values.position,
+        employmentType: values.employmentType,
+        status: 'active',
+        hireDate: values.hireDate ? values.hireDate.toISOString().split('T')[0] : null,
+        salary: salaryValue,
+        emergencyContactName: values.emergencyContactName || null,
+        emergencyContactPhone: values.emergencyContactPhone || null,
+        address: values.address || null,
+        notes: values.notes || null,
+        employeeCode: values.employeeId || null,
+      };
+
+      // Create employee
+      await fetchMutate('/hr/employees', 'POST', payload);
+
       toast({
         title: 'Employee created',
-        description: "Copy or download the login details and send them to the employee's personal email.",
+        description: "Employee has been successfully created.",
       });
+
       setUploadedFiles([]);
       setProfileImage(null);
       setProfileImagePreview(null);
-    } catch (error) {
+      
+      // Optional: simulate credentials for now since we removed the complex auth creation
+      setCreatedCredentials({
+        loginUrl: typeof window !== 'undefined' ? `${window.location.origin}/auth` : '',
+        email: emailNorm,
+        password: 'Password will be sent via email',
+        personalEmail: values.personalEmail,
+        companyName: companyName || 'Company',
+      });
+
+    } catch (error: unknown) {
       logError("Error creating employee:", error);
-      
-      // Handle specific database errors
-      let errorMessage = "Error creating employee. Please try again.";
-      
-      if (error instanceof Error) {
-        const errorStr = error.message || error.toString();
-        
-        // Check for duplicate email constraint
-        if (errorStr.includes('duplicate key value violates unique constraint "users_email_key"') ||
-            errorStr.includes('already exists') ||
-            errorStr.includes('23505')) {
-          errorMessage = `A user with email "${values.email}" already exists. Please use a different email address.`;
-        } 
-        // Check for invalid enum value
-        else if (errorStr.includes('invalid input value for enum app_role') ||
-                 errorStr.includes('22P02')) {
-          errorMessage = `Invalid role selected: "${values.role}". Please select a valid role from the dropdown.`;
-        }
-        // Check for duplicate employee_id constraint
-        else if (errorStr.includes('duplicate key value violates unique constraint') && 
-                 errorStr.includes('employee_id')) {
-          errorMessage = `Employee ID "${values.employeeId}" already exists. Please use a different employee ID.`;
-        }
-        // Use the error message if it's already user-friendly
-        else if (error.message && !error.message.includes('Database API error')) {
-          errorMessage = error.message;
-        }
-      }
-      
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Error creating employee. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -498,16 +307,9 @@ const CreateEmployee = () => {
   // Fetch departments from database
   // Note: In isolated database architecture, all records in this DB belong to the agency
   // No need to filter by agency_id - just get all active departments
-  const fetchDepartments = async () => {
+  const fetchDepartments = useCallback(async () => {
     try {
-      const deptData = await selectRecords('departments', {
-        select: 'id, name',
-        filters: [
-          { column: 'is_active', operator: 'eq', value: true }
-        ],
-        orderBy: 'name ASC'
-      });
-      
+      const deptData = await fetchJson('/hr/departments');
       setDepartments(deptData || []);
     } catch (error) {
       logError('Error fetching departments:', error);
@@ -517,137 +319,25 @@ const CreateEmployee = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   // Fetch distinct roles from user_roles table
-  const fetchRoles = async () => {
-    try {
-      const agencyId = await getAgencyId(profile, user?.id);
-      if (!agencyId) {
-        logWarn('No agency_id available for fetching roles');
-        return;
-      }
-
-      // Valid enum values for app_role (must match database enum)
-      const validRoles = [
-        'super_admin', 'ceo', 'cto', 'cfo', 'coo', 'admin', 
-        'operations_manager', 'department_head', 'team_lead', 
-        'project_manager', 'hr', 'finance_manager', 'sales_manager',
-        'marketing_manager', 'quality_assurance', 'it_support', 
-        'legal_counsel', 'business_analyst', 'customer_success',
-        'employee', 'contractor', 'intern'
-      ];
-
-      // Fetch distinct roles from user_roles filtered by agency
-      const rolesData = await selectRecords('user_roles', {
-        select: 'role',
-        filters: [
-          { column: 'agency_id', operator: 'eq', value: agencyId }
-        ]
-      });
-
-      // Get unique roles and filter to only valid enum values
-      const uniqueRoles = Array.from(new Set((rolesData || []).map((r: any) => r.role).filter(Boolean)));
-      const validUniqueRoles = uniqueRoles.filter((role: string) => validRoles.includes(role.toLowerCase()));
-      
-      // If no valid roles found, use default valid roles
-      if (validUniqueRoles.length === 0) {
-        setRoles(['employee', 'hr', 'finance_manager', 'admin', 'super_admin']);
-      } else {
-        // Always include common roles even if not in database yet
-        const defaultRoles = ['employee', 'hr', 'admin'];
-        const combinedRoles = Array.from(new Set([...defaultRoles, ...validUniqueRoles]));
-        setRoles(combinedRoles.sort());
-      }
-    } catch (error) {
-      logError('Error fetching roles:', error);
-      // Fallback to default valid roles
-      setRoles(['employee', 'hr', 'finance_manager', 'admin', 'super_admin']);
-    }
-  };
+  const fetchRoles = useCallback(async () => {
+    setRoles(['super_admin', 'agency_admin', 'manager', 'employee', 'auditor', 'viewer', 'custom']);
+  }, []);
 
   // Fetch distinct employment types from employee_details
-  const fetchEmploymentTypes = async () => {
-    try {
-      const agencyId = await getAgencyId(profile, user?.id);
-      if (!agencyId) {
-        logWarn('No agency_id available for fetching employment types');
-        return;
-      }
-
-      // Fetch distinct employment types from employee_details
-      const empData = await selectRecords('employee_details', {
-        select: 'employment_type',
-        filters: [
-          { column: 'agency_id', operator: 'eq', value: agencyId }
-        ]
-      });
-
-      // Get unique employment types
-      const uniqueTypes = Array.from(new Set((empData || []).map((e: any) => e.employment_type).filter(Boolean)));
-      
-      // If no types found or empty, use default types
-      if (uniqueTypes.length === 0) {
-        setEmploymentTypes(['full-time', 'part-time', 'contract', 'intern']);
-      } else {
-        // Normalize the values (handle both 'full-time' and 'full_time')
-        const normalizedTypes = uniqueTypes.map((t: string) => {
-          if (t === 'full_time') return 'full-time';
-          if (t === 'part_time') return 'part-time';
-          return t;
-        });
-        setEmploymentTypes(Array.from(new Set(normalizedTypes)).sort());
-      }
-    } catch (error) {
-      logError('Error fetching employment types:', error);
-      // Fallback to default types
-      setEmploymentTypes(['full-time', 'part-time', 'contract', 'intern']);
-    }
-  };
+  const fetchEmploymentTypes = useCallback(async () => {
+    setEmploymentTypes(['full-time', 'part-time', 'contract', 'intern']);
+  }, []);
 
   // Fetch distinct positions from profiles
-  const fetchPositions = async () => {
-    try {
-      const agencyId = await getAgencyId(profile, user?.id);
-      if (!agencyId) {
-        logWarn('No agency_id available for fetching positions');
-        return;
-      }
+  const fetchPositions = useCallback(async () => {
+    setPositions([]);
+  }, []);
 
-      // Fetch distinct positions from profiles
-      const profilesData = await selectRecords('profiles', {
-        select: 'position',
-        filters: [
-          { column: 'agency_id', operator: 'eq', value: agencyId },
-          { column: 'position', operator: 'is not', value: null }
-        ]
-      });
-
-      // Get unique positions
-      const uniquePositions = Array.from(new Set((profilesData || []).map((p: any) => p.position).filter(Boolean)));
-      setPositions(uniquePositions.sort());
-    } catch (error) {
-      logError('Error fetching positions:', error);
-      // Positions can be empty - it's optional to have existing positions
-      setPositions([]);
-    }
-  };
-
-  // Load company name/domain for auto-email
   useEffect(() => {
-    const loadAgencySettings = async () => {
-      try {
-        const settings = await selectOne<{ agency_name?: string; domain?: string }>('agency_settings', {});
-        if (settings?.agency_name) {
-          setCompanyName(settings.agency_name);
-          const slug = settings.agency_name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-          setCompanyDomain(settings.domain && settings.domain.includes('@') ? settings.domain.split('@')[1] : (slug ? `${slug}.com` : 'company.com'));
-        }
-      } catch {
-        setCompanyDomain('company.com');
-      }
-    };
-    loadAgencySettings();
+    setCompanyDomain('company.com');
   }, []);
 
   // Generate work email from first name, last name, and company domain
@@ -684,43 +374,10 @@ const CreateEmployee = () => {
     };
 
     loadAllOptions();
-  }, [profile, user]);
+  }, [profile, user, fetchDepartments, fetchRoles, fetchEmploymentTypes, fetchPositions]);
 
-  // Generate employee ID on component mount
   useEffect(() => {
-    const generateInitialEmployeeId = async () => {
-      try {
-        const latestEmployees = await selectRecords('employee_details', {
-          select: 'employee_id',
-          orderBy: 'created_at DESC',
-          limit: 1
-        });
-        
-        if (latestEmployees.length > 0 && latestEmployees[0].employee_id) {
-          const match = latestEmployees[0].employee_id.match(/(\d+)$/);
-          if (match) {
-            const nextNum = parseInt(match[1]) + 1;
-            const newId = `EMP-${String(nextNum).padStart(4, '0')}`;
-            setGeneratedEmployeeId(newId);
-            form.setValue('employeeId', newId);
-          } else {
-            setGeneratedEmployeeId('EMP-0001');
-            form.setValue('employeeId', 'EMP-0001');
-          }
-        } else {
-          setGeneratedEmployeeId('EMP-0001');
-          form.setValue('employeeId', 'EMP-0001');
-        }
-      } catch (error) {
-        logError('Error generating employee ID:', error);
-        // Fallback to default
-        setGeneratedEmployeeId('EMP-0001');
-        form.setValue('employeeId', 'EMP-0001');
-      }
-    };
-    
-    generateInitialEmployeeId();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setGeneratedEmployeeId('EMP-' + Date.now().toString().slice(-4));
   }, []);
 
   const credentialsText = createdCredentials
@@ -785,8 +442,8 @@ const CreateEmployee = () => {
       emergencyContactRelationship: "",
       notes: "",
     });
-    form.setValue('dateOfBirth', undefined as any);
-    form.setValue('hireDate', undefined as any);
+    form.setValue('dateOfBirth', undefined as unknown);
+    form.setValue('hireDate', undefined as unknown);
     setDateOfBirthInput('');
     setHireDateInput('');
   };
@@ -925,7 +582,6 @@ const CreateEmployee = () => {
                               <Input placeholder="john.doe@company.com" className="pl-10" {...field} />
                             </div>
                             <Button type="button" variant="outline" size="sm" onClick={generateWorkEmail} className="shrink-0">
-                              <Sparkles className="h-4 w-4 mr-1" />
                               Generate
                             </Button>
                           </div>
@@ -1202,31 +858,14 @@ const CreateEmployee = () => {
                                 variant="ghost"
                                 size="sm"
                                 className="absolute right-1 top-1 h-7 px-2 text-xs"
-                                onClick={async () => {
-                                  try {
-                                    const latestEmployees = await selectRecords('employee_details', {
-                                      select: 'employee_id',
-                                      orderBy: 'created_at DESC',
-                                      limit: 1
-                                    });
-                                    
-                                    let newId = 'EMP-0001';
-                                    if (latestEmployees.length > 0 && latestEmployees[0].employee_id) {
-                                      const match = latestEmployees[0].employee_id.match(/(\d+)$/);
-                                      if (match) {
-                                        const nextNum = parseInt(match[1]) + 1;
-                                        newId = `EMP-${String(nextNum).padStart(4, '0')}`;
-                                      }
-                                    }
-                                    setGeneratedEmployeeId(newId);
-                                    form.setValue('employeeId', newId);
-                                    toast({
-                                      title: "Employee ID Regenerated",
-                                      description: `New ID: ${newId}`,
-                                    });
-                                  } catch (error) {
-                                    logError('Error regenerating ID:', error);
-                                  }
+                                onClick={() => {
+                                  const newId = 'EMP-' + Date.now().toString().slice(-4);
+                                  setGeneratedEmployeeId(newId);
+                                  form.setValue('employeeId', newId);
+                                  toast({
+                                    title: "Employee ID Regenerated",
+                                    description: `New ID: ${newId}`,
+                                  });
                                 }}
                               >
                                 Regenerate

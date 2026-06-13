@@ -3,7 +3,7 @@
  * Configure inventory module settings and preferences
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,19 +78,13 @@ export default function InventorySettings() {
     notify_on_reorder: true,
     notify_on_stock_adjustment: false,
   });
-
-  useEffect(() => {
-    loadSettings();
-    loadWarehouses();
-  }, []);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
       const { getInventorySettings } = await import('@/services/api/system');
       const data = await getInventorySettings();
       setSettings(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load settings',
@@ -99,17 +93,17 @@ export default function InventorySettings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const loadWarehouses = async () => {
+  const loadWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Failed to load warehouses:', error);
       // Don't show toast for warehouses as it's not critical
     }
-  };
+  }, []);
 
   const handleSave = async () => {
     try {
@@ -120,7 +114,7 @@ export default function InventorySettings() {
         title: 'Success',
         description: 'Settings saved successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save settings',
@@ -130,6 +124,10 @@ export default function InventorySettings() {
       setSaving(false);
     }
   };
+    useEffect(() => {
+        loadSettings();
+        loadWarehouses();
+      }, [loadSettings, loadWarehouses]);
 
   if (loading) {
     return (
@@ -177,7 +175,7 @@ export default function InventorySettings() {
               <Select
                 value={settings.default_valuation_method}
                 onValueChange={(value) =>
-                  setSettings({ ...settings, default_valuation_method: value as any })
+                  setSettings({ ...settings, default_valuation_method: value as unknown })
                 }
               >
                 <SelectTrigger>

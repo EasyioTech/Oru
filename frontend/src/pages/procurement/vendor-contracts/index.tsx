@@ -3,7 +3,7 @@
  * Manage vendor contracts and agreements
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,16 +90,10 @@ export default function ProcurementVendorContracts() {
     document_url: '',
     notes: '',
   });
-
-  useEffect(() => {
-    loadData();
-    loadSuppliers();
-  }, [filterStatus, filterType]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (filterStatus !== 'all') filters.status = filterStatus;
       if (filterType !== 'all') filters.contract_type = filterType;
 
@@ -116,7 +110,7 @@ export default function ProcurementVendorContracts() {
       }
 
       setContracts(filteredData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load vendor contracts',
@@ -125,16 +119,16 @@ export default function ProcurementVendorContracts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus, filterType, searchTerm, toast]);
 
-  const loadSuppliers = async () => {
+  const loadSuppliers = useCallback(async () => {
     try {
       const data = await getSuppliers({ is_active: true });
       setSuppliers(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load suppliers:', error);
     }
-  };
+  }, []);
 
   const handleCreate = () => {
     setFormData({
@@ -169,7 +163,7 @@ export default function ProcurementVendorContracts() {
       const fullContract = await getVendorContractById(contract.id);
       setSelectedContract(fullContract);
       setIsViewDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load contract details',
@@ -196,7 +190,7 @@ export default function ProcurementVendorContracts() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save contract',
@@ -219,7 +213,7 @@ export default function ProcurementVendorContracts() {
         description: 'Contract deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete contract',
@@ -235,7 +229,7 @@ export default function ProcurementVendorContracts() {
       expired: 'destructive',
       terminated: 'outline',
     };
-    const icons: Record<string, any> = {
+    const icons: Record<string, unknown> = {
       active: CheckCircle2,
       draft: Clock,
       expired: XCircle,
@@ -259,6 +253,10 @@ export default function ProcurementVendorContracts() {
       currency: 'INR',
     }).format(numValue);
   };
+    useEffect(() => {
+        loadData();
+        loadSuppliers();
+      }, [filterStatus, filterType, loadData, loadSuppliers]);
 
   // Statistics
   const stats = {
@@ -512,7 +510,7 @@ export default function ProcurementVendorContracts() {
                 <Select
                   value={formData.status}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, status: value as any })
+                    setFormData({ ...formData, status: value as unknown })
                   }
                 >
                   <SelectTrigger>

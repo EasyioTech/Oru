@@ -30,7 +30,7 @@ export interface Profile {
 export interface UserRole {
   id: string;
   user_id: string;
-  role: 'admin' | 'hr' | 'finance_manager' | 'employee' | 'super_admin';
+  role: 'super_admin' | 'agency_admin' | 'manager' | 'employee' | 'auditor' | 'viewer' | 'custom';
   assigned_at: string;
   assigned_by: string | null;
   agency_id: string;
@@ -53,7 +53,7 @@ export interface EmployeeDetails {
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
   emergency_contact_relationship: string | null;
-  skills: any; // JSONB
+  skills: unknown; // JSONB
   is_active: boolean;
   agency_id: string;
   created_at: string;
@@ -171,7 +171,7 @@ export interface Project {
   end_date: string | null;
   budget: number | null;
   client_id: string;
-  assigned_team: any; // JSONB
+  assigned_team: unknown; // JSONB
   progress: number;
   created_by: string;
   agency_id: string;
@@ -376,8 +376,8 @@ export interface AuditLog {
   action: string;
   user_id: string;
   record_id: string;
-  old_values: any; // JSONB
-  new_values: any; // JSONB
+  old_values: unknown; // JSONB
+  new_values: unknown; // JSONB
   ip_address: string | null;
   user_agent: string | null;
   created_at: string;
@@ -482,8 +482,8 @@ export interface CompanyEvent {
   updated_at?: string;
   color?: string;
   is_recurring?: boolean;
-  recurrence_pattern?: any;
-  attendees?: any;
+  recurrence_pattern?: unknown;
+  attendees?: unknown;
 }
 
 export interface Notification {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,15 +48,8 @@ export const Reimbursements: React.FC = () => {
     totalAmount: 0,
   });
 
-  const isFinanceManager = userRole === 'admin' || userRole === 'finance_manager';
-
-  useEffect(() => {
-    if (user) {
-      fetchReimbursements();
-    }
-  }, [user]);
-
-  const fetchReimbursements = async () => {
+  const isFinanceManager = userRole === 'agency_admin' || userRole === 'manager' || userRole === 'super_admin';
+  const fetchReimbursements = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -75,6 +68,7 @@ export const Reimbursements: React.FC = () => {
       const { data: requestsData, error: requestsError } = await query
         .order("created_at", { ascending: false });
 
+      let requests: unknown[] = [];
       if (requestsError) {
         // If employee_id column doesn't exist, try with user_id only
         if (requestsError.message?.includes('employee_id') || requestsError.code === '42703') {
@@ -90,17 +84,17 @@ export const Reimbursements: React.FC = () => {
             .order("created_at", { ascending: false });
           
           if (fallbackError) throw fallbackError;
-          var requests = (fallbackData as any) || [];
+          requests = (fallbackData as unknown[]) || [];
         } else {
           throw requestsError;
         }
       } else {
-        var requests = (requestsData as any) || [];
+        requests = (requestsData as unknown[]) || [];
       }
       
       // Fetch expense categories
-      const categoryIds = [...new Set(requests.map((r: any) => r.category_id).filter(Boolean))];
-      let categories: any[] = [];
+      const categoryIds = [...new Set(requests.map((r: unknown) => r.category_id).filter(Boolean))];
+      let categories: unknown[] = [];
       if (categoryIds.length > 0) {
         const { data: categoriesData, error: categoriesError } = await db
           .from("expense_categories")
@@ -108,7 +102,7 @@ export const Reimbursements: React.FC = () => {
           .in("id", categoryIds);
         
         if (!categoriesError) {
-          categories = (categoriesData as any) || [];
+          categories = (categoriesData as unknown) || [];
         }
       }
 
@@ -116,10 +110,10 @@ export const Reimbursements: React.FC = () => {
       // Use employee_id if available, otherwise use user_id
       const employeeIds = [...new Set(
         requests
-          .map((r: any) => r.employee_id || r.user_id)
+          .map((r: unknown) => r.employee_id || r.user_id)
           .filter(Boolean)
       )];
-      let profiles: any[] = [];
+      let profiles: unknown[] = [];
       if (employeeIds.length > 0) {
         const { data: profilesData, error: profilesError } = await db
           .from("profiles")
@@ -127,16 +121,16 @@ export const Reimbursements: React.FC = () => {
           .in("user_id", employeeIds);
         
         if (!profilesError) {
-          profiles = (profilesData as any) || [];
+          profiles = (profilesData as unknown) || [];
         }
       }
 
       // Create maps for quick lookup
-      const categoryMap = new Map(categories.map((c: any) => [c.id, c]));
-      const profileMap = new Map(profiles.map((p: any) => [p.user_id, p]));
+      const categoryMap = new Map(categories.map((c: unknown) => [c.id, c]));
+      const profileMap = new Map(profiles.map((p: unknown) => [p.user_id, p]));
 
       // Combine data
-      const enrichedRequests: ReimbursementRequest[] = requests.map((req: any) => ({
+      const enrichedRequests: ReimbursementRequest[] = requests.map((req: unknown) => ({
         ...req,
         expense_categories: categoryMap.get(req.category_id) || { name: "Unknown" },
         profiles: profileMap.get(req.employee_id) || undefined,
@@ -157,7 +151,7 @@ export const Reimbursements: React.FC = () => {
         rejected,
         totalAmount,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching reimbursements:", error);
       toast({
         title: "Error",
@@ -167,7 +161,7 @@ export const Reimbursements: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isFinanceManager, user, toast]);
 
   const handleViewRequest = (request: ReimbursementRequest) => {
     setSelectedRequest(request);
@@ -209,7 +203,7 @@ export const Reimbursements: React.FC = () => {
       });
 
       fetchReimbursements();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting reimbursement:", error);
       toast({
         title: "Error",
@@ -254,6 +248,11 @@ export const Reimbursements: React.FC = () => {
     request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     request.expense_categories?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+    useEffect(() => {
+        if (user) {
+          fetchReimbursements();
+        }
+      }, [user, fetchReimbursements]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">

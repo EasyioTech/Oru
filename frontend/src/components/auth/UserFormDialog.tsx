@@ -94,7 +94,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
           id: d.id,
           name: d.name
         })));
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching departments:', error);
         setDepartments([]);
       }
@@ -163,7 +163,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
     });
     setCreatedUser(null);
     setShowCredentials(false);
-  }, [user, isOpen]);
+  }, [user, isOpen, currentUser?.id, profile]);
 
   const copyToClipboard = async (text: string, field: string) => {
     try {
@@ -232,7 +232,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
           // Update existing role
           await updateRecord(
             'user_roles',
-            { role: formData.role as any },
+            { role: formData.role as unknown },
             { id: existingRoles[0].id },
             currentUser?.id
           );
@@ -245,7 +245,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
           await insertRecord('user_roles', {
             id: generateUUID(),
             user_id: user.id,
-            role: formData.role as any,
+            role: formData.role as unknown,
             agency_id: agencyId
           }, currentUser?.id);
         }
@@ -354,7 +354,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
 
         onUserSaved();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving user:', error);
       toast({
         title: "Error",

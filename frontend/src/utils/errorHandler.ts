@@ -13,10 +13,11 @@ export interface ErrorInfo {
 }
 
 export class ErrorHandler {
-  static analyzeError(error: any): ErrorInfo {
-    const errorMessage = typeof error === 'string' ? error : error?.message || '';
-    const errorCode = error?.code || error?.error_code || '';
-    const statusCode = error?.status || error?.statusCode;
+  static analyzeError(error: unknown): ErrorInfo {
+    const errObj = (typeof error === 'object' && error !== null) ? (error as Record<string, unknown>) : null;
+    const errorMessage = typeof error === 'string' ? error : (error instanceof Error ? error.message : (errObj?.message as string || ''));
+    const errorCode = (errObj?.code as string) || (errObj?.error_code as string) || '';
+    const statusCode = (errObj?.status as number) || (errObj?.statusCode as number);
 
     // Determine error type
     let type: ErrorType = ERROR_TYPES.UNKNOWN;
@@ -52,7 +53,7 @@ export class ErrorHandler {
     return {
       type,
       message: errorMessage,
-      details: error?.details || error?.error_description,
+      details: (errObj?.details as string) || (errObj?.error_description as string),
       code: errorCode,
       statusCode,
       retryable,
@@ -61,7 +62,7 @@ export class ErrorHandler {
     };
   }
 
-  static handleError(error: any, options: {
+  static handleError(error: unknown, options: {
     showNotification?: boolean;
     logToConsole?: boolean;
     redirectOnAuth?: boolean;
@@ -146,7 +147,7 @@ export class ErrorHandler {
     delay: number = 1000
   ): () => Promise<T> {
     return async () => {
-      let lastError: any;
+      let lastError: unknown;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {

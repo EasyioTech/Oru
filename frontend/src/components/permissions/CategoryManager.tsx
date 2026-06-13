@@ -15,17 +15,12 @@ export function CategoryManager() {
   const [loading, setLoading] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     setLoading(true);
     try {
       const data = await permissionsService.getPermissionCategories();
       setCategories(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show empty state gracefully
       console.warn('Categories API not available:', error);
       setCategories([]);
@@ -55,10 +50,13 @@ export function CategoryManager() {
       toast.success('Category management feature coming soon');
       setNewCategory('');
       setShowAddDialog(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to create category');
     }
   };
+    useEffect(() => {
+        fetchCategories();
+      }, []);
 
   return (
     <Card>

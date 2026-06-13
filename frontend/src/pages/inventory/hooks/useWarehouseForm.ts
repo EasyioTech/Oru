@@ -37,7 +37,7 @@ export const useWarehouseForm = (onSuccess: () => void) => {
       setShowDialog(false);
       setForm(initialWarehouseForm);
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create warehouse',

@@ -25,7 +25,7 @@ export interface Workflow {
   is_active: boolean;
   is_system: boolean;
   version: number;
-  configuration?: Record<string, any>;
+  configuration?: Record<string, unknown>;
   created_by?: string;
   created_by_email?: string;
   step_count?: number;
@@ -46,7 +46,7 @@ export interface WorkflowStep {
   approver_role?: string;
   approver_department_id?: string;
   condition_expression?: string;
-  action_config?: Record<string, any>;
+  action_config?: Record<string, unknown>;
   timeout_hours?: number;
   escalation_enabled: boolean;
   escalation_after_hours?: number;
@@ -323,7 +323,7 @@ export interface WorkflowInstance {
   completed_by?: string;
   completed_by_email?: string;
   rejection_reason?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

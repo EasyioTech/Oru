@@ -46,7 +46,7 @@ const Attendance = () => {
   });
   const [todayAttendance, setTodayAttendance] = useState<AttendanceRecord[]>([]);
   const [showReportsDialog, setShowReportsDialog] = useState(false);
-  const [reportData, setReportData] = useState<any>(null);
+  const [reportData, setReportData] = useState<unknown>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [weeklyTrends, setWeeklyTrends] = useState<WeeklyTrend[]>([]);
   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
@@ -55,31 +55,10 @@ const Attendance = () => {
   
   // Check if user is admin/manager/HR (should see admin dashboard)
   const isAdminView = userRole && (
-    userRole === 'super_admin' || 
-    userRole === 'admin' || 
-    userRole === 'hr' || 
-    userRole === 'ceo' || 
-    userRole === 'cto' || 
-    userRole === 'cfo' || 
-    userRole === 'coo' ||
-    userRole === 'operations_manager' ||
-    userRole === 'department_head' ||
-    userRole === 'team_lead' ||
-    userRole === 'project_manager'
+    userRole === 'super_admin' ||
+    userRole === 'agency_admin' ||
+    userRole === 'manager'
   );
-
-  useEffect(() => {
-    if (date && user?.id) {
-      fetchAttendanceData(date);
-      if (isAdminView) {
-        fetchWeeklyTrends();
-        fetchDepartmentStats();
-        generateInsights();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, isAdminView, selectedPeriod, urlDepartmentId, user?.id]);
-
   const fetchAttendanceData = async (selectedDate: Date) => {
     try {
       setLoading(true);
@@ -91,7 +70,7 @@ const Attendance = () => {
       // If filtering by department, get user IDs in that department
       let departmentUserIds: string[] = [];
       if (urlDepartmentId) {
-        let assignmentsQuery = db
+        const assignmentsQuery = db
           .from('team_assignments')
           .select('user_id')
           .eq('department_id', urlDepartmentId)
@@ -101,7 +80,7 @@ const Attendance = () => {
         const { data: assignments } = await assignmentsQuery;
         
         if (assignments) {
-          departmentUserIds = assignments.map((ta: any) => ta.user_id).filter(Boolean);
+          departmentUserIds = assignments.map((ta: unknown) => ta.user_id).filter(Boolean);
         }
       }
       
@@ -142,7 +121,7 @@ const Attendance = () => {
       // Fetch profiles for employee names
       // Note: Agency isolation is handled at the database connection level
       const employeeIds = employeesData?.map(e => e.user_id).filter(Boolean) || [];
-      let profiles: any[] = [];
+      let profiles: unknown[] = [];
       
       if (employeeIds.length > 0) {
         const { data: profilesData, error: profilesError } = await db
@@ -154,7 +133,7 @@ const Attendance = () => {
         profiles = profilesData || [];
       }
 
-      const profileMap = new Map(profiles.map((p: any) => [p.user_id, p.full_name]));
+      const profileMap = new Map(profiles.map((p: unknown) => [p.user_id, p.full_name]));
 
       // Check for leave requests that include this date (between start_date and end_date)
       // FIXED: Use user_id instead of employee_id (leave_requests table uses user_id)
@@ -175,14 +154,14 @@ const Attendance = () => {
 
       if (leaveError) throw leaveError;
 
-      const onLeaveIds = new Set((leaveData || []).map((l: any) => l.user_id));
+      const onLeaveIds = new Set((leaveData || []).map((l: unknown) => l.user_id));
 
       // Transform attendance data
       const attendanceRecords: AttendanceRecord[] = [];
       const presentIds = new Set<string>();
       const lateIds = new Set<string>();
 
-      (attendanceData || []).forEach((record: any) => {
+      (attendanceData || []).forEach((record: unknown) => {
         const employee = employeesData?.find(e => e.user_id === record.employee_id);
         const fullName = profileMap.get(record.employee_id) || 
           (employee ? `${employee.first_name} ${employee.last_name}`.trim() : 'Unknown Employee');
@@ -233,7 +212,7 @@ const Attendance = () => {
       });
 
       // Add absent employees (not in attendance, not on leave)
-      employeesData?.forEach((employee: any) => {
+      employeesData?.forEach((employee: unknown) => {
         if (!presentIds.has(employee.user_id) && !onLeaveIds.has(employee.user_id)) {
           const fullName = profileMap.get(employee.user_id) || 
             `${employee.first_name} ${employee.last_name}`.trim();
@@ -251,7 +230,7 @@ const Attendance = () => {
       });
 
       // Add employees on leave
-      (leaveData || []).forEach((leave: any) => {
+      (leaveData || []).forEach((leave: unknown) => {
         const userId = leave.user_id; // Use user_id from leave_requests
         if (!presentIds.has(userId)) {
           const employee = employeesData?.find(e => e.user_id === userId);
@@ -280,7 +259,7 @@ const Attendance = () => {
 
       setAttendanceStats({ present, absent, late, onLeave });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching attendance data:', error);
       toast({
         title: "Error",
@@ -312,7 +291,7 @@ const Attendance = () => {
 
       // Fetch attendance records for the date range
       // Note: Agency isolation is handled at the database connection level
-      let attendanceQuery = db
+      const attendanceQuery = db
         .from('attendance')
         .select('*')
         .gte('date', startStr)
@@ -334,7 +313,7 @@ const Attendance = () => {
       // Fetch profiles
       // Note: Agency isolation is handled at the database connection level
       const employeeIds = employeesData?.map(e => e.user_id).filter(Boolean) || [];
-      let profiles: any[] = [];
+      let profiles: unknown[] = [];
       
       if (employeeIds.length > 0) {
         const { data: profilesData, error: profilesError } = await db
@@ -346,12 +325,12 @@ const Attendance = () => {
         profiles = profilesData || [];
       }
 
-      const profileMap = new Map(profiles.map((p: any) => [p.user_id, p.full_name]));
+      const profileMap = new Map(profiles.map((p: unknown) => [p.user_id, p.full_name]));
 
       // Calculate report statistics
       const totalRecords = attendanceData?.length || 0;
-      const presentCount = attendanceData?.filter((r: any) => r.status === 'present' || r.check_in_time).length || 0;
-      const lateCount = attendanceData?.filter((r: any) => {
+      const presentCount = attendanceData?.filter((r: unknown) => r.status === 'present' || r.check_in_time).length || 0;
+      const lateCount = attendanceData?.filter((r: unknown) => {
         if (!r.check_in_time) return false;
         const checkInTime = new Date(r.check_in_time);
         const hours = checkInTime.getHours();
@@ -359,7 +338,7 @@ const Attendance = () => {
         return hours > 9 || (hours === 9 && minutes > 15);
       }).length || 0;
       
-      const totalHours = attendanceData?.reduce((sum: number, r: any) => {
+      const totalHours = attendanceData?.reduce((sum: number, r: unknown) => {
         const hours = r.total_hours != null 
           ? (typeof r.total_hours === 'string' ? parseFloat(r.total_hours) : Number(r.total_hours))
           : 0;
@@ -378,7 +357,7 @@ const Attendance = () => {
         avgHours: avgHours.toFixed(1),
         attendanceData: attendanceData || []
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching report data:', error);
       toast({
         title: "Error",
@@ -428,7 +407,7 @@ const Attendance = () => {
           .eq('is_active', true);
         
         const totalEmployees = employeesData?.length || 0;
-        const present = attendanceData?.filter((r: any) => {
+        const present = attendanceData?.filter((r: unknown) => {
           if (!r.check_in_time) return false;
           const checkInTime = new Date(r.check_in_time);
           const hours = checkInTime.getHours();
@@ -436,7 +415,7 @@ const Attendance = () => {
           return !(hours > 9 || (hours === 9 && minutes > 15));
         }).length || 0;
         
-        const late = attendanceData?.filter((r: any) => {
+        const late = attendanceData?.filter((r: unknown) => {
           if (!r.check_in_time) return false;
           const checkInTime = new Date(r.check_in_time);
           const hours = checkInTime.getHours();
@@ -483,7 +462,7 @@ const Attendance = () => {
       
       // Fetch profiles to get department information
       // Note: Agency isolation is handled at the database connection level
-      const userIds = employeesData.map((emp: any) => emp.user_id);
+      const userIds = employeesData.map((emp: unknown) => emp.user_id);
       const { data: profilesData } = await db
         .from('profiles')
         .select('user_id, department')
@@ -492,7 +471,7 @@ const Attendance = () => {
       
       // Create a map of user_id to department
       const userDeptMap = new Map<string, string>(
-        profilesData?.map((p: any) => [p.user_id as string, (p.department as string) || 'Unassigned']) || []
+        profilesData?.map((p: unknown) => [p.user_id as string, (p.department as string) || 'Unassigned']) || []
       );
       
       // Fetch attendance for the date
@@ -502,12 +481,12 @@ const Attendance = () => {
         .select('*')
         .eq('date', dateStr);
       
-      const attendanceMap = new Map<string, any>(attendanceData?.map((a: any) => [a.employee_id as string, a]) || []);
+      const attendanceMap = new Map<string, unknown>(attendanceData?.map((a: unknown) => [a.employee_id as string, a]) || []);
       
       // Group by department
       const deptStatsMap = new Map<string, { present: number; absent: number; late: number; total: number }>();
       
-      employeesData?.forEach((emp: any) => {
+      employeesData?.forEach((emp: unknown) => {
         const empId = emp.user_id as string;
         const deptName = userDeptMap.get(empId) || 'Unassigned';
         
@@ -518,7 +497,7 @@ const Attendance = () => {
         const stats = deptStatsMap.get(deptName)!;
         stats.total++;
         
-        const attendance = attendanceMap.get(empId) as any;
+        const attendance = attendanceMap.get(empId) as unknown;
         if (attendance) {
           if (attendance.check_in_time) {
             const checkInTime = new Date(attendance.check_in_time);
@@ -551,6 +530,17 @@ const Attendance = () => {
       });
     }
   };
+    useEffect(() => {
+        if (date && user?.id) {
+          fetchAttendanceData(date);
+          if (isAdminView) {
+            fetchWeeklyTrends();
+            fetchDepartmentStats();
+            generateInsights();
+          }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [date, isAdminView, selectedPeriod, urlDepartmentId, user?.id]);
 
   const generateInsights = async () => {
     try {
@@ -615,7 +605,7 @@ const Attendance = () => {
 
     const csvContent = [
       ['Date', 'Employee', 'Check In', 'Check Out', 'Hours', 'Status'].join(','),
-      ...reportData.attendanceData.map((record: any) => {
+      ...reportData.attendanceData.map((record: unknown) => {
         const totalHours = record.total_hours != null 
           ? (typeof record.total_hours === 'string' ? parseFloat(record.total_hours) : Number(record.total_hours))
           : 0;
@@ -744,7 +734,7 @@ const Attendance = () => {
                         ))}
                       </Pie>
                       <Tooltip 
-                        formatter={(value: any, name: string) => {
+                        formatter={(value: unknown, name: string) => {
                           const total = attendanceStats.present + attendanceStats.late + attendanceStats.absent + attendanceStats.onLeave;
                           const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                           return [`${value} (${percent}%)`, name];
@@ -755,7 +745,7 @@ const Attendance = () => {
                         height={80}
                         iconType="circle"
                         wrapperStyle={{ paddingTop: '20px' }}
-                        formatter={(value, entry: any) => {
+                        formatter={(value, entry: unknown) => {
                           const total = attendanceStats.present + attendanceStats.late + attendanceStats.absent + attendanceStats.onLeave;
                           const itemValue = entry.payload?.value || 0;
                           const percent = total > 0 ? ((itemValue / total) * 100).toFixed(1) : 0;

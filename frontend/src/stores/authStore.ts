@@ -108,17 +108,17 @@ export const useAuthStore = create<AuthState>()(
       // Computed values
       isAdmin: () => {
         const { userRole } = get();
-        return userRole === 'admin' || userRole === 'super_admin';
+        return userRole === 'agency_admin' || userRole === 'super_admin';
       },
 
       isHR: () => {
         const { userRole } = get();
-        return userRole === 'hr';
+        return userRole === 'manager' || userRole === 'agency_admin' || userRole === 'super_admin';
       },
 
       isFinance: () => {
         const { userRole } = get();
-        return userRole === 'finance_manager' || userRole === 'cfo';
+        return userRole === 'manager' || userRole === 'agency_admin' || userRole === 'super_admin';
       },
 
       isSuperAdmin: () => {

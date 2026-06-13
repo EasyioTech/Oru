@@ -8,29 +8,32 @@ const { getAgencyPool } = require('../config/database');
 const logger = require('../utils/logger');
 
 /**
- * Get all departments (id, name, parent_department_id) for validation
+ * Get all departments (id, name, parent_department_id) for validation within an agency
  * @param {Object} client - pg client
+ * @param {string} agencyId - agency UUID for tenant isolation
  * @returns {Promise<Array<{id: string, name: string, parent_department_id: string|null}>>}
  */
-async function getAllDepartments(client) {
+async function getAllDepartments(client, agencyId) {
   const result = await client.query(
-    `SELECT id, name, parent_department_id FROM public.departments ORDER BY name ASC`
+    `SELECT id, name, parent_department_id FROM public.departments WHERE agency_id = $1 ORDER BY name ASC`,
+    [agencyId]
   );
   return result.rows;
 }
 
 /**
- * Check for duplicate name (excluding given id if edit)
+ * Check for duplicate name within an agency (excluding given id if edit)
  * @param {Object} client - pg client
  * @param {string} name - trimmed name
+ * @param {string} agencyId - agency UUID for tenant isolation
  * @param {string|null} excludeId - department id to exclude (when editing)
  * @returns {Promise<boolean>} true if duplicate exists
  */
-async function hasDuplicateName(client, name, excludeId = null) {
-  let sql = `SELECT 1 FROM public.departments WHERE name = $1 LIMIT 1`;
-  const params = [name];
+async function hasDuplicateName(client, name, agencyId, excludeId = null) {
+  let sql = `SELECT 1 FROM public.departments WHERE name = $1 AND agency_id = $2 LIMIT 1`;
+  const params = [name, agencyId];
   if (excludeId) {
-    sql = `SELECT 1 FROM public.departments WHERE name = $1 AND id != $2 LIMIT 1`;
+    sql = `SELECT 1 FROM public.departments WHERE name = $1 AND agency_id = $2 AND id != $3 LIMIT 1`;
     params.push(excludeId);
   }
   const result = await client.query(sql, params);
@@ -86,8 +89,12 @@ async function validateAndCreate(data, agencyDatabase, userId = null) {
     }
     const parentId = data.parent_department_id && String(data.parent_department_id).trim() ? data.parent_department_id : null;
 
-    const allDepts = await getAllDepartments(client);
-    if (await hasDuplicateName(client, name, null)) {
+    const agencyId = data.agency_id || null;
+    if (!agencyId) {
+      return { success: false, error: 'VALIDATION_ERROR', message: 'Agency context is required.' };
+    }
+    const allDepts = await getAllDepartments(client, agencyId);
+    if (await hasDuplicateName(client, name, agencyId, null)) {
       return { success: false, error: 'VALIDATION_ERROR', message: 'A department with this name already exists.' };
     }
     if (parentId) {
@@ -141,13 +148,18 @@ async function validateAndUpdate(id, data, agencyDatabase, userId = null) {
       return { success: false, error: 'VALIDATION_ERROR', message: 'Budget must be a number >= 0.' };
     }
 
-    const existing = await client.query(`SELECT id, name, parent_department_id FROM public.departments WHERE id = $1`, [id]);
+    const existing = await client.query(`SELECT id, name, parent_department_id, agency_id FROM public.departments WHERE id = $1`, [id]);
     if (existing.rows.length === 0) {
       return { success: false, error: 'NOT_FOUND', message: 'Department not found.' };
     }
 
-    const allDepts = await getAllDepartments(client);
-    if (name !== null && (await hasDuplicateName(client, name, id))) {
+    const agencyId = existing.rows[0].agency_id;
+    if (!agencyId) {
+      return { success: false, error: 'SERVER_ERROR', message: 'Department has no agency context.' };
+    }
+
+    const allDepts = await getAllDepartments(client, agencyId);
+    if (name !== null && (await hasDuplicateName(client, name, agencyId, id))) {
       return { success: false, error: 'VALIDATION_ERROR', message: 'A department with this name already exists.' };
     }
 

@@ -21,8 +21,8 @@ interface DashboardWidget {
   widget_type: string;
   title: string;
   data_source: string;
-  config: any;
-  position: any;
+  config: unknown;
+  position: unknown;
   is_active: boolean;
   user_id: string;
   agency_id: string;
@@ -35,15 +35,15 @@ interface CustomReport {
   name: string;
   description: string;
   data_sources: string[];
-  filters: any;
+  filters: unknown;
   is_public: boolean;
   is_scheduled: boolean;
   user_id: string;
   agency_id: string;
-  aggregations: any;
+  aggregations: unknown;
   group_by: string[];
-  visualizations: any;
-  schedule_config: any;
+  visualizations: unknown;
+  schedule_config: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -74,9 +74,10 @@ export function AdvancedDashboard() {
     is_scheduled: false
   });
 
-  const fetchWidgets = async () => {
+  const fetchWidgets = React.useCallback(async (idToUse?: string) => {
     try {
-      if (!agencyId) return;
+      const id = idToUse || agencyId;
+      if (!id) return;
       
       const { data, error } = await db
         .from('dashboard_widgets')
@@ -91,11 +92,12 @@ export function AdvancedDashboard() {
       logError('Error fetching widgets:', error);
       toast.error('Failed to load dashboard widgets');
     }
-  };
+  }, [agencyId]);
 
-  const fetchReports = async () => {
+  const fetchReports = React.useCallback(async (idToUse?: string) => {
     try {
-      if (!agencyId) return;
+      const id = idToUse || agencyId;
+      if (!id) return;
       
       const { data, error } = await db
         .from('custom_reports')
@@ -109,22 +111,7 @@ export function AdvancedDashboard() {
       logError('Error fetching reports:', error);
       toast.error('Failed to load custom reports');
     }
-  };
-
-  useEffect(() => {
-    const initializeAgency = async () => {
-      const id = await getAgencyId(profile, user?.id);
-      setAgencyId(id);
-      if (id) {
-        await Promise.all([fetchWidgets(), fetchReports()]);
-      }
-      setLoading(false);
-    };
-    if (user?.id) {
-      initializeAgency();
-    }
-  }, [user?.id, profile?.agency_id]);
-
+  }, [agencyId]);
   const handleCreateWidget = async () => {
     if (!user || !widgetForm.title || !widgetForm.data_source || !agencyId) {
       toast.error('Please fill in all required fields');
@@ -211,25 +198,18 @@ export function AdvancedDashboard() {
     }
   };
 
-  const [widgetData, setWidgetData] = useState<Record<string, any>>({});
-
-  useEffect(() => {
-    if (widgets.length > 0 && agencyId) {
-      fetchWidgetData();
-    }
-  }, [widgets, agencyId]);
-
-  const fetchWidgetData = async () => {
+  const [widgetData, setWidgetData] = useState<Record<string, unknown>>({});
+  const fetchWidgetData = React.useCallback(async () => {
     try {
-      const dataMap: Record<string, any> = {};
+      const dataMap: Record<string, unknown> = {};
       
       for (const widget of widgets) {
         try {
-          let data: any[] = [];
+          let data: unknown[] = [];
           
           // Fetch data based on widget data_source
           switch (widget.data_source) {
-            case 'invoices':
+            case 'invoices': {
               data = await selectRecords('invoices', {
                 where: { agency_id: agencyId },
                 orderBy: 'created_at DESC',
@@ -239,8 +219,9 @@ export function AdvancedDashboard() {
               const monthlyData = transformToMonthlyData(data, 'total_amount', 'created_at');
               dataMap[widget.id] = monthlyData;
               break;
+            }
               
-            case 'projects':
+            case 'projects': {
               data = await selectRecords('projects', {
                 where: { agency_id: agencyId },
                 orderBy: 'created_at DESC',
@@ -249,8 +230,9 @@ export function AdvancedDashboard() {
               const projectMonthlyData = transformToMonthlyData(data, 'budget', 'created_at');
               dataMap[widget.id] = projectMonthlyData;
               break;
+            }
               
-            case 'clients':
+            case 'clients': {
               data = await selectRecords('clients', {
                 where: { agency_id: agencyId, status: 'active' },
                 orderBy: 'created_at DESC',
@@ -259,8 +241,9 @@ export function AdvancedDashboard() {
               const clientMonthlyData = transformToMonthlyData(data, 'id', 'created_at', true); // count
               dataMap[widget.id] = clientMonthlyData;
               break;
+            }
               
-            case 'tasks':
+            case 'tasks': {
               data = await selectRecords('tasks', {
                 where: { agency_id: agencyId },
                 orderBy: 'created_at DESC',
@@ -269,6 +252,7 @@ export function AdvancedDashboard() {
               const taskMonthlyData = transformToMonthlyData(data, 'id', 'created_at', true); // count
               dataMap[widget.id] = taskMonthlyData;
               break;
+            }
               
             default:
               // Default sample data if data_source not recognized
@@ -280,7 +264,7 @@ export function AdvancedDashboard() {
                 { name: 'May', value: 0 }
               ];
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           logError(`Error fetching data for widget ${widget.id}:`, error);
           // Set empty data on error
           dataMap[widget.id] = [
@@ -297,9 +281,9 @@ export function AdvancedDashboard() {
     } catch (error) {
       logError('Error fetching widget data:', error);
     }
-  };
+  }, [widgets, agencyId]);
 
-  const transformToMonthlyData = (data: any[], valueKey: string, dateKey: string, isCount = false) => {
+  const transformToMonthlyData = (data: unknown[], valueKey: string, dateKey: string, isCount = false) => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
     const monthlyMap: Record<string, number> = {};
@@ -312,11 +296,11 @@ export function AdvancedDashboard() {
     }
     
     // Aggregate data by month
-    (data || []).forEach((item: any) => {
+    (data || []).forEach((item: unknown) => {
       if (!item[dateKey]) return;
       const date = new Date(item[dateKey]);
       const monthKey = monthNames[date.getMonth()];
-      if (monthlyMap.hasOwnProperty(monthKey)) {
+      if (Object.prototype.hasOwnProperty.call(monthlyMap, monthKey)) {
         if (isCount) {
           monthlyMap[monthKey]++;
         } else {
@@ -328,32 +312,36 @@ export function AdvancedDashboard() {
     return Object.entries(monthlyMap).map(([name, value]) => ({ name, value: Math.round(value) }));
   };
 
-  const getWidgetMetric = async (widget: DashboardWidget): Promise<number> => {
+  const getWidgetMetric = React.useCallback(async (widget: DashboardWidget): Promise<number> => {
     try {
       switch (widget.data_source) {
-        case 'invoices':
+        case 'invoices': {
           const invoices = await selectRecords('invoices', {
             where: { agency_id: agencyId },
             limit: 1000
           }).catch(() => []);
-          return (invoices || []).reduce((sum: number, inv: any) => 
-            sum + (Number(inv.total_amount) || 0), 0
+          return (invoices || []).reduce((sum: number, inv: unknown) => 
+            sum + (Number((inv as Record<string, unknown>).total_amount) || 0), 0
           );
-        case 'projects':
+        }
+        case 'projects': {
           const projects = await selectRecords('projects', {
             where: { agency_id: agencyId }
           }).catch(() => []);
           return (projects || []).length;
-        case 'clients':
+        }
+        case 'clients': {
           const clients = await selectRecords('clients', {
             where: { agency_id: agencyId, status: 'active' }
           }).catch(() => []);
           return (clients || []).length;
-        case 'tasks':
+        }
+        case 'tasks': {
           const tasks = await selectRecords('tasks', {
             where: { agency_id: agencyId }
           }).catch(() => []);
           return (tasks || []).length;
+        }
         default:
           return 0;
       }
@@ -361,7 +349,7 @@ export function AdvancedDashboard() {
       logError(`Error fetching metric for widget ${widget.id}:`, error);
       return 0;
     }
-  };
+  }, [agencyId]);
 
   const renderWidget = (widget: DashboardWidget) => {
     const chartData = widgetData[widget.id] || [
@@ -444,7 +432,7 @@ export function AdvancedDashboard() {
     
     useEffect(() => {
       getWidgetMetric(widget).then(setMetric);
-    }, [widget.id, agencyId]);
+    }, [widget, getWidgetMetric]);
     
     return (
       <div className="flex items-center justify-center h-full">
@@ -457,6 +445,24 @@ export function AdvancedDashboard() {
       </div>
     );
   };
+    useEffect(() => {
+        if (widgets.length > 0 && agencyId) {
+          fetchWidgetData();
+        }
+      }, [widgets, agencyId, fetchWidgetData]);
+    useEffect(() => {
+        const initializeAgency = async () => {
+          const id = await getAgencyId(profile, user?.id);
+          setAgencyId(id);
+          if (id) {
+            await Promise.all([fetchWidgets(id), fetchReports(id)]);
+          }
+          setLoading(false);
+        };
+        if (user?.id) {
+          initializeAgency();
+        }
+      }, [user?.id, profile, fetchWidgets, fetchReports]);
 
   if (loading) {
     return <div className="flex items-center justify-center p-8">Loading advanced dashboard...</div>;
@@ -584,7 +590,7 @@ export function AdvancedDashboard() {
               <Label htmlFor="widget-type">Widget Type</Label>
               <Select
                 value={widgetForm.widget_type}
-                onValueChange={(value) => setWidgetForm(prev => ({ ...prev, widget_type: value as any }))}
+                onValueChange={(value) => setWidgetForm(prev => ({ ...prev, widget_type: value as unknown }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select widget type" />

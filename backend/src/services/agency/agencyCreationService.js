@@ -298,7 +298,7 @@ async function createAdminUser(client, data) {
     // Assign admin role
     await client.query(
       `INSERT INTO public.user_roles (id, user_id, role, agency_id, assigned_at)
-       VALUES ($1, $2, 'admin', $3, NOW())
+       VALUES ($1, $2, 'agency_admin', $3, NOW())
        ON CONFLICT (user_id, role, agency_id) DO NOTHING`,
       [userRoleId, userId, agencyId]
     );

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   CheckCircle2, Mail, ArrowRight, Building, Users, Clock, Star,
-  Shield, BarChart3, Settings, Sparkles
+  Shield, BarChart3, Settings
 } from 'lucide-react';
 
 const SignupSuccess = () => {
@@ -99,9 +99,7 @@ const SignupSuccess = () => {
             <div className="w-20 h-20 bg-success rounded-lg flex items-center justify-center">
               <CheckCircle2 className="h-10 w-10 text-success-foreground" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg">
-              <Sparkles className="h-4 w-4 text-emerald-500" />
-            </div>
+
           </div>
           
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">

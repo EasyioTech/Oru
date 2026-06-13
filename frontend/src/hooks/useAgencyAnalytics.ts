@@ -1,9 +1,18 @@
-import { useState, useEffect } from 'react';
-import { db } from '@/lib/database';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { countRecords } from '@/services/api/core';
-import { logWarn, logError } from '@/utils/consoleLogger';
+import { logError } from '@/utils/consoleLogger';
+
+export interface AgencyInfo {
+  id: string;
+  name: string;
+  domain: string;
+  status: string;
+  subscriptionPlan: string | null;
+  isActive: boolean;
+  maxUsers: number | null;
+  trialEndsAt: string | null;
+  subscriptionEndsAt: string | null;
+}
 
 export interface AgencyMetrics {
   totalUsers: number;
@@ -27,164 +36,74 @@ export interface AgencyMetrics {
   };
 }
 
+const DEFAULT_METRICS: AgencyMetrics = {
+  totalUsers: 0,
+  activeUsers: 0,
+  totalProjects: 0,
+  activeProjects: 0,
+  totalClients: 0,
+  totalInvoices: 0,
+  totalRevenue: 0,
+  monthlyRevenue: 0,
+  attendanceRecords: 0,
+  leaveRequests: { pending: 0, approved: 0, total: 0 },
+  recentActivity: { newUsers: 0, newProjects: 0, newInvoices: 0 },
+};
+
 export const useAgencyAnalytics = () => {
-  const { userRole, user, profile: authProfile } = useAuth();
-  const [metrics, setMetrics] = useState<AgencyMetrics | null>(null);
+  const [agency, setAgency] = useState<AgencyInfo | null>(null);
+  const [metrics, setMetrics] = useState<AgencyMetrics>(DEFAULT_METRICS);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchAgencyMetrics = async () => {
+  const fetchAgencyMetrics = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
-      // Only allow agency-level roles to access this data
-      if (userRole === 'super_admin') {
-        throw new Error('Super admin should use system analytics');
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch('/api/agencies/me/dashboard', {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || `HTTP ${res.status}`);
       }
 
-      // Get agency ID from auth profile or fetch it
-      let agencyId = authProfile?.agency_id;
-      
-      if (!agencyId && user?.id) {
-        const { data: profile } = await db
-          .from('profiles')
-          .select('agency_id')
-          .eq('user_id', user.id)
-          .single();
-        agencyId = profile?.agency_id;
+      const json = await res.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Failed to load dashboard data');
       }
 
-      if (!agencyId) {
-        logWarn('No agency_id available for analytics');
-        setLoading(false);
-        return;
-      }
-
-      // Helper function to safely execute queries
-      const safeQuery = async (queryPromise: PromiseLike<any> | Promise<any>, fallback: any = null) => {
-        try {
-          const result = await queryPromise;
-          if (result && typeof result === 'object' && 'error' in result && result.error) {
-            logWarn('[Agency Analytics] Query error:', result.error);
-            return fallback;
-          }
-          if (result && typeof result === 'object' && 'data' in result) {
-            return result.data || fallback;
-          }
-          return result || fallback;
-        } catch (error: any) {
-          logWarn('[Agency Analytics] Query exception:', error);
-          return fallback;
-        }
-      };
-
-      // Helper function to safely count records
-      const safeCount = async (table: string, filters: any, fallback: number = 0) => {
-        try {
-          return await countRecords(table, filters);
-        } catch (error: any) {
-          logWarn(`[Agency Analytics] Count error for ${table}:`, error);
-          return fallback;
-        }
-      };
-
-      // Fetch agency-specific metrics
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      
-      // Fetch counts with error handling
-      const [
-        totalUsers,
-        activeUsers,
-        totalProjects,
-        activeProjects,
-        totalClients,
-        attendanceRecords
-      ] = await Promise.all([
-        safeCount('profiles', { agency_id: agencyId }),
-        safeCount('profiles', { agency_id: agencyId, is_active: true }),
-        safeCount('projects', { agency_id: agencyId }),
-        safeCount('projects', { agency_id: agencyId, status: 'active' }),
-        safeCount('clients', { agency_id: agencyId }),
-        safeCount('attendance', { agency_id: agencyId })
-      ]);
-
-      // Fetch data that needs processing with error handling
-      const [
-        invoicesResult,
-        leaveRequestsResult,
-        recentUsersResult,
-        recentProjectsResult,
-        recentInvoicesResult
-      ] = await Promise.all([
-        safeQuery(db.from('invoices').select('total_amount').eq('agency_id', agencyId), { data: [] }),
-        safeQuery(db.from('leave_requests').select('status').eq('agency_id', agencyId), { data: [] }),
-        safeQuery(db.from('profiles').select('id').eq('agency_id', agencyId).gte('created_at', thirtyDaysAgo), { data: [] }),
-        safeQuery(db.from('projects').select('id').eq('agency_id', agencyId).gte('created_at', thirtyDaysAgo), { data: [] }),
-        safeQuery(db.from('invoices').select('total_amount').eq('agency_id', agencyId).gte('created_at', thirtyDaysAgo), { data: [] })
-      ]);
-
-      // Calculate revenue metrics with safe array handling
-      const invoicesData = Array.isArray(invoicesResult.data) ? invoicesResult.data : [];
-      const recentInvoicesData = Array.isArray(recentInvoicesResult.data) ? recentInvoicesResult.data : [];
-      
-      const totalRevenue = invoicesData.reduce((sum, invoice) => sum + (Number(invoice.total_amount) || 0), 0);
-      const monthlyRevenue = recentInvoicesData.reduce((sum, invoice) => sum + (Number(invoice.total_amount) || 0), 0);
-
-      // Process leave requests with safe array handling
-      const leaveRequestsData = Array.isArray(leaveRequestsResult.data) ? leaveRequestsResult.data : [];
-      const leaveRequests = {
-        pending: leaveRequestsData.filter(lr => lr.status === 'pending').length,
-        approved: leaveRequestsData.filter(lr => lr.status === 'approved').length,
-        total: leaveRequestsData.length
-      };
-
-      const agencyMetrics: AgencyMetrics = {
-        totalUsers,
-        activeUsers,
-        totalProjects,
-        activeProjects,
-        totalClients,
-        totalInvoices: invoicesData.length,
-        totalRevenue,
-        monthlyRevenue,
-        attendanceRecords,
-        leaveRequests,
-        recentActivity: {
-          newUsers: Array.isArray(recentUsersResult.data) ? recentUsersResult.data.length : 0,
-          newProjects: Array.isArray(recentProjectsResult.data) ? recentProjectsResult.data.length : 0,
-          newInvoices: recentInvoicesData.length,
-        }
-      };
-
-      setMetrics(agencyMetrics);
-
-    } catch (error: any) {
-      logError('Error fetching agency metrics:', error);
+      setAgency(json.data.agency ?? null);
+      setMetrics(json.data.metrics ?? DEFAULT_METRICS);
+    } catch (err: unknown) {
+      logError('Error fetching agency metrics:', err);
+      setError((err as Error).message);
       toast({
-        title: "Error loading agency metrics",
-        description: error.message,
-        variant: "destructive"
+        title: 'Error loading dashboard',
+        description: (err as Error).message,
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    if (userRole && userRole !== 'super_admin') {
-      fetchAgencyMetrics();
-    } else if (userRole === 'super_admin') {
-      setLoading(false);
-    }
-  }, [userRole]);
-
-  const refreshMetrics = () => {
     fetchAgencyMetrics();
-  };
+  }, [fetchAgencyMetrics]);
 
   return {
+    agency,
     metrics,
     loading,
-    refreshMetrics,
+    error,
+    refreshMetrics: fetchAgencyMetrics,
   };
 };

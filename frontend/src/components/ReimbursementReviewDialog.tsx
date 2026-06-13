@@ -57,15 +57,8 @@ export const ReimbursementReviewDialog: React.FC<ReimbursementReviewDialogProps>
   const [rejectionReason, setRejectionReason] = useState("");
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
-  const isFinanceUser = userRole === 'finance_manager' || userRole === 'cfo' || userRole === 'admin';
-
-  useEffect(() => {
-    if (open && request) {
-      fetchAttachments();
-    }
-  }, [open, request]);
-
-  const fetchAttachments = async () => {
+  const isFinanceUser = userRole === 'manager' || userRole === 'agency_admin' || userRole === 'super_admin';
+  const fetchAttachments = React.useCallback(async () => {
     if (!request) return;
 
     try {
@@ -75,11 +68,11 @@ export const ReimbursementReviewDialog: React.FC<ReimbursementReviewDialogProps>
         .eq("reimbursement_id", request.id);
 
       if (error) throw error;
-      setAttachments((data as any) || []);
+      setAttachments((data as unknown) || []);
     } catch (error) {
       console.error("Error fetching attachments:", error);
     }
-  };
+  }, [request]);
 
   const handleApprove = async () => {
     if (!request || !user) return;
@@ -104,7 +97,7 @@ export const ReimbursementReviewDialog: React.FC<ReimbursementReviewDialogProps>
 
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error approving request:", error);
       toast({
         title: "Error",
@@ -148,7 +141,7 @@ export const ReimbursementReviewDialog: React.FC<ReimbursementReviewDialogProps>
       setRejectionReason("");
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error rejecting request:", error);
       toast({
         title: "Error",
@@ -195,7 +188,7 @@ export const ReimbursementReviewDialog: React.FC<ReimbursementReviewDialogProps>
       if (error) throw error;
 
       window.open(data.publicUrl, '_blank');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error viewing file:", error);
       toast({
         title: "Error",
@@ -212,6 +205,11 @@ export const ReimbursementReviewDialog: React.FC<ReimbursementReviewDialogProps>
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
+    useEffect(() => {
+        if (open && request) {
+          fetchAttachments();
+        }
+      }, [open, request, fetchAttachments]);
 
   if (!request) return null;
 

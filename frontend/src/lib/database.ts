@@ -9,11 +9,11 @@ type FilterOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ili
 interface QueryFilter {
   column: string;
   operator: FilterOperator;
-  value: any;
+  value: unknown;
   negated?: boolean;
 }
 
-interface QueryBuilder<T = any> {
+interface QueryBuilder<T = unknown> {
   _table: string;
   _select: string;
   _filters: QueryFilter[];
@@ -22,17 +22,17 @@ interface QueryBuilder<T = any> {
   _single: boolean;
 
   select(columns?: string): QueryBuilder<T>;
-  eq(column: string, value: any): QueryBuilder<T>;
-  neq(column: string, value: any): QueryBuilder<T>;
-  gt(column: string, value: any): QueryBuilder<T>;
-  gte(column: string, value: any): QueryBuilder<T>;
-  lt(column: string, value: any): QueryBuilder<T>;
-  lte(column: string, value: any): QueryBuilder<T>;
+  eq(column: string, value: unknown): QueryBuilder<T>;
+  neq(column: string, value: unknown): QueryBuilder<T>;
+  gt(column: string, value: unknown): QueryBuilder<T>;
+  gte(column: string, value: unknown): QueryBuilder<T>;
+  lt(column: string, value: unknown): QueryBuilder<T>;
+  lte(column: string, value: unknown): QueryBuilder<T>;
   like(column: string, value: string): QueryBuilder<T>;
   ilike(column: string, value: string): QueryBuilder<T>;
-  in(column: string, values: any[]): QueryBuilder<T>;
+  in(column: string, values: unknown[]): QueryBuilder<T>;
   is(column: string, value: null | boolean): QueryBuilder<T>;
-  not(column: string, operator: string, value: any): QueryBuilder<T>;
+  not(column: string, operator: string, value: unknown): QueryBuilder<T>;
   or(filters: string): QueryBuilder<T>;
   order(column: string, options?: { ascending?: boolean }): QueryBuilder<T>;
   limit(count: number): QueryBuilder<T>;
@@ -57,7 +57,7 @@ interface InsertBuilder<T> {
 }
 
 interface UpdateBuilder<T> {
-  eq(column: string, value: any): UpdateBuilder<T>;
+  eq(column: string, value: unknown): UpdateBuilder<T>;
   select(columns?: string): UpdateBuilder<T>;
   single(): UpdateBuilder<T>;
   then<TResult = { data: T | null; error: Error | null }>(
@@ -66,13 +66,13 @@ interface UpdateBuilder<T> {
 }
 
 interface DeleteBuilder<T> {
-  eq(column: string, value: any): DeleteBuilder<T>;
+  eq(column: string, value: unknown): DeleteBuilder<T>;
   then<TResult = { data: null; error: Error | null }>(
     onfulfilled?: (value: { data: null; error: Error | null }) => TResult | PromiseLike<TResult>
   ): Promise<TResult>;
 }
 
-function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
+function createQueryBuilder<T = unknown>(table: string): QueryBuilder<T> {
   const state = {
     _table: table,
     _select: '*',
@@ -80,8 +80,8 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
     _orderBy: null as { column: string; ascending: boolean } | null,
     _limit: null as number | null,
     _single: false,
-    _insertData: null as any,
-    _updateData: null as any,
+    _insertData: null as unknown,
+    _updateData: null as unknown,
     _isInsert: false,
     _isUpdate: false,
     _isDelete: false,
@@ -100,32 +100,32 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
       return builder;
     },
 
-    eq(column: string, value: any) {
+    eq(column: string, value: unknown) {
       state._filters.push({ column, operator: 'eq', value });
       return builder;
     },
 
-    neq(column: string, value: any) {
+    neq(column: string, value: unknown) {
       state._filters.push({ column, operator: 'neq', value });
       return builder;
     },
 
-    gt(column: string, value: any) {
+    gt(column: string, value: unknown) {
       state._filters.push({ column, operator: 'gt', value });
       return builder;
     },
 
-    gte(column: string, value: any) {
+    gte(column: string, value: unknown) {
       state._filters.push({ column, operator: 'gte', value });
       return builder;
     },
 
-    lt(column: string, value: any) {
+    lt(column: string, value: unknown) {
       state._filters.push({ column, operator: 'lt', value });
       return builder;
     },
 
-    lte(column: string, value: any) {
+    lte(column: string, value: unknown) {
       state._filters.push({ column, operator: 'lte', value });
       return builder;
     },
@@ -140,7 +140,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
       return builder;
     },
 
-    in(column: string, values: any[]) {
+    in(column: string, values: unknown[]) {
       state._filters.push({ column, operator: 'in', value: values });
       return builder;
     },
@@ -150,7 +150,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
       return builder;
     },
 
-    not(column: string, operator: string, value: any) {
+    not(column: string, operator: string, value: unknown) {
       state._filters.push({ column, operator: operator as FilterOperator, value, negated: true });
       return builder;
     },
@@ -221,7 +221,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
             };
             const result = onfulfilled ? await onfulfilled(response) : response;
             return result as TResult;
-          } catch (error: any) {
+          } catch (error: unknown) {
             const response = { data: null as T | T[] | null, error: error as Error };
             const result = onfulfilled ? await onfulfilled(response) : response;
             return result as TResult;
@@ -237,7 +237,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
       state._updateData = data;
       
       const updateBuilder: UpdateBuilder<T> = {
-        eq(column: string, value: any) {
+        eq(column: string, value: unknown) {
           state._filters.push({ column, operator: 'eq', value });
           return updateBuilder;
         },
@@ -253,7 +253,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
           onfulfilled?: (value: { data: T | null; error: Error | null }) => TResult | PromiseLike<TResult>
         ): Promise<TResult> {
           try {
-            const where: Record<string, any> = {};
+            const where: Record<string, unknown> = {};
             state._filters.forEach(f => {
               if (f.operator === 'eq') {
                 where[f.column] = f.value;
@@ -264,7 +264,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
             const response = { data: result, error: null as Error | null };
             const fulfilled = onfulfilled ? await onfulfilled(response) : response;
             return fulfilled as TResult;
-          } catch (error: any) {
+          } catch (error: unknown) {
             const response = { data: null as T | null, error: error as Error };
             const fulfilled = onfulfilled ? await onfulfilled(response) : response;
             return fulfilled as TResult;
@@ -279,7 +279,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
       state._isDelete = true;
       
       const deleteBuilder: DeleteBuilder<T> = {
-        eq(column: string, value: any) {
+        eq(column: string, value: unknown) {
           state._filters.push({ column, operator: 'eq', value });
           return deleteBuilder;
         },
@@ -287,7 +287,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
           onfulfilled?: (value: { data: null; error: Error | null }) => TResult | PromiseLike<TResult>
         ): Promise<TResult> {
           try {
-            const where: Record<string, any> = {};
+            const where: Record<string, unknown> = {};
             state._filters.forEach(f => {
               if (f.operator === 'eq') {
                 where[f.column] = f.value;
@@ -298,7 +298,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
             const response = { data: null, error: null as Error | null };
             const fulfilled = onfulfilled ? await onfulfilled(response) : response;
             return fulfilled as TResult;
-          } catch (error: any) {
+          } catch (error: unknown) {
             const response = { data: null, error: error as Error };
             const fulfilled = onfulfilled ? await onfulfilled(response) : response;
             return fulfilled as TResult;
@@ -325,7 +325,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
 
         if (state._single) {
           // For single record, use simple where clause with eq filters only
-          const where: Record<string, any> = {};
+          const where: Record<string, unknown> = {};
           state._filters.forEach(f => {
             if (f.operator === 'eq' && !f.negated) {
               where[f.column] = f.value;
@@ -346,7 +346,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
         const response = { data, error: null as Error | null };
         const fulfilled = onfulfilled ? await onfulfilled(response) : response;
         return fulfilled as TResult;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const response = { data: null as T | T[] | null, error: error as Error };
         const fulfilled = onfulfilled ? await onfulfilled(response) : response;
         return fulfilled as TResult;
@@ -359,7 +359,7 @@ function createQueryBuilder<T = any>(table: string): QueryBuilder<T> {
 
 // Realtime subscription stub (no-op for browser-only mode)
 interface RealtimeChannel {
-  on(event: string, config: any, callback: (payload: any) => void): RealtimeChannel;
+  on(event: string, config: unknown, callback: (payload: unknown) => void): RealtimeChannel;
   subscribe(): RealtimeChannel;
   unsubscribe(): void;
 }
@@ -367,7 +367,7 @@ interface RealtimeChannel {
 function createRealtimeChannel(name: string): RealtimeChannel {
   // No-op implementation for browser-only mode
   const channel: RealtimeChannel = {
-    on(_event: string, _config: any, _callback: (payload: any) => void) {
+    on(_event: string, _config: unknown, _callback: (payload: unknown) => void) {
       // No-op - realtime not available in browser-only mode
       return channel;
     },
@@ -382,7 +382,7 @@ function createRealtimeChannel(name: string): RealtimeChannel {
 }
 
 // RPC function stubs for common operations
-async function handleRpcCall(functionName: string, params: Record<string, any>): Promise<{ data: any; error: Error | null }> {
+async function handleRpcCall(functionName: string, params: Record<string, unknown>): Promise<{ data: unknown; error: Error | null }> {
   try {
     switch (functionName) {
       case 'get_unread_notification_count': {
@@ -390,7 +390,7 @@ async function handleRpcCall(functionName: string, params: Record<string, any>):
         const notifications = await selectRecords('notifications', {
           where: { user_id: userId }
         });
-        const unreadCount = notifications.filter((n: any) => !n.read_at).length;
+        const unreadCount = notifications.filter((n: unknown) => !n.read_at).length;
         return { data: unreadCount, error: null };
       }
       case 'mark_notification_read': {
@@ -405,7 +405,7 @@ async function handleRpcCall(functionName: string, params: Record<string, any>):
           // Try to get agency_id from user's profile
           const profile = await selectOne('profiles', { user_id: params.p_user_id });
           if (profile) {
-            agencyId = (profile as any).agency_id;
+            agencyId = (profile as unknown).agency_id;
           }
         }
         
@@ -429,8 +429,8 @@ async function handleRpcCall(functionName: string, params: Record<string, any>):
           where: { user_id: params.p_user_id }
         });
         // Super admin and admin have all permissions
-        const hasPermission = roles.some((r: any) => 
-          r.role === 'super_admin' || r.role === 'admin' || r.role === params.p_permission
+        const hasPermission = roles.some((r: unknown) => 
+          r.role === 'super_admin' || r.role === 'agency_admin' || r.role === params.p_permission
         );
         return { data: hasPermission, error: null };
       }
@@ -470,7 +470,7 @@ async function handleRpcCall(functionName: string, params: Record<string, any>):
         console.warn(`RPC function "${functionName}" not implemented`);
         return { data: null, error: null };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return { data: null, error };
   }
 }
@@ -490,8 +490,8 @@ const auth = {
   async signUp(options: {
     email: string;
     password: string;
-    options?: { data?: Record<string, any> };
-  }): Promise<{ data: { user: any; session: any } | null; error: Error | null }> {
+    options?: { data?: Record<string, unknown> };
+  }): Promise<{ data: { user: unknown; session: unknown } | null; error: Error | null }> {
     try {
       const userId = generateUUID();
       
@@ -516,7 +516,7 @@ const auth = {
         data: { user, session: null },
         error: null,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         data: null,
         error: new Error(error.message || 'Failed to sign up'),
@@ -527,7 +527,7 @@ const auth = {
   async signInWithPassword(options: {
     email: string;
     password: string;
-  }): Promise<{ data: { user: any; session: any } | null; error: Error | null }> {
+  }): Promise<{ data: { user: unknown; session: unknown } | null; error: Error | null }> {
     try {
       const users = await selectRecords('users', {
         where: { email: options.email }
@@ -540,7 +540,7 @@ const auth = {
         };
       }
 
-      const user = users[0] as any;
+      const user = users[0] as unknown;
       
       // Simple password check (in real app, use bcrypt)
       if (user.password_hash !== options.password) {
@@ -571,7 +571,7 @@ const auth = {
         },
         error: null,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         data: null,
         error: new Error(error.message || 'Failed to sign in'),
@@ -584,7 +584,7 @@ const auth = {
     return { error: null };
   },
 
-  async getUser(): Promise<{ data: { user: any } | null; error: Error | null }> {
+  async getUser(): Promise<{ data: { user: unknown } | null; error: Error | null }> {
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) {
@@ -612,14 +612,14 @@ const auth = {
 
   // Admin functions (stub)
   admin: {
-    async listUsers(): Promise<{ data: { users: any[] } | null; error: Error | null }> {
+    async listUsers(): Promise<{ data: { users: unknown[] } | null; error: Error | null }> {
       try {
         const users = await selectRecords('users', {});
         return {
           data: { users: users || [] },
           error: null,
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         return {
           data: null,
           error: new Error(error.message || 'Failed to list users'),
@@ -630,7 +630,7 @@ const auth = {
 
   // Edge functions stub
   functions: {
-    async invoke(functionName: string, options?: { body?: any }): Promise<{ data: any; error: Error | null }> {
+    async invoke(functionName: string, options?: { body?: unknown }): Promise<{ data: unknown; error: Error | null }> {
       console.warn(`Edge function "${functionName}" called but not implemented in browser mode`);
       
       // Handle common functions
@@ -657,7 +657,7 @@ const auth = {
             },
             error: null,
           };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return { data: null, error };
         }
       }
@@ -671,20 +671,20 @@ const auth = {
 const storage = {
   from(bucket: string) {
     return {
-      upload: async (path: string, file: File | Blob): Promise<{ data: any; error: Error | null }> => {
+      upload: async (path: string, file: File | Blob): Promise<{ data: unknown; error: Error | null }> => {
         try {
           const { uploadFile } = await import('@/services/api/storage');
           const fileBuffer = await file.arrayBuffer();
           // Use null instead of 'system' string - uploaded_by expects UUID or null
-          const userId = (window as any).__currentUserId || null;
+          const userId = (window as unknown).__currentUserId || null;
           // Pass ArrayBuffer directly - uploadFile now handles it
           const result = await uploadFile(bucket, path, fileBuffer, userId, file.type);
           // Return the full path (bucket/path) for documents table
           // The API returns path in result.data.path, or use bucket + file_path
-          const resultData = (result as any).data || {};
-          const fullPath = resultData.path || `${bucket}/${(result as any).file_path || path}`;
+          const resultData = (result as unknown).data || {};
+          const fullPath = resultData.path || `${bucket}/${(result as unknown).file_path || path}`;
           return { data: { path: fullPath }, error: null };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return { data: null, error };
         }
       },
@@ -694,27 +694,27 @@ const storage = {
           const buffer = await downloadFile(bucket, path);
           const blob = new Blob([buffer]);
           return { data: blob, error: null };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return { data: null, error };
         }
       },
-      remove: async (paths: string[]): Promise<{ data: any; error: Error | null }> => {
+      remove: async (paths: string[]): Promise<{ data: unknown; error: Error | null }> => {
         try {
           const { deleteFile } = await import('@/services/api/storage');
           for (const path of paths) {
             await deleteFile(bucket, path);
           }
           return { data: paths, error: null };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return { data: null, error };
         }
       },
-      list: async (path?: string): Promise<{ data: any[]; error: Error | null }> => {
+      list: async (path?: string): Promise<{ data: unknown[]; error: Error | null }> => {
         try {
           const { listFiles } = await import('@/services/api/storage');
           const files = await listFiles(bucket, path);
           return { data: files, error: null };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return { data: [], error };
         }
       },
@@ -731,7 +731,7 @@ const storage = {
 
 // Main database interface - PostgreSQL query builder
 export const db = {
-  from<T = any>(table: string): QueryBuilder<T> {
+  from<T = unknown>(table: string): QueryBuilder<T> {
     return createQueryBuilder<T>(table);
   },
 
@@ -741,7 +741,7 @@ export const db = {
   },
 
   // RPC function calls
-  rpc(functionName: string, params: Record<string, any> = {}): Promise<{ data: any; error: Error | null }> {
+  rpc(functionName: string, params: Record<string, unknown> = {}): Promise<{ data: unknown; error: Error | null }> {
     return handleRpcCall(functionName, params);
   },
 

@@ -31,12 +31,11 @@ function getRoleBadgeColor(role: string | null): string {
   switch (role) {
     case 'super_admin':
       return 'bg-purple-500/10 text-purple-600 border-purple-500/20';
-    case 'admin':
+    case 'agency_admin':
       return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
-    case 'hr':
+    case 'manager':
       return 'bg-green-500/10 text-green-600 border-green-500/20';
-    case 'finance_manager':
-    case 'cfo':
+    case 'auditor':
       return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20';
     default:
       return 'bg-gray-500/10 text-gray-600 border-gray-500/20';
@@ -134,7 +133,7 @@ export function UserMenu({ avatarSize = 'h-9 w-9' }: UserMenuProps) {
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
-          {userRole && (userRole === 'admin' || userRole === 'super_admin') && (
+          {userRole && (userRole === 'agency_admin' || userRole === 'super_admin') && (
             <DropdownMenuItem asChild>
               <Link to="/system-dashboard" className="cursor-pointer">
                 <Shield className="mr-2 h-4 w-4" />

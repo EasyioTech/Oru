@@ -139,7 +139,6 @@ export class AuthService {
             email: user.email,
             roles: roles,
             agencyId: agency.id,
-            agencyDatabase: agency.databaseName,
         });
 
         const refreshToken = this.fastify.jwt.sign(
@@ -162,8 +161,8 @@ export class AuthService {
                     id: agency.id,
                     name: agency.name,
                     domain: agency.domain,
-                    databaseName: agency.databaseName,
                     status: agency.status,
+                    databaseName: agency.domain,
                 },
             },
         };
@@ -303,7 +302,6 @@ export class AuthService {
                 id: agency.id,
                 name: agency.name,
                 domain: agency.domain,
-                databaseName: agency.databaseName,
                 status: agency.status,
             } : undefined,
         };

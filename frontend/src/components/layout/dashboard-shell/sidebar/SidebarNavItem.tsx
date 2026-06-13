@@ -32,10 +32,10 @@ export function SidebarNavItem({
 
   const getNavCls = ({ isActive: linkActive }: { isActive: boolean }) =>
     cn(
-      'relative rounded-lg transition-colors duration-150',
+      'relative rounded-md transition-all duration-150',
       isActive || linkActive
-        ? 'bg-sidebar-accent text-sidebar-primary font-semibold border-l-2 border-sidebar-primary shadow-sm'
-        : 'hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground'
+        ? 'bg-sidebar-primary/15 text-sidebar-primary-foreground'
+        : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
     );
 
   const content = (
@@ -44,29 +44,29 @@ export function SidebarNavItem({
       end={page.path === '/'}
       className={({ isActive: linkActive }) => getNavCls({ isActive: isActive || linkActive })}
     >
-        <div
-          className={cn(
+      <div
+        className={cn(
           'flex items-center min-w-0 transition-colors duration-150',
           collapsed && !isMobile
             ? 'justify-center px-0 py-2.5 sm:py-3 w-full'
-            : 'w-full gap-2.5 sm:gap-3 px-2.5 sm:px-3 py-2 sm:py-2.5',
-          isActive && !collapsed && 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 sm:before:w-1 before:bg-sidebar-primary before:rounded-r-full'
+            : 'w-full gap-2.5 px-2.5 py-2 sm:py-2',
         )}
       >
         <IconComponent
           className={cn(
             'flex-shrink-0 transition-colors',
-            collapsed && !isMobile ? 'h-5 w-5' : 'h-4 w-4 sm:h-4 sm:w-4',
-            isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/80'
+            collapsed && !isMobile ? 'h-[18px] w-[18px]' : 'h-4 w-4',
+            isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
           )}
+          strokeWidth={1.75}
         />
         {(!collapsed || isMobile) && (
-          <span className="text-xs sm:text-sm font-medium flex-1 text-left truncate min-w-0">
+          <span className={cn(
+            'text-sm flex-1 text-left truncate min-w-0',
+            isActive ? 'font-medium text-white' : 'font-normal'
+          )}>
             {page.title}
           </span>
-        )}
-        {isActive && (!collapsed || isMobile) && (
-          <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-sidebar-primary flex-shrink-0" />
         )}
       </div>
     </NavLink>

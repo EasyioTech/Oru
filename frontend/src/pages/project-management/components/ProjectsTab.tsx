@@ -55,10 +55,10 @@ interface ProjectsTabProps {
     setBulkActionOpen: (open: boolean) => void;
     clearAllFilters: () => void;
   };
-  savedViews: any[];
+  savedViews: unknown[];
   currentViewId: string | null;
   onLoadSavedView: (viewId: string) => void;
-  onSaveCurrentView: (toast: any) => void;
+  onSaveCurrentView: (toast: unknown) => void;
   onProjectActions: {
     onCreateProject: () => void;
     onEditProject: (project: Project) => void;

@@ -387,7 +387,7 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
             const agency = await agenciesService.getAgency(agencyId);
 
             const { getAgencyDb } = await import('../../infrastructure/database/index.js');
-            const agencyDb = await getAgencyDb(agency.databaseName);
+            const agencyDb = await getAgencyDb(agency.id);
             const { agencySettings } = await import('../../infrastructure/database/schema.js');
 
             try {

@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Clock, Calendar as CalendarIcon, Play, Square, TrendingUp, Award, Loader2 } from "lucide-react";
 import ClockInOut from '@/components/attendance/ClockInOut';
 import { useAuth } from '@/hooks/useAuth';
@@ -54,14 +54,7 @@ const MyAttendance = () => {
     status: "not_checked_in"
   });
   const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchMyAttendance();
-    }
-  }, [user?.id]);
-
-  const fetchMyAttendance = async () => {
+  const fetchMyAttendance = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -127,7 +120,7 @@ const MyAttendance = () => {
       if (attendanceError) throw attendanceError;
 
       // Transform attendance records
-      const transformedRecords: AttendanceRecord[] = (attendanceData || []).map((record: any) => {
+      const transformedRecords: AttendanceRecord[] = (attendanceData || []).map((record: unknown) => {
         const checkIn = record.check_in_time 
           ? formatTime(record.check_in_time, agencySettings?.timezone)
           : '-';
@@ -225,7 +218,7 @@ const MyAttendance = () => {
         currentStreak: streak
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching attendance data:', error);
       toast({
         title: "Error",
@@ -235,7 +228,7 @@ const MyAttendance = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, agencySettings, toast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -246,6 +239,11 @@ const MyAttendance = () => {
       default: return 'secondary';
     }
   };
+    useEffect(() => {
+        if (user?.id) {
+          fetchMyAttendance();
+        }
+      }, [user?.id, fetchMyAttendance]);
 
   if (loading) {
     return (

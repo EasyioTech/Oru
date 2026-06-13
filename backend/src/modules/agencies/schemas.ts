@@ -21,7 +21,7 @@ export const completeAgencySetupSchema = z.preprocess(
     z.object({
         id: z.string().uuid().optional(),
         companyName: z.string().min(1),
-        subdomain: z.string().min(1).regex(/^[a-zA-Z0-9-]+$/),
+        domain: z.string().min(1),
         adminEmail: z.string().email(),
         adminPhone: z.string().optional(),
         password: z.string().min(8),

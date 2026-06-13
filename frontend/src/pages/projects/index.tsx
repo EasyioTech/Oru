@@ -111,7 +111,7 @@ const Projects = () => {
   // Fetch projects when filters change
   useEffect(() => {
     fetchProjects(statusFilter, priorityFilter, clientFilter, managerFilter, departmentFilter, searchTerm);
-  }, [urlDepartmentId, urlEmployeeId, legacyDepartmentId, statusFilter, priorityFilter, clientFilter, managerFilter, departmentFilter, fetchProjects]);
+  }, [urlDepartmentId, urlEmployeeId, legacyDepartmentId, statusFilter, priorityFilter, clientFilter, managerFilter, departmentFilter, searchTerm, fetchProjects]);
 
   // Handlers
   const handleNewProject = () => {

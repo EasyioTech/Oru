@@ -47,7 +47,7 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [leadSources, setLeadSources] = useState<any[]>([]);
+  const [leadSources, setLeadSources] = useState<unknown[]>([]);
   const [employees, setEmployees] = useState<Array<{ id: string; full_name: string }>>([]);
   const [formData, setFormData] = useState<Lead>({
     company_name: lead?.company_name || lead?.name || '',
@@ -70,61 +70,7 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
     notes: lead?.notes || lead?.description || '',
     assigned_to: lead?.assigned_to || '',
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchLeadSources();
-      fetchEmployees();
-      // Reset form when dialog opens
-      if (lead) {
-        setFormData({
-          company_name: lead.company_name || lead.name || '',
-          contact_name: lead.contact_name || lead.name || '',
-          email: lead.email || '',
-          phone: lead.phone || '',
-          address: lead.address || '',
-          website: lead.website || '',
-          job_title: lead.job_title || '',
-          industry: lead.industry || '',
-          location: lead.location || '',
-          lead_source_id: lead.lead_source_id || lead.source_id || '',
-          status: lead.status || 'new',
-          priority: lead.priority || 'medium',
-          estimated_value: lead.estimated_value || lead.value || 0,
-          probability: lead.probability || 0,
-          expected_close_date: lead.expected_close_date || '',
-          due_date: lead.due_date || '',
-          follow_up_date: lead.follow_up_date || '',
-          notes: lead.notes || lead.description || '',
-          assigned_to: lead.assigned_to || '',
-        });
-      } else {
-        setFormData({
-          company_name: '',
-          contact_name: '',
-          email: '',
-          phone: '',
-          address: '',
-          website: '',
-          job_title: '',
-          industry: '',
-          location: '',
-          lead_source_id: '',
-          status: 'new',
-          priority: 'medium',
-          estimated_value: 0,
-          probability: 0,
-          expected_close_date: '',
-          due_date: '',
-          follow_up_date: '',
-          notes: '',
-          assigned_to: '',
-        });
-      }
-    }
-  }, [isOpen, lead]);
-
-  const fetchLeadSources = async () => {
+  const fetchLeadSources = React.useCallback(async () => {
     try {
       const { data, error } = await db
         .from('lead_sources')
@@ -137,9 +83,9 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
     } catch (error) {
       console.error('Error fetching lead sources:', error);
     }
-  };
+  }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     try {
       if (!user?.id) {
         setEmployees([]);
@@ -156,7 +102,7 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
       }));
       
       setEmployees(transformedEmployees);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching employees:', error);
       toast({
         title: "Error",
@@ -164,7 +110,7 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
         variant: "destructive",
       });
     }
-  };
+  }, [user?.id, profile, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,7 +130,7 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
       const userId = user.id;
 
       if (lead?.id) {
-        const updateData: any = {
+        const updateData: unknown = {
           name: formData.contact_name || formData.company_name || '', // Set name for backward compatibility
           company_name: formData.company_name,
           contact_name: formData.contact_name,
@@ -276,7 +222,7 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
 
       onLeadSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving lead:', error);
       toast({
         title: 'Error',
@@ -287,6 +233,58 @@ const LeadFormDialog: React.FC<LeadFormDialogProps> = ({ isOpen, onClose, lead, 
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (isOpen) {
+          fetchLeadSources();
+          fetchEmployees();
+          // Reset form when dialog opens
+          if (lead) {
+            setFormData({
+              company_name: lead.company_name || lead.name || '',
+              contact_name: lead.contact_name || lead.name || '',
+              email: lead.email || '',
+              phone: lead.phone || '',
+              address: lead.address || '',
+              website: lead.website || '',
+              job_title: lead.job_title || '',
+              industry: lead.industry || '',
+              location: lead.location || '',
+              lead_source_id: lead.lead_source_id || lead.source_id || '',
+              status: lead.status || 'new',
+              priority: lead.priority || 'medium',
+              estimated_value: lead.estimated_value || lead.value || 0,
+              probability: lead.probability || 0,
+              expected_close_date: lead.expected_close_date || '',
+              due_date: lead.due_date || '',
+              follow_up_date: lead.follow_up_date || '',
+              notes: lead.notes || lead.description || '',
+              assigned_to: lead.assigned_to || '',
+            });
+          } else {
+            setFormData({
+              company_name: '',
+              contact_name: '',
+              email: '',
+              phone: '',
+              address: '',
+              website: '',
+              job_title: '',
+              industry: '',
+              location: '',
+              lead_source_id: '',
+              status: 'new',
+              priority: 'medium',
+              estimated_value: 0,
+              probability: 0,
+              expected_close_date: '',
+              due_date: '',
+              follow_up_date: '',
+              notes: '',
+              assigned_to: '',
+            });
+          }
+        }
+      }, [isOpen, lead, fetchLeadSources, fetchEmployees]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -106,7 +106,7 @@ export function useAgencyPages(agencyId?: string) {
         await fetchAgencyPages();
         return data.data;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to assign pages',
@@ -233,7 +233,7 @@ export function useAgencyPageRequests() {
       } else {
         throw new Error(data.error?.message || 'Failed to request page');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to request page',

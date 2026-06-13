@@ -103,7 +103,7 @@ export const filterAndSortProjects = (
   },
   favoriteProjects: Set<string>
 ): Project[] => {
-  let filtered = projects.filter(project => {
+  const filtered = projects.filter(project => {
     if (filters.deletingProjectId === project.id) return false;
     
     if (!filters.showArchived && project.status === 'archived') return false;
@@ -150,19 +150,21 @@ export const filterAndSortProjects = (
       case 'status':
         comparison = (a.status || '').localeCompare(b.status || '');
         break;
-      case 'priority':
+      case 'priority': {
         const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
         comparison = (priorityOrder[a.priority as keyof typeof priorityOrder] || 0) - 
                      (priorityOrder[b.priority as keyof typeof priorityOrder] || 0);
         break;
+      }
       case 'budget':
         comparison = (a.budget || 0) - (b.budget || 0);
         break;
-      case 'deadline':
+      case 'deadline': {
         const aDeadline = a.deadline ? new Date(a.deadline).getTime() : 0;
         const bDeadline = b.deadline ? new Date(b.deadline).getTime() : 0;
         comparison = aDeadline - bDeadline;
         break;
+      }
       case 'progress':
         comparison = (a.progress || 0) - (b.progress || 0);
         break;

@@ -3,7 +3,7 @@
  * Complete asset maintenance tracking interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -95,28 +95,22 @@ export default function AssetMaintenance() {
     notes: '',
     next_maintenance_date: '',
   });
-
-  useEffect(() => {
-    loadAssets();
-    loadData();
-  }, [filterStatus, filterType, filterPriority, filterAsset]);
-
-  const loadAssets = async () => {
+  const loadAssets = useCallback(async () => {
     try {
       setAssetsLoading(true);
       const data = await getAssets();
       setAssets(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load assets:', error);
     } finally {
       setAssetsLoading(false);
     }
-  };
+  }, []);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (filterStatus !== 'all') filters.status = filterStatus;
       if (filterType !== 'all') filters.maintenance_type = filterType;
       if (filterPriority !== 'all') filters.priority = filterPriority;
@@ -125,7 +119,7 @@ export default function AssetMaintenance() {
 
       const data = await getAllMaintenance(filters);
       setMaintenance(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load maintenance records',
@@ -134,7 +128,7 @@ export default function AssetMaintenance() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus, filterType, filterPriority, filterAsset, searchTerm, toast]);
 
   const handleCreate = () => {
     setFormData({
@@ -185,7 +179,7 @@ export default function AssetMaintenance() {
         description: 'Maintenance record deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete maintenance record',
@@ -222,7 +216,7 @@ export default function AssetMaintenance() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save maintenance record',
@@ -241,7 +235,7 @@ export default function AssetMaintenance() {
       cancelled: 'secondary',
       overdue: 'destructive',
     };
-    const icons: Record<string, any> = {
+    const icons: Record<string, unknown> = {
       scheduled: Clock,
       in_progress: AlertCircle,
       completed: CheckCircle2,
@@ -270,6 +264,10 @@ export default function AssetMaintenance() {
       </Badge>
     );
   };
+    useEffect(() => {
+        loadAssets();
+        loadData();
+      }, [loadAssets, loadData]);
 
   const stats = {
     total: maintenance.length,
@@ -586,7 +584,7 @@ export default function AssetMaintenance() {
                   <Label htmlFor="maintenance_type">Type</Label>
                   <Select
                     value={formData.maintenance_type || 'scheduled'}
-                    onValueChange={(value: any) =>
+                    onValueChange={(value: unknown) =>
                       setFormData({ ...formData, maintenance_type: value })
                     }
                   >
@@ -605,7 +603,7 @@ export default function AssetMaintenance() {
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={formData.status || 'scheduled'}
-                    onValueChange={(value: any) => setFormData({ ...formData, status: value })}
+                    onValueChange={(value: unknown) => setFormData({ ...formData, status: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -623,7 +621,7 @@ export default function AssetMaintenance() {
                   <Label htmlFor="priority">Priority</Label>
                   <Select
                     value={formData.priority || 'normal'}
-                    onValueChange={(value: any) => setFormData({ ...formData, priority: value })}
+                    onValueChange={(value: unknown) => setFormData({ ...formData, priority: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />

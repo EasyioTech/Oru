@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Filter, Download, Eye, DollarSign, FileText, Calendar, TrendingUp, Edit, Trash2, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { selectRecords } from '@/services/api/core';
 import { useToast } from "@/hooks/use-toast";
 import InvoiceFormDialog from "@/components/shared/InvoiceFormDialog";
@@ -41,12 +41,7 @@ const Invoices = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
-
-  useEffect(() => {
-    fetchInvoices();
-  }, []);
-
-  const fetchInvoices = async () => {
+  const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
       const invoicesData = await selectRecords('invoices', {
@@ -57,7 +52,7 @@ const Invoices = () => {
         ? scoped.filter(inv => inv.client_id === clientFilterId)
         : scoped;
       setInvoices(filteredByClient);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching invoices:', error);
       toast({
         title: "Error",
@@ -67,7 +62,7 @@ const Invoices = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clientFilterId, toast]);
 
   const handleNewInvoice = () => {
     setSelectedInvoice(null);
@@ -143,6 +138,9 @@ const Invoices = () => {
     const amount = getInvoiceTotal(inv);
     return Number(sum) + Number(amount);
   }, 0);
+    useEffect(() => {
+        fetchInvoices();
+      }, [fetchInvoices]);
 
   const invoiceStats = {
     totalInvoices: invoices.length,

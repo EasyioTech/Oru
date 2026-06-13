@@ -3,7 +3,7 @@
  * Complete asset category management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,17 +76,12 @@ export default function AssetCategories() {
     default_depreciation_rate: undefined,
     is_active: true,
   });
-
-  useEffect(() => {
-    loadData();
-  }, [filterActive]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getAssetCategories();
       setCategories(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load categories',
@@ -95,7 +90,7 @@ export default function AssetCategories() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleCreate = () => {
     setFormData({
@@ -137,7 +132,7 @@ export default function AssetCategories() {
         description: 'Category deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete category',
@@ -174,7 +169,7 @@ export default function AssetCategories() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save category',
@@ -195,6 +190,9 @@ export default function AssetCategories() {
   });
 
   // Build category tree for display
+    useEffect(() => {
+        loadData();
+      }, [filterActive, loadData]);
   const getCategoryPath = (category: AssetCategory): string => {
     const parent = categories.find((c) => c.id === category.parent_id);
     if (parent) {

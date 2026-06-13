@@ -84,7 +84,7 @@ export async function getProjectsForSelection(
 
   try {
     // Build filters
-    const filters: any[] = [];
+    const filters: unknown[] = [];
     
     // Always filter by agency_id
     filters.push({
@@ -120,7 +120,7 @@ export async function getProjectsForSelection(
     }
 
     // Build query options
-    const queryOptions: any = {
+    const queryOptions: unknown = {
       filters,
       orderBy: 'name ASC'
     };
@@ -139,7 +139,7 @@ export async function getProjectsForSelection(
     // Apply search filter in memory
     if (search) {
       const searchLower = search.toLowerCase();
-      projects = projects.filter((project: any) =>
+      projects = projects.filter((project: unknown) =>
         project.name?.toLowerCase().includes(searchLower) ||
         project.project_code?.toLowerCase().includes(searchLower) ||
         project.description?.toLowerCase().includes(searchLower)
@@ -148,7 +148,7 @@ export async function getProjectsForSelection(
 
     // Fetch client information for each project
     const projectOptions: ProjectOption[] = await Promise.all(
-      projects.map(async (project: any) => {
+      projects.map(async (project: unknown) => {
         let clientName: string | null = null;
         let clientCompanyName: string | null = null;
 
@@ -184,7 +184,7 @@ export async function getProjectsForSelection(
     );
 
     return projectOptions;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getProjectsForSelection:', error);
     throw new Error(`Failed to fetch projects: ${error.message}`);
   }
@@ -246,7 +246,7 @@ export async function getProjectById(
       progress: project.progress || 0,
       is_active: true
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getProjectById:', error);
     throw new Error(`Failed to fetch project: ${error.message}`);
   }

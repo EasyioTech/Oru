@@ -151,6 +151,10 @@ async function findOrCreateSSOUser(userInfo, agencyDatabase) {
   const agencyClient = await agencyPool.connect();
 
   try {
+    // Fetch agency_id for tenant-scoped inserts
+    const agencyIdRow = await agencyClient.query(`SELECT agency_id FROM public.agency_settings LIMIT 1`).catch(() => ({ rows: [] }));
+    const agencyId = agencyIdRow.rows[0]?.agency_id || null;
+
     // Check if user exists by email
     const userResult = await agencyClient.query(
       `SELECT id, email, is_active FROM public.users WHERE email = $1`,
@@ -199,9 +203,9 @@ async function findOrCreateSSOUser(userInfo, agencyDatabase) {
 
     // Create profile
     await agencyClient.query(
-      `INSERT INTO public.profiles (user_id, full_name, avatar_url, created_at, updated_at)
-       VALUES ($1, $2, $3, NOW(), NOW())`,
-      [userId, userInfo.name, userInfo.picture]
+      `INSERT INTO public.profiles (user_id, full_name, avatar_url, agency_id, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, NOW(), NOW())`,
+      [userId, userInfo.name, userInfo.picture, agencyId]
     );
 
     return {

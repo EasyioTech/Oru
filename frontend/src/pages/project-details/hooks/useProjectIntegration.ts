@@ -13,10 +13,10 @@ import { getDepartmentsForSelectionAuto } from '@/services/api/departments';
 
 export const useProjectIntegration = (project: Project | null) => {
   const { user, profile } = useAuth();
-  const [clientDetails, setClientDetails] = useState<any>(null);
-  const [teamMembers, setTeamMembers] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [clientDetails, setClientDetails] = useState<unknown>(null);
+  const [teamMembers, setTeamMembers] = useState<unknown[]>([]);
+  const [departments, setDepartments] = useState<unknown[]>([]);
+  const [invoices, setInvoices] = useState<unknown[]>([]);
   const [revenue, setRevenue] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +42,7 @@ export const useProjectIntegration = (project: Project | null) => {
       if (project.assigned_team && Array.isArray(project.assigned_team) && project.assigned_team.length > 0) {
         try {
           const allEmployees = await getEmployeesForAssignmentAuto(profile, user?.id);
-          const teamMemberIds = project.assigned_team.map((m: any) => 
+          const teamMemberIds = project.assigned_team.map((m: unknown) => 
             typeof m === 'string' ? m : m.user_id || m.id || String(m)
           );
           const members = allEmployees.filter(emp => teamMemberIds.includes(emp.user_id));
@@ -78,17 +78,17 @@ export const useProjectIntegration = (project: Project | null) => {
         setInvoices(projectInvoices || []);
         
         // Calculate revenue from paid invoices
-        const paidInvoices = (projectInvoices || []).filter((inv: any) => 
+        const paidInvoices = (projectInvoices || []).filter((inv: unknown) => 
           inv.status === 'paid' || inv.status === 'partial'
         );
-        const totalRevenue = paidInvoices.reduce((sum: number, inv: any) => {
+        const totalRevenue = paidInvoices.reduce((sum: number, inv: unknown) => {
           return sum + (parseFloat(inv.total_amount) || 0);
         }, 0);
         setRevenue(totalRevenue);
       } catch (error) {
         console.error('Error loading invoices:', error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading integration data:', error);
     } finally {
       setLoading(false);

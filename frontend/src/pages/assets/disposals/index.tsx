@@ -3,7 +3,7 @@
  * Manage asset disposals and write-offs
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,16 +90,10 @@ export default function AssetDisposals() {
     notes: '',
     document_url: '',
   });
-
-  useEffect(() => {
-    loadData();
-    loadAssets();
-  }, [filterType, filterStatus]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (filterType !== 'all') filters.disposal_type = filterType;
       if (filterStatus !== 'all') filters.approval_status = filterStatus;
 
@@ -116,7 +110,7 @@ export default function AssetDisposals() {
       }
 
       setDisposals(filteredData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load disposals',
@@ -125,16 +119,16 @@ export default function AssetDisposals() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterType, filterStatus, searchTerm, toast]);
 
-  const loadAssets = async () => {
+  const loadAssets = useCallback(async () => {
     try {
       const data = await getAssets({ status: 'active' });
       setAssets(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load assets:', error);
     }
-  };
+  }, []);
 
   const handleCreate = () => {
     setFormData({
@@ -168,7 +162,7 @@ export default function AssetDisposals() {
       const fullDisposal = await getDisposalById(disposal.id);
       setSelectedDisposal(fullDisposal);
       setIsViewDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load disposal details',
@@ -189,7 +183,7 @@ export default function AssetDisposals() {
         description: 'Disposal approved successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to approve disposal',
@@ -216,7 +210,7 @@ export default function AssetDisposals() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save disposal',
@@ -239,7 +233,7 @@ export default function AssetDisposals() {
         description: 'Disposal deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete disposal',
@@ -254,7 +248,7 @@ export default function AssetDisposals() {
       pending: 'secondary',
       rejected: 'destructive',
     };
-    const icons: Record<string, any> = {
+    const icons: Record<string, unknown> = {
       approved: CheckCircle2,
       pending: Clock,
       rejected: XCircle,
@@ -292,6 +286,10 @@ export default function AssetDisposals() {
       currency: 'INR',
     }).format(numValue);
   };
+    useEffect(() => {
+        loadData();
+        loadAssets();
+      }, [loadData, loadAssets]);
 
   // Statistics
   const stats = {
@@ -547,7 +545,7 @@ export default function AssetDisposals() {
                 <Select
                   value={formData.disposal_type}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, disposal_type: value as any })
+                    setFormData({ ...formData, disposal_type: value as unknown })
                   }
                 >
                   <SelectTrigger>

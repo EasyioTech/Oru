@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,16 +54,12 @@ export default function EmailTesting() {
   });
 
   // Load provider status on mount
-  useEffect(() => {
-    loadProviderStatus();
-  }, []);
-
-  const loadProviderStatus = async () => {
+  const loadProviderStatus = useCallback(async () => {
     try {
       setStatusLoading(true);
       const status = await getEmailStatus();
       setProviderStatus(status);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to load email provider status",
@@ -72,7 +68,10 @@ export default function EmailTesting() {
     } finally {
       setStatusLoading(false);
     }
-  };
+  }, [toast]);
+    useEffect(() => {
+        loadProviderStatus();
+      }, [loadProviderStatus]);
 
   const handleTestEmail = async () => {
     if (!testEmailData.to) {
@@ -97,7 +96,7 @@ export default function EmailTesting() {
       } else {
         throw new Error(result.error || "Failed to send test email");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to send test email",
@@ -137,7 +136,7 @@ export default function EmailTesting() {
       } else {
         throw new Error(result.error || "Failed to send email");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to send email",
@@ -177,7 +176,7 @@ export default function EmailTesting() {
       } else {
         throw new Error(result.error || "Failed to send notification email");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to send notification email",

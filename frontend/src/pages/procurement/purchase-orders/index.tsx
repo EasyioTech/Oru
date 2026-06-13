@@ -3,7 +3,7 @@
  * Complete purchase order management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,60 +123,13 @@ export default function ProcurementPurchaseOrders() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchPurchaseOrders(),
-          fetchSuppliers(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading purchase orders data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load purchase orders',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = purchaseOrders;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(po =>
-        po.po_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        po.supplier_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        po.supplier_code?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(po => po.status === statusFilter);
-    }
-
-    // Supplier filter
-    if (supplierFilter !== 'all') {
-      filtered = filtered.filter(po => po.supplier_id === supplierFilter);
-    }
-
-    setFilteredOrders(filtered);
-  }, [purchaseOrders, searchTerm, statusFilter, supplierFilter]);
-
-  const fetchPurchaseOrders = async () => {
+  const fetchPurchaseOrders = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getPurchaseOrders();
       setPurchaseOrders(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch purchase orders',
@@ -185,16 +138,16 @@ export default function ProcurementPurchaseOrders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     try {
       const data = await getSuppliers({ is_active: true });
       setSuppliers(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching suppliers:', error);
     }
-  };
+  }, []);
 
   const handleCreateOrder = async () => {
     try {
@@ -239,7 +192,7 @@ export default function ProcurementPurchaseOrders() {
       setShowOrderDialog(false);
       resetForm();
       fetchPurchaseOrders();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save purchase order',
@@ -270,7 +223,7 @@ export default function ProcurementPurchaseOrders() {
         items: (fullOrder as PurchaseOrderWithItems).items || [],
       });
       setShowOrderDialog(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load purchase order details',
@@ -284,7 +237,7 @@ export default function ProcurementPurchaseOrders() {
       const fullOrder = await getPurchaseOrderById(order.id);
       setSelectedOrder(fullOrder as PurchaseOrderWithItems);
       setShowViewDialog(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load purchase order details',
@@ -315,7 +268,7 @@ export default function ProcurementPurchaseOrders() {
     });
   };
 
-  const updateItem = (index: number, field: keyof PurchaseOrderItem, value: any) => {
+  const updateItem = (index: number, field: keyof PurchaseOrderItem, value: unknown) => {
     const updatedItems = [...poForm.items];
     updatedItems[index] = {
       ...updatedItems[index],
@@ -359,6 +312,51 @@ export default function ProcurementPurchaseOrders() {
     setSelectedOrder(null);
     setIsEditing(false);
   };
+    useEffect(() => {
+        let filtered = purchaseOrders;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(po =>
+            po.po_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            po.supplier_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            po.supplier_code?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(po => po.status === statusFilter);
+        }
+
+        // Supplier filter
+        if (supplierFilter !== 'all') {
+          filtered = filtered.filter(po => po.supplier_id === supplierFilter);
+        }
+
+        setFilteredOrders(filtered);
+      }, [purchaseOrders, searchTerm, statusFilter, supplierFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchPurchaseOrders(),
+              fetchSuppliers(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading purchase orders data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load purchase orders',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchPurchaseOrders, fetchSuppliers, toast]);
 
   const openCreateDialog = () => {
     resetForm();

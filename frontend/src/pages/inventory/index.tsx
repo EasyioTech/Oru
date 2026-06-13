@@ -52,7 +52,7 @@ export default function InventoryManagement() {
           fetchProducts(),
           fetchLowStockAlerts(),
         ]);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error loading inventory data:', error);
       } finally {
         setInitialLoad(false);

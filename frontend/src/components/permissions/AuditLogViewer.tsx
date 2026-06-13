@@ -22,12 +22,7 @@ export function AuditLogViewer() {
     end_date: '',
     search: '',
   });
-
-  useEffect(() => {
-    fetchLogs();
-  }, [page, filters]);
-
-  const fetchLogs = async () => {
+  const fetchLogs = React.useCallback(async () => {
     setLoading(true);
     try {
       const result = await auditService.getAuditLogs({
@@ -39,7 +34,7 @@ export function AuditLogViewer() {
       if (result.pagination) {
         setTotalPages(result.pagination.totalPages);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show empty state gracefully
       console.warn('Audit logs API not available:', error);
       setLogs([]);
@@ -51,7 +46,7 @@ export function AuditLogViewer() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filters]);
 
   const handleExport = async (format: 'json' | 'csv' = 'json') => {
     try {
@@ -84,7 +79,7 @@ export function AuditLogViewer() {
       }
 
       toast.success('Audit logs exported successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to export audit logs');
     }
   };
@@ -101,6 +96,9 @@ export function AuditLogViewer() {
         return 'outline';
     }
   };
+    useEffect(() => {
+        fetchLogs();
+      }, [fetchLogs]);
 
   return (
     <Card>

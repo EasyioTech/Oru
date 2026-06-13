@@ -15,7 +15,7 @@ interface Project {
   budget: number | null;
   client_id: string | null;
   progress: number;
-  assigned_team: any; // JSONB
+  assigned_team: unknown; // JSONB
   created_at: string;
   updated_at: string;
   created_by: string | null;
@@ -185,7 +185,7 @@ const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
                 Assigned Team
               </div>
               <div className="flex flex-wrap gap-2 pl-6">
-                {assignedTeam.map((member: any, index: number) => (
+                {assignedTeam.map((member: unknown, index: number) => (
                   <Badge key={index} variant="outline">
                     {typeof member === 'string' ? member : member.name || member}
                   </Badge>

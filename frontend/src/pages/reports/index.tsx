@@ -162,7 +162,7 @@ const Reports = () => {
           message: response.error || 'Failed to create custom report',
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to create report:', err);
       addNotification({
         type: 'error',
@@ -190,7 +190,7 @@ const Reports = () => {
   };
 
   // Export individual report
-  const handleExportReport = (type: string, data: any) => {
+  const handleExportReport = (type: string, data: unknown) => {
     exportReportAsJSON(type, data);
     addNotification({
       type: 'success',

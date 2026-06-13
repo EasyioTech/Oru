@@ -217,6 +217,10 @@ async function completeAgencySetup(agencyDatabase, setupData) {
   try {
     await client.query('BEGIN');
 
+    // Fetch agencyId for tenant-scoped inserts
+    const agencyIdRow = await client.query(`SELECT agency_id FROM public.agency_settings LIMIT 1`).catch(() => ({ rows: [] }));
+    const agencyId = agencyIdRow.rows[0]?.agency_id || null;
+
     // Update agency_settings (core)
     await client.query(`
       UPDATE public.agency_settings SET
@@ -260,13 +264,13 @@ async function completeAgencySetup(agencyDatabase, setupData) {
 
     // Create departments
     if (departments && departments.length > 0) {
-      await createDepartments(client, departments);
+      await createDepartments(client, departments, agencyId);
     }
 
     // Create team members
     let teamCredentials = [];
     if (teamMembers && teamMembers.length > 0) {
-      teamCredentials = await createTeamMembers(client, teamMembers);
+      teamCredentials = await createTeamMembers(client, teamMembers, agencyId);
     }
 
     await client.query('COMMIT');
@@ -428,12 +432,13 @@ async function updateFeatures(client, features) {
 /**
  * Create departments
  */
-async function createDepartments(client, departments) {
+async function createDepartments(client, departments, agencyId) {
   for (const dept of departments) {
     if (!dept.name) continue;
-    
+
+    const agencyFilter = agencyId ? ` AND agency_id = '${agencyId}'` : '';
     const existing = await client.query(
-      `SELECT id FROM public.departments WHERE name = $1 LIMIT 1`,
+      `SELECT id FROM public.departments WHERE name = $1${agencyFilter} LIMIT 1`,
       [dept.name]
     );
 
@@ -444,9 +449,9 @@ async function createDepartments(client, departments) {
       );
     } else {
       await client.query(
-        `INSERT INTO public.departments (id, name, description, is_active, created_at, updated_at)
-         VALUES (gen_random_uuid(), $1, $2, true, NOW(), NOW())`,
-        [dept.name, dept.description || '']
+        `INSERT INTO public.departments (id, name, description, is_active, agency_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, true, $3, NOW(), NOW())`,
+        [dept.name, dept.description || '', agencyId]
       );
     }
   }
@@ -456,7 +461,7 @@ async function createDepartments(client, departments) {
 /**
  * Create team members
  */
-async function createTeamMembers(client, teamMembers) {
+async function createTeamMembers(client, teamMembers, agencyId) {
   const credentials = [];
   let nextEmpNumber = 1;
 
@@ -509,25 +514,25 @@ async function createTeamMembers(client, teamMembers) {
       const lastName = nameParts.slice(1).join(' ') || firstName;
 
       await client.query(
-        `INSERT INTO public.profiles (id, user_id, full_name, phone, created_at, updated_at)
-         VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())`,
-        [userId, member.name, member.phone || null]
+        `INSERT INTO public.profiles (id, user_id, full_name, phone, agency_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())`,
+        [userId, member.name, member.phone || null, agencyId]
       );
 
       // Create employee details
       const employeeId = `EMP-${String(nextEmpNumber++).padStart(4, '0')}`;
       await client.query(
-        `INSERT INTO public.employee_details (id, user_id, employee_id, first_name, last_name, employment_type, is_active)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4, 'full_time', true)`,
-        [userId, employeeId, firstName, lastName]
+        `INSERT INTO public.employee_details (id, user_id, employee_id, agency_id, first_name, last_name, employment_type, is_active)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, 'full_time', true)`,
+        [userId, employeeId, agencyId, firstName, lastName]
       );
 
       // Assign role
       await client.query(
-        `INSERT INTO public.user_roles (id, user_id, role, assigned_at)
-         VALUES (gen_random_uuid(), $1, 'employee', NOW())
+        `INSERT INTO public.user_roles (id, user_id, role, agency_id, assigned_at)
+         VALUES (gen_random_uuid(), $1, 'employee', $2, NOW())
          ON CONFLICT (user_id, role, agency_id) DO NOTHING`,
-        [userId]
+        [userId, agencyId]
       );
 
       // Assign to department if specified

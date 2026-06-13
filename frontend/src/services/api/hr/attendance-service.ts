@@ -92,7 +92,7 @@ export async function updateAttendance(
   id: string, 
   input: AttendanceUpdateInput
 ): Promise<AttendanceRecord> {
-  const data: Record<string, any> = {
+  const data: Record<string, unknown> = {
     ...input,
     updated_at: new Date().toISOString()
   };
@@ -118,7 +118,7 @@ export async function getTodayAttendance(employeeId: string): Promise<Attendance
 export async function getAttendanceRecords(
   filter: AttendanceFilter = {}
 ): Promise<AttendanceRecord[]> {
-  const where: Record<string, any> = {};
+  const where: Record<string, unknown> = {};
   
   if (filter.employee_id) {
     where.employee_id = filter.employee_id;
@@ -338,7 +338,7 @@ export async function getDepartmentAttendance(
   departmentId: string,
   startDate: string,
   endDate: string
-): Promise<any[]> {
+): Promise<unknown[]> {
   // This would require joining with profiles/departments table
   // For now, return all attendance for the agency
   return getAttendanceRecords({

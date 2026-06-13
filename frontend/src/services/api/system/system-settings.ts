@@ -189,8 +189,8 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
     const errorResponse = parsed as ApiErrorShape;
     const message = (typeof errorResponse.error === 'object' ? errorResponse.error?.message : errorResponse.error) || errorResponse.message || 'Request failed';
     const error = new Error(String(message));
-    (error as any).code = typeof errorResponse.error === 'object' ? errorResponse.error?.code : undefined;
-    (error as any).details = typeof errorResponse.error === 'object' ? errorResponse.error?.details : undefined;
+    (error as unknown).code = typeof errorResponse.error === 'object' ? errorResponse.error?.code : undefined;
+    (error as unknown).details = typeof errorResponse.error === 'object' ? errorResponse.error?.details : undefined;
     throw error;
   }
 

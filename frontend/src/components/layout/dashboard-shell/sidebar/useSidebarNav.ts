@@ -104,14 +104,16 @@ export function useSidebarNav(
         if (page.category === 'settings') return false;
         if (effectiveRole && effectiveRole !== 'super_admin') {
           if (!pagesLoaded) return false;
-          if (accessiblePagePaths.length === 0) return false;
-          const hasAccess = accessiblePagePaths.some((path) => {
-            if (path === page.path) return true;
-            const pathPattern = path.replace(/:[^/]+/g, '[^/]+');
-            const regex = new RegExp(`^${pathPattern}$`);
-            return regex.test(page.path);
-          });
-          if (!hasAccess) return false;
+          // Empty list = no restrictions configured, show all role-allowed pages
+          if (accessiblePagePaths.length > 0) {
+            const hasAccess = accessiblePagePaths.some((path) => {
+              if (path === page.path) return true;
+              const pathPattern = path.replace(/:[^/]+/g, '[^/]+');
+              const regex = new RegExp(`^${pathPattern}$`);
+              return regex.test(page.path);
+            });
+            if (!hasAccess) return false;
+          }
         }
         if (effectiveRole && !canAccessRouteSync(effectiveRole, page.path)) return false;
         return true;
@@ -134,7 +136,7 @@ export function useSidebarNav(
       rolePages.find((page) => {
         if (page.path !== '/settings' || !page.exists) return false;
         if (effectiveRole && effectiveRole !== 'super_admin' && pagesLoaded) {
-          if (!accessiblePagePaths.includes('/settings')) return false;
+          if (accessiblePagePaths.length > 0 && !accessiblePagePaths.includes('/settings')) return false;
         }
         if (effectiveRole && !canAccessRouteSync(effectiveRole, '/settings')) return false;
         return true;

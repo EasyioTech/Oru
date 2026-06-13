@@ -20,7 +20,7 @@ const {
  * List all backups
  * Requires admin role
  */
-router.get('/', authenticate, requireRole(['admin', 'super_admin']), asyncHandler(async (req, res) => {
+router.get('/', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const backups = await listBackups();
   res.json({
     success: true,
@@ -33,7 +33,7 @@ router.get('/', authenticate, requireRole(['admin', 'super_admin']), asyncHandle
  * Create a new backup
  * Requires admin role
  */
-router.post('/create', authenticate, requireRole(['admin', 'super_admin']), asyncHandler(async (req, res) => {
+router.post('/create', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const { databaseName, backupType } = req.body;
   
   if (!databaseName) {
@@ -59,7 +59,7 @@ router.post('/create', authenticate, requireRole(['admin', 'super_admin']), asyn
  * Restore from a backup
  * Requires admin role
  */
-router.post('/restore', authenticate, requireRole(['admin', 'super_admin']), asyncHandler(async (req, res) => {
+router.post('/restore', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const { backupPath, databaseName } = req.body;
   
   if (!backupPath || !databaseName) {
@@ -82,7 +82,7 @@ router.post('/restore', authenticate, requireRole(['admin', 'super_admin']), asy
  * Clean up old backups based on retention policy
  * Requires admin role
  */
-router.post('/cleanup', authenticate, requireRole(['admin', 'super_admin']), asyncHandler(async (req, res) => {
+router.post('/cleanup', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const deleted = await cleanupOldBackups();
   
   res.json({
@@ -99,7 +99,7 @@ router.post('/cleanup', authenticate, requireRole(['admin', 'super_admin']), asy
  * Get backup statistics
  * Requires admin role
  */
-router.get('/stats', authenticate, requireRole(['admin', 'super_admin']), asyncHandler(async (req, res) => {
+router.get('/stats', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const stats = await getBackupStats();
   res.json({
     success: true,

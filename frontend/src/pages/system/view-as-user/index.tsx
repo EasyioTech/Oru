@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,27 +44,8 @@ const ViewAsUser = () => {
   } | null>(null);
 
   // Check if current user is admin or super_admin
-  const isAuthorized = userRole ? (userRole === 'admin' || userRole === 'super_admin') : false;
-
-  useEffect(() => {
-    // Wait for userRole to be loaded
-    if (!userRole) {
-      return;
-    }
-
-    if (!isAuthorized) {
-      toast({
-        title: 'Access Denied',
-        description: 'Only administrators can view as other users.',
-        variant: 'destructive',
-      });
-      navigate('/dashboard');
-      return;
-    }
-    fetchUsers();
-  }, [userRole, isAuthorized, navigate, toast]);
-
-  const fetchUsers = async () => {
+  const isAuthorized = userRole ? (userRole === 'agency_admin' || userRole === 'super_admin') : false;
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -92,17 +73,17 @@ const ViewAsUser = () => {
 
       // Create maps for easy lookup
       const roleMap = new Map<string, string>();
-      rolesData?.forEach((r: any) => {
+      rolesData?.forEach((r: unknown) => {
         roleMap.set(r.user_id, r.role);
       });
 
       const emailMap = new Map<string, string>();
-      usersData?.forEach((u: any) => {
+      usersData?.forEach((u: unknown) => {
         emailMap.set(u.id, u.email);
       });
 
       // Transform data
-      const formattedUsers: User[] = (profilesData || []).map((profile: any) => ({
+      const formattedUsers: User[] = (profilesData || []).map((profile: unknown) => ({
         id: profile.user_id,
         name: profile.full_name || 'Unknown User',
         email: emailMap.get(profile.user_id) || `${(profile.full_name || 'user').toLowerCase().replace(/\s+/g, '.')}@company.com`,
@@ -116,7 +97,7 @@ const ViewAsUser = () => {
       }));
 
       setUsers(formattedUsers);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fetch users error:', err);
       toast({
         title: 'Error',
@@ -126,7 +107,7 @@ const ViewAsUser = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleSelectUser = (user: User) => {
     setSelectedUser(user);
@@ -183,14 +164,31 @@ const ViewAsUser = () => {
       user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.department?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+    useEffect(() => {
+        // Wait for userRole to be loaded
+        if (!userRole) {
+          return;
+        }
+
+        if (!isAuthorized) {
+          toast({
+            title: 'Access Denied',
+            description: 'Only administrators can view as other users.',
+            variant: 'destructive',
+          });
+          navigate('/dashboard');
+          return;
+        }
+        fetchUsers();
+      }, [userRole, isAuthorized, navigate, toast, fetchUsers]);
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'super_admin':
-      case 'admin':
+      case 'agency_admin':
         return 'default';
-      case 'hr':
-      case 'finance_manager':
+      case 'manager':
+      case 'auditor':
         return 'secondary';
       default:
         return 'outline';

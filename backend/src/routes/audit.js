@@ -7,21 +7,15 @@ const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const { authenticate, requireRole, requireAgencyContext } = require('../middleware/authMiddleware');
-const { parseDatabaseUrl } = require('../infrastructure/database/poolManager');
-const { Pool } = require('pg');
+const { pool } = require('../infrastructure/database/index');
 
-// Helper to get agency database connection
-async function getAgencyDb(agencyDatabase) {
-  const { host, port, user, password } = parseDatabaseUrl();
-  const agencyDbUrl = `postgresql://${user}:${password}@${host}:${port}/${agencyDatabase}`;
-  return new Pool({ connectionString: agencyDbUrl, max: 1 });
-}
+
 
 /**
  * GET /api/audit/logs
  * Get audit logs with filtering
  */
-router.get('/logs', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.get('/logs', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const {
     page = 1,
@@ -35,7 +29,7 @@ router.get('/logs', authenticate, requireRole(['super_admin', 'ceo', 'admin']), 
   } = req.query;
 
   const offset = (parseInt(page) - 1) * parseInt(limit);
-  const pool = await getAgencyDb(agencyDatabase);
+  const agencyId = req.user.agencyId;
   const client = await pool.connect();
 
   try {
@@ -154,7 +148,6 @@ router.get('/logs', authenticate, requireRole(['super_admin', 'ceo', 'admin']), 
     });
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 
@@ -162,10 +155,10 @@ router.get('/logs', authenticate, requireRole(['super_admin', 'ceo', 'admin']), 
  * GET /api/audit/export
  * Export audit logs to CSV/JSON
  */
-router.get('/export', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.get('/export', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { format = 'json', start_date, end_date } = req.query;
-  const pool = await getAgencyDb(agencyDatabase);
+  const agencyId = req.user.agencyId;
   const client = await pool.connect();
 
   try {
@@ -216,7 +209,6 @@ router.get('/export', authenticate, requireRole(['super_admin', 'ceo', 'admin'])
     }
   } finally {
     client.release();
-    await pool.end();
   }
 }));
 

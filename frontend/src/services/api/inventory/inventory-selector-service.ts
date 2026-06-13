@@ -85,7 +85,7 @@ export async function getProductsForSelection(
 
   try {
     // Build filters
-    const filters: any[] = [];
+    const filters: unknown[] = [];
     
     // Always filter by agency_id
     filters.push({
@@ -113,7 +113,7 @@ export async function getProductsForSelection(
     }
 
     // Build query options
-    const queryOptions: any = {
+    const queryOptions: unknown = {
       filters,
       orderBy: 'name ASC'
     };
@@ -132,7 +132,7 @@ export async function getProductsForSelection(
     // Apply search filter in memory
     if (search) {
       const searchLower = search.toLowerCase();
-      products = products.filter((product: any) =>
+      products = products.filter((product: unknown) =>
         product.name?.toLowerCase().includes(searchLower) ||
         product.sku?.toLowerCase().includes(searchLower) ||
         product.barcode?.toLowerCase().includes(searchLower) ||
@@ -142,7 +142,7 @@ export async function getProductsForSelection(
 
     // Fetch inventory levels and category names for each product
     const productOptions: ProductOption[] = await Promise.all(
-      products.map(async (product: any) => {
+      products.map(async (product: unknown) => {
         // Get category name if category_id exists
         let categoryName: string | null = null;
         if (product.category_id) {
@@ -166,11 +166,11 @@ export async function getProductsForSelection(
             ]
           });
 
-          totalStock = inventoryLevels.reduce((sum: number, inv: any) => {
+          totalStock = inventoryLevels.reduce((sum: number, inv: unknown) => {
             return sum + (parseFloat(inv.quantity) || 0);
           }, 0);
 
-          availableStock = inventoryLevels.reduce((sum: number, inv: any) => {
+          availableStock = inventoryLevels.reduce((sum: number, inv: unknown) => {
             return sum + (parseFloat(inv.available_quantity) || 0);
           }, 0);
         } catch (error) {
@@ -202,7 +202,7 @@ export async function getProductsForSelection(
 
     // Filter out null values (from inStockOnly filter)
     return productOptions.filter((p): p is ProductOption => p !== null);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getProductsForSelection:', error);
     throw new Error(`Failed to fetch products: ${error.message}`);
   }
@@ -257,11 +257,11 @@ export async function getProductById(
         ]
       });
 
-      totalStock = inventoryLevels.reduce((sum: number, inv: any) => {
+      totalStock = inventoryLevels.reduce((sum: number, inv: unknown) => {
         return sum + (parseFloat(inv.quantity) || 0);
       }, 0);
 
-      availableStock = inventoryLevels.reduce((sum: number, inv: any) => {
+      availableStock = inventoryLevels.reduce((sum: number, inv: unknown) => {
         return sum + (parseFloat(inv.available_quantity) || 0);
       }, 0);
     } catch (error) {
@@ -283,7 +283,7 @@ export async function getProductById(
       available_stock: availableStock,
       is_active: product.is_active !== false
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getProductById:', error);
     throw new Error(`Failed to fetch product: ${error.message}`);
   }

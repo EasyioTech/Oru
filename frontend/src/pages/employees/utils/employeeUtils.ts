@@ -3,24 +3,26 @@
  * Helper functions for employee data processing
  */
 
-import { ROLE_CATEGORIES } from '@/utils/roleUtils';
+import { ROLE_CATEGORIES, AppRole } from '@/utils/roleUtils';
 import { Crown, Shield, Star } from 'lucide-react';
 
 /**
  * Get role icon component
  */
-export const getRoleIcon = (role: string) => {
-  if (ROLE_CATEGORIES.executive.includes(role as any)) return Crown;
-  if (ROLE_CATEGORIES.management.includes(role as any)) return Shield;
+export const getRoleIcon = (role?: string | null) => {
+  if (!role) return Star;
+  if (ROLE_CATEGORIES.system.includes(role as AppRole)) return Crown;
+  if (ROLE_CATEGORIES.management.includes(role as AppRole)) return Shield;
   return Star;
 };
 
 /**
  * Get role badge variant
  */
-export const getRoleBadgeVariant = (role: string): 'default' | 'secondary' | 'outline' => {
-  if (ROLE_CATEGORIES.executive.includes(role as any)) return 'default';
-  if (ROLE_CATEGORIES.management.includes(role as any)) return 'secondary';
+export const getRoleBadgeVariant = (role?: string | null): 'default' | 'secondary' | 'outline' => {
+  if (!role) return 'outline';
+  if (ROLE_CATEGORIES.system.includes(role as AppRole)) return 'default';
+  if (ROLE_CATEGORIES.management.includes(role as AppRole)) return 'secondary';
   return 'outline';
 };
 
@@ -60,13 +62,13 @@ export const getInitials = (name: string): string => {
 /**
  * Calculate employee statistics
  */
-export const calculateEmployeeStats = (employees: any[]) => {
+export const calculateEmployeeStats = (employees: { is_active: boolean; role: string; department?: string }[]) => {
   return {
     total: employees.length,
     active: employees.filter(e => e.is_active).length,
     inactive: employees.filter(e => !e.is_active).length,
-    admins: employees.filter(e => e.is_active && ['super_admin', 'admin'].includes(e.role)).length,
-    managers: employees.filter(e => e.is_active && ROLE_CATEGORIES.management.includes(e.role as any)).length,
+    admins: employees.filter(e => e.is_active && ['super_admin', 'agency_admin'].includes(e.role)).length,
+    managers: employees.filter(e => e.is_active && ROLE_CATEGORIES.management.includes(e.role as AppRole)).length,
     departments: new Set(employees.map(e => e.department).filter(Boolean)).size,
   };
 };

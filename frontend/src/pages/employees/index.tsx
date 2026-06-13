@@ -18,7 +18,7 @@ import UserFormDialog from "@/components/auth/UserFormDialog";
 import { DepartmentBreadcrumb } from "@/components/department-management";
 import { useDepartmentNavigation } from "@/hooks/useDepartmentNavigation";
 import { RoleGuard } from "@/components/RoleGuard";
-import { selectRecords } from '@/services/api/core';
+import { fetchJson } from '@/utils/authApi';
 import { canViewEmployee, canManageEmployee } from './utils/employeePermissions';
 import { calculateEmployeeStats } from './utils/employeeUtils';
 import { useEmployees, UnifiedEmployee } from './hooks/useEmployees';
@@ -78,13 +78,7 @@ const EmployeeManagement = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const deptData = await selectRecords('departments', {
-          select: 'id, name',
-          filters: [
-            { column: 'is_active', operator: 'eq', value: true }
-          ],
-          orderBy: 'name ASC'
-        });
+        const deptData = await fetchJson('/hr/departments');
         setDepartments(deptData);
       } catch (error) {
         console.error('Error fetching departments:', error);
@@ -142,7 +136,7 @@ const EmployeeManagement = () => {
         department: employee.department,
         phone: employee.phone,
         hire_date: employee.hire_date
-      } as any);
+      } as unknown);
       setShowUserFormDialog(true);
     } else {
       // This is an employee, open employee edit dialog
@@ -245,15 +239,17 @@ const EmployeeManagement = () => {
       {/* Breadcrumb */}
       <DepartmentBreadcrumb currentPage="employees" />
       
-      {/* Header */}
-      <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl lg:text-3xl font-bold">Employee Management</h1>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 bg-card p-6 rounded-xl border shadow-sm relative overflow-hidden">
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+              Employee Management
+            </h1>
             {displayDepartmentName && (
               <Badge 
                 variant="secondary" 
-                className="text-sm cursor-pointer hover:bg-secondary/80 transition-colors"
+                className="text-sm cursor-pointer hover:bg-secondary/80 transition-colors shadow-sm"
                 onClick={() => navigateToDepartment(urlDepartmentId || legacyDepartmentId || undefined, displayDepartmentName || undefined)}
               >
                 <Building2 className="h-3 w-3 mr-1" />
@@ -261,19 +257,19 @@ const EmployeeManagement = () => {
               </Badge>
             )}
           </div>
-          <p className="text-sm lg:text-base text-muted-foreground">
+          <p className="text-sm lg:text-base text-muted-foreground max-w-xl">
             {displayDepartmentName 
               ? `Employees in ${displayDepartmentName} department`
-              : "Manage all employees, users, and team members in one place"}
+              : "Manage all employees, users, and team members in one centralized command center."}
           </p>
         </div>
         <RoleGuard requiredRole="hr" fallback={null}>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/create-employee')}>
-              <UserPlus className="mr-2 h-4 w-4" />
+          <div className="flex gap-3 relative z-10">
+            <Button variant="outline" onClick={() => navigate('/create-employee')} className="shadow-sm hover:shadow-md transition-all">
+              <UserPlus className="mr-2 h-4 w-4 text-primary" />
               Add Employee
             </Button>
-            <Button onClick={() => setShowUserFormDialog(true)}>
+            <Button onClick={() => setShowUserFormDialog(true)} className="shadow-sm hover:shadow-md transition-all bg-gradient-to-r from-primary to-primary/90">
               <Plus className="mr-2 h-4 w-4" />
               Add User
             </Button>

@@ -27,7 +27,7 @@ interface Insight {
   impact: 'low' | 'medium' | 'high';
   confidence: number;
   actionable: boolean;
-  data: any;
+  data: unknown;
   created_at: string;
 }
 
@@ -35,12 +35,7 @@ export function AIInsights() {
   const { user, profile } = useAuth();
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchInsights();
-  }, [user?.id, profile?.agency_id]);
-
-  const fetchInsights = async () => {
+  const fetchInsights = React.useCallback(async () => {
     try {
       setLoading(true);
       const agencyId = await getAgencyId(profile, user?.id);
@@ -76,7 +71,7 @@ export function AIInsights() {
       const generatedInsights: Insight[] = [];
 
       // Budget overrun warning
-      const overBudgetProjects = (projects || []).filter((p: any) => {
+      const overBudgetProjects = (projects || []).filter((p: unknown) => {
         if (!p.budget || !p.actual_cost) return false;
         return p.actual_cost > p.budget;
       });
@@ -95,10 +90,10 @@ export function AIInsights() {
       }
 
       // Revenue opportunity from pending invoices
-      const pendingInvoices = (invoices || []).filter((inv: any) => 
+      const pendingInvoices = (invoices || []).filter((inv: unknown) => 
         inv.status === 'sent' || inv.status === 'pending'
       );
-      const pendingAmount = pendingInvoices.reduce((sum: number, inv: any) => 
+      const pendingAmount = pendingInvoices.reduce((sum: number, inv: unknown) => 
         sum + (Number(inv.total_amount) || 0), 0
       );
       if (pendingAmount > 0) {
@@ -116,7 +111,7 @@ export function AIInsights() {
       }
 
       // Project completion trend
-      const completedProjects = (projects || []).filter((p: any) => p.status === 'completed').length;
+      const completedProjects = (projects || []).filter((p: unknown) => p.status === 'completed').length;
       const totalProjects = projects.length || 1;
       const completionRate = (completedProjects / totalProjects) * 100;
       if (completionRate < 70 && totalProjects > 5) {
@@ -134,10 +129,10 @@ export function AIInsights() {
       }
 
       // Client engagement opportunity
-      const clientsWithoutRecentProjects = (clients || []).filter((c: any) => {
-        const clientProjects = (projects || []).filter((p: any) => p.client_id === c.id);
+      const clientsWithoutRecentProjects = (clients || []).filter((c: unknown) => {
+        const clientProjects = (projects || []).filter((p: unknown) => p.client_id === c.id);
         if (clientProjects.length === 0) return true;
-        const lastProject = clientProjects.sort((a: any, b: any) => 
+        const lastProject = clientProjects.sort((a: unknown, b: unknown) => 
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0];
         const daysSinceLastProject = (Date.now() - new Date(lastProject.created_at).getTime()) / (1000 * 60 * 60 * 24);
@@ -158,7 +153,7 @@ export function AIInsights() {
       }
 
       // Task completion efficiency
-      const overdueTasks = (tasks || []).filter((t: any) => {
+      const overdueTasks = (tasks || []).filter((t: unknown) => {
         if (!t.due_date || t.status === 'completed') return false;
         return new Date(t.due_date) < new Date();
       });
@@ -180,7 +175,7 @@ export function AIInsights() {
       // Revenue growth recommendation
       const recentInvoices = (invoices || []).slice(0, 6);
       if (recentInvoices.length >= 3) {
-        const avgRevenue = recentInvoices.reduce((sum: number, inv: any) => 
+        const avgRevenue = recentInvoices.reduce((sum: number, inv: unknown) => 
           sum + (Number(inv.total_amount) || 0), 0
         ) / recentInvoices.length;
         const potentialGrowth = avgRevenue * 0.2; // 20% growth potential
@@ -204,7 +199,7 @@ export function AIInsights() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile, user?.id]);
 
   const getInsightIcon = (type: string) => {
     switch (type) {
@@ -262,6 +257,9 @@ export function AIInsights() {
   };
 
   // Group insights by type
+    useEffect(() => {
+        fetchInsights();
+      }, [fetchInsights]);
   const groupedInsights = insights.reduce((groups, insight) => {
     const type = insight.type;
     if (!groups[type]) {

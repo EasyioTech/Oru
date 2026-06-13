@@ -94,7 +94,7 @@ export default function PageRequestManagement() {
       } else {
         throw new Error(data.error?.message || 'Failed to fetch page requests');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching requests:', error);
       toast({
         title: 'Error',
@@ -159,7 +159,7 @@ export default function PageRequestManagement() {
       setSelectedRequest(null);
       setCostOverride('');
       await fetchRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to approve request',
@@ -214,7 +214,7 @@ export default function PageRequestManagement() {
       setSelectedRequest(null);
       setRejectionReason('');
       await fetchRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to reject request',

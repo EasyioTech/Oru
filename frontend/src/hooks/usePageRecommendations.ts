@@ -143,7 +143,7 @@ export function usePageRecommendations() {
         const errorMsg = data.error?.message || data.message || 'No recommendations available';
         throw new Error(errorMsg);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error?.message || 'Failed to fetch page recommendations';
       
       // Check for CORS errors specifically

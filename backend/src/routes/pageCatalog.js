@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const { pool } = require('../config/database');
-const { authenticate, requireSuperAdmin, requireAdmin, requireRole } = require('../middleware/authMiddleware');
+const { authenticate, requireSuperAdmin, requireRole } = require('../middleware/authMiddleware');
 const { getRecommendedPages, previewRecommendations } = require('../services/pageRecommendationService');
 const logger = require('../utils/logger');
 
@@ -23,7 +23,7 @@ const logger = require('../utils/logger');
 router.get(
   '/',
   authenticate,
-  requireRole(['super_admin', 'admin', 'ceo']),
+  requireRole(['super_admin']),
   asyncHandler(async (req, res) => {
     const { category, is_active, search, page = 1, limit = 50 } = req.query;
     const client = await pool.connect();
@@ -759,7 +759,7 @@ router.post(
 router.get(
   '/page-requests',
   authenticate,
-  requireRole(['super_admin', 'admin', 'ceo']),
+  requireRole(['super_admin']),
   asyncHandler(async (req, res) => {
     const { status, agency_id, page = 1, limit = 50 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);

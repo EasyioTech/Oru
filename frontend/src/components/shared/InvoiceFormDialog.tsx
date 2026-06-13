@@ -37,9 +37,9 @@ const InvoiceFormDialog: React.FC<InvoiceFormDialogProps> = ({ isOpen, onClose, 
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [clients, setClients] = useState<any[]>([]);
+  const [clients, setClients] = useState<unknown[]>([]);
   const [clientsLoading, setClientsLoading] = useState(true);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<unknown[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [formData, setFormData] = useState<Invoice>({
     client_id: invoice?.client_id || '',
@@ -53,42 +53,7 @@ const InvoiceFormDialog: React.FC<InvoiceFormDialogProps> = ({ isOpen, onClose, 
     discount: invoice?.discount || 0,
     notes: invoice?.notes || '',
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchClients();
-      fetchProjects();
-      if (invoice) {
-        setFormData({
-          client_id: invoice.client_id || '',
-          title: invoice.title || '',
-          description: invoice.description || '',
-          status: invoice.status || 'draft',
-          issue_date: invoice.issue_date || new Date().toISOString().split('T')[0],
-          due_date: invoice.due_date || '',
-          subtotal: invoice.subtotal || 0,
-          tax_rate: invoice.tax_rate || 18,
-          discount: invoice.discount || 0,
-          notes: invoice.notes || '',
-        });
-      } else {
-        setFormData({
-          client_id: '',
-          title: '',
-          description: '',
-          status: 'draft',
-          issue_date: new Date().toISOString().split('T')[0],
-          due_date: '',
-          subtotal: 0,
-          tax_rate: 18,
-          discount: 0,
-          notes: '',
-        });
-      }
-    }
-  }, [isOpen, invoice]);
-
-  const fetchClients = async () => {
+  const fetchClients = React.useCallback(async () => {
     try {
       setClientsLoading(true);
       
@@ -116,9 +81,9 @@ const InvoiceFormDialog: React.FC<InvoiceFormDialogProps> = ({ isOpen, onClose, 
     } finally {
       setClientsLoading(false);
     }
-  };
+  }, [profile, user?.id, toast]);
 
-  const fetchProjects = async () => {
+  const fetchProjects = React.useCallback(async () => {
     try {
       setProjectsLoading(true);
       
@@ -140,31 +105,63 @@ const InvoiceFormDialog: React.FC<InvoiceFormDialogProps> = ({ isOpen, onClose, 
     } finally {
       setProjectsLoading(false);
     }
-  };
+  }, [profile, user?.id]);
 
-  const calculateTotal = () => {
+  const calculateTotal = React.useCallback(() => {
     const subtotal = parseFloat(String(formData.subtotal || 0));
     const discount = parseFloat(String(formData.discount || 0));
     const taxRate = parseFloat(String(formData.tax_rate || 0));
     const afterDiscount = Math.max(0, subtotal - discount);
     const taxAmount = (afterDiscount * taxRate) / 100;
     return afterDiscount + taxAmount;
-  };
+  }, [formData.subtotal, formData.discount, formData.tax_rate]);
 
   // Update total when form data changes
-  useEffect(() => {
-    if (isOpen) {
-      const total = calculateTotal();
-      // This will be saved when form is submitted
-    }
-  }, [formData.subtotal, formData.discount, formData.tax_rate, isOpen]);
-
+    useEffect(() => {
+        if (isOpen) {
+          const total = calculateTotal();
+          // This will be saved when form is submitted
+        }
+      }, [isOpen, calculateTotal]);
+    useEffect(() => {
+        if (isOpen) {
+          fetchClients();
+          fetchProjects();
+          if (invoice) {
+            setFormData({
+              client_id: invoice.client_id || '',
+              title: invoice.title || '',
+              description: invoice.description || '',
+              status: invoice.status || 'draft',
+              issue_date: invoice.issue_date || new Date().toISOString().split('T')[0],
+              due_date: invoice.due_date || '',
+              subtotal: invoice.subtotal || 0,
+              tax_rate: invoice.tax_rate || 18,
+              discount: invoice.discount || 0,
+              notes: invoice.notes || '',
+            });
+          } else {
+            setFormData({
+              client_id: '',
+              title: '',
+              description: '',
+              status: 'draft',
+              issue_date: new Date().toISOString().split('T')[0],
+              due_date: '',
+              subtotal: 0,
+              tax_rate: 18,
+              discount: 0,
+              notes: '',
+            });
+          }
+        }
+      }, [isOpen, invoice, fetchClients, fetchProjects]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const cleanedData: any = {
+      const cleanedData: unknown = {
         ...formData,
         client_id: formData.client_id || null,
         subtotal: parseFloat(String(formData.subtotal || 0)),

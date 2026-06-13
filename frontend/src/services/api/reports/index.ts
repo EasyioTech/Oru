@@ -11,10 +11,10 @@ const getStorageItem = (key: string): string | null => {
   } catch (error) {
     // Use console.error here as this is a utility function in a service file
     // and logError may not be available in all contexts
-    if (typeof window !== 'undefined' && (window as any).logError) {
-      (window as any).logError(`Error accessing localStorage key ${key}:`, error);
+    if (typeof window !== 'undefined' && (window as unknown).logError) {
+      (window as unknown).logError(`Error accessing localStorage key ${key}:`, error);
     } else {
-      // eslint-disable-next-line no-console
+       
       console.error(`Error accessing localStorage key ${key}:`, error);
     }
     return null;
@@ -73,7 +73,7 @@ export interface CustomReport {
   name: string;
   description?: string;
   report_type: string;
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -84,7 +84,7 @@ export interface Report {
   name: string;
   description?: string;
   report_type: 'attendance' | 'payroll' | 'leave' | 'employee' | 'project' | 'financial' | 'gst' | 'custom';
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   file_path?: string;
   file_name?: string;
   file_size?: number;
@@ -107,7 +107,7 @@ export interface ScheduledReport {
   time?: string;
   recipients: string[];
   format: 'pdf' | 'excel' | 'csv';
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   is_active: boolean;
   last_run_at?: string;
   next_run_at?: string;
@@ -134,7 +134,7 @@ export interface ReportExport {
   generated_at: string;
   expires_at?: string;
   download_count: number;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
 }
 
 export interface AnalyticsMetrics {
@@ -475,8 +475,8 @@ export class ReportService extends BaseApiService {
       ]);
       
       // Create a map for quick lookup
-      const revenueMap = new Map(revenueData.rows.map((r: any) => [r.month, parseFloat(r.revenue || '0')]));
-      const expensesMap = new Map(expensesData.rows.map((r: any) => [r.month, parseFloat(r.expenses || '0')]));
+      const revenueMap = new Map(revenueData.rows.map((r: Record<string, unknown>) => [r.month, parseFloat(r.revenue || '0')]));
+      const expensesMap = new Map(expensesData.rows.map((r: Record<string, unknown>) => [r.month, parseFloat(r.expenses || '0')]));
       
       // Build trends array for all 12 months
       const trends: MonthlyTrend[] = [];
@@ -530,7 +530,7 @@ export class ReportService extends BaseApiService {
       const params = agencyId ? [agencyId] : [];
       const result = await pgClient.query(query, params);
       
-      return result.rows.map((row: any) => ({
+      return result.rows.map((row: Record<string, unknown>) => ({
         name: row.name,
         employees: parseInt(row.employees || '0'),
         budget: parseFloat(row.budget || '0'),
@@ -586,7 +586,7 @@ export class ReportService extends BaseApiService {
       const params = agencyId ? [agencyId] : [];
       const result = await pgClient.query(query, params);
       
-      return result.rows.map((row: any) => ({
+      return result.rows.map((row: Record<string, unknown>) => ({
         name: row.name,
         status: row.status || 'planning',
         budget: parseFloat(row.budget || '0'),
@@ -630,7 +630,7 @@ export class ReportService extends BaseApiService {
       name: string;
       description?: string;
       report_type: string;
-      parameters: Record<string, any>;
+      parameters: Record<string, unknown>;
       created_by: string;
       agency_id?: string;
     },
@@ -660,7 +660,7 @@ export class ReportService extends BaseApiService {
       try {
         const result = await pgClient.query(query, values);
         return result.rows[0] as CustomReport;
-      } catch (error: any) {
+      } catch (error) {
         logError('Error inserting custom report:', error);
         throw error;
       }
@@ -675,7 +675,7 @@ export class ReportService extends BaseApiService {
     data: Partial<{
       name: string;
       description: string;
-      parameters: Record<string, any>;
+      parameters: Record<string, unknown>;
     }>,
     options: ApiOptions = {}
   ): Promise<ApiResponse<CustomReport>> {
@@ -736,7 +736,7 @@ export class ReportService extends BaseApiService {
       name: string;
       description?: string;
       report_type: 'attendance' | 'payroll' | 'leave' | 'employee' | 'project' | 'financial' | 'gst' | 'custom';
-      parameters?: Record<string, any>;
+      parameters?: Record<string, unknown>;
       file_path?: string;
       file_name?: string;
       file_size?: number;
@@ -786,7 +786,7 @@ export class ReportService extends BaseApiService {
     data: Partial<{
       name: string;
       description: string;
-      parameters: Record<string, any>;
+      parameters: Record<string, unknown>;
       file_path: string;
       file_name: string;
       file_size: number;
@@ -797,7 +797,7 @@ export class ReportService extends BaseApiService {
   ): Promise<ApiResponse<Report>> {
     return this.execute<Report>(async () => {
       const updateFields: string[] = [];
-      const values: any[] = [];
+      const values: unknown[] = [];
       let paramIndex = 1;
 
       if (data.name !== undefined) {
@@ -870,7 +870,7 @@ export class ReportService extends BaseApiService {
     agencyId?: string,
     options: ApiOptions = {}
   ): Promise<ApiResponse<Report[]>> {
-    const filters: any = { report_type: reportType };
+    const filters: unknown = { report_type: reportType };
     if (agencyId) {
       // Note: reports table doesn't have agency_id, but we can filter by generated_by's agency
       // For now, we'll just filter by type
@@ -887,7 +887,7 @@ export class ReportService extends BaseApiService {
       date_to?: string;
     },
     options: ApiOptions = {}
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<unknown>> {
     return this.execute(async () => {
       const API_BASE = getApiBaseUrl();
       
@@ -899,10 +899,10 @@ export class ReportService extends BaseApiService {
         } catch (error) {
           // Use console.error here as this is a utility function in a service file
           // and logError may not be available in all contexts
-          if (typeof window !== 'undefined' && (window as any).logError) {
-            (window as any).logError(`Error accessing localStorage key ${key}:`, error);
+          if (typeof window !== 'undefined' && (window as unknown).logError) {
+            (window as unknown).logError(`Error accessing localStorage key ${key}:`, error);
           } else {
-            // eslint-disable-next-line no-console
+             
             console.error(`Error accessing localStorage key ${key}:`, error);
           }
           return null;
@@ -969,12 +969,12 @@ export class ReportService extends BaseApiService {
   static async generateCustomReport(
     module: 'inventory' | 'procurement' | 'assets' | 'financial',
     options: {
-      filters?: Record<string, any>;
+      filters?: Record<string, unknown>;
       columns?: string[];
       groupBy?: string[];
       orderBy?: string;
     } = {}
-  ): Promise<any[]> {
+  ): Promise<unknown[]> {
     const token = localStorage.getItem('auth_token');
     if (!token) {
       throw new Error('Authentication required');

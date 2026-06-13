@@ -39,8 +39,8 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [invoices, setInvoices] = useState<unknown[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState<unknown>(null);
   const [invoicesLoading, setInvoicesLoading] = useState(true);
   const [formData, setFormData] = useState<Payment>({
     invoice_id: payment?.invoice_id || invoiceId || '',
@@ -51,67 +51,7 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
     notes: payment?.notes || '',
     status: payment?.status || 'completed',
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchInvoices();
-      if (payment) {
-        setFormData({
-          invoice_id: payment.invoice_id || '',
-          payment_date: payment.payment_date || new Date().toISOString().split('T')[0],
-          amount: payment.amount || 0,
-          payment_method: payment.payment_method || 'bank_transfer',
-          reference_number: payment.reference_number || '',
-          notes: payment.notes || '',
-          status: payment.status || 'completed',
-        });
-      } else if (invoiceId) {
-        setFormData(prev => ({
-          ...prev,
-          invoice_id: invoiceId,
-        }));
-      } else {
-        setFormData({
-          invoice_id: '',
-          payment_date: new Date().toISOString().split('T')[0],
-          amount: 0,
-          payment_method: 'bank_transfer',
-          reference_number: '',
-          notes: '',
-          status: 'completed',
-        });
-      }
-    }
-  }, [isOpen, payment, invoiceId]);
-
-  useEffect(() => {
-    if (formData.invoice_id && invoices.length > 0) {
-      const invoice = invoices.find((inv: any) => inv.id === formData.invoice_id);
-      if (invoice) {
-        setSelectedInvoice(invoice);
-        // Auto-fill amount if not set and not editing
-        if (!payment && formData.amount === 0) {
-          const totalAmount = invoice.total_amount || 
-            (invoice.subtotal * (1 + (invoice.tax_rate || 0) / 100) - (invoice.discount || 0));
-          setFormData(prev => ({ ...prev, amount: Number(totalAmount) || 0 }));
-        }
-      }
-    } else if (payment && payment.invoice_id) {
-      // If editing, fetch the invoice
-      selectOne('invoices', { id: payment.invoice_id }).then((invoice: any) => {
-        if (invoice) {
-          setSelectedInvoice(invoice);
-          setFormData(prev => ({
-            ...prev,
-            invoice_id: invoice.id,
-            amount: payment.amount || 0,
-          }));
-        }
-      }).catch(console.error);
-    }
-  }, [formData.invoice_id, invoices, payment]);
-
-  const fetchInvoices = async () => {
+  const fetchInvoices = React.useCallback(async () => {
     try {
       setInvoicesLoading(true);
       if (!profile?.agency_id) {
@@ -140,7 +80,7 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
     } finally {
       setInvoicesLoading(false);
     }
-  };
+  }, [profile?.agency_id, toast]);
 
   const validateForm = (): boolean => {
     if (!formData.invoice_id) {
@@ -376,7 +316,7 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
         ${payment && payment.id ? `AND je.id != $4` : ''}
       `;
       
-      const queryParams: any[] = [
+      const queryParams: unknown[] = [
         `%${invoice.invoice_number}%`,
         cashAccount.id,
         profile.agency_id
@@ -417,7 +357,7 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
 
       onPaymentSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving payment:', error);
       toast({
         title: 'Error',
@@ -428,6 +368,63 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (formData.invoice_id && invoices.length > 0) {
+          const invoice = invoices.find((inv: unknown) => inv.id === formData.invoice_id);
+          if (invoice) {
+            setSelectedInvoice(invoice);
+            // Auto-fill amount if not set and not editing
+            if (!payment && formData.amount === 0) {
+              const totalAmount = invoice.total_amount || 
+                (invoice.subtotal * (1 + (invoice.tax_rate || 0) / 100) - (invoice.discount || 0));
+              setFormData(prev => ({ ...prev, amount: Number(totalAmount) || 0 }));
+            }
+          }
+        } else if (payment && payment.invoice_id) {
+          // If editing, fetch the invoice
+          selectOne('invoices', { id: payment.invoice_id }).then((invoice: unknown) => {
+            if (invoice) {
+              setSelectedInvoice(invoice);
+              setFormData(prev => ({
+                ...prev,
+                invoice_id: invoice.id,
+                amount: payment.amount || 0,
+              }));
+            }
+          }).catch(console.error);
+        }
+      }, [formData.invoice_id, formData.amount, invoices, payment]);
+    useEffect(() => {
+        if (isOpen) {
+          fetchInvoices();
+          if (payment) {
+            setFormData({
+              invoice_id: payment.invoice_id || '',
+              payment_date: payment.payment_date || new Date().toISOString().split('T')[0],
+              amount: payment.amount || 0,
+              payment_method: payment.payment_method || 'bank_transfer',
+              reference_number: payment.reference_number || '',
+              notes: payment.notes || '',
+              status: payment.status || 'completed',
+            });
+          } else if (invoiceId) {
+            setFormData(prev => ({
+              ...prev,
+              invoice_id: invoiceId,
+            }));
+          } else {
+            setFormData({
+              invoice_id: '',
+              payment_date: new Date().toISOString().split('T')[0],
+              amount: 0,
+              payment_method: 'bank_transfer',
+              reference_number: '',
+              notes: '',
+              status: 'completed',
+            });
+          }
+        }
+      }, [isOpen, payment, invoiceId, fetchInvoices]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -462,7 +459,7 @@ const PaymentFormDialog: React.FC<PaymentFormDialogProps> = ({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {invoices.map((inv: any) => {
+                  {invoices.map((inv: unknown) => {
                     const total = inv.total_amount || 
                       (inv.subtotal * (1 + (inv.tax_rate || 0) / 100) - (inv.discount || 0));
                     return (

@@ -8,6 +8,7 @@ import { Plus, Trash2, Search, Download, Filter, Grid3x3, List, Table2, RefreshC
 import { db } from "@/lib/database";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { fetchJson } from "@/utils/authApi";
 import { getAgencyId } from "@/utils/agencyUtils";
 import {
   fetchDepartmentsList,
@@ -81,13 +82,9 @@ export default function DepartmentManagement() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const isAdmin = userRole === "admin" || userRole === "super_admin";
-  const isHR = userRole === "hr";
+  const isAdmin = userRole === "agency_admin" || userRole === "super_admin" || userRole === "manager";
+  const isHR = false; // hr role removed; managers handle HR functions
 
-  useEffect(() => {
-    fetchManagers();
-    fetchParentDepartments();
-  }, []);
 
   const fetchStats = async () => {
     try {
@@ -140,69 +137,46 @@ export default function DepartmentManagement() {
     }
   }, [fetchDepartments, activeTab]);
 
-  const fetchManagers = async () => {
+  const fetchManagers = useCallback(async () => {
     try {
-      const agencyId = profile?.agency_id;
-      let query = db.from("profiles").select("user_id, full_name").eq("is_active", true);
-      if (agencyId) query = query.eq("agency_id", agencyId);
-      const { data, error } = await query.order("full_name");
-      if (error) throw error;
-      if (data) setManagers(data);
+      const res = await fetchJson(`/hr/employees`);
+      if (res) {
+        setManagers(res.map((emp: { id: string; first_name: string; last_name: string }) => ({
+          user_id: emp.id,
+          full_name: `${emp.first_name} ${emp.last_name}`
+        })));
+      }
     } catch {
       // Silently handle
     }
-  };
+  }, []);
 
-  const fetchParentDepartments = async () => {
+  const fetchParentDepartments = useCallback(async () => {
     try {
-      const agencyId = profile?.agency_id;
-      let query = db.from("departments").select("id, name").eq("is_active", true);
-      if (agencyId) query = query.eq("agency_id", agencyId);
-      const { data, error } = await query.order("name");
-      if (error) throw error;
-      if (data) setParentDepartments(data);
+      const { departments } = await fetchDepartmentsList({ limit: 1000 });
+      setParentDepartments(departments.map(d => ({ id: d.id, name: d.name })));
     } catch {
       // Silently handle
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchManagers();
+    fetchParentDepartments();
+  }, [fetchManagers, fetchParentDepartments]);
 
   const fetchDepartmentEmployees = async (departmentId: string) => {
     setLoadingEmployees(true);
     try {
-      const { data: assignments, error } = await db
-        .from("team_assignments")
-        .select("id, user_id, position_title, role_in_department")
-        .eq("department_id", departmentId)
-        .eq("is_active", true);
-      if (error) throw error;
-      if (assignments && assignments.length > 0) {
-        const employeeData = await Promise.all(
-          assignments.map(async (assignment) => {
-            try {
-              const { data: profileData } = await db
-                .from("profiles")
-                .select("full_name")
-                .eq("user_id", assignment.user_id)
-                .single();
-              return {
-                id: assignment.id,
-                user_id: assignment.user_id,
-                position_title: assignment.position_title || "",
-                role_in_department: assignment.role_in_department || "member",
-                full_name: profileData?.full_name || "Unknown Employee",
-              };
-            } catch {
-              return {
-                id: assignment.id,
-                user_id: assignment.user_id,
-                position_title: assignment.position_title || "",
-                role_in_department: assignment.role_in_department || "member",
-                full_name: "Unknown Employee",
-              };
-            }
-          })
-        );
-        setDepartmentEmployees(employeeData);
+      const res = await fetchJson(`/hr/employees?departmentId=${departmentId}`);
+      if (res) {
+        setDepartmentEmployees(res.map((emp: { id: string; first_name: string; last_name: string; position?: string; role?: string }) => ({
+          id: emp.id,
+          user_id: emp.id,
+          position_title: emp.position || "",
+          role_in_department: emp.role || "member",
+          full_name: `${emp.first_name} ${emp.last_name}`,
+        })));
       } else {
         setDepartmentEmployees([]);
       }
@@ -248,28 +222,10 @@ export default function DepartmentManagement() {
     setShowDetailsDialog(true);
     if (department.id) {
       try {
-        const { data: deptData, error } = await db.from("departments").select("*").eq("id", department.id).single();
-        if (error) throw error;
-        let manager = null;
-        if (deptData?.manager_id) {
-          const { data: managerData } = await db.from("profiles").select("full_name").eq("user_id", deptData.manager_id).single();
-          manager = managerData;
-        }
-        let parent_department = null;
-        if (deptData?.parent_department_id) {
-          const { data: parentData } = await db.from("departments").select("name").eq("id", deptData.parent_department_id).single();
-          parent_department = parentData;
-        }
-        const { data: countData } = await db.from("team_assignments").select("id").eq("department_id", department.id).eq("is_active", true);
-        setSelectedDepartment({
-          ...deptData,
-          manager,
-          parent_department,
-          _count: { team_assignments: countData?.length || 0 },
-        } as Department);
         fetchDepartmentEmployees(department.id);
       } catch {
-        fetchDepartmentEmployees(department.id);
+        // Fallback
+        setDepartmentEmployees([]);
       }
     }
   };

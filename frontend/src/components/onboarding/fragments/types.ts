@@ -23,7 +23,7 @@ import {
   Banknote,
   UserCheck,
   Handshake,
-  Sparkles
+  Star
 } from 'lucide-react';
 
 export interface OnboardingStep {
@@ -175,7 +175,7 @@ export const PRIMARY_FOCUSES = [
   { value: 'finance', label: 'Finance & Invoicing', icon: Banknote, description: 'Billing, expenses, payments' },
   { value: 'hr', label: 'HR & Payroll', icon: UserCheck, description: 'Employees, attendance, salaries' },
   { value: 'crm', label: 'Client Management', icon: Handshake, description: 'Leads, clients, relationships' },
-  { value: 'all', label: 'Everything', icon: Sparkles, description: 'Full suite of features' },
+  { value: 'all', label: 'Everything', icon: Star, description: 'Full suite of features' },
 ];
 
 export const COUNTRIES = [

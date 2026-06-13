@@ -467,7 +467,7 @@ function parseDatabaseUrl() {
       host: 'localhost',
       port: defaultPort,
       user: 'postgres',
-      password: 'admin',
+      password: process.env.POSTGRES_PASSWORD || '',
     };
   }
 
@@ -486,7 +486,7 @@ function parseDatabaseUrl() {
       const host = url.hostname || 'localhost';
       const port = parseInt(url.port || defaultPort, 10) || defaultPort;
       const user = url.username ? decodeURIComponent(url.username) : 'postgres';
-      const password = url.password ? decodeURIComponent(url.password) : 'admin';
+      const password = url.password ? decodeURIComponent(url.password) : (process.env.POSTGRES_PASSWORD || '');
       
       // Validate all values are defined
       if (!host || !user || password === undefined) {
@@ -503,7 +503,7 @@ function parseDatabaseUrl() {
         const host = match[3] || 'localhost';
         const port = parseInt(match[4] || defaultPort, 10) || defaultPort;
         const user = match[1] ? decodeURIComponent(match[1]) : 'postgres';
-        const password = match[2] ? decodeURIComponent(match[2]) : 'admin';
+        const password = match[2] ? decodeURIComponent(match[2]) : (process.env.POSTGRES_PASSWORD || '');
         
         if (!host || !user || password === undefined) {
           throw new Error('Missing required connection parameters from regex match');
@@ -518,7 +518,7 @@ function parseDatabaseUrl() {
         const host = match2[3] || 'localhost';
         const port = parseInt(match2[4] || defaultPort, 10) || defaultPort;
         const user = match2[1] ? decodeURIComponent(match2[1]) : 'postgres';
-        const password = match2[2] ? decodeURIComponent(match2[2]) : 'admin';
+        const password = match2[2] ? decodeURIComponent(match2[2]) : (process.env.POSTGRES_PASSWORD || '');
         
         if (!host || !user || password === undefined) {
           throw new Error('Missing required connection parameters from regex match2');
@@ -538,7 +538,7 @@ function parseDatabaseUrl() {
       host: 'localhost',
       port: defaultPort,
       user: 'postgres',
-      password: 'admin',
+      password: process.env.POSTGRES_PASSWORD || '',
     };
   }
 }

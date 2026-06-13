@@ -12,7 +12,7 @@ const Index = () => {
   }
   
   // Redirect agency admins to agency dashboard
-  if (userRole === 'admin' && !isSystemSuperAdmin) {
+  if (userRole === 'agency_admin' && !isSystemSuperAdmin) {
     return <Navigate to="/agency" replace />;
   }
   

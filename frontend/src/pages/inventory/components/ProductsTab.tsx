@@ -16,8 +16,8 @@ import { generateProductCode, type Product as ProductType } from '@/services/api
 interface ProductsTabProps {
   products: ProductType[];
   loading: boolean;
-  productForm: any;
-  onProductFormChange: (form: any) => void;
+  productForm: unknown;
+  onProductFormChange: (form: unknown) => void;
   showProductDialog: boolean;
   onShowProductDialogChange: (show: boolean) => void;
   onCreateProduct: () => void;
@@ -49,7 +49,7 @@ export const ProductsTab = ({
         description: `Barcode generated: ${code}`,
       });
       onRefreshProducts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message,

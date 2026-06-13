@@ -14,7 +14,7 @@ export const useProjectFilters = (
   sortOrder: 'asc' | 'desc'
 ) => {
   const filteredProjects = useMemo(() => {
-    let filtered = projects.filter(project => {
+    const filtered = projects.filter(project => {
       const matchesSearch = !searchTerm || 
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -50,10 +50,11 @@ export const useProjectFilters = (
         case 'start_date':
           comparison = (a.start_date || '').localeCompare(b.start_date || '');
           break;
-        case 'priority':
-          const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+        case 'priority': {
+          const priorityOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
           comparison = (priorityOrder[b.priority || 'medium'] || 0) - (priorityOrder[a.priority || 'medium'] || 0);
           break;
+        }
         case 'created_at':
         default:
           comparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();

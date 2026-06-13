@@ -2,44 +2,23 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } fro
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { AppError } from '../../utils/errors.js';
-import { db } from '../database/index.js';
-import { systemSettings } from '../database/schemas/system.js';
-import { decrypt } from '../../utils/encryption.js';
 
 // Helper to get dynamic configuration
 export const getS3Client = async () => {
-    // 1. Fetch settings
-    const [settings] = await db.select().from(systemSettings).limit(1);
-
-    // 2. Determine Credentials (DB > Env)
-    const region = settings?.awsS3Region || process.env.AWS_REGION || 'auto';
-    const bucket = settings?.awsS3Bucket || process.env.AWS_S3_BUCKET || 'oru-erp-files';
-    const endpoint = settings?.awsS3Endpoint || process.env.AWS_S3_ENDPOINT;
-    // Note: Schema has awsS3PublicUrl but strictly speaking S3 endpoint (for R2/MinIO) might be different. 
-    // For now assuming AWS_S3_ENDPOINT from env is main fallback or we need a DB field for 'endpoint'.
-    // Looking at schema: awsS3PublicUrl is for public access. 
-    // We might need to add `awsS3Endpoint` to schema later if we want full R2 dynamic config.
-    // For now, we'll use env for endpoint if DB doesn't have it (or if we strictly stick to AWS S3).
-
-    const accessKeyId = settings?.awsS3AccessKeyEncrypted
-        ? decrypt(settings.awsS3AccessKeyEncrypted)
-        : process.env.AWS_ACCESS_KEY_ID || '';
-
-    const secretAccessKey = settings?.awsS3SecretKeyEncrypted
-        ? decrypt(settings.awsS3SecretKeyEncrypted)
-        : process.env.AWS_SECRET_ACCESS_KEY || '';
+    const region = process.env.AWS_REGION || 'auto';
+    const bucket = process.env.AWS_S3_BUCKET || 'oru-erp-files';
+    const endpoint = process.env.AWS_S3_ENDPOINT;
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID || '';
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || '';
 
     const client = new S3Client({
         region,
-        endpoint, // This might need to come from DB for non-AWS providers
-        credentials: {
-            accessKeyId,
-            secretAccessKey
-        },
+        endpoint,
+        credentials: { accessKeyId, secretAccessKey },
         forcePathStyle: true
     });
 
-    return { client, bucket, region, endpoint, publicUrl: settings?.awsS3PublicUrl || process.env.AWS_S3_PUBLIC_URL };
+    return { client, bucket, region, endpoint, publicUrl: process.env.AWS_S3_PUBLIC_URL };
 };
 
 // Deprecated: Access via getS3Client() instead

@@ -12,7 +12,6 @@ export const agencies = pgTable('agencies', {
     id: uuid('id').defaultRandom().primaryKey(),
     name: text('name').notNull(),
     domain: text('domain').notNull(),
-    databaseName: text('database_name').notNull(),
     ownerUserId: uuid('owner_user_id').references(() => users.id),
 
     // Subscription & Status
@@ -51,7 +50,6 @@ export const agencies = pgTable('agencies', {
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
     domainIdx: uniqueIndex('idx_agencies_domain').on(table.domain).where(isNull(table.deletedAt)),
-    databaseNameIdx: uniqueIndex('idx_agencies_database_name').on(table.databaseName).where(isNull(table.deletedAt)),
     ownerUserIdIdx: index('idx_agencies_owner_user_id').on(table.ownerUserId).where(isNull(table.deletedAt)),
     statusIdx: index('idx_agencies_status').on(table.status).where(isNull(table.deletedAt)),
     subscriptionPlanIdx: index('idx_agencies_subscription_plan').on(table.subscriptionPlan),
@@ -70,7 +68,6 @@ export const agencySettings = pgTable('agency_settings', {
     logoUrl: text('logo_url'),
     domain: text('domain'),
     defaultCurrencyId: uuid('default_currency_id').references(() => currencies.id),
-    defaultCurrency: text('default_currency').default('USD').notNull(),
     primaryColor: text('primary_color').default('#0a6ed1').notNull(),
     secondaryColor: text('secondary_color').default('#0854a0').notNull(),
     timezone: text('timezone').default('UTC').notNull(),

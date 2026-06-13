@@ -32,10 +32,8 @@ export const projects = pgTable('projects', {
     // Financials
     budget: numeric('budget', { precision: 12, scale: 2 }).default('0'),
     actualCost: numeric('actual_cost', { precision: 12, scale: 2 }).default('0'),
-    allocatedBudget: numeric('allocated_budget', { precision: 12, scale: 2 }).default('0'),
     costCenter: text('cost_center'),
     currencyId: uuid('currency_id').references(() => currencies.id),
-    currency: text('currency').default('USD').notNull(), // Keep for display/cache
 
     // Relationships
     clientId: uuid('client_id').references(() => clients.id),
@@ -46,7 +44,6 @@ export const projects = pgTable('projects', {
     assignedTeam: jsonb('assigned_team').default([]).notNull(), // Array of user IDs
     departments: jsonb('departments').default([]).notNull(),
     tags: jsonb('tags').default([]).notNull(),
-    categories: jsonb('categories').default([]).notNull(),
     customFields: jsonb('custom_fields').default({}).notNull(),
 
     progress: integer('progress').default(0).notNull(), // 0-100

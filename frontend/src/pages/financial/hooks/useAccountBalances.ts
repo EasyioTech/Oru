@@ -7,7 +7,7 @@ import { rawQuery } from '@/services/api/core';
 import { logDebug, logWarn, logError } from '@/utils/consoleLogger';
 import { calculateAccountBalances } from '../utils/financialCalculations';
 
-export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | null) => {
+export const useAccountBalances = (chartOfAccounts: unknown[], agencyId: string | null) => {
   const [accountBalances, setAccountBalances] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
 
@@ -42,11 +42,11 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
           GROUP BY coa.id, coa.account_type
         `;
         
-        let balancesData: any[] = [];
+        let balancesData: unknown[] = [];
         try {
           balancesData = await rawQuery(query, [effectiveAgencyId]);
           logDebug(`Calculated account balances for ${balancesData.length} accounts`);
-        } catch (err: any) {
+        } catch (err: unknown) {
           const message = String(err?.message || '');
           if (err?.code === '42703' || message.includes('agency_id') || message.includes('does not exist')) {
             logWarn('agency_id column missing, using fallback query for balance calculation');
@@ -66,7 +66,7 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
             try {
               balancesData = await rawQuery(query, [effectiveAgencyId]);
               logDebug(`Calculated account balances (fallback 1) for ${balancesData.length} accounts`);
-            } catch (err2: any) {
+            } catch (err2: unknown) {
               logWarn('Using final fallback - no agency filtering for balances');
               query = `
                 SELECT 
@@ -94,7 +94,7 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
         let totalLiabilities = 0;
         let totalEquity = 0;
         
-        balancesData.forEach((row: any) => {
+        balancesData.forEach((row: unknown) => {
           const { account_type } = row;
           const balance = balances[row.account_id] || 0;
           if (account_type === 'asset') totalAssets += balance;

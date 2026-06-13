@@ -3,7 +3,7 @@
  * Complete procurement management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,18 +130,12 @@ export default function ProcurementManagement() {
   });
 
   // Fetch data
-  useEffect(() => {
-    fetchRequisitions();
-    fetchPurchaseOrders();
-    fetchGoodsReceipts();
-  }, []);
-
-  const fetchRequisitions = async () => {
+  const fetchRequisitions = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getPurchaseRequisitions();
       setRequisitions(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch requisitions',
@@ -150,33 +144,38 @@ export default function ProcurementManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchPurchaseOrders = async () => {
+  const fetchPurchaseOrders = useCallback(async () => {
     try {
       const data = await getPurchaseOrders();
       setPurchaseOrders(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch purchase orders',
         variant: 'destructive',
       });
     }
-  };
+  }, [toast]);
 
-  const fetchGoodsReceipts = async () => {
+  const fetchGoodsReceipts = useCallback(async () => {
     try {
       const data = await getGoodsReceipts();
       setGoodsReceipts(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to fetch goods receipts',
         variant: 'destructive',
       });
     }
-  };
+  }, [toast]);
+    useEffect(() => {
+        fetchRequisitions();
+        fetchPurchaseOrders();
+        fetchGoodsReceipts();
+      }, [fetchRequisitions, fetchPurchaseOrders, fetchGoodsReceipts]);
 
   const handleCreateRequisition = async () => {
     try {
@@ -195,7 +194,7 @@ export default function ProcurementManagement() {
         items: [],
       });
       fetchRequisitions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create requisition',
@@ -234,7 +233,7 @@ export default function ProcurementManagement() {
         items: [],
       });
       fetchPurchaseOrders();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create purchase order',
@@ -273,7 +272,7 @@ export default function ProcurementManagement() {
       });
       fetchGoodsReceipts();
       fetchPurchaseOrders(); // Refresh PO status
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create goods receipt',
@@ -285,7 +284,7 @@ export default function ProcurementManagement() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: any }> = {
+    const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: unknown }> = {
       draft: { variant: 'secondary', icon: FileText },
       pending: { variant: 'outline', icon: Clock },
       approved: { variant: 'default', icon: CheckCircle2 },

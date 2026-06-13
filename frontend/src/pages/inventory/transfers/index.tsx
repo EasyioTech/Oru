@@ -3,7 +3,7 @@
  * Inter-warehouse transfer management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,66 +127,15 @@ export default function InventoryTransfers() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchTransfers(),
-          fetchProducts(),
-          fetchWarehouses(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading transfers data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load transfers',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = transfers;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(t =>
-        t.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.product_sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.from_warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.to_warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Product filter
-    if (productFilter !== 'all') {
-      filtered = filtered.filter(t => t.product_id === productFilter);
-    }
-
-    // Warehouse filter
-    if (warehouseFilter !== 'all') {
-      filtered = filtered.filter(t =>
-        t.from_warehouse_id === warehouseFilter || t.to_warehouse_id === warehouseFilter
-      );
-    }
-
-    setFilteredTransfers(filtered);
-  }, [transfers, searchTerm, productFilter, warehouseFilter]);
-
-  const fetchTransfers = async () => {
+  const fetchTransfers = useCallback(async () => {
     try {
       setLoading(true);
       // Get transfers from inventory transactions
       const transactions = await getInventoryTransactions({ transaction_type: 'TRANSFER' });
       
       // Group transactions by reference_id to create transfer pairs
-      const transferMap = new Map<string, any>();
+      const transferMap = new Map<string, unknown>();
       
       transactions.forEach((tx: InventoryTransaction) => {
         if (tx.reference_id) {
@@ -226,7 +175,7 @@ export default function InventoryTransfers() {
       });
 
       setTransfers(Array.from(transferMap.values()));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching transfers:', error);
       toast({
         title: 'Error',
@@ -236,25 +185,25 @@ export default function InventoryTransfers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await getProducts({ is_active: true });
       setProducts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
     }
-  };
+  }, []);
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching warehouses:', error);
     }
-  };
+  }, []);
 
   const handleCreateTransfer = async () => {
     try {
@@ -294,7 +243,7 @@ export default function InventoryTransfers() {
       setShowTransferDialog(false);
       resetForm();
       fetchTransfers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create transfer',
@@ -320,6 +269,55 @@ export default function InventoryTransfers() {
       notes: '',
     });
   };
+    useEffect(() => {
+        let filtered = transfers;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(t =>
+            t.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t.product_sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t.from_warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t.to_warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Product filter
+        if (productFilter !== 'all') {
+          filtered = filtered.filter(t => t.product_id === productFilter);
+        }
+
+        // Warehouse filter
+        if (warehouseFilter !== 'all') {
+          filtered = filtered.filter(t =>
+            t.from_warehouse_id === warehouseFilter || t.to_warehouse_id === warehouseFilter
+          );
+        }
+
+        setFilteredTransfers(filtered);
+      }, [transfers, searchTerm, productFilter, warehouseFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchTransfers(),
+              fetchProducts(),
+              fetchWarehouses(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading transfers data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load transfers',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchTransfers, fetchProducts, fetchWarehouses, toast]);
 
   const openCreateDialog = () => {
     resetForm();

@@ -4,16 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, Filter, Edit, Trash2, Mail, Phone, MapPin, Building, Calendar, User, DollarSign, FileText, ExternalLink, TrendingUp, Activity } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { db } from '@/lib/database';
+import { fetchJson } from '@/utils/authApi';
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { getAgencyId } from "@/utils/agencyUtils";
 import { RoleGuard } from "@/components/RoleGuard";
 import { hasRoleOrHigher, AppRole } from "@/utils/roleUtils";
 import { useNavigate } from "react-router-dom";
-import { selectRecords } from "@/services/api/core";
+
 import { getProjectsForSelectionAuto } from "@/services/api/projects";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
@@ -22,17 +22,17 @@ const Clients = () => {
   const { toast } = useToast();
   const { user, profile, userRole } = useAuth();
   const navigate = useNavigate();
-  const [clients, setClients] = useState<any[]>([]);
+  const [clients, setClients] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [selectedClient, setSelectedClient] = useState<unknown>(null);
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null);
-  const [clientProjects, setClientProjects] = useState<Record<string, any[]>>({});
-  const [clientInvoices, setClientInvoices] = useState<Record<string, any[]>>({});
-  const [clientFinancials, setClientFinancials] = useState<Record<string, any>>({});
-  const [clientActivities, setClientActivities] = useState<Record<string, any[]>>({});
+  const [clientProjects, setClientProjects] = useState<Record<string, unknown[]>>({});
+  const [clientInvoices, setClientInvoices] = useState<Record<string, unknown[]>>({});
+  const [clientFinancials, setClientFinancials] = useState<Record<string, unknown>>({});
+  const [clientActivities, setClientActivities] = useState<Record<string, unknown[]>>({});
   const [loadingIntegration, setLoadingIntegration] = useState<Record<string, boolean>>({});
   const [clientStats, setClientStats] = useState({
     totalClients: 0,
@@ -41,14 +41,10 @@ const Clients = () => {
     suspendedClients: 0
   });
 
-  const canManageClients = userRole ? hasRoleOrHigher(userRole, 'sales_manager' as AppRole) : false;
-  const canDeleteClients = userRole ? hasRoleOrHigher(userRole, 'admin' as AppRole) : false;
+  const canManageClients = userRole ? hasRoleOrHigher(userRole, 'manager') : false;
+  const canDeleteClients = userRole ? hasRoleOrHigher(userRole, 'agency_admin') : false;
 
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       setLoading(true);
       const agencyId = await getAgencyId(profile, user?.id);
@@ -62,14 +58,7 @@ const Clients = () => {
         return;
       }
 
-      const { data, error } = await db
-        .from('clients')
-        .select('*')
-        .eq('agency_id', agencyId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await fetchJson('/crm/clients');
 
       setClients(data || []);
       
@@ -95,13 +84,12 @@ const Clients = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleEditClient = (client: any) => {
+  }, [profile, user?.id, toast]);
+  const handleEditClient = (client: unknown) => {
     navigate('/clients/edit/' + client.id, { state: { client } });
   };
 
-  const handleDeleteClient = (client: any) => {
+  const handleDeleteClient = (client: unknown) => {
     setSelectedClient(client);
     setIsDeleteDialogOpen(true);
   };
@@ -167,52 +155,24 @@ const Clients = () => {
 
       // Load invoices for client
       try {
-        const invoices = await selectRecords('invoices', {
-          filters: [
-            { column: 'agency_id', operator: 'eq', value: agencyId },
-            { column: 'client_id', operator: 'eq', value: clientId }
-          ],
-          orderBy: 'issue_date DESC',
-          limit: 10
-        });
-        setClientInvoices(prev => ({ ...prev, [clientId]: invoices || [] }));
-
-        // Calculate financial summary
-        const totalInvoiced = invoices.reduce((sum: number, inv: any) => {
-          return sum + (parseFloat(inv.total_amount) || 0);
-        }, 0);
-        
-        const paidInvoices = invoices.filter((inv: any) => inv.status === 'paid');
-        const totalPaid = paidInvoices.reduce((sum: number, inv: any) => {
-          return sum + (parseFloat(inv.total_amount) || 0);
-        }, 0);
-
-        const outstanding = totalInvoiced - totalPaid;
+        const invoices: unknown[] = [];
+        setClientInvoices(prev => ({ ...prev, [clientId]: invoices }));
 
         setClientFinancials(prev => ({
           ...prev,
           [clientId]: {
-            totalInvoiced,
-            totalPaid,
-            outstanding,
-            invoiceCount: invoices.length
+            totalInvoiced: 0,
+            totalPaid: 0,
+            outstanding: 0,
+            invoiceCount: 0
           }
         }));
       } catch (error) {
         console.error('Error loading client invoices:', error);
       }
 
-      // Load CRM activities for client
       try {
-        const activities = await selectRecords('crm_activities', {
-          filters: [
-            { column: 'agency_id', operator: 'eq', value: agencyId },
-            { column: 'related_entity_type', operator: 'eq', value: 'client' },
-            { column: 'related_entity_id', operator: 'eq', value: clientId }
-          ],
-          orderBy: 'created_at DESC',
-          limit: 10
-        });
+        const activities = await fetchJson(`/crm/activities?clientId=${clientId}`);
         setClientActivities(prev => ({ ...prev, [clientId]: activities || [] }));
       } catch (error) {
         console.error('Error loading client activities:', error);
@@ -240,7 +200,7 @@ const Clients = () => {
     }).format(amount);
   };
 
-  const ClientCard = ({ client }: { client: any }) => {
+  const ClientCard = ({ client }: { client: unknown }) => {
     const isExpanded = expandedClientId === client.id;
     const projects = clientProjects[client.id] || [];
     const invoices = clientInvoices[client.id] || [];
@@ -392,7 +352,7 @@ const Clients = () => {
                   </div>
                 ) : projects.length > 0 ? (
                   <div className="space-y-3">
-                    {projects.map((project: any) => (
+                    {projects.map((project: unknown) => (
                       <Card key={project.id}>
                         <CardContent className="pt-4">
                           <div className="flex items-center justify-between">
@@ -496,7 +456,7 @@ const Clients = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {invoices.slice(0, 5).map((invoice: any) => (
+                              {invoices.slice(0, 5).map((invoice: unknown) => (
                                 <TableRow key={invoice.id}>
                                   <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
                                   <TableCell>{new Date(invoice.issue_date).toLocaleDateString()}</TableCell>
@@ -545,7 +505,7 @@ const Clients = () => {
                   </div>
                 ) : activities.length > 0 ? (
                   <div className="space-y-3">
-                    {activities.map((activity: any) => (
+                    {activities.map((activity: unknown) => (
                       <Card key={activity.id}>
                         <CardContent className="pt-4">
                           <div className="flex items-start justify-between">
@@ -581,6 +541,9 @@ const Clients = () => {
     </Card>
     );
   };
+    useEffect(() => {
+        fetchClients();
+      }, [fetchClients]);
 
   if (loading) {
     return (

@@ -105,7 +105,7 @@ export default function AgencySetupProgress() {
         } else {
           throw new Error('Failed to fetch progress');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching setup progress:', error);
         toast({
           title: 'Error',
@@ -118,7 +118,7 @@ export default function AgencySetupProgress() {
     };
 
     fetchProgress();
-  }, [navigate, toast]);
+  }, [navigate, toast, userRole]);
 
   if (loading) {
     return (

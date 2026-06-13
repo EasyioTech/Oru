@@ -11,13 +11,13 @@ import { useNavigate } from 'react-router-dom';
 import { getStatusColor, getPriorityColor } from '../utils/crmUtils';
 
 interface LeadsTabProps {
-  leads: any[];
+  leads: unknown[];
   loading: boolean;
-  onEditLead: (lead: any) => void;
-  onDeleteLead: (lead: any) => void;
+  onEditLead: (lead: unknown) => void;
+  onDeleteLead: (lead: unknown) => void;
   onNewActivity: (leadId: string) => void;
-  onConvertToClient: (lead: any) => void;
-  onCreateQuotation: (lead: any) => void;
+  onConvertToClient: (lead: unknown) => void;
+  onCreateQuotation: (lead: unknown) => void;
 }
 
 export const LeadsTab = ({

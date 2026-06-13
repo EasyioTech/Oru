@@ -101,45 +101,6 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'language'
 } as const;
 
-export const ROLES = {
-  SUPER_ADMIN: 'super_admin',
-  CEO: 'ceo',
-  CTO: 'cto',
-  CFO: 'cfo',
-  COO: 'coo',
-  ADMIN: 'admin',
-  OPERATIONS_MANAGER: 'operations_manager',
-  DEPARTMENT_HEAD: 'department_head',
-  TEAM_LEAD: 'team_lead',
-  PROJECT_MANAGER: 'project_manager',
-  HR: 'hr',
-  FINANCE_MANAGER: 'finance_manager',
-  SALES_MANAGER: 'sales_manager',
-  MARKETING_MANAGER: 'marketing_manager',
-  QUALITY_ASSURANCE: 'quality_assurance',
-  IT_SUPPORT: 'it_support',
-  LEGAL_COUNSEL: 'legal_counsel',
-  BUSINESS_ANALYST: 'business_analyst',
-  CUSTOMER_SUCCESS: 'customer_success',
-  EMPLOYEE: 'employee',
-  CONTRACTOR: 'contractor',
-  INTERN: 'intern'
-} as const;
-
-export const MOCK_USERS = [
-  { email: 'super@oru.app', password: 'super123', fullName: 'Super Administrator', role: ROLES.SUPER_ADMIN, userId: '00000000000000000000000000000000' },
-  { email: 'admin@oru.app', password: 'admin123', fullName: 'System Administrator', role: ROLES.ADMIN, userId: '11111111111111111111111111111111' },
-  { email: 'hr@oru.app', password: 'hr123', fullName: 'HR Manager', role: ROLES.HR, userId: '22222222222222222222222222222222' },
-  { email: 'finance@oru.app', password: 'finance123', fullName: 'Finance Manager', role: ROLES.FINANCE_MANAGER, userId: '33333333333333333333333333333333' },
-  { email: 'employee@oru.app', password: 'employee123', fullName: 'John Employee', role: ROLES.EMPLOYEE, userId: '44444444444444444444444444444444' },
-  { email: 'ceo@oru.app', password: 'ceo123', fullName: 'Sarah Wilson', role: ROLES.CEO, userId: '55555555555555555555555555555555' },
-  { email: 'cto@oru.app', password: 'cto123', fullName: 'Michael Chen', role: ROLES.CTO, userId: '66666666666666666666666666666666' },
-  { email: 'cfo@oru.app', password: 'cfo123', fullName: 'Jennifer Davis', role: ROLES.CFO, userId: '77777777777777777777777777777777' },
-  { email: 'pm@oru.app', password: 'pm123', fullName: 'David Rodriguez', role: ROLES.PROJECT_MANAGER, userId: '88888888888888888888888888888888' },
-  { email: 'sales@oru.app', password: 'sales123', fullName: 'Lisa Johnson', role: ROLES.SALES_MANAGER, userId: '99999999999999999999999999999999' },
-  { email: 'marketing@oru.app', password: 'marketing123', fullName: 'Alex Thompson', role: ROLES.MARKETING_MANAGER, userId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
-  { email: 'ops@oru.app', password: 'ops123', fullName: 'Maria Garcia', role: ROLES.OPERATIONS_MANAGER, userId: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' }
-] as const;
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Network connection error. Please check your internet connection.',

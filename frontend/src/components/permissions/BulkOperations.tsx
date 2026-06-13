@@ -21,17 +21,12 @@ export function BulkOperations() {
   const [action, setAction] = useState<'grant' | 'deny'>('grant');
 
   const allRoles = Object.keys(ROLE_HIERARCHY) as AppRole[];
-
-  useEffect(() => {
-    fetchPermissions();
-  }, []);
-
   const fetchPermissions = async () => {
     setLoading(true);
     try {
       const result = await permissionsService.getPermissions();
       setPermissions(result.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show empty state gracefully
       console.warn('Permissions API not available:', error);
       setPermissions([]);
@@ -67,7 +62,7 @@ export function BulkOperations() {
       setShowConfirmDialog(false);
       setSelectedTargets([]);
       setSelectedPermissions([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to perform bulk operation');
     } finally {
       setSaving(false);
@@ -81,6 +76,9 @@ export function BulkOperations() {
     acc[perm.category].push(perm);
     return acc;
   }, {} as Record<string, permissionsService.Permission[]>);
+    useEffect(() => {
+        fetchPermissions();
+      }, []);
 
   return (
     <Card>

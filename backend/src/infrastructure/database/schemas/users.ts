@@ -19,7 +19,6 @@ export const users = pgTable('users', {
 
     // Phone
     phone: text('phone'),
-    phoneExtension: text('phone_extension'),
     phoneVerified: boolean('phone_verified').default(false).notNull(),
     phoneVerifiedAt: timestamp('phone_verified_at', { withTimezone: true }),
 

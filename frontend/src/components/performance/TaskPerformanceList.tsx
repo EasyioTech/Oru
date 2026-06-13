@@ -56,8 +56,8 @@ export function TaskPerformanceList({ tasks, loading }: TaskPerformanceListProps
 
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    let aValue: any;
-    let bValue: any;
+    let aValue: unknown;
+    let bValue: unknown;
 
     switch (sortField) {
       case 'title':
@@ -68,11 +68,12 @@ export function TaskPerformanceList({ tasks, loading }: TaskPerformanceListProps
         aValue = a.status;
         bValue = b.status;
         break;
-      case 'priority':
+      case 'priority': {
         const priorityOrder: Record<string, number> = { urgent: 4, high: 3, medium: 2, low: 1 };
         aValue = priorityOrder[a.priority] || 0;
         bValue = priorityOrder[b.priority] || 0;
         break;
+      }
       case 'assigned_date':
         aValue = a.assigned_date ? new Date(a.assigned_date).getTime() : 0;
         bValue = b.assigned_date ? new Date(b.assigned_date).getTime() : 0;

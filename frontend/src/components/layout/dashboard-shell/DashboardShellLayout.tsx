@@ -25,7 +25,7 @@ export function DashboardShellLayout({ children }: DashboardShellLayoutProps) {
       <SidebarRoot />
       <SidebarInset className="flex flex-col min-w-0 overflow-hidden">
         <header
-          className="sticky top-0 z-20 h-14 shrink-0 border-b border-border bg-card/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/90"
+          className="sticky top-0 z-20 h-14 shrink-0 bg-background/80 backdrop-blur-sm border-b border-border/40"
           role="banner"
         >
           <div className="flex h-full items-center gap-3 px-3 sm:px-4 md:px-5 lg:px-6 overflow-hidden">

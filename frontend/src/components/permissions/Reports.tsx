@@ -13,7 +13,7 @@ type ReportType = 'distribution' | 'user-permissions' | 'unused' | 'compliance';
 export function Reports() {
   const [selectedReport, setSelectedReport] = useState<ReportType | ''>('');
   const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState<any>(null);
+  const [reportData, setReportData] = useState<unknown>(null);
 
   const handleGenerateReport = async () => {
     if (!selectedReport) return;
@@ -37,7 +37,7 @@ export function Reports() {
       }
       setReportData(data);
       toast.success('Report generated successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show error gracefully
       console.warn('Reports API not available:', error);
       setReportData(null);
@@ -84,7 +84,7 @@ export function Reports() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.isArray(reportData) && reportData.map((row: any, idx: number) => (
+              {Array.isArray(reportData) && reportData.map((row: unknown, idx: number) => (
                 <TableRow key={idx}>
                   <TableCell>{row.role}</TableCell>
                   <TableCell className="capitalize">{row.category}</TableCell>
@@ -113,7 +113,7 @@ export function Reports() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.isArray(reportData) && reportData.map((row: any, idx: number) => (
+              {Array.isArray(reportData) && reportData.map((row: unknown, idx: number) => (
                 <TableRow key={idx}>
                   <TableCell>{row.full_name || 'Unknown'}</TableCell>
                   <TableCell>{row.email || '-'}</TableCell>
@@ -143,7 +143,7 @@ export function Reports() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.isArray(reportData) && reportData.map((perm: any) => (
+              {Array.isArray(reportData) && reportData.map((perm: unknown) => (
                 <TableRow key={perm.id}>
                   <TableCell>{perm.name}</TableCell>
                   <TableCell className="capitalize">{perm.category}</TableCell>
@@ -168,7 +168,7 @@ export function Reports() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {Array.isArray(reportData.excessive_permissions) && reportData.excessive_permissions.map((user: any) => (
+                  {Array.isArray(reportData.excessive_permissions) && reportData.excessive_permissions.map((user: unknown) => (
                     <TableRow key={user.id}>
                       <TableCell>{user.full_name || 'Unknown'}</TableCell>
                       <TableCell>{user.email || '-'}</TableCell>
@@ -191,7 +191,7 @@ export function Reports() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {Array.isArray(reportData.expired_permissions) && reportData.expired_permissions.map((perm: any, idx: number) => (
+                  {Array.isArray(reportData.expired_permissions) && reportData.expired_permissions.map((perm: unknown, idx: number) => (
                     <TableRow key={idx}>
                       <TableCell>{perm.permission_name}</TableCell>
                       <TableCell>{perm.user_name || 'Unknown'}</TableCell>

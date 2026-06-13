@@ -39,11 +39,11 @@ export default function StepLaunch({ formData, isLoading, setCanProceed }: StepL
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-[-0.02em]">
+        <h1 className="text-3xl md:text-4xl font-medium text-zinc-900 dark:text-zinc-100 tracking-[-0.02em]">
           Ready to launch
         </h1>
-        <p className="mt-3 text-lg text-zinc-500">
-          Review your details and create your workspace.
+        <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400 max-w-lg leading-relaxed">
+          Everything looks great. Review your workspace details below before we provision your dedicated database and environment.
         </p>
       </motion.div>
 
@@ -61,16 +61,16 @@ export default function StepLaunch({ formData, isLoading, setCanProceed }: StepL
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15 + index * 0.05 }}
-              className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
+              className="flex items-center gap-4 p-4 rounded-md bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800"
             >
-              <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-md bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
                 <Icon className="w-4 h-4 text-zinc-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-zinc-600">{item.label}</p>
-                <p className="text-sm text-white truncate">{item.value}</p>
+                <p className="text-xs text-zinc-500">{item.label}</p>
+                <p className="text-sm text-zinc-900 dark:text-zinc-100 truncate font-medium">{item.value}</p>
               </div>
-              <Check className="w-4 h-4 text-emerald-500/60 flex-shrink-0" />
+              <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
             </motion.div>
           );
         })}
@@ -83,10 +83,10 @@ export default function StepLaunch({ formData, isLoading, setCanProceed }: StepL
           className="flex flex-col items-center justify-center py-8"
         >
           <div className="relative">
-            <div className="w-12 h-12 border-2 border-zinc-800 rounded-full" />
-            <div className="absolute inset-0 w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-12 h-12 border-2 border-zinc-200 dark:border-zinc-800 rounded-full" />
+            <div className="absolute inset-0 w-12 h-12 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
           </div>
-          <p className="mt-4 text-sm text-zinc-500">Creating your workspace...</p>
+          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">Creating your workspace...</p>
         </motion.div>
       )}
 
@@ -94,7 +94,7 @@ export default function StepLaunch({ formData, isLoading, setCanProceed }: StepL
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-xs text-zinc-600 text-center"
+        className="text-xs text-zinc-500 text-center"
       >
         By continuing, you agree to our Terms and Privacy Policy.
       </motion.p>

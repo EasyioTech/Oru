@@ -151,7 +151,7 @@ export class GSTService extends BaseApiService {
       return { data: null, error: 'Agency ID not found', success: false };
     }
 
-    const queryFilters: Record<string, any> = { agency_id: agencyId };
+    const queryFilters: Record<string, unknown> = { agency_id: agencyId };
     if (filters?.status) queryFilters.status = filters.status;
     if (filters?.return_type) queryFilters.return_type = filters.return_type;
     if (filters?.filing_period) queryFilters.filing_period = filters.filing_period;
@@ -248,7 +248,7 @@ export class GSTService extends BaseApiService {
 
     // Build query with date filters
     let query = `SELECT * FROM public.gst_transactions WHERE agency_id = $1`;
-    const params: any[] = [agencyId];
+    const params: unknown[] = [agencyId];
     let paramIndex = 2;
 
     if (filters?.transaction_type) {
@@ -407,7 +407,7 @@ export class GSTService extends BaseApiService {
     const filingPeriodDate = new Date(periodDate.getFullYear(), periodDate.getMonth(), 1);
     
     // Calculate due date based on return type and filing period
-    let dueDate = new Date(periodDate);
+    const dueDate = new Date(periodDate);
     
     if (returnType === 'GSTR1' || returnType === 'GSTR3B') {
       // Monthly returns due on 11th of next month

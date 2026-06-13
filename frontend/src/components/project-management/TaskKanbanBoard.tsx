@@ -84,15 +84,10 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   const { user, profile } = useAuth();
-
-  useEffect(() => {
-    fetchTasks();
-  }, [projectId]);
-
-  const fetchTasks = async () => {
+  const fetchTasks = React.useCallback(async () => {
     setLoading(true);
     try {
-      const filters: any = {};
+      const filters: unknown = {};
       if (projectId) {
         filters.project_id = projectId;
       }
@@ -111,7 +106,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
       
       const data = await projectService.getTasks(filters, profile, user?.id);
       setTasks(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching tasks:', error);
       toast({
         title: "Error",
@@ -121,14 +116,13 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [projectId, statusFilter, priorityFilter, assigneeFilter, searchTerm, profile, user?.id, toast]);
   const updateTaskStatus = async (taskId: string, newStatus: Task['status']) => {
     try {
       await projectService.updateTask(taskId, { 
         status: newStatus,
         completed_at: newStatus === 'completed' ? new Date().toISOString() : null
-      } as any, profile, user?.id);
+      } as unknown, profile, user?.id);
 
       setTasks(tasks.map(task => 
         task.id === taskId ? { ...task, status: newStatus } : task
@@ -138,7 +132,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
         title: "Success",
         description: "Task status updated successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to update task status",
@@ -158,7 +152,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
         title: "Success",
         description: "Task deleted successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message || "Failed to delete task",
@@ -194,6 +188,12 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
         tasks.flatMap(t => t.assignments?.map(a => a.user_id) || [])
       )
   ));
+    useEffect(() => {
+        fetchTasks();
+      }, [fetchTasks]);
+    useEffect(() => {
+        fetchTasks();
+      }, [projectId]);
 
   const filteredTasks = tasks.filter(task => {
     if (statusFilter !== 'all' && task.status !== statusFilter) return false;
@@ -235,14 +235,12 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                fetchTasks();
               }}
               className="pl-8"
             />
           </div>
           <Select value={statusFilter} onValueChange={(value) => {
             setStatusFilter(value);
-            fetchTasks();
           }}>
             <SelectTrigger className="w-[150px]">
               <Filter className="h-4 w-4 mr-2" />
@@ -257,7 +255,6 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
           </Select>
           <Select value={priorityFilter} onValueChange={(value) => {
             setPriorityFilter(value);
-            fetchTasks();
           }}>
             <SelectTrigger className="w-[130px]">
               <SelectValue placeholder="Priority" />

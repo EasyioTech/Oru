@@ -24,7 +24,7 @@ import { getRoleDisplayName, type AppRole } from '@/utils/roleUtils';
 import { db } from '@/lib/database';
 
 // Icon mapping for dynamic icon rendering
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, unknown> = {
   Monitor, BarChart3, Users, Users2, User, Building, Building2, Calculator,
   DollarSign, Calendar, Clock, CalendarDays, Shield: Monitor,
   Bell, Briefcase, FileText, Settings, BookOpen, ChartLine,
@@ -46,7 +46,7 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
     pendingLeaveRequests: 0,
     pendingReimbursements: 0
   });
-  const [recentProjects, setRecentProjects] = useState<any[]>([]);
+  const [recentProjects, setRecentProjects] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
 
   const pages = getPagesForRole(role);
@@ -127,13 +127,10 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'super_admin': return <Shield className="h-5 w-5 text-purple-500" />;
-      case 'ceo': return <Building className="h-5 w-5 text-blue-500" />;
-      case 'cto': return <Monitor className="h-5 w-5 text-blue-500" />;
-      case 'cfo': return <Calculator className="h-5 w-5 text-yellow-500" />;
-      case 'coo': return <Building className="h-5 w-5 text-green-500" />;
-      case 'admin': return <Building className="h-5 w-5 text-blue-500" />;
-      case 'hr': return <Users className="h-5 w-5 text-green-500" />;
-      case 'finance_manager': return <Calculator className="h-5 w-5 text-yellow-500" />;
+      case 'agency_admin': return <Building className="h-5 w-5 text-blue-500" />;
+      case 'manager': return <Users className="h-5 w-5 text-green-500" />;
+      case 'auditor': return <FileText className="h-5 w-5 text-yellow-500" />;
+      case 'viewer': return <Monitor className="h-5 w-5 text-gray-400" />;
       case 'employee': return <User className="h-5 w-5 text-gray-500" />;
       default: return <User className="h-5 w-5" />;
     }
@@ -142,13 +139,10 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'super_admin': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'ceo': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'cto': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-      case 'cfo': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'coo': return 'bg-green-100 text-green-800 border-green-200';
-      case 'admin': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'hr': return 'bg-green-100 text-green-800 border-green-200';
-      case 'finance_manager': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'agency_admin': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'manager': return 'bg-green-100 text-green-800 border-green-200';
+      case 'auditor': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'viewer': return 'bg-gray-100 text-gray-600 border-gray-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -156,17 +150,12 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
   const getDashboardMessage = (role: string) => {
     const messages: Record<string, string> = {
       'super_admin': "Full system access. Manage all aspects of the platform including users, agencies, and system settings.",
-      'ceo': "Strategic oversight dashboard. Monitor company performance, financial health, and key business metrics.",
-      'cto': "Technology leadership dashboard. Track projects, team performance, and technical initiatives.",
-      'cfo': "Financial oversight dashboard. Monitor revenue, expenses, payroll, and financial compliance.",
-      'coo': "Operations management dashboard. Track attendance, projects, and operational efficiency.",
-      'admin': "Administrative access to user management, projects, finance, and HR operations.",
-      'hr': "Manage employee profiles, attendance, payroll processing, and HR operations.",
-      'finance_manager': "Handle financial operations including payments, invoices, receipts, and financial reporting.",
+      'agency_admin': "Administrative access to user management, projects, finance, HR, and all agency operations.",
+      'manager': "Manage your team, projects, attendance, leave requests, and financials.",
       'employee': "View your projects, mark attendance, submit leave requests, and view your payroll information.",
-      'project_manager': "Manage projects, tasks, timelines, and team resources effectively.",
-      'sales_manager': "Track sales performance, manage client relationships, and monitor team productivity.",
-      'marketing_manager': "Oversee marketing campaigns, track analytics, and manage client engagement.",
+      'auditor': "Read-only access to reports, financial data, and operational summaries.",
+      'viewer': "Limited read access to dashboards and your profile.",
+      'custom': "Custom role access based on assigned permissions.",
     };
     return messages[role] || "Welcome to the Oru ERP Management System.";
   };
@@ -186,9 +175,9 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
 
 
   // Determine which stats to show based on role
-  const showFinancialStats = ['super_admin', 'ceo', 'cfo', 'finance_manager', 'admin'].includes(role);
-  const showHRStats = ['super_admin', 'admin', 'hr', 'coo'].includes(role);
-  const showProjectStats = !['employee', 'contractor', 'intern'].includes(role) || role === 'project_manager';
+  const showFinancialStats = ['super_admin', 'agency_admin', 'manager'].includes(role);
+  const showHRStats = ['super_admin', 'agency_admin', 'manager'].includes(role);
+  const showProjectStats = ['super_admin', 'agency_admin', 'manager', 'auditor'].includes(role);
 
   return (
     <PageContainer>
@@ -256,8 +245,8 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
         <ClockInOut compact={true} />
       </div>
 
-      {/* Quick Actions for Admin and HR */}
-      {(role === 'admin' || role === 'hr' || role === 'super_admin') && (
+      {/* Quick Actions for Admin and Manager */}
+      {(role === 'agency_admin' || role === 'manager' || role === 'super_admin') && (
         <div className="mb-6">
           <QuickActionsPanel />
         </div>
@@ -284,7 +273,7 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
           </Card>
         )}
 
-        {(showHRStats || role === 'department_head') && (
+        {showHRStats && (
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Team Members</CardTitle>
@@ -390,7 +379,7 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
       </div>
 
       {/* Calendar Widget - Show for roles that need it */}
-      {(role === 'admin' || role === 'hr' || role === 'super_admin') && (
+      {(role === 'agency_admin' || role === 'manager' || role === 'super_admin') && (
         <div className="mt-6">
           <Card>
             <CardHeader>

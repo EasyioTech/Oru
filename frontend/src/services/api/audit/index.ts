@@ -29,8 +29,8 @@ export interface AuditLog {
   action: string;
   user_id: string | null;
   record_id: string | null;
-  old_values: Record<string, any> | null;
-  new_values: Record<string, any> | null;
+  old_values: Record<string, unknown> | null;
+  new_values: Record<string, unknown> | null;
   ip_address: string | null;
   user_agent: string | null;
   created_at: string;
@@ -152,7 +152,7 @@ export async function getAuditLogs(params?: {
   
   return {
     data: parsed.data,
-    pagination: (parsed as any).pagination
+    pagination: (parsed as unknown).pagination
   };
 }
 

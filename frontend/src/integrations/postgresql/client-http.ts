@@ -23,7 +23,7 @@ class HttpDatabaseClient {
   private async makeRequest<T>(
     endpoint: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'POST',
-    body?: any,
+    body?: unknown,
     useMainDatabase: boolean = false,
     retryCount: number = 0
   ): Promise<QueryResult<T>> {
@@ -119,12 +119,12 @@ class HttpDatabaseClient {
 
         const errorMsg = (typeof errorData.message === 'string' && errorData.message)
           || (typeof errorData.error === 'string' && errorData.error)
-          || (errorData.error && typeof (errorData.error as any).message === 'string' && (errorData.error as any).message)
+          || (errorData.error && typeof (errorData.error as unknown).message === 'string' && (errorData.error as unknown).message)
           || `Database API error: ${response.status} ${errorText}`;
         const error = new Error(errorMsg);
-        (error as any).status = response.status;
-        (error as any).data = errorData;
-        (error as any).code = errorData.code;
+        (error as unknown).status = response.status;
+        (error as unknown).data = errorData;
+        (error as unknown).code = errorData.code;
         throw error;
       }
 
@@ -150,7 +150,7 @@ class HttpDatabaseClient {
           rowCount: 1,
         };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Network, DNS, or CORS style failures often surface as TypeError in fetch
       console.error('[HTTP DB Client] Request failed:', {
         error,
@@ -169,10 +169,10 @@ class HttpDatabaseClient {
     }
   }
 
-  async query<T = any>(sql: string, params: any[] = [], userId?: string, useMainDatabase: boolean = false): Promise<QueryResult<T>> {
+  async query<T = unknown>(sql: string, params: unknown[] = [], userId?: string, useMainDatabase: boolean = false): Promise<QueryResult<T>> {
     
     return this.makeRequest<T>('/query', 'POST', {
-      sql,
+      query: sql,
       params,
       userId, // Pass userId to backend to set context
     }, useMainDatabase);
@@ -182,7 +182,7 @@ class HttpDatabaseClient {
    * Query the main database (not agency-specific database)
    * Use this for system-level queries like agencies table
    */
-  async queryMainDatabase<T = any>(sql: string, params: any[] = [], userId?: string): Promise<QueryResult<T>> {
+  async queryMainDatabase<T = unknown>(sql: string, params: unknown[] = [], userId?: string): Promise<QueryResult<T>> {
     return this.query<T>(sql, params, userId, true);
   }
 }
@@ -191,9 +191,9 @@ class HttpDatabaseClient {
 const httpClient = new HttpDatabaseClient();
 
 // Query helper with error handling
-export async function query<T = any>(
+export async function query<T = unknown>(
   text: string,
-  params?: any[],
+  params?: unknown[],
   userId?: string
 ): Promise<QueryResult<T>> {
   const start = Date.now();
@@ -207,9 +207,9 @@ export async function query<T = any>(
 }
 
 // Get a single row
-export async function queryOne<T = any>(
+export async function queryOne<T = unknown>(
   text: string,
-  params?: any[],
+  params?: unknown[],
   userId?: string
 ): Promise<T | null> {
   const result = await query<T>(text, params, userId);
@@ -217,9 +217,9 @@ export async function queryOne<T = any>(
 }
 
 // Get multiple rows
-export async function queryMany<T = any>(
+export async function queryMany<T = unknown>(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<T[]> {
   const result = await query<T>(text, params);
   return result.rows;
@@ -227,9 +227,9 @@ export async function queryMany<T = any>(
 
 // Query the main database (not agency-specific database)
 // Use this for system-level queries like agencies table
-export async function queryMainDatabase<T = any>(
+export async function queryMainDatabase<T = unknown>(
   text: string,
-  params: any[] = [],
+  params: unknown[] = [],
   userId?: string
 ): Promise<QueryResult<T>> {
   return httpClient.queryMainDatabase<T>(text, params, userId);
@@ -238,7 +238,7 @@ export async function queryMainDatabase<T = any>(
 // Execute without returning rows
 export async function execute(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<number> {
   const result = await query(text, params);
   return result.rowCount || 0;
@@ -246,24 +246,24 @@ export async function execute(
 
 // Transaction helper for HTTP
 export async function transaction<T>(
-  callback: (client: { query: (sql: string, params?: any[]) => Promise<{ rows: any[]; rowCount: number }> }) => Promise<T>
+  callback: (client: { query: (sql: string, params?: unknown[]) => Promise<{ rows: unknown[]; rowCount: number }> }) => Promise<T>
 ): Promise<T> {
   // Collect all queries during the callback
-  const queries: Array<{ sql: string; params: any[] }> = [];
-  const queryResults: Array<{ rows: any[]; rowCount: number }> = [];
+  const queries: Array<{ sql: string; params: unknown[] }> = [];
+  const queryResults: Array<{ rows: unknown[]; rowCount: number }> = [];
   let queryIndex = 0;
   
   // Create a mock client that collects queries and stores results
   const mockClient = {
-    query: async (sql: string, params: any[] = []): Promise<{ rows: any[]; rowCount: number }> => {
+    query: async (sql: string, params: unknown[] = []): Promise<{ rows: unknown[]; rowCount: number }> => {
       const currentIndex = queryIndex++;
       queries.push({ sql, params });
       
       // Return a promise that will be resolved with actual results
       return new Promise((resolve) => {
         // Store resolver to call after transaction completes
-        (mockClient as any)._resolvers = (mockClient as any)._resolvers || [];
-        (mockClient as any)._resolvers.push({ index: currentIndex, resolve });
+        (mockClient as unknown)._resolvers = (mockClient as unknown)._resolvers || [];
+        (mockClient as unknown)._resolvers.push({ index: currentIndex, resolve });
       });
     }
   };
@@ -313,9 +313,9 @@ export async function transaction<T>(
     }
     
     // Resolve all query promises with actual results
-    if (result.results && (mockClient as any)._resolvers) {
-      result.results.forEach((queryResult: any, index: number) => {
-        const resolver = (mockClient as any)._resolvers.find((r: any) => r.index === index);
+    if (result.results && (mockClient as unknown)._resolvers) {
+      result.results.forEach((queryResult: unknown, index: number) => {
+        const resolver = (mockClient as unknown)._resolvers.find((r: unknown) => r.index === index);
         if (resolver) {
           resolver.resolve({
             rows: queryResult.rows || [],
@@ -343,7 +343,7 @@ export async function closePool(): Promise<void> {
 
 // Export for use in base.ts
 export const pgClient = {
-  query: async (text: string, params?: any[]) => query(text, params),
+  query: async (text: string, params?: unknown[]) => query(text, params),
 };
 
 export default httpClient;

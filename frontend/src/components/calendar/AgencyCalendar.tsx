@@ -44,13 +44,8 @@ export function AgencyCalendar({ compact = false }: AgencyCalendarProps) {
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<CalendarEvent | null>(null);
 
-  const canManageEvents = userRole === 'admin' || userRole === 'hr' || userRole === 'super_admin';
-
-  useEffect(() => {
-    fetchCalendarData();
-  }, [selectedDate, profile, user?.id]);
-
-  const fetchCalendarData = async () => {
+  const canManageEvents = userRole === 'agency_admin' || userRole === 'manager' || userRole === 'super_admin';
+  const fetchCalendarData = React.useCallback(async () => {
     try {
       setLoading(true);
       const startDate = startOfMonth(selectedDate);
@@ -128,7 +123,7 @@ export function AgencyCalendar({ compact = false }: AgencyCalendarProps) {
         .order('start_date');
 
       // Fetch employee details and profiles for leave requests
-      let employeeProfileMap = new Map<string, string>();
+      const employeeProfileMap = new Map<string, string>();
       if (leaveRequests && leaveRequests.length > 0) {
         const employeeIds = leaveRequests.map(lr => lr.employee_id).filter(Boolean);
         if (employeeIds.length > 0) {
@@ -189,7 +184,7 @@ export function AgencyCalendar({ compact = false }: AgencyCalendarProps) {
         .not('date_of_birth', 'is', null);
 
       // Fetch profiles for employees
-      let employeeNameMap = new Map<string, string>();
+      const employeeNameMap = new Map<string, string>();
       if (employees && employees.length > 0) {
         const userIds = employees.map(emp => emp.user_id).filter(Boolean);
         if (userIds.length > 0) {
@@ -234,7 +229,7 @@ export function AgencyCalendar({ compact = false }: AgencyCalendarProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate, profile, user?.id]);
 
   const getEventsForDate = (date: Date) => {
     return events.filter(event => isSameDay(event.date, date));
@@ -271,6 +266,9 @@ export function AgencyCalendar({ compact = false }: AgencyCalendarProps) {
         return 'Event';
     }
   };
+    useEffect(() => {
+        fetchCalendarData();
+      }, [fetchCalendarData]);
 
   if (compact) {
     return (
@@ -486,7 +484,7 @@ export function AgencyCalendar({ compact = false }: AgencyCalendarProps) {
             });
 
             fetchCalendarData();
-          } catch (error: any) {
+          } catch (error: unknown) {
             console.error('Error deleting event:', error);
             toast({
               title: 'Error',

@@ -16,7 +16,6 @@ export const agencyProvisioningJobs = pgTable('agency_provisioning_jobs', {
 
     // Target Spec
     domain: text('domain').notNull(),
-    databaseName: text('database_name').notNull(),
     agencyName: text('agency_name').notNull(),
     ownerEmail: text('owner_email').notNull(),
     subscriptionPlan: text('subscription_plan'),
@@ -30,7 +29,6 @@ export const agencyProvisioningJobs = pgTable('agency_provisioning_jobs', {
     progressPercentage: integer('progress_percentage').default(0).notNull(),
     currentStep: text('current_step'),
     stepsCompleted: text('steps_completed').array().default([]),
-    stepsTotal: integer('steps_total'),
     result: jsonb('result'),
     agencyId: uuid('agency_id').references(() => agencies.id),
 
@@ -47,7 +45,6 @@ export const agencyProvisioningJobs = pgTable('agency_provisioning_jobs', {
     priority: integer('priority').default(5).notNull(),
     timeoutSeconds: integer('timeout_seconds').default(300).notNull(),
     workerId: text('worker_id'),
-    workerHostname: text('worker_hostname'),
 
     // Timestamps
     startedAt: timestamp('started_at', { withTimezone: true }),
@@ -55,7 +52,6 @@ export const agencyProvisioningJobs = pgTable('agency_provisioning_jobs', {
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
     cancelledBy: uuid('cancelled_by').references(() => users.id),
     cancellationReason: text('cancellation_reason'),
-    estimatedCompletionAt: timestamp('estimated_completion_at', { withTimezone: true }),
 
     metadata: jsonb('metadata').default({}).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -63,8 +59,7 @@ export const agencyProvisioningJobs = pgTable('agency_provisioning_jobs', {
 }, (table) => ({
     idempotencyIdx: uniqueIndex('idx_agency_provisioning_jobs_idempotency').on(table.idempotencyKey).where(sql`idempotency_key IS NOT NULL`),
     statusIdx: index('idx_agency_provisioning_jobs_status').on(table.status, table.priority),
-    domainIdx: index('idx_agency_provisioning_jobs_domain').on(table.domain), // In SQL it is lower(domain)
-    databaseNameIdx: index('idx_agency_provisioning_jobs_database_name').on(table.databaseName),
+    domainIdx: index('idx_agency_provisioning_jobs_domain').on(table.domain),
     requestedByIdx: index('idx_agency_provisioning_jobs_requested_by').on(table.requestedBy),
     agencyIdIdx: index('idx_agency_provisioning_jobs_agency_id').on(table.agencyId),
     createdAtIdx: index('idx_agency_provisioning_jobs_created_at').on(table.createdAt),

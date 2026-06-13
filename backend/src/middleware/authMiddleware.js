@@ -237,27 +237,12 @@ async function getUserRolesFromAgencyDb(userId, agencyDatabase) {
  */
 const ROLE_HIERARCHY = {
   super_admin: 1,
-  ceo: 2,
-  cto: 3,
-  cfo: 4,
-  coo: 5,
-  admin: 6,
-  operations_manager: 7,
-  department_head: 8,
-  team_lead: 9,
-  project_manager: 10,
-  hr: 11,
-  finance_manager: 12,
-  sales_manager: 13,
-  marketing_manager: 14,
-  quality_assurance: 15,
-  it_support: 16,
-  legal_counsel: 17,
-  business_analyst: 18,
-  customer_success: 19,
-  employee: 20,
-  contractor: 21,
-  intern: 22,
+  agency_admin: 2,
+  manager: 3,
+  employee: 4,
+  auditor: 5,
+  viewer: 6,
+  custom: 7,
 };
 
 /**
@@ -453,16 +438,15 @@ function requireRole(requiredRoles, allowHigherRoles = true) {
       const agencyDatabase = req.user.agencyDatabase || req.agencyDatabase;
       let userRoles = [];
 
-      // For system-level roles (super_admin, admin, ceo), check main database first
-      const systemRoles = ['super_admin', 'admin', 'ceo'];
+      // For system-level roles (super_admin, agency_admin), check main database first
+      const systemRoles = ['super_admin', 'agency_admin'];
       const requiresSystemRole = roles.some(r => systemRoles.includes(r));
-      
+
       if (requiresSystemRole) {
         // Check main database first for system-level roles
         userRoles = await getUserRolesFromMainDb(userId);
-        
+
         // For super_admin, ONLY check main database (no agency fallback)
-        // For other system roles (admin, ceo), allow agency database fallback
         if (userRoles.length === 0 && agencyDatabase && !roles.includes('super_admin')) {
           userRoles = await getUserRolesFromAgencyDb(userId, agencyDatabase);
         }

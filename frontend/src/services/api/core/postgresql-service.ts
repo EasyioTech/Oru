@@ -5,20 +5,20 @@ import { getAgencyId } from '@/utils/agencyUtils';
 export interface FilterCondition {
   column: string;
   operator: string;
-  value: any;
+  value: unknown;
   negated?: boolean;
 }
 
 export interface ApiOptions {
   select?: string;
-  where?: Record<string, any>;
+  where?: Record<string, unknown>;
   filters?: FilterCondition[];
   orderBy?: string;
   limit?: number;
   offset?: number;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   status: number;
@@ -29,9 +29,9 @@ export interface ApiResponse<T = any> {
  * @param where - The conditions object
  * @param startIndex - Starting parameter index (default 1)
  */
-function buildWhereClause(where: Record<string, any>, startIndex: number = 1): { clause: string; params: any[] } {
+function buildWhereClause(where: Record<string, unknown>, startIndex: number = 1): { clause: string; params: unknown[] } {
   const conditions: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   let paramIndex = startIndex;
 
   for (const [key, value] of Object.entries(where)) {
@@ -82,9 +82,9 @@ function parseOrFilter(filterString: string): { column: string; operator: string
 /**
  * Build WHERE clause from advanced filters
  */
-function buildFiltersClause(filters: FilterCondition[]): { clause: string; params: any[] } {
+function buildFiltersClause(filters: FilterCondition[]): { clause: string; params: unknown[] } {
   const conditions: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   let paramIndex = 1;
 
   for (const filter of filters) {
@@ -209,22 +209,37 @@ function buildFiltersClause(filters: FilterCondition[]): { clause: string; param
 /**
  * Select records from table
  */
-export async function selectRecords<T = any>(
+export async function selectRecords<T = unknown>(
   table: string,
   options: ApiOptions = {}
 ): Promise<T[]> {
   const { select = '*', where = {}, filters = [], orderBy = '', limit, offset } = options;
 
   let query = `SELECT ${select} FROM public.${table}`;
-  let params: any[] = [];
+  let params: unknown[] = [];
+
+  // Auto-inject agency_id for multi-tenant tables
+  const agencyId = typeof window !== 'undefined' ? window.localStorage.getItem('agency_id') : null;
+  const effectiveWhere = { ...where };
+  if (
+    agencyId &&
+    AGENCY_REQUIRED_TABLES.includes(table) &&
+    !effectiveWhere['agency_id'] &&
+    filters.every(f => f.column !== 'agency_id')
+  ) {
+    effectiveWhere['agency_id'] = agencyId;
+  }
 
   // Use filters if provided, otherwise use where clause
   if (filters.length > 0) {
-    const { clause, params: filterParams } = buildFiltersClause(filters);
+    const agencyFilter = agencyId && AGENCY_REQUIRED_TABLES.includes(table) && filters.every(f => f.column !== 'agency_id')
+      ? [{ column: 'agency_id', operator: 'eq' as const, value: agencyId }, ...filters]
+      : filters;
+    const { clause, params: filterParams } = buildFiltersClause(agencyFilter);
     query += ` ${clause}`;
     params = filterParams;
-  } else if (Object.keys(where).length > 0) {
-    const { clause, params: whereParams } = buildWhereClause(where);
+  } else if (Object.keys(effectiveWhere).length > 0) {
+    const { clause, params: whereParams } = buildWhereClause(effectiveWhere);
     query += ` ${clause}`;
     params = whereParams;
   }
@@ -247,9 +262,9 @@ export async function selectRecords<T = any>(
 /**
  * Select single record
  */
-export async function selectOne<T = any>(
+export async function selectOne<T = unknown>(
   table: string,
-  where: Record<string, any>
+  where: Record<string, unknown>
 ): Promise<T | null> {
   // Prevent agency_settings queries for super admins - they don't use agency databases
   if (table === 'agency_settings' && typeof window !== 'undefined') {
@@ -258,8 +273,14 @@ export async function selectOne<T = any>(
       return null;
     }
   }
-  
-  const { clause, params } = buildWhereClause(where);
+
+  const agencyId = typeof window !== 'undefined' ? window.localStorage.getItem('agency_id') : null;
+  const effectiveWhere = { ...where };
+  if (agencyId && AGENCY_REQUIRED_TABLES.includes(table) && !effectiveWhere['agency_id']) {
+    effectiveWhere['agency_id'] = agencyId;
+  }
+
+  const { clause, params } = buildWhereClause(effectiveWhere);
   const query = `SELECT * FROM public.${table} ${clause} LIMIT 1`;
   return queryOne<T>(query, params);
 }
@@ -285,7 +306,7 @@ const AGENCY_REQUIRED_TABLES = [
  * Build INSERT statement (sql + params) for use in transactions.
  * Does not execute; use with executeTransaction(client => client.query(sql, params)).
  */
-export function buildInsertStatement(table: string, data: Record<string, any>): { sql: string; params: any[] } {
+export function buildInsertStatement(table: string, data: Record<string, unknown>): { sql: string; params: unknown[] } {
   const keys = Object.keys(data);
   const values = Object.values(data);
   const placeholders = keys.map((_, i) => `$${i + 1}`).join(',');
@@ -300,9 +321,9 @@ export function buildInsertStatement(table: string, data: Record<string, any>): 
  * @param userId - Optional user ID to set context for audit logs
  * @param agencyId - Optional agency ID to automatically add if table requires it
  */
-export async function insertRecord<T = any>(
+export async function insertRecord<T = unknown>(
   table: string,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   userId?: string,
   agencyId?: string | null
 ): Promise<T> {
@@ -336,10 +357,10 @@ export async function insertRecord<T = any>(
  * @param where - Where conditions
  * @param userId - Optional user ID to set context for audit logs
  */
-export async function updateRecord<T = any>(
+export async function updateRecord<T = unknown>(
   table: string,
-  data: Record<string, any>,
-  where: Record<string, any>,
+  data: Record<string, unknown>,
+  where: Record<string, unknown>,
   userId?: string
 ): Promise<T> {
   // Safety check: agency_settings table doesn't have agency_id column
@@ -398,7 +419,7 @@ export async function updateRecord<T = any>(
  */
 export async function deleteRecord(
   table: string,
-  where: Record<string, any>
+  where: Record<string, unknown>
 ): Promise<number> {
   const { clause, params } = buildWhereClause(where);
   const query = `DELETE FROM public.${table} ${clause}`;
@@ -410,10 +431,10 @@ export async function deleteRecord(
  */
 export async function countRecords(
   table: string,
-  where: Record<string, any> = {}
+  where: Record<string, unknown> = {}
 ): Promise<number> {
   let query = `SELECT COUNT(*) as count FROM public.${table}`;
-  let params: any[] = [];
+  let params: unknown[] = [];
 
   if (Object.keys(where).length > 0) {
     const { clause, params: whereParams } = buildWhereClause(where);
@@ -428,9 +449,9 @@ export async function countRecords(
 /**
  * Execute raw query
  */
-export async function rawQuery<T = any>(
+export async function rawQuery<T = unknown>(
   query: string,
-  params: any[] = []
+  params: unknown[] = []
 ): Promise<T[]> {
   return queryMany<T>(query, params);
 }
@@ -438,9 +459,9 @@ export async function rawQuery<T = any>(
 /**
  * Execute raw query for single result
  */
-export async function rawQueryOne<T = any>(
+export async function rawQueryOne<T = unknown>(
   query: string,
-  params: any[] = []
+  params: unknown[] = []
 ): Promise<T | null> {
   return queryOne<T>(query, params);
 }
@@ -449,7 +470,7 @@ export async function rawQueryOne<T = any>(
  * Execute transaction
  */
 export async function executeTransaction<T>(
-  callback: (client: any) => Promise<T>
+  callback: (client: unknown) => Promise<T>
 ): Promise<T> {
   return transaction(callback);
 }
@@ -457,16 +478,16 @@ export async function executeTransaction<T>(
 /**
  * Batch insert records
  */
-export async function batchInsert<T = any>(
+export async function batchInsert<T = unknown>(
   table: string,
-  records: Record<string, any>[]
+  records: Record<string, unknown>[]
 ): Promise<T[]> {
   if (records.length === 0) {
     return [];
   }
 
   const keys = Object.keys(records[0]);
-  const values: any[] = [];
+  const values: unknown[] = [];
   const placeholders: string[] = [];
 
   records.forEach((record, recordIndex) => {
@@ -491,9 +512,9 @@ export async function batchInsert<T = any>(
 /**
  * Batch update records
  */
-export async function batchUpdate<T = any>(
+export async function batchUpdate<T = unknown>(
   table: string,
-  records: (Record<string, any> & { id: string })[]
+  records: (Record<string, unknown> & { id: string })[]
 ): Promise<T[]> {
   const results: T[] = [];
 
@@ -509,9 +530,9 @@ export async function batchUpdate<T = any>(
 /**
  * Upsert record (insert or update)
  */
-export async function upsertRecord<T = any>(
+export async function upsertRecord<T = unknown>(
   table: string,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   uniqueKey: string
 ): Promise<T> {
   const keys = Object.keys(data);
@@ -537,7 +558,7 @@ export async function upsertRecord<T = any>(
 /**
  * Get paginated records
  */
-export async function getPaginated<T = any>(
+export async function getPaginated<T = unknown>(
   table: string,
   page: number = 1,
   pageSize: number = 10,

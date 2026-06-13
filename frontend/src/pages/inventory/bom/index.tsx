@@ -3,7 +3,7 @@
  * Complete BOM management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,12 +84,7 @@ export default function InventoryBOM() {
     notes: '',
     items: [],
   });
-
-  useEffect(() => {
-    loadData();
-  }, [filterActive, selectedProduct]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [bomsData, productsData] = await Promise.all([
@@ -101,7 +96,7 @@ export default function InventoryBOM() {
       ]);
       setBoms(bomsData);
       setProducts(productsData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load BOMs',
@@ -110,7 +105,7 @@ export default function InventoryBOM() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterActive, selectedProduct, toast]);
 
   const handleCreate = () => {
     setFormData({
@@ -134,7 +129,7 @@ export default function InventoryBOM() {
       });
       setSelectedBom(fullBom);
       setIsDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load BOM details',
@@ -148,7 +143,7 @@ export default function InventoryBOM() {
       const fullBom = await getBomById(bom.id);
       setSelectedBom(fullBom);
       setIsViewDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load BOM details',
@@ -169,7 +164,7 @@ export default function InventoryBOM() {
         description: 'BOM deleted successfully',
       });
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete BOM',
@@ -206,7 +201,7 @@ export default function InventoryBOM() {
       }
       setIsDialogOpen(false);
       loadData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save BOM',
@@ -241,7 +236,7 @@ export default function InventoryBOM() {
     setFormData({ ...formData, items: newItems });
   };
 
-  const updateBomItem = (index: number, field: keyof BomItem, value: any) => {
+  const updateBomItem = (index: number, field: keyof BomItem, value: unknown) => {
     const newItems = [...(formData.items || [])];
     newItems[index] = { ...newItems[index], [field]: value };
     setFormData({ ...formData, items: newItems });
@@ -255,6 +250,9 @@ export default function InventoryBOM() {
       bom.version?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+    useEffect(() => {
+        loadData();
+      }, [filterActive, selectedProduct, loadData]);
 
   const stats = {
     total: boms.length,

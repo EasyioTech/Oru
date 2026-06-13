@@ -101,7 +101,7 @@ export const GSTTransactionDialog: React.FC<GSTTransactionDialogProps> = ({
     setErrors({});
   }, [existingTransaction, open]);
 
-  const calculateTaxes = () => {
+  const calculateTaxes = React.useCallback(() => {
     const taxableValue = Number(formData.quantity || 1) * Number(formData.unit_price || 0);
     const cgstRate = Number(formData.cgst_rate || 0);
     const sgstRate = Number(formData.sgst_rate || 0);
@@ -123,13 +123,13 @@ export const GSTTransactionDialog: React.FC<GSTTransactionDialogProps> = ({
       cess_amount: cessAmount,
       total_amount: totalAmount
     }));
-  };
+  }, [formData.quantity, formData.unit_price, formData.cgst_rate, formData.sgst_rate, formData.igst_rate, formData.cess_rate]);
 
   useEffect(() => {
     if (formData.quantity && formData.unit_price) {
       calculateTaxes();
     }
-  }, [formData.quantity, formData.unit_price, formData.cgst_rate, formData.sgst_rate, formData.igst_rate, formData.cess_rate]);
+  }, [formData.quantity, formData.unit_price, formData.cgst_rate, formData.sgst_rate, formData.igst_rate, formData.cess_rate, calculateTaxes]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};

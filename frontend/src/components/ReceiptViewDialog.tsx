@@ -44,14 +44,7 @@ export const ReceiptViewDialog: React.FC<ReceiptViewDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (open && receipt?.request_id) {
-      fetchAttachments();
-    }
-  }, [open, receipt]);
-
-  const fetchAttachments = async () => {
+  const fetchAttachments = React.useCallback(async () => {
     if (!receipt?.request_id) return;
 
     try {
@@ -63,8 +56,8 @@ export const ReceiptViewDialog: React.FC<ReceiptViewDialogProps> = ({
         .order('uploaded_at', { ascending: false });
 
       if (error) throw error;
-      setAttachments((data as any) || []);
-    } catch (error: any) {
+      setAttachments((data as unknown) || []);
+    } catch (error: unknown) {
       console.error("Error fetching attachments:", error);
       toast({
         title: "Error",
@@ -74,7 +67,7 @@ export const ReceiptViewDialog: React.FC<ReceiptViewDialogProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [receipt?.request_id, toast]);
 
   const handleDownload = async (attachment: Attachment) => {
     try {
@@ -99,7 +92,7 @@ export const ReceiptViewDialog: React.FC<ReceiptViewDialogProps> = ({
         title: "Success",
         description: "File downloaded successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error downloading file:", error);
       toast({
         title: "Error",
@@ -120,7 +113,7 @@ export const ReceiptViewDialog: React.FC<ReceiptViewDialogProps> = ({
       const blob = data as Blob;
       const url = window.URL.createObjectURL(blob);
       setViewingImage(url);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading image:", error);
       toast({
         title: "Error",
@@ -154,6 +147,11 @@ export const ReceiptViewDialog: React.FC<ReceiptViewDialogProps> = ({
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
   };
+    useEffect(() => {
+        if (open && receipt?.request_id) {
+          fetchAttachments();
+        }
+      }, [open, receipt, fetchAttachments]);
 
   if (!receipt) return null;
 

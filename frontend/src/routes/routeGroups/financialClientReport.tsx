@@ -16,7 +16,7 @@ export const FinancialRoutes = () => [
     key="/payroll"
     path="/payroll"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Payroll /></SuspenseRoute>
         </DashboardLayout>
@@ -27,7 +27,7 @@ export const FinancialRoutes = () => [
     key="/invoices"
     path="/invoices"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Invoices /></SuspenseRoute>
         </DashboardLayout>
@@ -38,7 +38,7 @@ export const FinancialRoutes = () => [
     key="/payments"
     path="/payments"
     element={
-      <ProtectedRoute requiredRole={["admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Payments /></SuspenseRoute>
         </DashboardLayout>
@@ -49,7 +49,7 @@ export const FinancialRoutes = () => [
     key="/receipts"
     path="/receipts"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Receipts /></SuspenseRoute>
         </DashboardLayout>
@@ -60,7 +60,7 @@ export const FinancialRoutes = () => [
     key="/ledger"
     path="/ledger"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Ledger /></SuspenseRoute>
         </DashboardLayout>
@@ -71,7 +71,7 @@ export const FinancialRoutes = () => [
     key="/ledger/create-entry"
     path="/ledger/create-entry"
     element={
-      <ProtectedRoute requiredRole={["admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.CreateJournalEntry /></SuspenseRoute>
         </DashboardLayout>
@@ -82,7 +82,7 @@ export const FinancialRoutes = () => [
     key="/financial-management"
     path="/financial-management"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "finance_manager", "ceo", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.FinancialManagement /></SuspenseRoute>
         </DashboardLayout>
@@ -93,7 +93,7 @@ export const FinancialRoutes = () => [
     key="/gst-compliance"
     path="/gst-compliance"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin", "finance_manager", "cfo"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.GstCompliance /></SuspenseRoute>
         </DashboardLayout>
@@ -132,7 +132,7 @@ export const ClientRoutes = () => [
     key="/clients/create"
     path="/clients/create"
     element={
-      <ProtectedRoute requiredRole="sales_manager">
+      <ProtectedRoute requiredRole={["agency_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.CreateClient /></SuspenseRoute>
         </DashboardLayout>
@@ -143,7 +143,7 @@ export const ClientRoutes = () => [
     key="/clients/edit/:id"
     path="/clients/edit/:id"
     element={
-      <ProtectedRoute requiredRole="sales_manager">
+      <ProtectedRoute requiredRole={["agency_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.CreateClient /></SuspenseRoute>
         </DashboardLayout>
@@ -154,7 +154,7 @@ export const ClientRoutes = () => [
     key="/crm"
     path="/crm"
     element={
-      <ProtectedRoute requiredRole={["hr", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.CRM /></SuspenseRoute>
         </DashboardLayout>
@@ -165,7 +165,7 @@ export const ClientRoutes = () => [
     key="/crm/leads/:leadId"
     path="/crm/leads/:leadId"
     element={
-      <ProtectedRoute requiredRole="hr">
+      <ProtectedRoute requiredRole={["agency_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.LeadDetail /></SuspenseRoute>
         </DashboardLayout>
@@ -176,7 +176,7 @@ export const ClientRoutes = () => [
     key="/crm/activities/:activityId"
     path="/crm/activities/:activityId"
     element={
-      <ProtectedRoute requiredRole={["hr", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ActivityDetail /></SuspenseRoute>
         </DashboardLayout>
@@ -193,31 +193,9 @@ export const ReportRoutes = () => [
     key="/reports"
     path="/reports"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.Reports /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/analytics"
-    path="/analytics"
-    element={
-      <ProtectedRoute requiredRole="admin">
-        <DashboardLayout>
-          <SuspenseRoute><Pages.Analytics /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/centralized-reports"
-    path="/centralized-reports"
-    element={
-      <ProtectedRoute requiredRole={["admin", "finance_manager", "cfo", "ceo"]}>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.CentralizedReports /></SuspenseRoute>
         </DashboardLayout>
       </ProtectedRoute>
     }
@@ -226,7 +204,7 @@ export const ReportRoutes = () => [
     key="/reports/dashboard"
     path="/reports/dashboard"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ReportingDashboard /></SuspenseRoute>
         </DashboardLayout>
@@ -237,7 +215,7 @@ export const ReportRoutes = () => [
     key="/reports/custom"
     path="/reports/custom"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.CustomReports /></SuspenseRoute>
         </DashboardLayout>
@@ -248,7 +226,7 @@ export const ReportRoutes = () => [
     key="/reports/scheduled"
     path="/reports/scheduled"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ScheduledReports /></SuspenseRoute>
         </DashboardLayout>
@@ -259,20 +237,9 @@ export const ReportRoutes = () => [
     key="/reports/exports"
     path="/reports/exports"
     element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
         <DashboardLayout>
           <SuspenseRoute><Pages.ReportExports /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/reports/analytics"
-    path="/reports/analytics"
-    element={
-      <ProtectedRoute requiredRole={["admin", "super_admin"]}>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.AnalyticsDashboard /></SuspenseRoute>
         </DashboardLayout>
       </ProtectedRoute>
     }

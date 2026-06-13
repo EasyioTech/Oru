@@ -33,7 +33,7 @@ interface UserRole {
 }
 
 export class AuthService extends BaseApiService {
-  static async signUp(data: SignUpData, options: ApiOptions = {}): Promise<ApiResponse<any>> {
+  static async signUp(data: SignUpData, options: ApiOptions = {}): Promise<ApiResponse<unknown>> {
     return this.execute(async () => {
       // Get agency_id from localStorage (set during login)
       const agencyId = typeof window !== 'undefined' ? localStorage.getItem('agency_id') : null;
@@ -65,7 +65,7 @@ export class AuthService extends BaseApiService {
     }, { showErrorToast: true, ...options });
   }
 
-  static async signIn(data: SignInData, options: ApiOptions = {}): Promise<ApiResponse<any>> {
+  static async signIn(data: SignInData, options: ApiOptions = {}): Promise<ApiResponse<unknown>> {
     // Real database authentication only - no mock users in production
     return this.execute(async () => {
       const result = await loginUser({
@@ -89,7 +89,7 @@ export class AuthService extends BaseApiService {
     }, { showErrorToast: true, ...options });
   }
 
-  static async signOut(options: ApiOptions = {}): Promise<ApiResponse<any>> {
+  static async signOut(options: ApiOptions = {}): Promise<ApiResponse<unknown>> {
     return this.execute(async () => {
       // Clear token
       localStorage.removeItem('auth_token');
@@ -132,7 +132,7 @@ export class AuthService extends BaseApiService {
 
     if (response.success && response.data && Array.isArray(response.data) && response.data.length > 0) {
       return {
-        data: (response.data as any)[0].role,
+        data: (response.data as unknown)[0].role,
         error: null,
         success: true
       };
@@ -146,7 +146,7 @@ export class AuthService extends BaseApiService {
   }
 
 
-  static async getCurrentSession(): Promise<ApiResponse<any>> {
+  static async getCurrentSession(): Promise<ApiResponse<unknown>> {
     return this.execute(async () => {
       const token = localStorage.getItem('auth_token');
       if (!token) {
@@ -167,7 +167,7 @@ export class AuthService extends BaseApiService {
     });
   }
 
-  static setupAuthStateListener(callback: (event: string, session: any) => void) {
+  static setupAuthStateListener(callback: (event: string, session: unknown) => void) {
     // Check for token on storage change
     const handleStorageChange = (e: Event | null) => {
       try {

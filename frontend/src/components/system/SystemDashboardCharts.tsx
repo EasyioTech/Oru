@@ -11,7 +11,7 @@ interface SystemDashboardChartsProps {
 }
 
 // Lazy load recharts to prevent blocking the entire page
-let RechartsComponents: any = null;
+let RechartsComponents: unknown = null;
 let rechartsError: Error | null = null;
 
 const loadRecharts = async () => {
@@ -42,7 +42,7 @@ const loadRecharts = async () => {
 };
 
 export const SystemDashboardCharts = ({ metrics }: SystemDashboardChartsProps) => {
-  const [recharts, setRecharts] = useState<any>(null);
+  const [recharts, setRecharts] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 

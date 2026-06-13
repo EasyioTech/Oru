@@ -10,8 +10,8 @@ import { type Product as ProductType } from '@/services/api/inventory';
 
 interface OverviewTabProps {
   products: ProductType[];
-  warehouses: any[];
-  lowStockAlerts: any[];
+  warehouses: unknown[];
+  lowStockAlerts: unknown[];
 }
 
 export const OverviewTab = ({ products, warehouses, lowStockAlerts }: OverviewTabProps) => {

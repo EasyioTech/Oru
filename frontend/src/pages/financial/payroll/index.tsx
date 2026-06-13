@@ -6,12 +6,11 @@ import { DollarSign, Download, Calculator, Users, Calendar, Loader2, Plus, Edit,
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { selectRecords, deleteRecord, selectOne, updateRecord } from '@/services/api/core';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { db } from '@/lib/database';
 import PayrollFormDialog from "@/components/shared/PayrollFormDialog";
 import PayrollPeriodFormDialog from "@/components/PayrollPeriodFormDialog";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
@@ -55,28 +54,16 @@ const Payroll = () => {
     pendingPayroll: 0
   });
   const [payrollRecords, setPayrollRecords] = useState<PayrollRecord[]>([]);
-  const [payrollPeriods, setPayrollPeriods] = useState<any[]>([]);
+  const [payrollPeriods, setPayrollPeriods] = useState<unknown[]>([]);
   const [payrollFormOpen, setPayrollFormOpen] = useState(false);
-  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
+  const [selectedPayroll, setSelectedPayroll] = useState<unknown>(null);
   const [periodFormOpen, setPeriodFormOpen] = useState(false);
-  const [selectedPeriodObj, setSelectedPeriodObj] = useState<any>(null);
+  const [selectedPeriodObj, setSelectedPeriodObj] = useState<unknown>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ type: string; item: any } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ type: string; item: unknown } | null>(null);
   const [selectedRecords, setSelectedRecords] = useState<Set<string>>(new Set());
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
-
-  useEffect(() => {
-    fetchPayrollData();
-    fetchPayrollPeriods();
-  }, []);
-
-  useEffect(() => {
-    if (selectedPeriod) {
-      fetchPayrollData();
-    }
-  }, [selectedPeriod, urlDepartmentId]);
-
-  const fetchPayrollPeriods = async () => {
+  const fetchPayrollPeriods = useCallback(async () => {
     try {
       const periods = await selectRecords('payroll_periods', {
         orderBy: 'end_date DESC',
@@ -88,24 +75,31 @@ const Payroll = () => {
     } catch (error) {
       console.error('Error fetching payroll periods:', error);
     }
-  };
+  }, [selectedPeriod]);
+    useEffect(() => {
+        if (selectedPeriod) {
+          fetchPayrollData();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [selectedPeriod, urlDepartmentId]);
+    useEffect(() => {
+        fetchPayrollData();
+        fetchPayrollPeriods();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
 
-  const fetchPayrollData = async () => {
+  const fetchPayrollData = useCallback(async () => {
     try {
       setLoading(true);
       
       // If filtering by department, get user IDs in that department
       let departmentUserIds: string[] = [];
       if (urlDepartmentId) {
-        const { data: assignments } = await db
-          .from('team_assignments')
-          .select('user_id')
-          .eq('department_id', urlDepartmentId)
-          .eq('is_active', true);
-        
-        if (assignments) {
-          departmentUserIds = assignments.map((ta: any) => ta.user_id).filter(Boolean);
-        }
+        const assignments = await selectRecords('team_assignments', {
+          where: { department_id: urlDepartmentId, is_active: true },
+          select: 'user_id',
+        });
+        departmentUserIds = (assignments || []).map((ta: unknown) => (ta as {user_id?: string}).user_id).filter(Boolean) as string[];
       }
       
       // Get selected or most recent pay period
@@ -116,7 +110,7 @@ const Payroll = () => {
       }
 
       // Fetch payroll records for selected period
-      let payrollData: any[] = [];
+      let payrollData: unknown[] = [];
       if (periodId) {
         payrollData = await selectRecords('payroll', {
           where: { payroll_period_id: periodId },
@@ -137,10 +131,10 @@ const Payroll = () => {
             ]
           });
           
-          const employeeIdToUserId = new Map(payrollEmployees.map((e: any) => [e.id, e.user_id]));
+          const employeeIdToUserId = new Map(payrollEmployees.map((e: unknown) => [e.id, e.user_id]));
           
           // Filter payroll records where employee's user_id is in department
-          payrollData = payrollData.filter((p: any) => {
+          payrollData = payrollData.filter((p: unknown) => {
             const userId = employeeIdToUserId.get(p.employee_id);
             return userId && departmentUserIds.includes(userId);
           });
@@ -152,8 +146,8 @@ const Payroll = () => {
       // Fetch employee details and profiles for names
       // IMPORTANT: payroll.employee_id is employee_details.id, not user_id
       const employeeDetailIds = payrollData.map(p => p.employee_id).filter(Boolean);
-      let employees: any[] = [];
-      let profiles: any[] = [];
+      let employees: unknown[] = [];
+      let profiles: unknown[] = [];
 
       if (employeeDetailIds.length > 0) {
         // Fetch employee_details using their id (not user_id)
@@ -163,7 +157,7 @@ const Payroll = () => {
           ]
         });
 
-        const userIds = employees.map((e: any) => e.user_id).filter(Boolean);
+        const userIds = employees.map((e: unknown) => e.user_id).filter(Boolean);
         if (userIds.length > 0) {
           profiles = await selectRecords('profiles', {
             filters: [
@@ -173,15 +167,15 @@ const Payroll = () => {
         }
       }
 
-      const profileMap = new Map(profiles.map((p: any) => [p.user_id, p.full_name]));
+      const profileMap = new Map(profiles.map((p: unknown) => [p.user_id, p.full_name]));
       // Map by employee_details.id for payroll lookup
-      const employeeMap = new Map(employees.map((e: any) => [e.id, e]));
+      const employeeMap = new Map(employees.map((e: unknown) => [e.id, e]));
 
       // Get current period info
       const currentPeriod = payrollPeriods.find(p => p.id === periodId) || payrollPeriods[0];
 
       // Transform payroll data - map database field names to frontend field names
-      const transformedRecords: PayrollRecord[] = payrollData.map((record: any) => {
+      const transformedRecords: PayrollRecord[] = payrollData.map((record: unknown) => {
         const employee = employeeMap.get(record.employee_id); // employee_id is employee_details.id
         const fullName = employee?.user_id 
           ? (profileMap.get(employee.user_id) || `${employee.first_name} ${employee.last_name}`.trim())
@@ -234,7 +228,7 @@ const Payroll = () => {
         pendingPayroll
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching payroll data:', error);
       toast({
         title: "Error",
@@ -244,7 +238,7 @@ const Payroll = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [urlDepartmentId, selectedPeriod, payrollPeriods, toast]);
 
   if (loading) {
     return (
@@ -263,7 +257,7 @@ const Payroll = () => {
     setPayrollFormOpen(true);
   };
 
-  const handleEditPayroll = async (payroll: any) => {
+  const handleEditPayroll = async (payroll: unknown) => {
     try {
       // Fetch full payroll record from database
       const fullRecord = await selectOne('payroll', { id: payroll.id });
@@ -297,7 +291,7 @@ const Payroll = () => {
     }
   };
 
-  const handleDeletePayroll = (payroll: any) => {
+  const handleDeletePayroll = (payroll: unknown) => {
     setItemToDelete({ type: 'payroll', item: payroll });
     setDeleteDialogOpen(true);
   };
@@ -307,12 +301,12 @@ const Payroll = () => {
     setPeriodFormOpen(true);
   };
 
-  const handleEditPeriod = (period: any) => {
+  const handleEditPeriod = (period: unknown) => {
     setSelectedPeriodObj(period);
     setPeriodFormOpen(true);
   };
 
-  const handleDeletePeriod = (period: any) => {
+  const handleDeletePeriod = (period: unknown) => {
     setItemToDelete({ type: 'period', item: period });
     setDeleteDialogOpen(true);
   };
@@ -348,7 +342,7 @@ const Payroll = () => {
           setSelectedPeriod('');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete item',
@@ -415,7 +409,7 @@ const Payroll = () => {
         title: 'Success',
         description: 'Payroll report exported successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error exporting report:', error);
       toast({
         title: 'Error',
@@ -539,7 +533,7 @@ const Payroll = () => {
         title: 'Success',
         description: 'Pay slip downloaded successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating pay slip:', error);
       toast({
         title: 'Error',
@@ -575,7 +569,7 @@ const Payroll = () => {
       
       setSelectedRecords(new Set());
       fetchPayrollData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error approving payroll records:', error);
       toast({
         title: 'Error',
@@ -616,7 +610,7 @@ const Payroll = () => {
       
       setSelectedRecords(new Set());
       fetchPayrollData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error marking payroll records as paid:', error);
       toast({
         title: 'Error',

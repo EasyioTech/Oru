@@ -3,13 +3,12 @@
  * Handles module-specific settings management
  */
 
-const { getAgencyDb } = require('../infrastructure/database/poolManager');
+const { pool } = require('../infrastructure/database/index');
 
 /**
  * Get inventory settings
  */
 async function getInventorySettings(agencyDatabase, agencyId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -67,13 +66,7 @@ async function getInventorySettings(agencyDatabase, agencyId) {
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -81,7 +74,6 @@ async function getInventorySettings(agencyDatabase, agencyId) {
  * Update inventory settings
  */
 async function updateInventorySettings(agencyDatabase, agencyId, settings, userId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -124,13 +116,7 @@ async function updateInventorySettings(agencyDatabase, agencyId, settings, userI
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -138,7 +124,6 @@ async function updateInventorySettings(agencyDatabase, agencyId, settings, userI
  * Get procurement settings
  */
 async function getProcurementSettings(agencyDatabase, agencyId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -188,13 +173,7 @@ async function getProcurementSettings(agencyDatabase, agencyId) {
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -202,7 +181,6 @@ async function getProcurementSettings(agencyDatabase, agencyId) {
  * Update procurement settings
  */
 async function updateProcurementSettings(agencyDatabase, agencyId, settings, userId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -242,13 +220,7 @@ async function updateProcurementSettings(agencyDatabase, agencyId, settings, use
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -256,7 +228,6 @@ async function updateProcurementSettings(agencyDatabase, agencyId, settings, use
  * Get asset settings
  */
 async function getAssetSettings(agencyDatabase, agencyId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -342,13 +313,7 @@ async function getAssetSettings(agencyDatabase, agencyId) {
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -356,7 +321,6 @@ async function getAssetSettings(agencyDatabase, agencyId) {
  * Update asset settings
  */
 async function updateAssetSettings(agencyDatabase, agencyId, settings, userId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -396,13 +360,7 @@ async function updateAssetSettings(agencyDatabase, agencyId, settings, userId) {
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -410,7 +368,6 @@ async function updateAssetSettings(agencyDatabase, agencyId, settings, userId) {
  * Get workflow settings
  */
 async function getWorkflowSettings(agencyDatabase, agencyId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -502,13 +459,7 @@ async function getWorkflowSettings(agencyDatabase, agencyId) {
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -516,7 +467,6 @@ async function getWorkflowSettings(agencyDatabase, agencyId) {
  * Update workflow settings
  */
 async function updateWorkflowSettings(agencyDatabase, agencyId, settings, userId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -556,13 +506,7 @@ async function updateWorkflowSettings(agencyDatabase, agencyId, settings, userId
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -570,7 +514,6 @@ async function updateWorkflowSettings(agencyDatabase, agencyId, settings, userId
  * Get integration settings
  */
 async function getIntegrationSettings(agencyDatabase, agencyId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -668,13 +611,7 @@ async function getIntegrationSettings(agencyDatabase, agencyId) {
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 
@@ -682,7 +619,6 @@ async function getIntegrationSettings(agencyDatabase, agencyId) {
  * Update integration settings
  */
 async function updateIntegrationSettings(agencyDatabase, agencyId, settings, userId) {
-  const pool = await getAgencyDb(agencyDatabase);
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -722,13 +658,7 @@ async function updateIntegrationSettings(agencyDatabase, agencyId, settings, use
         console.error('[Settings Service] Error releasing client:', err);
       }
     }
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (err) {
-        console.error('[Settings Service] Error ending pool:', err);
-      }
-    }
+
   }
 }
 

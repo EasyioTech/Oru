@@ -1,0 +1,507 @@
+Folder PATH listing for volume Developers_Mindset
+Volume serial number is 0C46-516C
+D:\ORU\FRONTEND\SRC\PAGES
++---agency-setup
+¦   ¦   constants.ts
+¦   ¦   index.tsx
+¦   ¦   types.ts
+¦   ¦   
+¦   +---agency-setup-progress
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---components
+¦   ¦   ¦   index.ts
+¦   ¦   ¦   SetupNavigationButtons.tsx
+¦   ¦   ¦   SetupProgressHeader.tsx
+¦   ¦   ¦   
+¦   ¦   +---steps
+¦   ¦           BusinessDetailsStep.tsx
+¦   ¦           CompanyProfileStep.tsx
+¦   ¦           DepartmentsStep.tsx
+¦   ¦           FinancialStep.tsx
+¦   ¦           PreferencesStep.tsx
+¦   ¦           ReviewStep.tsx
+¦   ¦           TeamMembersStep.tsx
+¦   ¦           
+¦   +---hooks
+¦   ¦       useAgencySetupForm.ts
+¦   ¦       usePrefillSettings.ts
+¦   ¦       useSetupStatus.ts
+¦   ¦       
+¦   +---utils
+¦           completeSetup.ts
+¦           validation.ts
+¦           
++---assets
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---categories
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---depreciation
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---disposals
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---locations
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---maintenance
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---reports
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---settings
+¦           index.tsx
+¦           
++---attendance
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦           AttendanceDetailsList.tsx
+¦           AttendanceInsights.tsx
+¦           AttendanceReportsDialog.tsx
+¦           AttendanceStatsCards.tsx
+¦           index.ts
+¦           types.ts
+¦           
++---auth
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---forgot-password
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---sauth-login
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---signup-success
+¦           index.tsx
+¦           
++---calendar
+¦       index.tsx
+¦       
++---crm
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---activity-detail
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---clients
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---components
+¦   ¦       ActivitiesTab.tsx
+¦   ¦       CRMFilters.tsx
+¦   ¦       CRMMetrics.tsx
+¦   ¦       LeadsTab.tsx
+¦   ¦       ReportsTab.tsx
+¦   ¦       
+¦   +---create-client
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useActivities.ts
+¦   ¦       useActivityActions.ts
+¦   ¦       useCRMFilters.ts
+¦   ¦       useLeadActions.ts
+¦   ¦       useLeads.ts
+¦   ¦       useLeadStatusChange.ts
+¦   ¦       
+¦   +---lead-detail
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---utils
+¦           crmUtils.ts
+¦           
++---dashboards
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---agency
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---agency-admin
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---super-admin
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---system
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---system-health
+¦       ¦   index.tsx
+¦       ¦   
+¦       +---components
+¦               DatabaseHealthCard.tsx
+¦               DatabaseTabContent.tsx
+¦               HealthMetricsChart.tsx
+¦               index.ts
+¦               OverviewTabContent.tsx
+¦               PerformanceTabContent.tsx
+¦               RedisHealthCard.tsx
+¦               ServicesHealthGrid.tsx
+¦               StatusBadge.tsx
+¦               SystemTabContent.tsx
+¦               types.ts
+¦               utils.ts
+¦               
++---department-management
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦           DepartmentActionsMenu.tsx
+¦           DepartmentCardView.tsx
+¦           DepartmentDetailsDialog.tsx
+¦           DepartmentFilters.tsx
+¦           DepartmentFormDialog.tsx
+¦           DepartmentHierarchy.tsx
+¦           DepartmentListView.tsx
+¦           DepartmentStatsCards.tsx
+¦           DepartmentTable.tsx
+¦           index.ts
+¦           types.ts
+¦           
++---employees
+¦   ¦   index.tsx
+¦   ¦   types.ts
+¦   ¦   
+¦   +---assign-user-roles
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---components
+¦   ¦       EmployeeCard.tsx
+¦   ¦       EmployeeEditDialog.tsx
+¦   ¦       EmployeeFilters.tsx
+¦   ¦       EmployeeMetrics.tsx
+¦   ¦       EmployeeViewDialog.tsx
+¦   ¦       
+¦   +---create-employee
+¦   ¦   ¦   index.tsx
+¦   ¦   ¦   
+¦   ¦   +---components
+¦   ¦           CredentialsSuccessCard.tsx
+¦   ¦           DocumentUploadSection.tsx
+¦   ¦           EmergencyContactSection.tsx
+¦   ¦           index.ts
+¦   ¦           
+¦   +---employee-performance
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---employee-projects
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useEmployeeActions.ts
+¦   ¦       useEmployeeFilters.ts
+¦   ¦       useEmployeeProjects.ts
+¦   ¦       useEmployees.ts
+¦   ¦       
+¦   +---my-attendance
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---my-leave
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---my-profile
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---my-team
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---utils
+¦           employeePermissions.ts
+¦           employeeUtils.ts
+¦           
++---financial
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦   ¦       ChartOfAccountsTab.tsx
+¦   ¦       FinancialFilters.tsx
+¦   ¦       FinancialMetricsCards.tsx
+¦   ¦       FinancialReportsTab.tsx
+¦   ¦       JobsTab.tsx
+¦   ¦       JournalEntriesTab.tsx
+¦   ¦       TransactionsTab.tsx
+¦   ¦       
+¦   +---create-journal-entry
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---gst-compliance
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useAccountBalances.ts
+¦   ¦       useChartOfAccounts.ts
+¦   ¦       useFinancialData.ts
+¦   ¦       useFinancialReports.ts
+¦   ¦       useJobs.ts
+¦   ¦       useJournalEntries.ts
+¦   ¦       useProjects.ts
+¦   ¦       useTransactions.ts
+¦   ¦       
+¦   +---invoices
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---ledger
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---payments
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---payroll
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---receipts
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---reimbursements
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---utils
+¦           financialCalculations.ts
+¦           financialFormatters.ts
+¦           
++---hr
+¦   +---holidays
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---leave-requests
+¦           index.tsx
+¦           
++---inventory
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---adjustments
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---bom
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---components
+¦   ¦       AlertsTab.tsx
+¦   ¦       InventoryMetrics.tsx
+¦   ¦       OverviewTab.tsx
+¦   ¦       ProductDialog.tsx
+¦   ¦       ProductsTab.tsx
+¦   ¦       TransactionDialog.tsx
+¦   ¦       TransactionsTab.tsx
+¦   ¦       WarehouseDialog.tsx
+¦   ¦       WarehousesTab.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useInventoryData.ts
+¦   ¦       useProductForm.ts
+¦   ¦       useTransactionForm.ts
+¦   ¦       useWarehouseForm.ts
+¦   ¦       
+¦   +---products
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---reports
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---serial-batch
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---settings
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---stock-levels
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---transfers
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---warehouses
+¦           index.tsx
+¦           
++---job-costing
+¦       index.tsx
+¦       
++---notifications
+¦       index.tsx
+¦       
++---procurement
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---goods-receipts
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---purchase-orders
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---reports
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---requisitions
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---rfq
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---settings
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---vendor-contracts
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---vendor-performance
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---vendors
+¦           index.tsx
+¦           
++---project-details
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦   ¦       BudgetTab.tsx
+¦   ¦       OverviewTab.tsx
+¦   ¦       ProjectHeader.tsx
+¦   ¦       ProjectMetrics.tsx
+¦   ¦       TeamTab.tsx
+¦   ¦       TimelineTab.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useProjectDetails.ts
+¦   ¦       useProjectIntegration.ts
+¦   ¦       useProjectMetrics.ts
+¦   ¦       useProjectTasks.ts
+¦   ¦       
+¦   +---task-details
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---utils
+¦           projectDetailsUtils.ts
+¦           
++---project-management
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦   ¦       PlanningTab.tsx
+¦   ¦       ProjectsTab.tsx
+¦   ¦       ResourcesTab.tsx
+¦   ¦       TasksTab.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useDragAndDrop.ts
+¦   ¦       useFavorites.ts
+¦   ¦       useProjectActions.ts
+¦   ¦       useProjectFilters.ts
+¦   ¦       useProjectMetrics.ts
+¦   ¦       useProjects.ts
+¦   ¦       useResources.ts
+¦   ¦       useTasks.ts
+¦   ¦       
+¦   +---utils
+¦           projectUtils.ts
+¦           
++---projects
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦   ¦       ProjectCard.tsx
+¦   ¦       ProjectFilters.tsx
+¦   ¦       ProjectMetrics.tsx
+¦   ¦       ProjectPagination.tsx
+¦   ¦       ProjectPipeline.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useProjectFilterOptions.ts
+¦   ¦       useProjectFilters.ts
+¦   ¦       useProjectPipeline.ts
+¦   ¦       useProjects.ts
+¦   ¦       
+¦   +---utils
+¦           projectExport.ts
+¦           projectUtils.ts
+¦           
++---public
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---not-found
+¦           index.tsx
+¦           
++---quotations
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---form
+¦       ¦   index.tsx
+¦       ¦   
+¦       +---components
+¦               index.ts
+¦               QuotationHeaderForm.tsx
+¦               QuotationLineItemsTable.tsx
+¦               QuotationSummaryCard.tsx
+¦               types.ts
+¦               
++---reports
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---custom-reports
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useReportsData.ts
+¦   ¦       
+¦   +---report-exports
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---reporting-dashboard
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---scheduled-reports
+¦   ¦       index.tsx
+¦   ¦       
+¦   +---utils
+¦           reportExport.ts
+¦           reportFormatters.ts
+¦           
++---settings
+¦   ¦   index.tsx
+¦   ¦   
+¦   +---components
+¦   ¦       AgencySettingsTab.tsx
+¦   ¦       LogoUpload.tsx
+¦   ¦       NotificationSettingsTab.tsx
+¦   ¦       ProfileSettingsTab.tsx
+¦   ¦       SecuritySettingsTab.tsx
+¦   ¦       
+¦   +---hooks
+¦   ¦       useAgencySettingsExtended.ts
+¦   ¦       useNotificationSettings.ts
+¦   ¦       useProfileSettings.ts
+¦   ¦       useSecuritySettings.ts
+¦   ¦       
+¦   +---utils
+¦           settingsConstants.ts
+¦           settingsHelpers.ts
+¦           settingsValidation.ts
+¦           
++---super-admin
+¦       AgencyDataViewer.tsx
+¦       AgencyManagement.tsx
+¦       Analytics.tsx
+¦       PageCatalogManagement.tsx
+¦       PlanManagement.tsx
+¦       SuperAdminDashboard.tsx
+¦       SystemEmail.tsx
+¦       SystemHealth.tsx
+¦       SystemSettings.tsx
+¦       
++---system
+    +---email-testing
+    ¦       index.tsx
+    ¦       
+    +---page-request-center
+    ¦       index.tsx
+    ¦       
+    +---users
+    ¦       index.tsx
+    ¦       
+    +---view-as-user
+            index.tsx
+            

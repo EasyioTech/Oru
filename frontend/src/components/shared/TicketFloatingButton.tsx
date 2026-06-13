@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Loader2, AlertCircle, CheckCircle2, HelpCircle, Sparkles, X, ChevronUp } from 'lucide-react';
+import { MessageCircle, Loader2, AlertCircle, CheckCircle2, HelpCircle, X, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getConsoleLogger } from '@/utils/consoleLogger';
 import { createPublicTicket } from '@/services/api/system';
@@ -112,7 +112,7 @@ export function TicketFloatingButton() {
         category: 'error',
       });
       setIsOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create ticket:', error);
       toast({
         title: 'Error',
@@ -218,10 +218,7 @@ export function TicketFloatingButton() {
                   </Badge>
                 )}
 
-                {/* Sparkle effect for attention */}
-                {hasErrors && (
-                  <Sparkles className="absolute top-0 right-0 h-2.5 w-2.5 text-yellow-300" />
-                )}
+
               </Button>
 
               {/* Minimize button */}

@@ -72,8 +72,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     console.error('Error Boundary caught an error:', error, errorInfo);
     
     // Log to audit system if available
-    if (typeof window !== 'undefined' && (window as any).logError) {
-      (window as any).logError({
+    if (typeof window !== 'undefined' && (window as unknown as {logError?: (err: unknown) => void}).logError) {
+      (window as unknown as {logError?: (err: unknown) => void}).logError!({
         error: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,

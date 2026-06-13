@@ -27,10 +27,10 @@ interface SidebarFooterProps {
 
 function getNavCls({ isActive }: { isActive: boolean }) {
   return cn(
-    'relative rounded-lg transition-all duration-200',
+    'relative rounded-md transition-all duration-150',
     isActive
-      ? 'bg-sidebar-accent text-sidebar-primary font-semibold border-l-2 border-sidebar-primary shadow-sm'
-      : 'hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground hover:translate-x-0.5'
+      ? 'bg-sidebar-primary/15 text-white'
+      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
   );
 }
 
@@ -97,9 +97,9 @@ export function SidebarFooterSection({
       {(!collapsed || isMobile) && profile && (
         <>
           <SidebarSeparator className="mx-2 sm:mx-4" />
-          <SidebarFooter className="p-2 sm:p-3 border-t border-sidebar-border bg-sidebar-accent/50 flex-shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3 px-1 sm:px-2 min-w-0">
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-[10px] sm:text-xs font-semibold flex-shrink-0">
+          <SidebarFooter className="p-3 border-t border-sidebar-border/50 flex-shrink-0">
+            <div className="flex items-center gap-3 px-1 min-w-0">
+              <div className="h-8 w-8 rounded-lg bg-sidebar-primary/20 ring-1 ring-sidebar-primary/30 flex items-center justify-center text-sidebar-primary text-xs font-semibold flex-shrink-0">
                 {(profile.full_name || 'U')
                   .split(' ')
                   .map((n) => n[0])
@@ -108,10 +108,10 @@ export function SidebarFooterSection({
                   .slice(0, 2)}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] sm:text-xs font-semibold text-sidebar-foreground truncate">
+                <div className="text-xs font-medium text-sidebar-foreground/90 truncate">
                   {profile.full_name || 'User'}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-sidebar-foreground/70 truncate">
+                <div className="text-[10px] text-sidebar-foreground/45 truncate">
                   {profile.position || (effectiveRole ? effectiveRole.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Member')}
                 </div>
               </div>

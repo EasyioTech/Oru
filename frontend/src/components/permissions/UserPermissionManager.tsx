@@ -69,12 +69,12 @@ export function UserPermissionManager() {
           .select('user_id, role');
 
         // Create maps
-        const profileMap = new Map(profilesData?.map((p: any) => [p.user_id, p]) || []);
-        const userMap = new Map(usersData?.map((u: any) => [u.id, u]) || []);
-        const roleMap = new Map(rolesData?.map((r: any) => [r.user_id, r.role]) || []);
+        const profileMap = new Map(profilesData?.map((p: unknown) => [p.user_id, p]) || []);
+        const userMap = new Map(usersData?.map((u: unknown) => [u.id, u]) || []);
+        const roleMap = new Map(rolesData?.map((r: unknown) => [r.user_id, r.role]) || []);
 
         // Combine data
-        const combinedUsers: User[] = (usersData || []).map((u: any) => {
+        const combinedUsers: User[] = (usersData || []).map((u: unknown) => {
           const profile = profileMap.get(u.id);
           return {
             id: u.id,
@@ -87,7 +87,7 @@ export function UserPermissionManager() {
         });
 
         setUsers(combinedUsers);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(error.message || 'Failed to load users');
       } finally {
         setLoading(false);
@@ -116,13 +116,13 @@ export function UserPermissionManager() {
       data.forEach(perm => {
         states[perm.id] = {
           granted: perm.granted ?? false,
-          reason: (perm as any).reason || undefined,
-          expires_at: (perm as any).expires_at || undefined,
+          reason: (perm as unknown).reason || undefined,
+          expires_at: (perm as unknown).expires_at || undefined,
         };
       });
       setPermissionStates(states);
       setHasChanges(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If API is not available, show empty state gracefully
       console.warn('User permissions API not available:', error);
       setPermissions([]);
@@ -215,7 +215,7 @@ export function UserPermissionManager() {
       setHasChanges(false);
       setShowSaveDialog(false);
       toast.success('User permissions saved successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to save permissions');
     } finally {
       setSaving(false);
@@ -238,13 +238,13 @@ export function UserPermissionManager() {
       data.forEach(perm => {
         states[perm.id] = {
           granted: perm.granted ?? false,
-          reason: (perm as any).reason || undefined,
-          expires_at: (perm as any).expires_at || undefined,
+          reason: (perm as unknown).reason || undefined,
+          expires_at: (perm as unknown).expires_at || undefined,
         };
       });
       setPermissionStates(states);
       setHasChanges(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to reset permissions');
     } finally {
       setSaving(false);

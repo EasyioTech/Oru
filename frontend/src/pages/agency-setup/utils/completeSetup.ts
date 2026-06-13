@@ -17,7 +17,7 @@ export async function completeAgencySetup(formData: AgencySetupFormData): Promis
 
   const normalizedTeamMembers = formData.teamMembers.map((member) => ({
     ...member,
-    role: 'department_head',
+    role: 'manager',
   }));
 
   const response = await fetch(`${apiBaseUrl}/api/agencies/complete-setup`, {

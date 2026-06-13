@@ -524,17 +524,7 @@ export const DepartmentHierarchyView: React.FC<DepartmentHierarchyViewProps> = (
   }, [departmentMembers, db, toast, setDepartmentMembers]);
 
   // Build hierarchy when dependencies change
-  useEffect(() => {
-    buildHierarchy();
-  }, [buildHierarchy]);
-
   // Auto-expand on initial load
-  useEffect(() => {
-    if (departments.length > 0 && expandedDepartments.size === 0) {
-      setExpandedDepartments(new Set(departments.map(d => d.id)));
-    }
-  }, [departments, expandedDepartments.size, setExpandedDepartments]);
-
   // Handle connections
   const onConnect = useCallback((params: Connection) => {
     if (!params.source || !params.target) return;
@@ -599,6 +589,14 @@ export const DepartmentHierarchyView: React.FC<DepartmentHierarchyViewProps> = (
   }, []);
 
   // Save connections
+    useEffect(() => {
+        if (departments.length > 0 && expandedDepartments.size === 0) {
+          setExpandedDepartments(new Set(departments.map(d => d.id)));
+        }
+      }, [departments, expandedDepartments.size, setExpandedDepartments]);
+    useEffect(() => {
+        buildHierarchy();
+      }, [buildHierarchy]);
   const saveConnections = useCallback(async () => {
     if (pendingConnections.size === 0) {
       toast({

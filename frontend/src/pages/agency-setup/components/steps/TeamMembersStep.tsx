@@ -155,7 +155,7 @@ export function TeamMembersStep({ formData, setFormData }: TeamMembersStepProps)
                 {
                   name: '',
                   email: '',
-                  role: 'department_head',
+                  role: 'manager',
                   department: '',
                   phone: '',
                   title: '',

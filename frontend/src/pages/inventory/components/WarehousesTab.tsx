@@ -11,8 +11,8 @@ import { type Warehouse as WarehouseType } from '@/services/api/inventory';
 interface WarehousesTabProps {
   warehouses: WarehouseType[];
   loading: boolean;
-  warehouseForm: any;
-  onWarehouseFormChange: (form: any) => void;
+  warehouseForm: unknown;
+  onWarehouseFormChange: (form: unknown) => void;
   showWarehouseDialog: boolean;
   onShowWarehouseDialogChange: (show: boolean) => void;
   onCreateWarehouse: () => void;

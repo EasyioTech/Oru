@@ -180,7 +180,7 @@ const ClientFormDialog: React.FC<ClientFormDialogProps> = ({
         return;
       }
 
-      const dataToSubmit: any = { ...formData };
+      const dataToSubmit: unknown = { ...formData };
       
       // Clean up data: convert empty strings to null for optional fields, remove undefined
       // Keep required fields even if empty (they'll be validated)

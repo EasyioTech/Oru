@@ -5,22 +5,22 @@
 import { useState, useCallback } from 'react';
 
 export const useActivityActions = (onActivitiesChange: () => void) => {
-  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [selectedActivity, setSelectedActivity] = useState<unknown | null>(null);
   const [activityFormOpen, setActivityFormOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [activityToDelete, setActivityToDelete] = useState<any>(null);
+  const [activityToDelete, setActivityToDelete] = useState<unknown | null>(null);
 
   const handleNewActivity = useCallback((leadId?: string) => {
     setSelectedActivity(leadId ? { lead_id: leadId } : null);
     setActivityFormOpen(true);
   }, []);
 
-  const handleEditActivity = useCallback((activity: any) => {
+  const handleEditActivity = useCallback((activity: unknown) => {
     setSelectedActivity(activity);
     setActivityFormOpen(true);
   }, []);
 
-  const handleDeleteActivity = useCallback((activity: any) => {
+  const handleDeleteActivity = useCallback((activity: unknown) => {
     setActivityToDelete(activity);
     setDeleteDialogOpen(true);
   }, []);

@@ -119,7 +119,7 @@ export class AgenciesService {
 
             const result = await this.completeAgencySetup({
                 companyName: agency.name,
-                subdomain: agency.databaseName.replace('agency_', '').replace('_db', ''),
+                domain: agency.domain,
                 adminEmail: agency.contactEmail || 'admin@example.com',
                 password: defaultPassword,
                 plan: agency.subscriptionPlan as any,
@@ -177,17 +177,16 @@ export class AgenciesService {
      */
     async completeAgencySetup(input: CompleteAgencySetupInput) {
         try {
-            this.logger.info({ step: '1. Input Validation', subdomain: input.subdomain }, 'Starting agency setup');
+            this.logger.info({ step: '1. Input Validation', domain: input.domain }, 'Starting agency setup');
 
-            if (!input.companyName || !input.subdomain || !input.adminEmail || !input.password) {
+            if (!input.companyName || !input.domain || !input.adminEmail || !input.password) {
                 throw new AppError('Missing required fields for setup');
             }
 
-            const subdomain = input.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-            const dbName = `agency_${subdomain}_db`;
+            const agencyDomain = input.domain.toLowerCase().trim();
 
             // Check if subdomain taken
-            const existingAgency = await db.select().from(agencies).where(eq(agencies.databaseName, dbName)).limit(1);
+            const existingAgency = await db.select().from(agencies).where(eq(agencies.domain, agencyDomain)).limit(1);
             if (existingAgency.length > 0) {
                 const isRetry = existingAgency[0].status === 'pending';
                 if (!isRetry && input.id !== existingAgency[0].id) {
@@ -226,10 +225,9 @@ export class AgenciesService {
                 } else {
                     const [newAgency] = await db.insert(agencies).values({
                         name: input.companyName,
-                        domain: `${subdomain}.oru.erp`,
-                        databaseName: dbName,
+                        domain: agencyDomain,
                         subscriptionPlan: input.plan || 'trial',
-                        status: 'pending',
+                        status: 'active',
                         isActive: true,
                         contactEmail: input.adminEmail,
                         contactPhone: input.adminPhone,
@@ -287,41 +285,13 @@ export class AgenciesService {
                 });
             }
 
-            // 4. Create Job Record
-            const [jobRecord] = await db.insert(agencyProvisioningJobs).values({
-                domain: `${subdomain}.oru.erp`,
-                databaseName: dbName,
-                agencyName: input.companyName,
-                ownerEmail: input.adminEmail,
-                subscriptionPlan: input.plan || 'trial',
-                requestedBy: userId,
-                agencyId: agencyId,
-                status: 'pending',
-                payload: { ...input, password: '***' },
-            }).returning();
-
-            // 5. QUEUE THE JOB (CRITICAL FIX)
-            const { agencyProvisioningQueue } = await import('../../jobs/queues.js');
-            await agencyProvisioningQueue.add('provision-agency', {
-                jobId: jobRecord.id,
-                agencyId: agencyId,
-                dbName: dbName,
-                subdomain: subdomain,
-                adminEmail: input.adminEmail,
-                adminPasswordHash: hashedPassword,
-                adminFirstName: input.firstName || 'Admin',
-                adminLastName: input.lastName || 'User',
-                userId: userId,
-                plan: input.plan || 'trial',
-            });
-
-            this.logger.info({ jobId: jobRecord.id, agencyId }, 'Agency provisioning job queued successfully');
+            this.logger.info({ agencyId }, 'Agency created and activated instantly');
 
             return {
                 success: true,
-                jobId: jobRecord.id,
+                jobId: null,
                 agencyId: agencyId,
-                message: 'Agency creation started'
+                message: 'Agency creation completed instantly'
             };
 
         } catch (error: any) {
@@ -369,9 +339,8 @@ export class AgenciesService {
      */
     async checkDomainAvailability(domain: string) {
         if (!domain) throw new AppError('Domain is required');
-        const subdomain = domain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-        const dbName = `agency_${subdomain}_db`;
-        const existingAgency = await db.select().from(agencies).where(eq(agencies.databaseName, dbName)).limit(1);
+        const agencyDomain = domain.toLowerCase().trim();
+        const existingAgency = await db.select().from(agencies).where(eq(agencies.domain, agencyDomain)).limit(1);
         if (existingAgency.length > 0) {
             return { available: false, error: 'Domain is already taken' };
         }
@@ -386,12 +355,12 @@ export class AgenciesService {
             throw new AppError('Missing required fields for signup');
         }
 
-        const subdomain = input.domain.toLowerCase().split('.')[0].replace(/[^a-z0-9-]/g, '');
-        if (!subdomain) throw new AppError('Invalid domain format');
+        const domain = input.domain.toLowerCase().trim();
+        if (!domain) throw new AppError('Invalid domain format');
 
         const payload: CompleteAgencySetupInput = {
             companyName: input.agencyName,
-            subdomain: subdomain,
+            domain: domain,
             firstName: input.adminName ? input.adminName.split(' ')[0] : 'Admin',
             lastName: input.adminName ? input.adminName.split(' ').slice(1).join(' ') : 'User',
             adminEmail: input.adminEmail,
@@ -425,9 +394,9 @@ export class AgenciesService {
     /**
      * Check if agency setup is complete
      */
-    async isSetupComplete(databaseName: string) {
-        if (!databaseName) return false;
-        const [agency] = await db.select().from(agencies).where(eq(agencies.databaseName, databaseName));
+    async isSetupComplete(domain: string) {
+        if (!domain) return false;
+        const [agency] = await db.select().from(agencies).where(eq(agencies.domain, domain));
         return agency?.status === 'active';
     }
 }

@@ -51,26 +51,26 @@ export const CTA = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Link to="/waitlist">
+          <Link to="/agency-signup">
             <Button
               size="lg"
               variant="primary"
               className="px-8 h-12 text-base rounded-xl"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Join the Waitlist
+                Start Free Trial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>
           </Link>
 
-          <Link to="/waitlist">
+          <Link to="/auth">
             <Button
               size="lg"
               variant="outline"
               className="px-8 h-12 text-base rounded-xl"
             >
-              Get Early Access
+              Sign In
             </Button>
           </Link>
         </motion.div>

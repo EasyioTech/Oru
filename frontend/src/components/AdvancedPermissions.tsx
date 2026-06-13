@@ -28,15 +28,7 @@ const AdvancedPermissions = () => {
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
-  const canManagePermissions = ['super_admin', 'ceo', 'admin'].includes(userRole || '');
-
-  useEffect(() => {
-    if (!loading && permissions.length >= 0) {
-      fetchStats();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, permissions.length]);
-
+  const canManagePermissions = ['super_admin', 'agency_admin'].includes(userRole || '');
   const fetchStats = async () => {
     try {
       setLoadingStats(true);
@@ -65,7 +57,7 @@ const AdvancedPermissions = () => {
         totalUsers,
         recentChanges: 0, // Audit log feature not yet implemented
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Failed to load stats:', error);
       // Set default stats on error
       setStats({
@@ -78,6 +70,12 @@ const AdvancedPermissions = () => {
       setLoadingStats(false);
     }
   };
+    useEffect(() => {
+        if (!loading && permissions.length >= 0) {
+          fetchStats();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [loading, permissions.length]);
 
   // Show loading state
   if (loading || loadingStats) {

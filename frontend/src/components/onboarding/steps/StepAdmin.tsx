@@ -55,7 +55,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
     const name = [formData.adminFirstName, formData.adminLastName].filter(Boolean).join(' ').trim();
     const email = companyEmail;
     updateFormData({ adminName: name, adminEmail: email });
-  }, [formData.adminFirstName, formData.adminLastName, companyEmail]);
+  }, [formData.adminFirstName, formData.adminLastName, companyEmail, updateFormData]);
 
   const validation = useMemo(() => {
     const passwordLength = formData.adminPassword.length >= 8;
@@ -86,9 +86,9 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
   }, [validation, setCanProceed]);
 
   const inputClass = cn(
-    "w-full h-12 px-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-white",
-    "placeholder:text-zinc-600 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.05]",
-    "transition-all duration-200"
+    "w-full h-11 px-3 rounded-md bg-white border border-zinc-300 text-zinc-900 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100",
+    "placeholder:text-zinc-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+    "transition-shadow duration-200"
   );
 
   return (
@@ -98,11 +98,11 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-[-0.02em]">
+        <h1 className="text-3xl md:text-4xl font-medium text-zinc-900 dark:text-zinc-100 tracking-[-0.02em]">
           Create your account
         </h1>
-        <p className="mt-3 text-lg text-zinc-500">
-          Enter your name — your company email will be generated automatically.
+        <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400 max-w-lg leading-relaxed">
+          Set up the primary administrator account. You'll use this secure account to manage billing, team access, and system settings.
         </p>
       </motion.div>
 
@@ -114,7 +114,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
       >
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm text-zinc-400">First Name</label>
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">First Name</label>
             <input
               value={formData.adminFirstName}
               onChange={(e) => updateFormData({ adminFirstName: e.target.value })}
@@ -124,7 +124,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-zinc-400">Last Name</label>
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Last Name</label>
             <input
               value={formData.adminLastName}
               onChange={(e) => updateFormData({ adminLastName: e.target.value })}
@@ -136,15 +136,15 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-zinc-400 flex items-center gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
             <Mail className="w-3.5 h-3.5" />
             Company email
           </label>
           <div
             className={cn(
               inputClass,
-              "flex items-center text-zinc-400 cursor-default",
-              !companyEmail && "text-zinc-600"
+              "flex items-center text-zinc-500 cursor-default bg-zinc-50 dark:bg-zinc-800",
+              !companyEmail && "text-zinc-400"
             )}
           >
             {companyEmail ? (
@@ -156,7 +156,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-zinc-400">Password</label>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Password</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -169,7 +169,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               tabIndex={-1}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -177,14 +177,17 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
           </div>
 
           {formData.adminPassword && (
-            <div className="flex gap-4 text-xs pt-1">
-              <span className={validation.passwordLength ? "text-emerald-400" : "text-zinc-600"}>
+            <div className="flex gap-4 text-xs pt-1.5 font-medium">
+              <span className={cn("flex items-center gap-1", validation.passwordLength ? "text-green-600" : "text-zinc-500")}>
+                {validation.passwordLength ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 opacity-50" />}
                 8+ chars
               </span>
-              <span className={validation.passwordHasLetter ? "text-emerald-400" : "text-zinc-600"}>
+              <span className={cn("flex items-center gap-1", validation.passwordHasLetter ? "text-green-600" : "text-zinc-500")}>
+                {validation.passwordHasLetter ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 opacity-50" />}
                 Letters
               </span>
-              <span className={validation.passwordHasNumber ? "text-emerald-400" : "text-zinc-600"}>
+              <span className={cn("flex items-center gap-1", validation.passwordHasNumber ? "text-green-600" : "text-zinc-500")}>
+                {validation.passwordHasNumber ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 opacity-50" />}
                 Numbers
               </span>
             </div>
@@ -192,7 +195,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-zinc-400">Confirm Password</label>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Confirm Password</label>
           <div className="relative">
             <input
               type={showConfirmPassword ? 'text' : 'password'}
@@ -209,7 +212,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               tabIndex={-1}
             >
               {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -219,7 +222,7 @@ export default function StepAdmin({ formData, updateFormData, setCanProceed }: S
           {formData.confirmPassword && (
             <p className={cn(
               "text-xs flex items-center gap-1",
-              validation.passwordsMatch ? "text-emerald-400" : "text-red-400"
+              validation.passwordsMatch ? "text-green-600" : "text-red-600"
             )}>
               {validation.passwordsMatch ? (
                 <><Check className="w-3 h-3" /> Passwords match</>

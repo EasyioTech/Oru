@@ -21,7 +21,7 @@ interface EmployeeViewDialogProps {
   isOpen: boolean;
   onClose: () => void;
   employee: UnifiedEmployee | null;
-  employeeProjects: any[];
+  employeeProjects: unknown[];
   loadingProjects: boolean;
   onNavigateToDepartment: (departmentId: string, departmentName?: string) => void;
   onNavigateToProjects: (params: { employeeId: string; employeeName: string; departmentId?: string; departmentName?: string }) => void;
@@ -74,7 +74,7 @@ export const EmployeeViewDialog = ({
                 <p className="text-muted-foreground">{employee.position || 'No position'}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant={getRoleBadgeVariant(employee.role)}>
-                    {getRoleDisplayName(employee.role as any)}
+                    {getRoleDisplayName(employee.role as unknown)}
                   </Badge>
                   <Badge variant={employee.is_active ? 'default' : 'destructive'}>
                     {employee.is_active ? 'Active' : 'Inactive'}
@@ -166,7 +166,7 @@ export const EmployeeViewDialog = ({
               </div>
             ) : employeeProjects.length > 0 ? (
               <div className="space-y-3">
-                {employeeProjects.map((project: any) => (
+                {employeeProjects.map((project: unknown) => (
                   <Card key={project.id}>
                     <CardContent className="pt-4">
                       <div className="flex items-center justify-between">

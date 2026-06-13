@@ -140,7 +140,7 @@ export async function getUserPermissionsReport(): Promise<UserPermissionReport[]
 /**
  * Get unused permissions (never granted)
  */
-export async function getUnusedPermissionsReport(): Promise<any[]> {
+export async function getUnusedPermissionsReport(): Promise<unknown[]> {
   const endpoint = getApiEndpoint('/reports/unused-permissions');
 
   const response = await fetch(endpoint, {
@@ -152,7 +152,7 @@ export async function getUnusedPermissionsReport(): Promise<any[]> {
     throw new Error(`Failed to generate report (status ${response.status})`);
   }
 
-  return handleJsonResponse<any[]>(response);
+  return handleJsonResponse<unknown[]>(response);
 }
 
 /**

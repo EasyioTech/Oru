@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, Filter, Briefcase, Clock, DollarSign, Target, Edit, Trash2, X, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,28 +20,22 @@ const JobCosting = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [clients, setClients] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<unknown[]>([]);
+  const [clients, setClients] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const [jobFormOpen, setJobFormOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<unknown>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState<any>(null);
+  const [jobToDelete, setJobToDelete] = useState<unknown>(null);
   const [costItemsDialogOpen, setCostItemsDialogOpen] = useState(false);
-  const [selectedJobForCosts, setSelectedJobForCosts] = useState<any>(null);
+  const [selectedJobForCosts, setSelectedJobForCosts] = useState<unknown>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [clientFilter, setClientFilter] = useState<string>('all');
   const [dateRangeFilter, setDateRangeFilter] = useState({ start: '', end: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-
-  useEffect(() => {
-    fetchJobs();
-    fetchClients();
-  }, []);
-
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
       if (!profile?.agency_id) {
@@ -56,19 +50,19 @@ const JobCosting = () => {
       });
 
       // Fetch client names for display
-      const clientIds = [...new Set(jobsData.map((j: any) => j.client_id).filter(Boolean))];
-      let clientMap = new Map();
+      const clientIds = [...new Set(jobsData.map((j: unknown) => j.client_id).filter(Boolean))];
+      const clientMap = new Map();
       if (clientIds.length > 0) {
         const clientsData = await selectRecords('clients', {
           filters: [{ column: 'id', operator: 'in', value: clientIds }],
         });
-        clientsData.forEach((c: any) => {
+        clientsData.forEach((c: unknown) => {
           clientMap.set(c.id, c.company_name || c.name || 'Unknown Client');
         });
       }
 
       // Add client names to jobs
-      const jobsWithClients = jobsData.map((job: any) => ({
+      const jobsWithClients = jobsData.map((job: unknown) => ({
         ...job,
         client_name: clientMap.get(job.client_id) || 'No Client',
       }));
@@ -84,9 +78,9 @@ const JobCosting = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile?.agency_id, toast]);
 
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       if (!profile?.agency_id) return;
       const clientsData = await selectRecords('clients', {
@@ -97,19 +91,19 @@ const JobCosting = () => {
     } catch (error) {
       console.error('Error fetching clients:', error);
     }
-  };
+  }, [profile?.agency_id]);
 
   const handleNewJob = () => {
     setSelectedJob(null);
     setJobFormOpen(true);
   };
 
-  const handleEditJob = (job: any) => {
+  const handleEditJob = (job: unknown) => {
     setSelectedJob(job);
     setJobFormOpen(true);
   };
 
-  const handleDeleteJob = (job: any) => {
+  const handleDeleteJob = (job: unknown) => {
     setJobToDelete(job);
     setDeleteDialogOpen(true);
   };
@@ -122,7 +116,7 @@ const JobCosting = () => {
     fetchJobs();
   };
 
-  const handleAddCosts = (job: any) => {
+  const handleAddCosts = (job: unknown) => {
     setSelectedJobForCosts(job);
     setCostItemsDialogOpen(true);
   };
@@ -134,14 +128,14 @@ const JobCosting = () => {
         const costItems = await selectRecords('job_cost_items', {
           where: { job_id: selectedJobForCosts.id },
         });
-        const totalCost = costItems.reduce((sum: number, item: any) => {
+        const totalCost = costItems.reduce((sum: number, item: unknown) => {
           return sum + (parseFloat(item.total_cost?.toString() || '0') || 0);
         }, 0);
 
         await updateRecord('jobs', { actual_cost: totalCost }, { id: selectedJobForCosts.id }, user?.id);
 
         // Update the selected job in state
-        setSelectedJobForCosts((prev: any) => ({
+        setSelectedJobForCosts((prev: unknown) => ({
           ...prev,
           actual_cost: totalCost,
         }));
@@ -199,9 +193,13 @@ const JobCosting = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+    useEffect(() => {
+        fetchJobs();
+        fetchClients();
+      }, [fetchJobs, fetchClients]);
 
   // Calculate profit/loss
-  const calculateProfit = (job: any) => {
+  const calculateProfit = (job: unknown) => {
     const budget = parseFloat(job.budget?.toString() || '0') || 0;
     const actual = parseFloat(job.actual_cost?.toString() || '0') || 0;
     return budget - actual;
@@ -586,7 +584,7 @@ const JobCosting = () => {
                 <div className="space-y-4">
                   {(() => {
                     const categoryTotals: { [key: string]: number } = {};
-                    jobs.forEach((job: any) => {
+                    jobs.forEach((job: unknown) => {
                       // This would need to fetch cost items, but for now show placeholder
                     });
                     

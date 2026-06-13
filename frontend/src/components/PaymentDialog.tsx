@@ -73,7 +73,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
       setNotes("");
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error processing payment:", error);
       toast({
         title: "Error",

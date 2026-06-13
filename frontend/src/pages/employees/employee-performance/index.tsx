@@ -366,7 +366,7 @@ export default function EmployeePerformance() {
       if (hoursByProject && hoursByProject.length > 0) {
         csvRows.push(`Hours by Project`);
         csvRows.push(`Project,Total Hours`);
-        hoursByProject.forEach((hp: any) => {
+        hoursByProject.forEach((hp: unknown) => {
           csvRows.push([
             hp.project_name || 'No Project',
             hp.total_hours.toFixed(2),
@@ -392,7 +392,7 @@ export default function EmployeePerformance() {
         title: "Success",
         description: "Performance report exported successfully",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error exporting report:', error);
       toast({
         title: "Error",

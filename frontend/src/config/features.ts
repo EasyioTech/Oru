@@ -53,6 +53,6 @@ export const isSubFeatureEnabled = (
   feature: keyof typeof features,
   subFeature: string
 ) => {
-  const featureConfig = features[feature] as any;
+  const featureConfig = features[feature] as Record<string, boolean>;
   return featureConfig?.enabled && featureConfig?.[subFeature] === true;
 };

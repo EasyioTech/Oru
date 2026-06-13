@@ -14,7 +14,7 @@ const { authenticate, requireSuperAdmin } = require('../middleware/authMiddlewar
  * GET /health/schema/:agencyId
  * Health check for a specific agency's schema
  */
-router.get('/health/schema/:agencyId', async (req, res) => {
+router.get('/health/schema/:agencyId', authenticate, requireSuperAdmin, async (req, res) => {
   try {
     const { agencyId } = req.params;
     const pool = getAgencyPool(agencyId);

@@ -34,7 +34,7 @@ export function AuthRedirect() {
   useEffect(() => {
     // Check setup status for new agency admins
     const checkSetupStatus = async () => {
-      if (user && userRole === 'admin' && !setupChecked && location.pathname === '/auth') {
+      if (user && userRole === 'agency_admin' && !setupChecked && location.pathname === '/auth') {
         try {
           const agencyDatabase = localStorage.getItem('agency_database');
           if (!agencyDatabase) {
@@ -98,7 +98,7 @@ export function AuthRedirect() {
     // haven't redirected yet, and currently on auth page
     // Skip for admin users (handled by setup check above) and super admins (handled above)
     if (user && userRole && !loading && !hasRedirected && location.pathname === '/auth' && 
-        userRole !== 'admin' && userRole !== 'super_admin') {
+        userRole !== 'agency_admin' && userRole !== 'super_admin') {
       setHasRedirected(true);
       navigate('/dashboard', { replace: true });
     }

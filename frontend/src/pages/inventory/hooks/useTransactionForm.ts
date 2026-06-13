@@ -43,7 +43,7 @@ export const useTransactionForm = (
       setForm(initialTransactionForm);
       onSuccess();
       onInventoryLevelsUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create transaction',

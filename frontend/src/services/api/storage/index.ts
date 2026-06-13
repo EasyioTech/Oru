@@ -78,7 +78,7 @@ export async function uploadFile(
       ...result.data.file_storage,
       file_path: result.data.file_storage.file_path,
       data: result.data, // Include full response data for path access
-    } as any;
+    } as unknown;
   }
   
   // Fallback: Record metadata in database if API didn't return it
@@ -96,7 +96,7 @@ export async function uploadFile(
     ...fileStorage,
     file_path: cleanPath,
     data: { path: `${bucket}/${cleanPath}` },
-  } as any;
+  } as unknown;
 }
 
 /**

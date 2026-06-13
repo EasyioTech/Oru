@@ -36,21 +36,16 @@ export function SidebarNavGroup({
   const config = getCategoryConfig(category);
   if (!config || pages.length === 0) return null;
 
-  const Icon = config.icon;
-
   return (
     <SidebarGroup
       key={category}
       className={cn(collapsed && !isMobile ? 'px-0' : 'px-1 sm:px-2', 'mb-2 sm:mb-3')}
     >
       {(!collapsed || isMobile) && (
-        <SidebarGroupLabel className="px-2 sm:px-3 py-2 sm:py-2.5 mb-2 sm:mb-2.5">
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <Icon className="h-3.5 w-3.5 flex-shrink-0 text-sidebar-foreground/70" />
-            <span className="text-[10px] sm:text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider truncate">
-              {config.label}
-            </span>
-          </div>
+        <SidebarGroupLabel className="px-2 mb-1">
+          <span className="text-[10px] font-semibold text-sidebar-foreground/40 uppercase tracking-widest truncate">
+            {config.label}
+          </span>
         </SidebarGroupLabel>
       )}
       <SidebarGroupContent className={cn(collapsed && !isMobile && 'flex items-center justify-center')}>

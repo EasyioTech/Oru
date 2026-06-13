@@ -63,7 +63,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
 
       onDeleted();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error deleting ${itemType}:`, error);
       toast({
         title: 'Error',

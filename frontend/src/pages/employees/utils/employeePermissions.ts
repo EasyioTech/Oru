@@ -9,8 +9,8 @@ import { canAccessEmployeeData, canManageRole, type AppRole } from '@/utils/role
  * Check if user can view employee
  */
 export const canViewEmployee = (
-  employee: any,
-  user: any,
+  employee: unknown,
+  user: unknown,
   userRole: string | undefined,
   managerDepartment?: string
 ): boolean => {
@@ -24,8 +24,8 @@ export const canViewEmployee = (
  * Check if user can manage employee
  */
 export const canManageEmployee = (
-  employee: any,
-  user: any,
+  employee: unknown,
+  user: unknown,
   userRole: string | undefined,
   managerDepartment?: string
 ): boolean => {

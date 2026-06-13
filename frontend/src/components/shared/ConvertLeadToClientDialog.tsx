@@ -190,7 +190,7 @@ const ConvertLeadToClientDialog: React.FC<ConvertLeadToClientDialogProps> = ({
             title: 'Success',
             description: `Project "${project.name}" created successfully`,
           });
-        } catch (projectError: any) {
+        } catch (projectError: unknown) {
           console.error('Error creating project:', projectError);
           toast({
             title: 'Warning',
@@ -238,7 +238,7 @@ const ConvertLeadToClientDialog: React.FC<ConvertLeadToClientDialogProps> = ({
           navigate('/clients');
         }, 1000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error converting lead to client:', error);
       toast({
         title: 'Error',

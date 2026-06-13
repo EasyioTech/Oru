@@ -23,7 +23,7 @@ export const useProjects = (
   const fetchProjects = useCallback(async (abortSignal?: AbortSignal) => {
     try {
       setFetchingProjects(true);
-      const filters: any = {};
+      const filters: unknown = {};
       if (statusFilter !== 'all') {
         filters.status = [statusFilter];
       }
@@ -39,7 +39,7 @@ export const useProjects = (
       if (abortSignal?.aborted) return;
       
       setProjects(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (abortSignal?.aborted) return;
       
       console.error('Error fetching projects:', error);

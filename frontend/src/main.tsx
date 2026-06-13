@@ -145,12 +145,14 @@ if ('serviceWorker' in navigator && import.meta.env.DEV) {
 }
 
 if (typeof window !== "undefined") {
-  const sendToParent = (data: any) => {
+  const sendToParent = (data: unknown) => {
     try {
       if (window.parent && window.parent !== window) {
         window.parent.postMessage(data, "*");
       }
-    } catch {}
+    } catch {
+      // Ignore errors when posting message to parent
+    }
   };
 
   window.addEventListener("error", (event) => {
@@ -170,12 +172,12 @@ if (typeof window !== "undefined") {
   });
 
   window.addEventListener("unhandledrejection", (event) => {
-    const reason: any = event.reason;
+    const reason: unknown = event.reason;
     const message =
-      typeof reason === "object" && reason?.message
-        ? String(reason.message)
+      typeof reason === "object" && reason !== null && 'message' in reason
+        ? String((reason as {message?: unknown}).message)
         : String(reason);
-    const stack = typeof reason === "object" ? reason?.stack : undefined;
+    const stack = typeof reason === "object" && reason !== null && 'stack' in reason ? String((reason as {stack?: unknown}).stack) : undefined;
 
     // Mirror to parent iframe as well
     sendToParent({

@@ -13,6 +13,7 @@
 const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
+const { authenticate, requireRole } = require('../middleware/authMiddleware');
 const { executeQuery, executeTransaction } = require('../services/databaseService');
 const { poolManager } = require('../infrastructure/database/poolManager');
 const logger = require('../utils/logger');
@@ -251,7 +252,7 @@ async function handleMissingNotifications(agencyDatabase, req, res, sql, params,
  * POST /api/database/query
  * Execute a single database query
  */
-router.post('/query', asyncHandler(async (req, res) => {
+router.post('/query', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   let { sql: originalSql, params: originalParams = [], userId } = req.body;
   const agencyDatabase = req.headers['x-agency-database'];
 
@@ -325,7 +326,7 @@ router.post('/query', asyncHandler(async (req, res) => {
  * POST /api/database/transaction
  * Execute multiple queries in a single transaction
  */
-router.post('/transaction', asyncHandler(async (req, res) => {
+router.post('/transaction', authenticate, requireRole(['super_admin']), asyncHandler(async (req, res) => {
   const { queries = [], userId } = req.body;
   const agencyDatabase = req.headers['x-agency-database'];
 

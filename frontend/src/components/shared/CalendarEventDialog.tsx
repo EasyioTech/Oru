@@ -161,7 +161,7 @@ export function CalendarEventDialog({ open, onOpenChange, onEventCreated, editEv
             .eq('agency_id', agencyId);
 
           if (profiles && profiles.length > 0) {
-            const userIds = profiles.map((p: any) => p.user_id).filter(Boolean);
+            const userIds = profiles.map((p: unknown) => p.user_id).filter(Boolean);
 
             // Get active users
             const { data: users } = await db
@@ -179,7 +179,7 @@ export function CalendarEventDialog({ open, onOpenChange, onEventCreated, editEv
               const locationText = formData.location ? ` at ${formData.location}` : '';
 
               // Create notifications for all users in this agency
-              const notifications = users.map((u: any) => ({
+              const notifications = users.map((u: unknown) => ({
                 id: generateUUID(),
                 user_id: u.id,
                 title: `New Event: ${formData.title}`,
@@ -215,7 +215,7 @@ export function CalendarEventDialog({ open, onOpenChange, onEventCreated, editEv
 
       onEventCreated();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message,

@@ -71,7 +71,7 @@ class CRMService {
   /**
    * Get agency ID from auth context
    */
-  private async getAgencyId(profile: any, userId: string | null): Promise<string | null> {
+  private async getAgencyId(profile: unknown, userId: string | null): Promise<string | null> {
     return await getAgencyId(profile, userId);
   }
 
@@ -92,7 +92,7 @@ class CRMService {
       dateFrom?: string;
       dateTo?: string;
     } = {},
-    profile: any,
+    profile: unknown,
     userId: string | null
   ): Promise<Lead[]> {
     const agencyId = await this.getAgencyId(profile, userId);
@@ -100,7 +100,7 @@ class CRMService {
       throw new Error('Agency ID not found');
     }
 
-    const filterConditions: any[] = [
+    const filterConditions: unknown[] = [
       { column: 'agency_id', operator: 'eq', value: agencyId }
     ];
 
@@ -168,7 +168,7 @@ class CRMService {
   /**
    * Get single lead by ID
    */
-  async getLead(leadId: string, profile: any, userId: string | null): Promise<Lead | null> {
+  async getLead(leadId: string, profile: unknown, userId: string | null): Promise<Lead | null> {
     const agencyId = await this.getAgencyId(profile, userId);
     if (!agencyId) {
       throw new Error('Agency ID not found');
@@ -184,7 +184,7 @@ class CRMService {
     leadId: string,
     status: string,
     pipelineStage: string | null,
-    profile: any,
+    profile: unknown,
     userId: string | null
   ): Promise<Lead> {
     const agencyId = await this.getAgencyId(profile, userId);
@@ -192,7 +192,7 @@ class CRMService {
       throw new Error('Agency ID not found');
     }
 
-    const updateData: any = {
+    const updateData: unknown = {
       status,
       updated_at: new Date().toISOString()
     };
@@ -212,7 +212,7 @@ class CRMService {
   async bulkUpdateLeads(
     leadIds: string[],
     updates: Partial<Lead>,
-    profile: any,
+    profile: unknown,
     userId: string | null
   ): Promise<Lead[]> {
     const agencyId = await this.getAgencyId(profile, userId);
@@ -237,7 +237,7 @@ class CRMService {
   /**
    * Get all pipeline stages for agency
    */
-  async getPipelineStages(profile: any, userId: string | null): Promise<PipelineStage[]> {
+  async getPipelineStages(profile: unknown, userId: string | null): Promise<PipelineStage[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     if (!agencyId) {
       throw new Error('Agency ID not found');
@@ -275,7 +275,7 @@ class CRMService {
             agencyId
           );
           createdStages.push(created);
-        } catch (error: any) {
+        } catch (error) {
           // If stage already exists (race condition), fetch it
           console.warn(`Stage ${stage.stage_name} might already exist:`, error.message);
         }
@@ -329,7 +329,7 @@ class CRMService {
    */
   async savePipelineStage(
     stage: Partial<PipelineStage>,
-    profile: any,
+    profile: unknown,
     userId: string | null
   ): Promise<PipelineStage> {
     const agencyId = await this.getAgencyId(profile, userId);
@@ -367,7 +367,7 @@ class CRMService {
    */
   async deletePipelineStage(
     stageId: string,
-    profile: any,
+    profile: unknown,
     userId: string | null
   ): Promise<void> {
     const agencyId = await this.getAgencyId(profile, userId);
@@ -386,7 +386,7 @@ class CRMService {
   /**
    * Get activities for a lead
    */
-  async getLeadActivities(leadId: string, profile: any, userId: string | null): Promise<Activity[]> {
+  async getLeadActivities(leadId: string, profile: unknown, userId: string | null): Promise<Activity[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     if (!agencyId) {
       throw new Error('Agency ID not found');
@@ -404,7 +404,7 @@ class CRMService {
   /**
    * Get pipeline metrics
    */
-  async getPipelineMetrics(profile: any, userId: string | null): Promise<PipelineMetrics> {
+  async getPipelineMetrics(profile: unknown, userId: string | null): Promise<PipelineMetrics> {
     const agencyId = await this.getAgencyId(profile, userId);
     if (!agencyId) {
       throw new Error('Agency ID not found');
@@ -478,7 +478,7 @@ class CRMService {
    */
   async getLeadsByStage(
     stageName: string,
-    profile: any,
+    profile: unknown,
     userId: string | null
   ): Promise<Lead[]> {
     return await this.getLeads({ pipeline_stage: stageName }, profile, userId);

@@ -7,7 +7,7 @@ interface Notification {
   category: string;
   title: string;
   message: string;
-  metadata?: any;
+  metadata?: unknown;
   priority: string;
   action_url?: string;
   read_at?: string;
@@ -40,7 +40,7 @@ export class NotificationService extends BaseApiService {
   static async markAsRead(
     notificationId: string,
     options: ApiOptions = {}
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<unknown>> {
     return this.rpc('mark_notification_read', {
       p_notification_id: notificationId
     }, options);
@@ -53,14 +53,14 @@ export class NotificationService extends BaseApiService {
       category: string;
       title: string;
       message: string;
-      metadata?: any;
+      metadata?: unknown;
       priority?: string;
       actionUrl?: string;
       expiresAt?: string;
       agencyId?: string;
     },
     options: ApiOptions = {}
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<unknown>> {
     return this.rpc('create_notification', {
       p_user_id: data.userId,
       p_type: data.type,
@@ -78,14 +78,14 @@ export class NotificationService extends BaseApiService {
   static async deleteNotification(
     notificationId: string,
     options: ApiOptions = {}
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<unknown>> {
     return this.delete('notifications', { id: notificationId }, options);
   }
 
   static async bulkDeleteNotifications(
     notificationIds: string[],
     options: ApiOptions = {}
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<unknown>> {
     // Delete notifications one by one using the base delete method
     // This ensures proper error handling and transaction safety
     const results = await Promise.all(
@@ -111,7 +111,7 @@ export class NotificationService extends BaseApiService {
   static async markAllAsRead(
     userId: string,
     options: ApiOptions = {}
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<unknown>> {
     return this.update('notifications', 
       { read_at: new Date().toISOString() },
       { user_id: userId },

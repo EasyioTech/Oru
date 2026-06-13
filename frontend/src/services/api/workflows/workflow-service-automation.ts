@@ -22,9 +22,9 @@ export interface AutomationRule {
   rule_type: 'trigger' | 'condition' | 'action' | 'schedule';
   entity_type: string;
   trigger_event: string;
-  trigger_condition: Record<string, any>;
+  trigger_condition: Record<string, unknown>;
   action_type: string;
-  action_config: Record<string, any>;
+  action_config: Record<string, unknown>;
   is_active: boolean;
   priority: number;
   execution_count: number;

@@ -45,8 +45,8 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [payrollPeriods, setPayrollPeriods] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<unknown[]>([]);
+  const [payrollPeriods, setPayrollPeriods] = useState<unknown[]>([]);
   const [formData, setFormData] = useState<Payroll>({
     employee_id: payroll?.employee_id || '',
     payroll_period_id: payroll?.payroll_period_id || payrollPeriodId || '',
@@ -62,48 +62,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
     status: payroll?.status || 'draft',
     notes: payroll?.notes || '',
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchEmployees();
-      fetchPayrollPeriods();
-      if (payroll) {
-        setFormData({
-          employee_id: payroll.employee_id,
-          payroll_period_id: payroll.payroll_period_id,
-          base_salary: payroll.base_salary,
-          overtime_pay: payroll.overtime_pay || 0,
-          bonuses: payroll.bonuses || 0,
-          deductions: payroll.deductions || 0,
-          gross_pay: payroll.gross_pay,
-          tax_deductions: payroll.tax_deductions || 0,
-          net_pay: payroll.net_pay,
-          hours_worked: payroll.hours_worked || 0,
-          overtime_hours: payroll.overtime_hours || 0,
-          status: payroll.status,
-          notes: payroll.notes || '',
-        });
-      } else {
-        setFormData({
-          employee_id: '',
-          payroll_period_id: payrollPeriodId || '',
-          base_salary: 0,
-          overtime_pay: 0,
-          bonuses: 0,
-          deductions: 0,
-          gross_pay: 0,
-          tax_deductions: 0,
-          net_pay: 0,
-          hours_worked: 0,
-          overtime_hours: 0,
-          status: 'draft',
-          notes: '',
-        });
-      }
-    }
-  }, [isOpen, payroll, payrollPeriodId]);
-
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     try {
       // Use standardized employee fetching service
       const employeesData = await getEmployeesForAssignmentAuto(profile, user?.id);
@@ -119,7 +78,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
           ]
         });
         
-        const employeeDetailsMap = new Map(employeeDetails.map((ed: any) => [ed.user_id, ed]));
+        const employeeDetailsMap = new Map(employeeDetails.map((ed: unknown) => [ed.user_id, ed]));
         
         // Combine employee data with employee_details
         // IMPORTANT: employee_id in payroll table is employee_details.id, not user_id
@@ -145,9 +104,9 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
       console.error('Error fetching employees:', error);
       setEmployees([]);
     }
-  };
+  }, [user?.id, profile]);
 
-  const fetchPayrollPeriods = async () => {
+  const fetchPayrollPeriods = React.useCallback(async () => {
     try {
       const periods = await selectRecords('payroll_periods', {
         orderBy: 'start_date DESC',
@@ -156,7 +115,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
     } catch (error) {
       console.error('Error fetching payroll periods:', error);
     }
-  };
+  }, []);
 
   const calculateTotals = () => {
     const baseSalary = parseFloat(String(formData.base_salary || 0));
@@ -242,7 +201,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
       let totalHours = 0;
       let totalOvertime = 0;
       
-      attendanceRecords.forEach((record: any) => {
+      attendanceRecords.forEach((record: unknown) => {
         const hours = parseFloat(String(record.hours_worked || record.total_hours || 0));
         totalHours += hours;
         
@@ -273,8 +232,47 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
       console.error('Error calculating hours from attendance:', error);
     }
   };
+    useEffect(() => {
+        if (isOpen) {
+          fetchEmployees();
+          fetchPayrollPeriods();
+          if (payroll) {
+            setFormData({
+              employee_id: payroll.employee_id,
+              payroll_period_id: payroll.payroll_period_id,
+              base_salary: payroll.base_salary,
+              overtime_pay: payroll.overtime_pay || 0,
+              bonuses: payroll.bonuses || 0,
+              deductions: payroll.deductions || 0,
+              gross_pay: payroll.gross_pay,
+              tax_deductions: payroll.tax_deductions || 0,
+              net_pay: payroll.net_pay,
+              hours_worked: payroll.hours_worked || 0,
+              overtime_hours: payroll.overtime_hours || 0,
+              status: payroll.status,
+              notes: payroll.notes || '',
+            });
+          } else {
+            setFormData({
+              employee_id: '',
+              payroll_period_id: payrollPeriodId || '',
+              base_salary: 0,
+              overtime_pay: 0,
+              bonuses: 0,
+              deductions: 0,
+              gross_pay: 0,
+              tax_deductions: 0,
+              net_pay: 0,
+              hours_worked: 0,
+              overtime_hours: 0,
+              status: 'draft',
+              notes: '',
+            });
+          }
+        }
+      }, [isOpen, payroll, payrollPeriodId, fetchEmployees, fetchPayrollPeriods]);
 
-  const handleFieldChange = (field: keyof Payroll, value: any) => {
+  const handleFieldChange = (field: keyof Payroll, value: unknown) => {
     setFormData(prev => {
       const updated = { ...prev, [field]: value };
       const { grossPay, netPay } = calculateTotals();
@@ -294,7 +292,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
       const { grossPay, netPay } = calculateTotals();
       
       // Map frontend field names to database field names
-      const cleanedData: any = {
+      const cleanedData: unknown = {
         employee_id: formData.employee_id, // This is employee_details.id
         payroll_period_id: formData.payroll_period_id,
         base_salary: parseFloat(String(formData.base_salary || 0)),
@@ -331,7 +329,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
 
       onPayrollSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving payroll:', error);
       toast({
         title: 'Error',
@@ -413,7 +411,7 @@ const PayrollFormDialog: React.FC<PayrollFormDialogProps> = ({
               <Label htmlFor="status">Status *</Label>
               <Select 
                 value={formData.status} 
-                onValueChange={(value: any) => handleFieldChange('status', value)}
+                onValueChange={(value: unknown) => handleFieldChange('status', value)}
               >
                 <SelectTrigger>
                   <SelectValue />

@@ -34,11 +34,6 @@ export function SystemSettings() {
   const [pendingTab, setPendingTab] = useState<string | null>(null);
   const { toast } = useToast();
   const { refreshBranding } = useBranding();
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
   const loadSettings = async () => {
     try {
       setLoading(true);
@@ -46,7 +41,7 @@ export function SystemSettings() {
       setSettings(data);
       setFormData(data);
       setIsDirty(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error Loading Settings',
         description: error.message || 'Failed to load system settings',
@@ -67,7 +62,7 @@ export function SystemSettings() {
         Object.entries(formData).forEach(([key, value]) => {
           const k = key as keyof SystemSettings;
           if (JSON.stringify(value) !== JSON.stringify(settings[k])) {
-            (changedData as any)[k] = value;
+            (changedData as unknown)[k] = value;
           }
         });
       }
@@ -85,7 +80,7 @@ export function SystemSettings() {
         title: 'Settings Saved',
         description: 'System settings have been updated successfully.',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error Saving Settings',
         description: error.message || 'Failed to save system settings',
@@ -96,7 +91,7 @@ export function SystemSettings() {
     }
   };
 
-  const handleChange = (field: keyof SystemSettings, value: any) => {
+  const handleChange = (field: keyof SystemSettings, value: unknown) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -133,6 +128,9 @@ export function SystemSettings() {
     }
     setShowConfirm(false);
   };
+    useEffect(() => {
+        loadSettings();
+      }, []);
 
   if (loading) {
     return (

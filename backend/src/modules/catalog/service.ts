@@ -18,9 +18,6 @@ export class CatalogService {
                 description: pageCatalog.description,
                 icon: pageCatalog.icon,
                 category: pageCatalog.category,
-                seoTitle: pageCatalog.seoTitle,
-                seoDescription: pageCatalog.seoDescription,
-                seoKeywords: pageCatalog.seoKeywords,
                 tags: pageCatalog.tags,
             })
             .from(pageCatalog)

@@ -94,13 +94,6 @@ const QuotationPreviewDialog: React.FC<QuotationPreviewDialogProps> = ({
   const [client, setClient] = useState<Client | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [agencyInfo, setAgencyInfo] = useState<AgencyInfo>({});
-
-  useEffect(() => {
-    if (isOpen && quotationId) {
-      fetchQuotationData();
-    }
-  }, [isOpen, quotationId]);
-
   const calculateLineTotal = (item: LineItem): number => {
     const qty = Number(item.quantity) || 0;
     const price = Number(item.unit_price) || 0;
@@ -110,7 +103,7 @@ const QuotationPreviewDialog: React.FC<QuotationPreviewDialogProps> = ({
     return subtotal - discount;
   };
 
-  const fetchQuotationData = async () => {
+  const fetchQuotationData = React.useCallback(async () => {
     try {
       setLoading(true);
 
@@ -184,7 +177,7 @@ const QuotationPreviewDialog: React.FC<QuotationPreviewDialogProps> = ({
           tax_id: agencyData.tax_id,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching quotation data:', error);
       toast({
         title: 'Error',
@@ -194,7 +187,7 @@ const QuotationPreviewDialog: React.FC<QuotationPreviewDialogProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [quotationId, toast]);
 
   const handlePrint = () => {
     window.print();
@@ -268,6 +261,11 @@ const QuotationPreviewDialog: React.FC<QuotationPreviewDialogProps> = ({
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+    useEffect(() => {
+        if (isOpen && quotationId) {
+          fetchQuotationData();
+        }
+      }, [isOpen, quotationId, fetchQuotationData]);
 
   if (loading) {
     return (

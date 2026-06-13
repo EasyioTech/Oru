@@ -22,6 +22,25 @@ import { useToast } from '@/hooks/use-toast';
 const SystemDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const { toast } = useToast();
+  
+  // Initialize analytics early (but conditionally load data based on user internally if needed)
+  const { metrics, agencies, loading, refreshMetrics } = useSystemAnalytics({
+    userId: user?.id || '',
+    userRole: userRole || ''
+  });
+
+  useEffect(() => {
+    if (!user || userRole !== 'super_admin') return;
+    
+    // Auto-refresh every 5 minutes
+    const interval = setInterval(() => {
+      refreshMetrics();
+      setLastRefresh(new Date());
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [user, userRole, refreshMetrics]);
   
   // Show loading while auth is being determined
   if (!user) {
@@ -36,23 +55,6 @@ const SystemDashboard = () => {
   if (userRole && userRole !== 'super_admin') {
     return <Navigate to="/dashboard" replace />;
   }
-
-  // Only initialize analytics after authentication is confirmed
-  const { metrics, agencies, loading, refreshMetrics } = useSystemAnalytics({
-    userId: user.id,
-    userRole: userRole || ''
-  });
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Auto-refresh every 5 minutes
-    const interval = setInterval(() => {
-      refreshMetrics();
-      setLastRefresh(new Date());
-    }, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [refreshMetrics]);
 
   const handleManualRefresh = () => {
     refreshMetrics();

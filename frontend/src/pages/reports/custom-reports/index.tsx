@@ -92,10 +92,10 @@ export default function CustomReports() {
   const { toast } = useToast();
   const [selectedModule, setSelectedModule] = useState<ModuleType>('inventory');
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
-  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [reportData, setReportData] = useState<any[]>([]);
+  const [reportData, setReportData] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
   const [orderBy, setOrderBy] = useState('');
 
@@ -128,7 +128,7 @@ export default function CustomReports() {
 
     try {
       setLoading(true);
-      const reportFilters: Record<string, any> = { ...filters };
+      const reportFilters: Record<string, unknown> = { ...filters };
       if (dateFrom) reportFilters.date_from = dateFrom;
       if (dateTo) reportFilters.date_to = dateTo;
 
@@ -143,7 +143,7 @@ export default function CustomReports() {
         title: 'Success',
         description: `Report generated with ${data.length} records`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to generate report',
@@ -195,7 +195,7 @@ export default function CustomReports() {
     });
   };
 
-  const formatValue = (value: any): string => {
+  const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return '-';
     if (typeof value === 'number') {
       if (value.toString().includes('.')) {

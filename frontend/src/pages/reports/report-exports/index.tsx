@@ -63,7 +63,7 @@ interface ReportExport {
   generated_at: string;
   expires_at?: string;
   download_count: number;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
 }
 
 export default function ReportExports() {
@@ -78,11 +78,6 @@ export default function ReportExports() {
   const [dateTo, setDateTo] = useState('');
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedExport, setSelectedExport] = useState<ReportExport | null>(null);
-
-  useEffect(() => {
-    loadExports();
-  }, [filterType, filterFormat, filterStatus, dateFrom, dateTo]);
-
   const loadExports = async () => {
     try {
       setLoading(true);
@@ -95,7 +90,7 @@ export default function ReportExports() {
         search: searchTerm || undefined,
       });
       setExports(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load exports',
@@ -124,7 +119,7 @@ export default function ReportExports() {
         description: 'Report download started',
       });
       loadExports();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to download report',
@@ -149,7 +144,7 @@ export default function ReportExports() {
         description: 'Export deleted successfully',
       });
       loadExports();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete export',
@@ -187,7 +182,7 @@ export default function ReportExports() {
       completed: 'default',
       failed: 'destructive',
     };
-    const icons: Record<string, any> = {
+    const icons: Record<string, unknown> = {
       pending: Clock,
       processing: Loader2,
       completed: CheckCircle2,
@@ -214,6 +209,10 @@ export default function ReportExports() {
   // Filter data
   const uniqueTypes = Array.from(new Set(exports.map((e) => e.report_type)));
   const uniqueFormats = Array.from(new Set(exports.map((e) => e.format)));
+    useEffect(() => {
+        loadExports();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [filterType, filterFormat, filterStatus, dateFrom, dateTo]);
 
   let filteredExports = exports;
   if (searchTerm) {

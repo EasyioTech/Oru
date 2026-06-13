@@ -47,7 +47,7 @@ export const useProjectPipeline = (
       });
 
       onProjectsUpdated();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating project status:', error);
       toast({
         title: 'Error',

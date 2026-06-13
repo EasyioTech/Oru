@@ -21,11 +21,11 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-[-0.02em]">
+        <h1 className="text-3xl md:text-4xl font-medium text-zinc-900 dark:text-zinc-100 tracking-[-0.02em]">
           Tell us about your business
         </h1>
-        <p className="mt-3 text-lg text-zinc-500">
-          This helps us customize your workspace experience.
+        <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400 max-w-lg leading-relaxed">
+          Tell us a bit about your organization so we can tailor your initial dashboard and tools to your specific needs.
         </p>
       </motion.div>
 
@@ -36,7 +36,7 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
         className="space-y-6"
       >
         <div className="space-y-3">
-          <label className="text-sm text-zinc-400">Industry</label>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Industry</label>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
             {INDUSTRIES.map((industry) => {
               const Icon = industry.icon;
@@ -50,8 +50,8 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
                   className={cn(
                     'p-3 sm:p-3.5 rounded-xl border text-center transition-all duration-200',
                     isSelected
-                      ? selectedClasses
-                      : 'bg-white/[0.04] border-white/[0.08] text-zinc-400 hover:bg-white/[0.06] hover:border-white/[0.12] hover:text-zinc-300'
+                      ? 'bg-blue-50 border-blue-600 text-blue-700 dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-400'
+                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'
                   )}
                 >
                   <span className="text-xl block mb-1">
@@ -65,7 +65,7 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
         </div>
 
         <div className="space-y-3">
-          <label className="text-sm text-zinc-400">Team Size</label>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Team Size</label>
           <div className="grid grid-cols-5 gap-2 sm:gap-3">
             {COMPANY_SIZES.map((size) => {
               const Icon = size.icon;
@@ -78,8 +78,8 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
                   className={cn(
                     'p-3 sm:p-3.5 rounded-xl border text-center transition-all duration-200',
                     isSelected
-                      ? `bg-gradient-to-br ${size.color} border-white/20 text-white shadow-[0_0_20px_-5px_rgba(255,255,255,0.08)]`
-                      : 'bg-white/[0.04] border-white/[0.08] text-zinc-400 hover:bg-white/[0.06] hover:border-white/[0.12] hover:text-zinc-300'
+                      ? 'bg-blue-50 border-blue-600 text-blue-700 dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-400'
+                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'
                   )}
                 >
                   <span className="text-lg block mb-1">
@@ -98,9 +98,9 @@ export default function StepBusiness({ formData, updateFormData, setCanProceed }
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10"
+          className="p-4 rounded-md bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-900/50"
         >
-          <p className="text-sm text-emerald-400/80">
+          <p className="text-sm text-green-700 dark:text-green-400">
             We'll optimize your workspace for {INDUSTRIES.find(i => i.value === formData.industry)?.label.toLowerCase()} teams.
           </p>
         </motion.div>

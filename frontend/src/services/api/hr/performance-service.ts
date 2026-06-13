@@ -187,7 +187,7 @@ export async function getTaskPerformance(
     dateRange.endDate
   ]);
   
-  return results.map((row: any) => ({
+  return results.map((row: Record<string, unknown>) => ({
     id: row.id,
     title: row.title,
     project_name: row.project_name,
@@ -232,7 +232,7 @@ export async function getWorkHours(
     dateRange.endDate
   ]);
   
-  return results.map((row: any) => ({
+  return results.map((row: Record<string, unknown>) => ({
     date: row.date,
     total_hours: Number(row.total_hours || 0),
     overtime_hours: Number(row.overtime_hours || 0),
@@ -269,7 +269,7 @@ export async function getWorkHoursByProject(
     dateRange.endDate
   ]);
   
-  return results.map((row: any) => ({
+  return results.map((row: Record<string, unknown>) => ({
     project_name: row.project_name,
     total_hours: Number(row.total_hours || 0),
   }));
@@ -322,7 +322,7 @@ export async function getDailyActivity(
   
   return {
     date,
-    tasks: tasks.map((row: any) => ({
+    tasks: tasks.map((row: Record<string, unknown>) => ({
       task_id: row.task_id,
       task_title: row.task_title,
       hours_logged: Number(row.hours_logged || 0),
@@ -382,8 +382,8 @@ export async function getDailyActivitiesBatch(
   const taskRecords = await rawQuery(tasksQuery, [employeeId, dates]);
   
   // Group tasks by date
-  const tasksByDate: Record<string, any[]> = {};
-  taskRecords.forEach((row: any) => {
+  const tasksByDate: Record<string, unknown[]> = {};
+  taskRecords.forEach((row: Record<string, unknown>) => {
     const dateStr = format(new Date(row.date), 'yyyy-MM-dd');
     if (!tasksByDate[dateStr]) {
       tasksByDate[dateStr] = [];
@@ -399,7 +399,7 @@ export async function getDailyActivitiesBatch(
   // Build activities array
   const activities: DailyActivity[] = dates.map(date => {
     // Find attendance record - handle both string and Date formats
-    const attendance = attendanceRecords.find((r: any) => {
+    const attendance = attendanceRecords.find((r: Record<string, unknown>) => {
       const recordDate = r.date instanceof Date 
         ? format(r.date, 'yyyy-MM-dd')
         : r.date?.toString().split('T')[0] || r.date;
@@ -522,7 +522,7 @@ export async function getPerformanceTrends(
     period
   ]);
   
-  return results.map((row: any) => ({
+  return results.map((row: Record<string, unknown>) => ({
     date: row.date,
     tasks_completed: Number(row.tasks_completed || 0),
     hours_worked: Number(row.hours_worked || 0),
@@ -592,7 +592,7 @@ export async function getEmployeeInfo(
           manager_name: managerName,
         };
       }
-    } catch (viewError: any) {
+    } catch (viewError) {
       // Fallback to manual join
       console.warn('unified_employees view not found, using fallback query:', viewError.message);
       const fallbackQuery = `
@@ -643,7 +643,7 @@ export async function getEmployeeInfo(
     }
     
     return null;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getEmployeeInfo:', error);
     return null;
   }
@@ -658,11 +658,9 @@ export async function getAccessibleEmployees(
   agencyId?: string
 ): Promise<Array<{ id: string; user_id: string; full_name: string; department: string | null }>> {
   try {
-    // Full access roles
-    const fullAccessRoles = ['super_admin', 'ceo', 'cfo', 'hr', 'admin', 'operations_manager'];
-    
+    const fullAccessRoles = ['super_admin', 'agency_admin', 'manager'];
+
     if (fullAccessRoles.includes(userRole)) {
-      // Try unified_employees view first, fallback to manual join if view doesn't exist
       try {
         const query = `
           SELECT DISTINCT
@@ -675,8 +673,7 @@ export async function getAccessibleEmployees(
           ORDER BY full_name
         `;
         return await rawQuery(query, []);
-      } catch (viewError: any) {
-        // View doesn't exist, fallback to manual join
+      } catch (viewError) {
         console.warn('unified_employees view not found, using fallback query:', viewError.message);
         const fallbackQuery = `
           SELECT DISTINCT
@@ -695,53 +692,9 @@ export async function getAccessibleEmployees(
         return await rawQuery(fallbackQuery, []);
       }
     }
-    
-    // Department-only access
-    const deptAccessRoles = ['department_head', 'team_lead', 'project_manager'];
-    
-    if (deptAccessRoles.includes(userRole) && userDepartmentId) {
-      try {
-        const query = `
-          SELECT DISTINCT
-            COALESCE(ue.employee_detail_id, ue.profile_id, ue.user_id) as id,
-            ue.user_id,
-            COALESCE(ue.display_name, ue.full_name, ue.email, 'Unknown User') as full_name,
-            ue.department
-          FROM unified_employees ue
-          INNER JOIN team_assignments ta ON ue.user_id = ta.user_id
-          WHERE ue.is_fully_active = true
-            AND ta.department_id = $1
-            AND ta.is_active = true
-          ORDER BY full_name
-        `;
-        return await rawQuery(query, [userDepartmentId]);
-      } catch (viewError: any) {
-        // View doesn't exist, fallback to manual join
-        console.warn('unified_employees view not found, using fallback query:', viewError.message);
-        const fallbackQuery = `
-          SELECT DISTINCT
-            COALESCE(ed.id::text, p.id::text, u.id::text) as id,
-            u.id as user_id,
-            COALESCE(p.full_name, CONCAT(ed.first_name, ' ', ed.last_name), u.email, 'Unknown User') as full_name,
-            p.department
-          FROM users u
-          INNER JOIN team_assignments ta ON u.id = ta.user_id
-          LEFT JOIN profiles p ON u.id = p.user_id
-          LEFT JOIN employee_details ed ON u.id = ed.user_id
-          WHERE u.is_active = true
-            AND ta.department_id = $1
-            AND ta.is_active = true
-            AND (p.is_active IS NULL OR p.is_active = true)
-            AND (ed.is_active IS NULL OR ed.is_active = true)
-          ORDER BY full_name
-        `;
-        return await rawQuery(fallbackQuery, [userDepartmentId]);
-      }
-    }
-    
-    // Self-only access - return empty array (will be handled in component)
+
     return [];
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in getAccessibleEmployees:', error);
     throw new Error(`Failed to fetch accessible employees: ${error.message}`);
   }

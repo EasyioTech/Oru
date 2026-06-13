@@ -29,7 +29,7 @@ export interface EmailProviderStatus {
 export interface TestEmailRequest {
   to: string;
   provider?: string;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface SendEmailRequest {
@@ -42,7 +42,7 @@ export interface SendEmailRequest {
     content: string | Buffer;
   }>;
   provider?: string;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
   from?: string;
 }
 
@@ -52,7 +52,7 @@ export interface NotificationEmailRequest {
   message: string;
   actionUrl?: string;
   provider?: string;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface ReportEmailRequest {
@@ -61,7 +61,7 @@ export interface ReportEmailRequest {
   reportName: string;
   format?: string;
   provider?: string;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface EmailResponse {

@@ -3,7 +3,7 @@
  * Inventory adjustment and correction management interface
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -113,78 +113,14 @@ export default function InventoryAdjustments() {
   });
 
   // Fetch data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setInitialLoad(true);
-        await Promise.all([
-          fetchAdjustments(),
-          fetchProducts(),
-          fetchWarehouses(),
-        ]);
-      } catch (error: any) {
-        console.error('Error loading adjustments data:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to load adjustments',
-          variant: 'destructive',
-        });
-      } finally {
-        setInitialLoad(false);
-      }
-    };
-    loadData();
-  }, []);
-
   // Apply filters
-  useEffect(() => {
-    let filtered = adjustments;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(a =>
-        a.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.product_sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.reason?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Product filter
-    if (productFilter !== 'all') {
-      filtered = filtered.filter(a => a.product_id === productFilter);
-    }
-
-    // Warehouse filter
-    if (warehouseFilter !== 'all') {
-      filtered = filtered.filter(a => a.warehouse_id === warehouseFilter);
-    }
-
-    // Type filter (positive/negative adjustment)
-    if (typeFilter !== 'all') {
-      if (typeFilter === 'increase') {
-        filtered = filtered.filter(a => {
-          const qty = typeof a.quantity === 'number' ? a.quantity : parseFloat(String(a.quantity || 0));
-          return qty > 0;
-        });
-      } else if (typeFilter === 'decrease') {
-        filtered = filtered.filter(a => {
-          const qty = typeof a.quantity === 'number' ? a.quantity : parseFloat(String(a.quantity || 0));
-          return qty < 0;
-        });
-      }
-    }
-
-    setFilteredAdjustments(filtered);
-  }, [adjustments, searchTerm, productFilter, warehouseFilter, typeFilter]);
-
-  const fetchAdjustments = async () => {
+  const fetchAdjustments = useCallback(async () => {
     try {
       setLoading(true);
       // Get adjustments from inventory transactions
       const transactions = await getInventoryTransactions({ transaction_type: 'ADJUSTMENT' });
       
-      const adjustmentList: Adjustment[] = transactions.map((tx: any) => ({
+      const adjustmentList: Adjustment[] = transactions.map((tx: unknown) => ({
         id: tx.id,
         product_id: tx.product_id || '',
         variant_id: tx.variant_id,
@@ -202,7 +138,7 @@ export default function InventoryAdjustments() {
       }));
 
       setAdjustments(adjustmentList);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching adjustments:', error);
       toast({
         title: 'Error',
@@ -212,25 +148,25 @@ export default function InventoryAdjustments() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await getProducts({ is_active: true });
       setProducts(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching products:', error);
     }
-  };
+  }, []);
 
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       const data = await getWarehouses();
       setWarehouses(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching warehouses:', error);
     }
-  };
+  }, []);
 
   const handleCreateAdjustment = async () => {
     try {
@@ -271,7 +207,7 @@ export default function InventoryAdjustments() {
       setShowAdjustmentDialog(false);
       resetForm();
       fetchAdjustments();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create adjustment',
@@ -298,6 +234,68 @@ export default function InventoryAdjustments() {
       notes: '',
     });
   };
+    useEffect(() => {
+        let filtered = adjustments;
+
+        // Search filter
+        if (searchTerm) {
+          filtered = filtered.filter(a =>
+            a.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            a.product_sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            a.warehouse_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            a.reason?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Product filter
+        if (productFilter !== 'all') {
+          filtered = filtered.filter(a => a.product_id === productFilter);
+        }
+
+        // Warehouse filter
+        if (warehouseFilter !== 'all') {
+          filtered = filtered.filter(a => a.warehouse_id === warehouseFilter);
+        }
+
+        // Type filter (positive/negative adjustment)
+        if (typeFilter !== 'all') {
+          if (typeFilter === 'increase') {
+            filtered = filtered.filter(a => {
+              const qty = typeof a.quantity === 'number' ? a.quantity : parseFloat(String(a.quantity || 0));
+              return qty > 0;
+            });
+          } else if (typeFilter === 'decrease') {
+            filtered = filtered.filter(a => {
+              const qty = typeof a.quantity === 'number' ? a.quantity : parseFloat(String(a.quantity || 0));
+              return qty < 0;
+            });
+          }
+        }
+
+        setFilteredAdjustments(filtered);
+      }, [adjustments, searchTerm, productFilter, warehouseFilter, typeFilter]);
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            setInitialLoad(true);
+            await Promise.all([
+              fetchAdjustments(),
+              fetchProducts(),
+              fetchWarehouses(),
+            ]);
+          } catch (error: unknown) {
+            console.error('Error loading adjustments data:', error);
+            toast({
+              title: 'Error',
+              description: error.message || 'Failed to load adjustments',
+              variant: 'destructive',
+            });
+          } finally {
+            setInitialLoad(false);
+          }
+        };
+        loadData();
+      }, [fetchAdjustments, fetchProducts, fetchWarehouses, toast]);
 
   const openCreateDialog = () => {
     resetForm();

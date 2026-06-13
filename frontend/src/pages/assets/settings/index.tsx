@@ -3,7 +3,7 @@
  * Configuration options for Asset Management module
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,18 +80,13 @@ export default function AssetSettings() {
     accounting_integration: '',
     auto_create_journal_entries: false,
   });
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
       const { getAssetSettings } = await import('@/services/api/system');
       const data = await getAssetSettings();
       setSettings(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load settings',
@@ -100,7 +95,7 @@ export default function AssetSettings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleSave = async () => {
     try {
@@ -111,7 +106,7 @@ export default function AssetSettings() {
         title: 'Success',
         description: 'Asset settings saved successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to save settings',
@@ -121,6 +116,9 @@ export default function AssetSettings() {
       setSaving(false);
     }
   };
+    useEffect(() => {
+        loadSettings();
+      }, [loadSettings]);
 
   if (loading) {
     return (

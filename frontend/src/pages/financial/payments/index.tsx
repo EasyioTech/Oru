@@ -53,22 +53,6 @@ const Payments = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState<Payment | null>(null);
   const [agencyId, setAgencyId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const initializeAgency = async () => {
-      const id = await getAgencyId(profile, user?.id);
-      setAgencyId(id);
-      if (id) {
-        fetchPayments(id);
-      }
-    };
-
-    if (user?.id) {
-      initializeAgency();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, profile?.agency_id]);
-
   const fetchPayments = async (agencyIdParam?: string | null) => {
     const effectiveAgencyId = agencyIdParam || agencyId;
     try {
@@ -134,7 +118,7 @@ const Payments = () => {
       const paymentData = await rawQuery(query, [effectiveAgencyId]);
 
       // Transform to Payment interface
-      const transformedPayments: Payment[] = (paymentData || []).map((p: any) => ({
+      const transformedPayments: Payment[] = (paymentData || []).map((p: unknown) => ({
         id: p.journal_entry_id,
         journal_entry_id: p.journal_entry_id,
         invoice_id: p.invoice_id,
@@ -162,7 +146,7 @@ const Payments = () => {
         },
       });
 
-      const pendingPayments = pendingInvoices.reduce((sum: number, inv: any) => {
+      const pendingPayments = pendingInvoices.reduce((sum: number, inv: unknown) => {
         const total = inv.total_amount || 
           (inv.subtotal * (1 + (inv.tax_rate || 0) / 100) - (inv.discount || 0));
         return sum + Number(total);
@@ -180,7 +164,7 @@ const Payments = () => {
       let totalDays = 0;
       let count = 0;
       completedPayments.forEach(payment => {
-        const paymentDataItem = paymentData.find((p: any) => p.journal_entry_id === payment.journal_entry_id);
+        const paymentDataItem = paymentData.find((p: unknown) => p.journal_entry_id === payment.journal_entry_id);
         if (paymentDataItem?.issue_date) {
           const issueDate = new Date(paymentDataItem.issue_date);
           const payDate = new Date(payment.payment_date);
@@ -200,7 +184,7 @@ const Payments = () => {
         avgPaymentTime
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching payments:', error);
       toast({
         title: "Error",
@@ -290,7 +274,7 @@ const Payments = () => {
       await fetchPayments(agencyId);
       setDeleteDialogOpen(false);
       setPaymentToDelete(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error deleting payment:', error);
       toast({
         title: "Error",
@@ -318,6 +302,20 @@ const Payments = () => {
       description: "Export functionality will be implemented soon",
     });
   };
+    useEffect(() => {
+        const initializeAgency = async () => {
+          const id = await getAgencyId(profile, user?.id);
+          setAgencyId(id);
+          if (id) {
+            fetchPayments(id);
+          }
+        };
+
+        if (user?.id) {
+          initializeAgency();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [user?.id, profile?.agency_id]);
 
   if (loading) {
     return (

@@ -63,7 +63,7 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [leads, setLeads] = useState<any[]>([]);
+  const [leads, setLeads] = useState<unknown[]>([]);
   const [employees, setEmployees] = useState<Array<{ id: string; full_name: string }>>([]);
   const [formData, setFormData] = useState<Activity>({
     lead_id: activity?.lead_id || leadId || '',
@@ -81,50 +81,7 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
     agenda: activity?.agenda || '',
     attendees: activity?.attendees || [],
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchLeads();
-      fetchEmployees();
-      if (activity && activity.id) {
-        setFormData({
-          lead_id: activity.lead_id || '',
-          client_id: activity.client_id || '',
-          activity_type: activity.activity_type || 'call',
-          subject: activity.subject || '',
-          description: activity.description || '',
-          status: activity.status || 'pending',
-          due_date: activity.due_date || '',
-          completed_date: activity.completed_date || '',
-          assigned_to: activity.assigned_to || '',
-          duration: activity.duration || undefined,
-          outcome: activity.outcome || '',
-          location: activity.location || '',
-          agenda: activity.agenda || '',
-          attendees: activity.attendees || [],
-        });
-      } else {
-        setFormData({
-          lead_id: leadId || activity?.lead_id || '',
-          client_id: '',
-          activity_type: 'call',
-          subject: '',
-          description: '',
-          status: 'pending',
-          due_date: '',
-          completed_date: '',
-          assigned_to: '',
-          duration: undefined,
-          outcome: '',
-          location: '',
-          agenda: '',
-          attendees: [],
-        });
-      }
-    }
-  }, [isOpen, activity, leadId]);
-
-  const fetchLeads = async () => {
+  const fetchLeads = React.useCallback(async () => {
     try {
       const { data, error } = await db
         .from('leads')
@@ -136,9 +93,9 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
     } catch (error) {
       console.error('Error fetching leads:', error);
     }
-  };
+  }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     try {
       const employeesData = await getEmployeesForAssignmentAuto(profile, user?.id);
       setEmployees(employeesData.map(emp => ({
@@ -148,7 +105,7 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
     } catch (error) {
       console.error('Error fetching employees:', error);
     }
-  };
+  }, [profile, user?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,7 +125,7 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
       const userId = user.id;
 
       if (activity?.id) {
-        const updateData: any = {
+        const updateData: unknown = {
           lead_id: (formData.lead_id && formData.lead_id !== '__none__') ? formData.lead_id : null,
           client_id: formData.client_id || null,
           activity_type: formData.activity_type,
@@ -247,7 +204,7 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
 
       onActivitySaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving activity:', error);
       toast({
         title: 'Error',
@@ -258,6 +215,47 @@ const ActivityFormDialog: React.FC<ActivityFormDialogProps> = ({
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (isOpen) {
+          fetchLeads();
+          fetchEmployees();
+          if (activity && activity.id) {
+            setFormData({
+              lead_id: activity.lead_id || '',
+              client_id: activity.client_id || '',
+              activity_type: activity.activity_type || 'call',
+              subject: activity.subject || '',
+              description: activity.description || '',
+              status: activity.status || 'pending',
+              due_date: activity.due_date || '',
+              completed_date: activity.completed_date || '',
+              assigned_to: activity.assigned_to || '',
+              duration: activity.duration || undefined,
+              outcome: activity.outcome || '',
+              location: activity.location || '',
+              agenda: activity.agenda || '',
+              attendees: activity.attendees || [],
+            });
+          } else {
+            setFormData({
+              lead_id: leadId || activity?.lead_id || '',
+              client_id: '',
+              activity_type: 'call',
+              subject: '',
+              description: '',
+              status: 'pending',
+              due_date: '',
+              completed_date: '',
+              assigned_to: '',
+              duration: undefined,
+              outcome: '',
+              location: '',
+              agenda: '',
+              attendees: [],
+            });
+          }
+        }
+      }, [isOpen, activity, leadId, fetchLeads, fetchEmployees]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

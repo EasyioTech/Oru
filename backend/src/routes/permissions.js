@@ -263,7 +263,7 @@ router.get('/roles/:role', authenticate, requireAgencyContext, asyncHandler(asyn
  * PUT /api/permissions/roles/:role
  * Update permissions for a specific role
  */
-router.put('/roles/:role', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.put('/roles/:role', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { role } = req.params;
   const { permissions } = req.body; // Array of { permission_id, granted }
@@ -430,7 +430,7 @@ router.get('/users/:userId', authenticate, requireAgencyContext, asyncHandler(as
  * PUT /api/permissions/users/:userId
  * Update user-specific permission overrides
  */
-router.put('/users/:userId', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.put('/users/:userId', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { userId } = req.params;
   const { permissions } = req.body; // Array of { permission_id, granted, reason, expires_at }
@@ -513,7 +513,7 @@ router.put('/users/:userId', authenticate, requireRole(['super_admin', 'ceo', 'a
  * DELETE /api/permissions/users/:userId/overrides
  * Remove all user permission overrides (reset to role defaults)
  */
-router.delete('/users/:userId/overrides', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.delete('/users/:userId/overrides', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { userId } = req.params;
   const grantedBy = req.user.id;
@@ -560,7 +560,7 @@ router.delete('/users/:userId/overrides', authenticate, requireRole(['super_admi
  * POST /api/permissions/bulk
  * Bulk update permissions for multiple roles/users
  */
-router.post('/bulk', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.post('/bulk', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { type, targets, permissions } = req.body; // type: 'roles' | 'users', targets: string[], permissions: { permission_id, granted }[]
   const userId = req.user.id;
@@ -688,7 +688,7 @@ router.get('/templates', authenticate, requireAgencyContext, asyncHandler(async 
  * POST /api/permissions/templates
  * Create a new permission template
  */
-router.post('/templates', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.post('/templates', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { name, description, permissions } = req.body;
   const createdBy = req.user.id;
@@ -743,7 +743,7 @@ router.post('/templates', authenticate, requireRole(['super_admin', 'ceo', 'admi
  * POST /api/permissions/templates/:templateId/apply
  * Apply a template to roles or users
  */
-router.post('/templates/:templateId/apply', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.post('/templates/:templateId/apply', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
   const { templateId } = req.params;
   const { type, targets } = req.body; // type: 'roles' | 'users', targets: string[]
@@ -862,7 +862,7 @@ router.post('/templates/:templateId/apply', authenticate, requireRole(['super_ad
  * POST /api/permissions/export
  * Export current permission configuration
  */
-router.post('/export', authenticate, requireRole(['super_admin', 'ceo', 'admin']), requireAgencyContext, asyncHandler(async (req, res) => {
+router.post('/export', authenticate, requireRole(['super_admin', 'agency_admin']), requireAgencyContext, asyncHandler(async (req, res) => {
   const agencyDatabase = req.user.agencyDatabase;
 
   try {

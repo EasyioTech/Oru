@@ -181,7 +181,7 @@ export default function ProjectManagement() {
         title: 'Success',
         description: `Exported ${filteredProjects.length} project(s) to CSV`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to export projects',

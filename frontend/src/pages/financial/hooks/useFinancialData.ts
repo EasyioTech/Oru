@@ -13,7 +13,7 @@ import { useJournalEntries } from './useJournalEntries';
 import { useTransactions } from './useTransactions';
 import { useProjects } from './useProjects';
 
-export const useFinancialData = (user: any, profile: any) => {
+export const useFinancialData = (user: unknown, profile: unknown) => {
   const { toast } = useToast();
   const [agencyId, setAgencyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ export const useFinancialData = (user: any, profile: any) => {
     if (user?.id) {
       initializeAgency();
     }
-  }, [user?.id, profile?.agency_id]);
+  }, [user?.id, profile]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -106,7 +106,7 @@ export const useFinancialData = (user: any, profile: any) => {
     if (agencyId) {
       fetchAllData();
     }
-  }, [agencyId]);
+  }, [agencyId, fetchJobs, fetchProjects, fetchChartOfAccounts, fetchJournalEntries, fetchTransactions, toast]);
 
   const refetchAll = async () => {
     if (!agencyId) return;

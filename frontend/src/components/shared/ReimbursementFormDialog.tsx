@@ -84,9 +84,9 @@ export const ReimbursementFormDialog: React.FC<ReimbursementFormDialogProps> = (
       }
       setSelectedFiles(null);
     }
-  }, [open, request]);
+  }, [open, request, fetchCategories]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = React.useCallback(async () => {
     try {
       const { data, error } = await db
         .from("expense_categories")
@@ -99,7 +99,7 @@ export const ReimbursementFormDialog: React.FC<ReimbursementFormDialogProps> = (
         throw error;
       }
       
-      setCategories((data as any) || []);
+      setCategories((data as unknown) || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast({
@@ -108,7 +108,7 @@ export const ReimbursementFormDialog: React.FC<ReimbursementFormDialogProps> = (
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(e.target.files);
@@ -171,7 +171,7 @@ export const ReimbursementFormDialog: React.FC<ReimbursementFormDialogProps> = (
 
         // Upload new files if any
         if (selectedFiles && selectedFiles.length > 0 && reimbursement) {
-          await uploadFiles((reimbursement as any).id);
+          await uploadFiles((reimbursement as unknown).id);
         }
 
         toast({
@@ -200,7 +200,7 @@ export const ReimbursementFormDialog: React.FC<ReimbursementFormDialogProps> = (
 
         // Upload files if any
         if (selectedFiles && selectedFiles.length > 0 && reimbursement) {
-          await uploadFiles((reimbursement as any).id);
+          await uploadFiles((reimbursement as unknown).id);
         }
 
         toast({
@@ -222,7 +222,7 @@ export const ReimbursementFormDialog: React.FC<ReimbursementFormDialogProps> = (
       
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting reimbursement:", error);
       toast({
         title: "Error",

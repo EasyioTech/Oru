@@ -112,8 +112,11 @@ export default function Navigation() {
           </button>
 
           <div className="hidden md:flex items-center gap-2">
-            <Button variant="primary" href="/waitlist" size="md" className="font-semibold shadow-lg shadow-primary/10">
-              Join Waitlist
+            <Link to="/auth" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mr-4">
+              Sign In
+            </Link>
+            <Button variant="primary" href="/agency-signup" size="md" className="font-semibold shadow-lg shadow-primary/10">
+              Start Free Trial
             </Button>
           </div>
 
@@ -167,13 +170,20 @@ export default function Navigation() {
               </button>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-3">
               <Link
-                to="/waitlist"
+                to="/auth"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center w-full py-3.5 px-4 border border-border text-foreground font-bold rounded-xl active:scale-[0.98] transition-all"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/agency-signup"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center justify-center w-full py-3.5 px-4 bg-foreground text-background font-bold rounded-xl shadow-xl shadow-foreground/5 active:scale-[0.98] transition-all"
               >
-                Join the Waitlist
+                Start Free Trial
               </Link>
             </div>
           </div>

@@ -87,9 +87,10 @@ export function DocumentManager() {
     description: ''
   });
 
-  const fetchFolders = async () => {
+  const fetchFolders = React.useCallback(async (idToUse?: string) => {
     try {
-      if (!agencyId) return;
+      const id = idToUse || agencyId;
+      if (!id) return;
       
       const { data, error } = await db
         .from('document_folders')
@@ -99,15 +100,16 @@ export function DocumentManager() {
 
       if (error) throw error;
       setFolders((data as DocumentFolder[]) || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching folders:', error);
       toast.error(error?.message || 'Failed to load folders');
     }
-  };
+  }, [agencyId]);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = React.useCallback(async (idToUse?: string) => {
     try {
-      if (!agencyId) return;
+      const id = idToUse || agencyId;
+      if (!id) return;
       
       let query = db
         .from('documents')
@@ -131,25 +133,25 @@ export function DocumentManager() {
         download_count: doc.download_count || 0
       }));
       setDocuments(normalizedDocs);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching documents:', error);
       toast.error(error?.message || 'Failed to load documents');
     }
-  };
+  }, [agencyId, currentFolder]);
 
   useEffect(() => {
     const initializeAgency = async () => {
       const id = await getAgencyId(profile, user?.id);
       setAgencyId(id);
       if (id) {
-        await Promise.all([fetchFolders(), fetchDocuments()]);
+        await Promise.all([fetchFolders(id), fetchDocuments(id)]);
       }
       setLoading(false);
     };
     if (user?.id) {
       initializeAgency();
     }
-  }, [user?.id, profile?.agency_id, currentFolder]);
+  }, [user?.id, profile, currentFolder, fetchFolders, fetchDocuments]);
 
   const handleCreateFolder = async () => {
     if (!user || !folderForm.name || !agencyId) {
@@ -174,7 +176,7 @@ export function DocumentManager() {
       setShowFolderDialog(false);
       setFolderForm({ name: '', description: '' });
       await fetchFolders();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error creating folder:', error);
       toast.error(error?.message || 'Failed to create folder');
     }
@@ -196,7 +198,7 @@ export function DocumentManager() {
       const filePath = fileName;
 
       // Set current user ID for file upload
-      (window as any).__currentUserId = user.id;
+      (window as unknown).__currentUserId = user.id;
 
       const { error: uploadError, data: uploadData } = await db.storage
         .from('documents')
@@ -241,7 +243,7 @@ export function DocumentManager() {
       if (event.target) {
         event.target.value = '';
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error uploading file:', error);
       toast.error(error?.message || 'Failed to upload file');
     }
@@ -288,7 +290,7 @@ export function DocumentManager() {
         .eq('id', document.id);
 
       toast.success('File downloaded successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error downloading file:', error);
       toast.error(error?.message || 'Failed to download file');
     }
@@ -319,7 +321,7 @@ export function DocumentManager() {
         link.click();
         window.document.body.removeChild(link);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error opening file:', error);
       toast.error(error?.message || 'Failed to open file');
     }
@@ -355,7 +357,7 @@ export function DocumentManager() {
 
       toast.success('Document deleted successfully');
       fetchDocuments();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error deleting document:', error);
       toast.error(error?.message || 'Failed to delete document');
     }
@@ -381,7 +383,7 @@ export function DocumentManager() {
       }
       await fetchFolders();
       await fetchDocuments();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error deleting folder:', error);
       toast.error(error?.message || 'Failed to delete folder');
     }
@@ -654,7 +656,7 @@ export function DocumentManager() {
                       setSelectedDocument({ ...selectedDocument, name: e.target.value });
                       fetchDocuments();
                       toast.success('Document name updated');
-                    } catch (error: any) {
+                    } catch (error: unknown) {
                       toast.error(error?.message || 'Failed to update name');
                     }
                   }}
@@ -673,7 +675,7 @@ export function DocumentManager() {
                         .eq('id', selectedDocument.id);
                       setSelectedDocument({ ...selectedDocument, description: e.target.value || null });
                       fetchDocuments();
-                    } catch (error: any) {
+                    } catch (error: unknown) {
                       toast.error(error?.message || 'Failed to update description');
                     }
                   }}
@@ -693,7 +695,7 @@ export function DocumentManager() {
                       setSelectedDocument({ ...selectedDocument, is_public: value === 'public' });
                       fetchDocuments();
                       toast.success(`Document is now ${value}`);
-                    } catch (error: any) {
+                    } catch (error: unknown) {
                       toast.error(error?.message || 'Failed to update visibility');
                     }
                   }}

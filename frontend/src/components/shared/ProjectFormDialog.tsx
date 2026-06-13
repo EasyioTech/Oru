@@ -38,7 +38,7 @@ interface Project {
   client_id: string | null;
   project_manager_id?: string | null;
   account_manager_id?: string | null;
-  assigned_team: any; // JSONB - array of user IDs
+  assigned_team: unknown; // JSONB - array of user IDs
   departments?: string[]; // Array of department IDs
   tags?: string[];
   categories?: string[];
@@ -169,111 +169,8 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
   };
 
   // Update form data when project prop changes or dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      if (project && project.id) {
-        // Editing existing project - populate form with project data
-        const proj = project as any;
-        setFormData({
-          name: proj.name || '',
-          description: proj.description || '',
-          project_code: proj.project_code || null,
-          project_type: proj.project_type || null,
-          status: normalizeStatusForDisplay(proj.status),
-          priority: proj.priority || 'medium',
-          start_date: formatDateForInput(proj.start_date),
-          end_date: formatDateForInput(proj.end_date),
-          deadline: formatDateForInput(proj.deadline),
-          budget: proj.budget || null,
-          actual_cost: proj.actual_cost || 0,
-          allocated_budget: proj.allocated_budget || null,
-          cost_center: proj.cost_center || null,
-          currency: proj.currency || 'USD',
-          client_id: proj.client_id || null,
-          project_manager_id: proj.project_manager_id || null,
-          account_manager_id: proj.account_manager_id || null,
-          assigned_team: [],
-          departments: Array.isArray(proj.departments) ? proj.departments : [],
-          tags: Array.isArray(proj.tags) ? proj.tags : [],
-          categories: Array.isArray(proj.categories) ? proj.categories : [],
-          progress: proj.progress || 0,
-        });
-
-        // Parse assigned_team from project - expect array of user IDs
-        if (proj.assigned_team) {
-          let parsed: string[] = [];
-          if (typeof proj.assigned_team === 'string') {
-            try {
-              const parsedJson = JSON.parse(proj.assigned_team);
-              if (Array.isArray(parsedJson)) {
-                // Extract user IDs from objects or use strings directly
-                parsed = parsedJson.map((m: any) => 
-                  typeof m === 'string' ? m : m.user_id || m.id || String(m)
-                );
-              }
-            } catch {
-              parsed = [];
-            }
-          } else if (Array.isArray(proj.assigned_team)) {
-            parsed = proj.assigned_team.map((m: any) => 
-              typeof m === 'string' ? m : m.user_id || m.id || String(m)
-            );
-          }
-          setSelectedTeamMembers(parsed);
-        } else {
-          setSelectedTeamMembers([]);
-        }
-
-        // Set selected departments
-        if (proj.departments && Array.isArray(proj.departments)) {
-          setSelectedDepartments(proj.departments);
-        } else {
-          setSelectedDepartments([]);
-        }
-      } else {
-        // Creating new project - reset form
-        setFormData({
-          name: '',
-          description: '',
-          project_code: null,
-          project_type: null,
-          status: 'planning',
-          priority: 'medium',
-          start_date: null,
-          end_date: null,
-          deadline: null,
-          budget: null,
-          actual_cost: 0,
-          allocated_budget: null,
-          cost_center: null,
-          currency: 'USD',
-          client_id: null,
-          project_manager_id: null,
-          account_manager_id: null,
-          assigned_team: [],
-          departments: [],
-          tags: [],
-          categories: [],
-          progress: 0,
-        });
-        setSelectedTeamMembers([]);
-        setSelectedDepartments([]);
-        setTagInput('');
-        setCategoryInput('');
-      }
-    }
-  }, [project, isOpen]);
-
   // Fetch clients, employees, and departments when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      fetchClients();
-      fetchEmployees();
-      fetchDepartments();
-    }
-  }, [isOpen]);
-
-  const fetchClients = async () => {
+  const fetchClients = React.useCallback(async () => {
     try {
       setLoadingClients(true);
       
@@ -289,7 +186,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
         company_name: c.company_name,
         email: c.email
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching clients:', error);
       toast({
         title: 'Error',
@@ -299,9 +196,9 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
     } finally {
       setLoadingClients(false);
     }
-  };
+  }, [profile, user?.id, toast]);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = React.useCallback(async () => {
     try {
       setLoadingEmployees(true);
       
@@ -319,7 +216,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
       }));
       
       setEmployees(transformedEmployees);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching employees:', error);
       toast({
         title: 'Error',
@@ -329,9 +226,9 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
     } finally {
       setLoadingEmployees(false);
     }
-  };
+  }, [profile, user?.id, toast]);
 
-  const fetchDepartments = async () => {
+  const fetchDepartments = React.useCallback(async () => {
     try {
       setLoadingDepartments(true);
       
@@ -347,7 +244,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
         manager_name: d.manager_name || undefined,
         member_count: d.member_count || undefined
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching departments:', error);
       toast({
         title: 'Error',
@@ -357,7 +254,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
     } finally {
       setLoadingDepartments(false);
     }
-  };
+  }, [profile, user?.id, toast]);
 
   const addTag = () => {
     if (tagInput.trim() && !formData.tags?.includes(tagInput.trim())) {
@@ -510,7 +407,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
         description: formData.description?.trim() || null,
         project_code: formData.project_code || undefined,
         project_type: formData.project_type || undefined,
-        status: normalizeStatusForDatabase(formData.status) as any,
+        status: normalizeStatusForDatabase(formData.status) as unknown,
         priority: formData.priority || 'medium',
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
@@ -548,7 +445,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
 
       onProjectSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving project:', error);
       toast({
         title: 'Error',
@@ -559,6 +456,107 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
       setLoading(false);
     }
   };
+    useEffect(() => {
+        if (isOpen) {
+          fetchClients();
+          fetchEmployees();
+          fetchDepartments();
+        }
+      }, [isOpen, fetchClients, fetchEmployees, fetchDepartments]);
+    useEffect(() => {
+        if (isOpen) {
+          if (project && project.id) {
+            // Editing existing project - populate form with project data
+            const proj = project as unknown;
+            setFormData({
+              name: proj.name || '',
+              description: proj.description || '',
+              project_code: proj.project_code || null,
+              project_type: proj.project_type || null,
+              status: normalizeStatusForDisplay(proj.status),
+              priority: proj.priority || 'medium',
+              start_date: formatDateForInput(proj.start_date),
+              end_date: formatDateForInput(proj.end_date),
+              deadline: formatDateForInput(proj.deadline),
+              budget: proj.budget || null,
+              actual_cost: proj.actual_cost || 0,
+              allocated_budget: proj.allocated_budget || null,
+              cost_center: proj.cost_center || null,
+              currency: proj.currency || 'USD',
+              client_id: proj.client_id || null,
+              project_manager_id: proj.project_manager_id || null,
+              account_manager_id: proj.account_manager_id || null,
+              assigned_team: [],
+              departments: Array.isArray(proj.departments) ? proj.departments : [],
+              tags: Array.isArray(proj.tags) ? proj.tags : [],
+              categories: Array.isArray(proj.categories) ? proj.categories : [],
+              progress: proj.progress || 0,
+            });
+
+            // Parse assigned_team from project - expect array of user IDs
+            if (proj.assigned_team) {
+              let parsed: string[] = [];
+              if (typeof proj.assigned_team === 'string') {
+                try {
+                  const parsedJson = JSON.parse(proj.assigned_team);
+                  if (Array.isArray(parsedJson)) {
+                    // Extract user IDs from objects or use strings directly
+                    parsed = parsedJson.map((m: unknown) => 
+                      typeof m === 'string' ? m : m.user_id || m.id || String(m)
+                    );
+                  }
+                } catch {
+                  parsed = [];
+                }
+              } else if (Array.isArray(proj.assigned_team)) {
+                parsed = proj.assigned_team.map((m: unknown) => 
+                  typeof m === 'string' ? m : m.user_id || m.id || String(m)
+                );
+              }
+              setSelectedTeamMembers(parsed);
+            } else {
+              setSelectedTeamMembers([]);
+            }
+
+            // Set selected departments
+            if (proj.departments && Array.isArray(proj.departments)) {
+              setSelectedDepartments(proj.departments);
+            } else {
+              setSelectedDepartments([]);
+            }
+          } else {
+            // Creating new project - reset form
+            setFormData({
+              name: '',
+              description: '',
+              project_code: null,
+              project_type: null,
+              status: 'planning',
+              priority: 'medium',
+              start_date: null,
+              end_date: null,
+              deadline: null,
+              budget: null,
+              actual_cost: 0,
+              allocated_budget: null,
+              cost_center: null,
+              currency: 'USD',
+              client_id: null,
+              project_manager_id: null,
+              account_manager_id: null,
+              assigned_team: [],
+              departments: [],
+              tags: [],
+              categories: [],
+              progress: 0,
+            });
+            setSelectedTeamMembers([]);
+            setSelectedDepartments([]);
+            setTagInput('');
+            setCategoryInput('');
+          }
+        }
+      }, [project, isOpen]);
 
   // Filter clients based on search term
   const filteredClients = clients.filter(client =>
@@ -645,7 +643,7 @@ const ProjectFormDialog: React.FC<ProjectFormDialogProps> = ({ isOpen, onClose, 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
-                <Select value={formData.priority || 'medium'} onValueChange={(value: any) => setFormData(prev => ({ ...prev, priority: value }))}>
+                <Select value={formData.priority || 'medium'} onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, priority: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

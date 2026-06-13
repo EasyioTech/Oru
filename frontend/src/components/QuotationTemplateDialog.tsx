@@ -16,7 +16,7 @@ interface QuotationTemplate {
   id?: string;
   name: string;
   description?: string;
-  template_data?: any;
+  template_data?: unknown;
   is_active: boolean;
   created_by?: string;
   agency_id?: string;
@@ -151,7 +151,7 @@ const QuotationTemplateDialog: React.FC<QuotationTemplateDialogProps> = ({
 
       onTemplateSaved();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving template:', error);
       toast({
         title: 'Error',
@@ -189,18 +189,18 @@ const QuotationTemplateDialog: React.FC<QuotationTemplateDialogProps> = ({
       ...prev,
       template_data: {
         ...prev.template_data,
-        lineItems: lineItems.filter((_: any, i: number) => i !== index),
+        lineItems: lineItems.filter((_: unknown, i: number) => i !== index),
       },
     }));
   };
 
-  const updateLineItem = (index: number, field: string, value: any) => {
+  const updateLineItem = (index: number, field: string, value: unknown) => {
     const lineItems = formData.template_data?.lineItems || [];
     setFormData(prev => ({
       ...prev,
       template_data: {
         ...prev.template_data,
-        lineItems: lineItems.map((item: any, i: number) =>
+        lineItems: lineItems.map((item: unknown, i: number) =>
           i === index ? { ...item, [field]: value } : item
         ),
       },
@@ -294,7 +294,7 @@ const QuotationTemplateDialog: React.FC<QuotationTemplateDialogProps> = ({
                   No line items. Click "Add Item" to add default items for this template.
                 </p>
               ) : (
-                (formData.template_data?.lineItems || []).map((item: any, index: number) => (
+                (formData.template_data?.lineItems || []).map((item: unknown, index: number) => (
                   <div key={index} className="grid grid-cols-12 gap-2 items-end p-2 border rounded">
                     <div className="col-span-4">
                       <Input

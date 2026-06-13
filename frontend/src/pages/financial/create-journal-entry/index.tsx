@@ -29,7 +29,7 @@ const CreateJournalEntry = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [accountsLoading, setAccountsLoading] = useState(true);
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<unknown[]>([]);
   const [formData, setFormData] = useState({
     entry_date: new Date().toISOString().split('T')[0],
     description: '',
@@ -62,7 +62,7 @@ const CreateJournalEntry = () => {
         return;
       }
       
-      let accountsData: any[] = [];
+      let accountsData: unknown[] = [];
       
       // Strategy 1: Try with both filters
       try {
@@ -70,7 +70,7 @@ const CreateJournalEntry = () => {
           where: { agency_id: agencyId, is_active: true },
           orderBy: 'account_code ASC',
         });
-      } catch (err1: any) {
+      } catch (err1: unknown) {
         // Strategy 2: Try with only agency_id (ignore is_active)
             try {
               accountsData = await selectRecords('chart_of_accounts', {
@@ -78,8 +78,8 @@ const CreateJournalEntry = () => {
                 orderBy: 'account_code ASC',
               });
               // Filter is_active in memory
-              accountsData = (accountsData || []).filter((acc: any) => acc.is_active !== false);
-            } catch (err2: any) {
+              accountsData = (accountsData || []).filter((acc: unknown) => acc.is_active !== false);
+            } catch (err2: unknown) {
               // Strategy 3: Try without agency_id (fallback for schema without agency_id)
               if (err2?.code === '42703' || String(err2?.message || '').includes('agency_id') || String(err2?.message || '').includes('column')) {
                 try {
@@ -87,7 +87,7 @@ const CreateJournalEntry = () => {
                     where: { is_active: true },
                     orderBy: 'account_code ASC',
                   });
-                } catch (err3: any) {
+                } catch (err3: unknown) {
                   logError('All attempts failed while fetching accounts. Last error:', err3);
                   throw err3;
                 }
@@ -110,7 +110,7 @@ const CreateJournalEntry = () => {
           variant: 'default',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error fetching accounts:', error);
       toast({
         title: 'Error',
@@ -160,7 +160,7 @@ const CreateJournalEntry = () => {
     }));
   };
 
-  const updateLine = (index: number, field: keyof JournalEntryLine, value: any) => {
+  const updateLine = (index: number, field: keyof JournalEntryLine, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       lines: prev.lines.map((line, i) => 
@@ -343,13 +343,13 @@ const CreateJournalEntry = () => {
       });
 
       // Navigate back to the page we came from, or default to ledger
-      const fromPage = (location.state as any)?.from || 'ledger';
+      const fromPage = (location.state as unknown)?.from || 'ledger';
       if (fromPage === 'financial-management') {
         navigate('/financial-management');
       } else {
         navigate('/ledger');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('Error saving journal entry:', error);
       toast({
         title: 'Error',
@@ -422,7 +422,7 @@ const CreateJournalEntry = () => {
                 <Label htmlFor="status">Status</Label>
                 <Select 
                   value={formData.status} 
-                  onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}
+                  onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, status: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -677,7 +677,7 @@ const CreateJournalEntry = () => {
                 variant="outline" 
                 onClick={() => {
                   // Navigate back to the page we came from, or default to ledger
-                  const fromPage = (location.state as any)?.from || 'ledger';
+                  const fromPage = (location.state as unknown)?.from || 'ledger';
                   if (fromPage === 'financial-management') {
                     navigate('/financial-management');
                   } else {

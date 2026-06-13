@@ -1,96 +1,31 @@
-/**
- * Lazy-loaded page component imports
- * Organized by feature/module for better maintainability
- */
-
 import React from "react";
 
 // Public/Unauthenticated Pages
 export const Landing = React.lazy(() => import("../pages/public"));
-export const Pricing = React.lazy(() => import("../pages/public/pricing"));
 export const Auth = React.lazy(() => import("../pages/auth"));
 export const SauthLogin = React.lazy(() => import("../pages/auth/sauth-login"));
 export const SignupSuccess = React.lazy(() => import("../pages/auth/signup-success"));
 export const ForgotPassword = React.lazy(() => import("../pages/auth/forgot-password"));
 export const NotFound = React.lazy(() => import("../pages/public/not-found"));
 export const OnboardingWizard = React.lazy(() => import("../components/onboarding/OnboardingWizard"));
-export const WaitlistPage = React.lazy(() => import("../pages/public/waitlist"));
-export const FeatureDetail = React.lazy(() => import("../pages/public/features/FeatureDetail"));
-export const BlogList = React.lazy(() => import("../pages/public/blog/BlogList"));
-export const BlogPostDetail = React.lazy(() => import("../pages/public/blog/BlogPostDetail"));
-export const AboutPage = React.lazy(() => import("../pages/public/About"));
-
-// SEO Optimized Industry Pages
-export const MarketingAgenciesIndustry = React.lazy(() => import("../pages/public/industries/MarketingAgencies"));
-export const SoftwareDevIndustry = React.lazy(() => import("../pages/public/industries/SoftwareDevelopment"));
-export const CreativeAgenciesIndustry = React.lazy(() => import("../pages/public/industries/CreativeAgencies"));
-export const ConsultingFirmsIndustry = React.lazy(() => import("../pages/public/industries/ConsultingFirms"));
-export const DigitalMarketingIndustry = React.lazy(() => import("../pages/public/industries/DigitalMarketing"));
-export const AdvertisingAgenciesIndustry = React.lazy(() => import("../pages/public/industries/AdvertisingAgencies"));
-export const MediaProductionIndustry = React.lazy(() => import("../pages/public/industries/MediaProduction"));
-export const ArchitectureDesignIndustry = React.lazy(() => import("../pages/public/industries/ArchitectureDesign"));
-export const LegalServicesIndustry = React.lazy(() => import("../pages/public/industries/LegalServices"));
-export const AccountingFirmsIndustry = React.lazy(() => import("../pages/public/industries/AccountingFirms"));
-export const FreelancersIndustry = React.lazy(() => import("../pages/public/industries/Freelancers"));
-
-// SEO Optimized Competitor Comparison Pages
-export const OdooComparison = React.lazy(() => import("../pages/public/compare/OdooComparison"));
-export const SapComparison = React.lazy(() => import("../pages/public/compare/SapComparison"));
-export const MondayComparison = React.lazy(() => import("../pages/public/compare/MondayComparison"));
-export const ZohoComparison = React.lazy(() => import("../pages/public/compare/ZohoComparison"));
-export const NetSuiteComparison = React.lazy(() => import("../pages/public/compare/NetSuiteComparison"));
-export const HubspotComparison = React.lazy(() => import("../pages/public/compare/HubspotComparison"));
-export const AsanaComparison = React.lazy(() => import("../pages/public/compare/AsanaComparison"));
-export const ClickupComparison = React.lazy(() => import("../pages/public/compare/ClickupComparison"));
-export const FreshworksComparison = React.lazy(() => import("../pages/public/compare/FreshworksComparison"));
-
-// SEO Optimized Feature Pages
-export const ProjectManagementFeature = React.lazy(() => import("../pages/public/features/ProjectManagement"));
-export const CRMFeature = React.lazy(() => import("../pages/public/features/CRM"));
-export const HRManagementFeature = React.lazy(() => import("../pages/public/features/HRManagement"));
-export const FinancialManagementFeature = React.lazy(() => import("../pages/public/features/FinancialManagement"));
-export const InvoicingBillingFeature = React.lazy(() => import("../pages/public/features/InvoicingBilling"));
-export const TimeTrackingFeature = React.lazy(() => import("../pages/public/features/TimeTracking"));
-export const TeamCollaborationFeature = React.lazy(() => import("../pages/public/features/TeamCollaboration"));
-export const ReportingAnalyticsFeature = React.lazy(() => import("../pages/public/features/ReportingAnalytics"));
-export const InventoryManagementFeature = React.lazy(() => import("../pages/public/features/InventoryManagement"));
-export const ClientPortalFeature = React.lazy(() => import("../pages/public/features/ClientPortal"));
-
-// Static Pages (split for performance - each loads independently)
-export const ContactPage = React.lazy(() => import("../pages/static-pages/contact"));
-export const BlogPage = React.lazy(() => import("../pages/static-pages/blog"));
-export const CareersPage = React.lazy(() => import("../pages/static-pages/careers"));
-export const HelpCenterPage = React.lazy(() => import("../pages/static-pages/help-center"));
-export const DocsPage = React.lazy(() => import("../pages/static-pages/docs"));
-export const APIReferencePage = React.lazy(() => import("../pages/static-pages/api-reference"));
-export const PrivacyPolicyPage = React.lazy(() => import("../pages/static-pages/privacy"));
-export const TermsPage = React.lazy(() => import("../pages/static-pages/terms"));
-export const CookiePolicyPage = React.lazy(() => import("../pages/static-pages/cookies"));
-export const GDPRPage = React.lazy(() => import("../pages/static-pages/gdpr"));
-export const ChangelogPage = React.lazy(() => import("../pages/static-pages/changelog"));
-export const RoadmapPage = React.lazy(() => import("../pages/static-pages/roadmap"));
-export const IntegrationsPublicPage = React.lazy(() => import("../pages/static-pages/integrations-info"));
-export const TemplatesPage = React.lazy(() => import("../pages/static-pages/templates"));
-export const CommunityPage = React.lazy(() => import("../pages/static-pages/community"));
-export const PressPage = React.lazy(() => import("../pages/static-pages/press"));
 
 // Dashboard & Core
 export const Index = React.lazy(() => import("../pages/dashboards"));
-export const AgencyDashboard = React.lazy(() => import("../pages/dashboards/agency"));
 export const AgencyAdminDashboard = React.lazy(() => import("../pages/dashboards/agency-admin"));
 export const AgencySetup = React.lazy(() => import("../pages/agency-setup"));
 export const AgencySetupProgress = React.lazy(() => import("../pages/agency-setup/agency-setup-progress"));
 export const SuperAdminDashboard = React.lazy(() => import("../pages/dashboards/super-admin"));
-export const SuperAdminDashboardNew = React.lazy(() => import("../pages/super-admin/SuperAdminDashboard"));
-export const AgencyManagement = React.lazy(() => import("../pages/super-admin/AgencyManagement"));
-export const AgencyDataViewer = React.lazy(() => import("../pages/super-admin/AgencyDataViewer"));
-export const SystemSettings = React.lazy(() => import("../pages/super-admin/SystemSettings"));
-export const PlanManagement = React.lazy(() => import("../pages/super-admin/PlanManagement"));
-export const PageCatalogManagement = React.lazy(() => import("../pages/super-admin/PageCatalogManagement"));
-export const SuperAdminAnalytics = React.lazy(() => import("../pages/super-admin/Analytics"));
+export const SuperAdminDashboardNew = React.lazy(() => import("../pages/super-admin/dashboard"));
+export const AgencyManagement = React.lazy(() => import("../pages/super-admin/agency-management"));
+export const AgencyDataViewer = React.lazy(() => import("../pages/super-admin/agency-data-viewer"));
+export const SystemSettings = React.lazy(() => import("../pages/super-admin/system-settings"));
+export const PlanManagement = React.lazy(() => import("../pages/super-admin/plan-management"));
+export const PageCatalogManagement = React.lazy(() => import("../pages/super-admin/page-catalog-management"));
+export const SuperAdminAnalytics = React.lazy(() => import("../pages/super-admin/analytics"));
 export const SuperAdminLayout = React.lazy(() => import("../components/super-admin/SuperAdminLayout").then(m => ({ default: m.SuperAdminLayout })));
 export const SystemDashboard = React.lazy(() => import("../pages/dashboards/system"));
-export const SystemHealth = React.lazy(() => import("../pages/super-admin/SystemHealth"));
+export const SystemHealth = React.lazy(() => import("../pages/super-admin/system-health"));
+export const SystemEmailPage = React.lazy(() => import("../pages/super-admin/system-email"));
 
 // Employee Management
 export const EmployeeManagement = React.lazy(() => import("../pages/employees"));
@@ -134,15 +69,12 @@ export const CRM = React.lazy(() => import("../pages/crm"));
 export const LeadDetail = React.lazy(() => import("../pages/crm/lead-detail"));
 export const ActivityDetail = React.lazy(() => import("../pages/crm/activity-detail"));
 
-// Reports & Analytics
+// Reports
 export const Reports = React.lazy(() => import("../pages/reports"));
-export const Analytics = React.lazy(() => import("../pages/analytics"));
-export const CentralizedReports = React.lazy(() => import("../pages/centralized-reports"));
 export const ReportingDashboard = React.lazy(() => import("../pages/reports/reporting-dashboard"));
 export const CustomReports = React.lazy(() => import("../pages/reports/custom-reports"));
 export const ScheduledReports = React.lazy(() => import("../pages/reports/scheduled-reports"));
 export const ReportExports = React.lazy(() => import("../pages/reports/report-exports"));
-export const AnalyticsDashboard = React.lazy(() => import("../pages/analytics/dashboard"));
 
 // Inventory
 export const InventoryManagement = React.lazy(() => import("../pages/inventory"));
@@ -178,18 +110,6 @@ export const AssetDisposals = React.lazy(() => import("../pages/assets/disposals
 export const AssetReports = React.lazy(() => import("../pages/assets/reports"));
 export const AssetSettings = React.lazy(() => import("../pages/assets/settings"));
 
-// Workflows
-export const Workflows = React.lazy(() => import("../pages/workflows"));
-export const WorkflowInstances = React.lazy(() => import("../pages/workflows/instances"));
-export const WorkflowBuilder = React.lazy(() => import("../pages/workflows/builder"));
-export const WorkflowApprovals = React.lazy(() => import("../pages/workflows/approvals"));
-export const WorkflowAutomation = React.lazy(() => import("../pages/workflows/automation"));
-export const WorkflowSettings = React.lazy(() => import("../pages/workflows/settings"));
-
-// Integrations
-export const Integrations = React.lazy(() => import("../pages/integrations"));
-export const IntegrationSettings = React.lazy(() => import("../pages/integrations/settings"));
-
 // Quotations & Job Costing
 export const Quotations = React.lazy(() => import("../pages/quotations"));
 export const QuotationForm = React.lazy(() => import("../pages/quotations/form"));
@@ -197,16 +117,12 @@ export const JobCosting = React.lazy(() => import("../pages/job-costing"));
 
 // Other Features
 export const DepartmentManagement = React.lazy(() => import("../pages/department-management"));
-export const AIFeatures = React.lazy(() => import("../pages/ai-features"));
 export const Calendar = React.lazy(() => import("../pages/calendar"));
 export const Notifications = React.lazy(() => import("../pages/notifications"));
 export const PageRequestCenter = React.lazy(() => import("../pages/system/page-request-center"));
-export const SystemEmailPage = React.lazy(() => import("../pages/super-admin/SystemEmail"));
 export const ViewAsUser = React.lazy(() => import("../pages/system/view-as-user"));
 
 // Component Modules
 export const RoleChangeRequests = React.lazy(() => import('../components/RoleChangeRequests').then(m => ({ default: m.RoleChangeRequests })));
 export const AdvancedPermissions = React.lazy(() => import('../components/AdvancedPermissions'));
-export const AdvancedDashboard = React.lazy(() => import('../components/analytics/AdvancedDashboard').then(m => ({ default: m.AdvancedDashboard })));
 export const DocumentManager = React.lazy(() => import('../components/documents/DocumentManager').then(m => ({ default: m.DocumentManager })));
-

@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { PIPELINE_STAGES, getStatusColor } from '../utils/crmUtils';
 
 interface ReportsTabProps {
-  leads: any[];
-  activities: any[];
+  leads: unknown[];
+  activities: unknown[];
   loading: boolean;
   activitiesLoading: boolean;
 }

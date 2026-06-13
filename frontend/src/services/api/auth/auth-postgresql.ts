@@ -184,7 +184,7 @@ export async function loginUser(data: SignInData): Promise<AuthResponse> {
       requiresTwoFactor: true,
       userId: result.userId,
       agencyDatabase: result.agencyDatabase,
-    } as any;
+    } as unknown;
   }
 
   // Check if user is super admin (has super_admin role and no agency database)

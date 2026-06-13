@@ -12,15 +12,15 @@ import { getStatusColor } from '../utils/financialFormatters';
 import { formatCurrencySymbol } from '../utils/financialFormatters';
 
 interface JournalEntriesTabProps {
-  journalEntries: any[];
+  journalEntries: unknown[];
   loading: boolean;
   searchTerm: string;
   statusFilter: string;
   dateRange: { start: string; end: string };
   pageSize: number;
   onNewEntry: () => void;
-  onEditEntry: (entry: any) => void;
-  onDeleteEntry: (entry: any) => void;
+  onEditEntry: (entry: unknown) => void;
+  onDeleteEntry: (entry: unknown) => void;
   deleteLoading: boolean;
 }
 

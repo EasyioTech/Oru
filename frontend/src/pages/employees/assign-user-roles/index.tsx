@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,13 +37,7 @@ const AssignUserRoles = () => {
   const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchEmployees();
-    fetchAgencySettings();
-  }, []);
-
-  const fetchAgencySettings = async () => {
+  const fetchAgencySettings = useCallback(async () => {
     try {
       const { data: agencyData, error } = await db
         .from('agency_settings')
@@ -51,7 +45,7 @@ const AssignUserRoles = () => {
         .limit(1)
         .single();
 
-      if (error && (error as any).code !== 'PGRST116') {
+      if (error && (error as unknown).code !== 'PGRST116') {
         logError('Error fetching agency settings:', error);
         return;
       }
@@ -59,12 +53,12 @@ const AssignUserRoles = () => {
       if (agencyData?.domain) {
         setEmailDomain(`@${agencyData.domain}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching agency settings:', error);
     }
-  };
+  }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     try {
       const { data: profilesData, error } = await db
         .from('profiles')
@@ -75,7 +69,7 @@ const AssignUserRoles = () => {
 
       // Fetch existing user roles for employees who already have user accounts
       const employeesWithUserIds = profilesData.filter(emp => emp.user_id);
-      let existingRoles: { [key: string]: UserRole[] } = {};
+      const existingRoles: { [key: string]: UserRole[] } = {};
       
       if (employeesWithUserIds.length > 0) {
         const { data: rolesData, error: rolesError } = await db
@@ -98,7 +92,7 @@ const AssignUserRoles = () => {
         ...emp,
         existingRoles: emp.user_id ? existingRoles[emp.user_id] || [] : []
       })));
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching employees:', error);
       toast({
         title: "Error",
@@ -106,7 +100,7 @@ const AssignUserRoles = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   const handleEmployeeSelection = (employeeId: string, checked: boolean) => {
     if (checked) {
@@ -200,19 +194,19 @@ const AssignUserRoles = () => {
         try {
           await upsertRecord('user_roles', {
             user_id: userId,
-            role: selectedRole as "admin" | "hr" | "finance_manager" | "employee",
+            role: selectedRole as import('@/utils/roleUtils').AppRole,
           }, 'user_id');
           results.push({
             employee: employee.full_name,
             success: true,
             credentials: generatedCredentials
           });
-        } catch (roleError: any) {
+        } catch (roleError: unknown) {
           logError('Error assigning role:', roleError);
           results.push({
             employee: employee.full_name,
             success: false,
-            error: roleError.message
+            error: roleError instanceof Error ? roleError.message : 'Unknown error'
           });
         }
       }
@@ -255,7 +249,7 @@ const AssignUserRoles = () => {
       setSelectedEmployees([]);
       setSelectedRole("");
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in role assignment:', error);
       toast({
         title: "Error",
@@ -269,13 +263,17 @@ const AssignUserRoles = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'destructive';
-      case 'hr': return 'default';
-      case 'finance_manager': return 'secondary';
+      case 'agency_admin': return 'destructive';
+      case 'manager': return 'default';
+      case 'auditor': return 'secondary';
       case 'employee': return 'outline';
       default: return 'outline';
     }
   };
+    useEffect(() => {
+        fetchEmployees();
+        fetchAgencySettings();
+      }, [fetchEmployees, fetchAgencySettings]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -315,10 +313,12 @@ const AssignUserRoles = () => {
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="hr">HR</SelectItem>
-                    <SelectItem value="finance_manager">Finance Manager</SelectItem>
+                    <SelectItem value="agency_admin">Agency Admin</SelectItem>
+                    <SelectItem value="manager">Manager</SelectItem>
                     <SelectItem value="employee">Employee</SelectItem>
+                    <SelectItem value="auditor">Auditor</SelectItem>
+                    <SelectItem value="viewer">Viewer</SelectItem>
+                    <SelectItem value="custom">Custom</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

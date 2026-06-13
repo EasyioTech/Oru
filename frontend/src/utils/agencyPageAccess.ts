@@ -60,18 +60,23 @@ export async function getAgencyAccessiblePages(): Promise<AgencyPageAssignment[]
  */
 export async function hasPageAccess(path: string): Promise<boolean> {
   const pages = await getAgencyAccessiblePages();
-  
+
+  // No page restrictions configured → allow everything
+  if (!pages || pages.length === 0) {
+    return true;
+  }
+
   // Normalize path (remove trailing slashes, handle parameterized routes)
   const normalizedPath = path.replace(/\/$/, '');
-  
+
   return pages.some(page => {
     const pagePath = page.path.replace(/\/$/, '');
-    
+
     // Exact match
     if (pagePath === normalizedPath) {
       return true;
     }
-    
+
     // Parameterized route match (e.g., /projects/:id matches /projects/123)
     const pagePattern = pagePath.replace(/:[^/]+/g, '[^/]+');
     const regex = new RegExp(`^${pagePattern}$`);

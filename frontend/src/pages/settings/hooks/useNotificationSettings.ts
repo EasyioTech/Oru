@@ -2,7 +2,7 @@
  * Hook for Notification Settings
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { db } from '@/lib/database';
@@ -27,7 +27,7 @@ export const useNotificationSettings = () => {
   );
   const [loading, setLoading] = useState(false);
 
-  const fetchNotificationSettings = async () => {
+  const fetchNotificationSettings = useCallback(async () => {
     if (!user?.id) return;
     
     try {
@@ -60,7 +60,7 @@ export const useNotificationSettings = () => {
         setNotificationSettings(JSON.parse(stored));
       }
     }
-  };
+  }, [user?.id]);
 
   const saveNotificationSettings = async () => {
     if (!user?.id) return;
@@ -114,7 +114,7 @@ export const useNotificationSettings = () => {
     if (user?.id) {
       fetchNotificationSettings();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchNotificationSettings]);
 
   return {
     notificationSettings,
