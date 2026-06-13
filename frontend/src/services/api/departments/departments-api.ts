@@ -81,8 +81,8 @@ export async function fetchDepartmentsList(params: DepartmentsListParams): Promi
   }
   const json = (await res.json()) as DepartmentsListResponse;
   const data = json.data ?? (json as unknown);
-  const departments = data.departments ?? [];
-  const total = data.total ?? json.meta?.total ?? departments.length;
+  const departments = Array.isArray(data) ? data : (data.departments ?? []);
+  const total = Array.isArray(data) ? data.length : (data.total ?? json.meta?.total ?? departments.length);
   return { departments, total };
 }
 
