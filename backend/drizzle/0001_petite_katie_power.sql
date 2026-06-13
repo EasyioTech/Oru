@@ -418,6 +418,8 @@ ALTER TABLE "agency_provisioning_jobs" DROP COLUMN IF EXISTS "estimated_completi
 ALTER TABLE "projects" DROP COLUMN IF EXISTS "allocated_budget";--> statement-breakpoint
 ALTER TABLE "projects" DROP COLUMN IF EXISTS "currency";--> statement-breakpoint
 ALTER TABLE "projects" DROP COLUMN IF EXISTS "categories";--> statement-breakpoint
+ALTER TABLE "public"."system_settings" ALTER COLUMN "file_storage_provider" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "public"."system_settings" ALTER COLUMN "backup_storage_provider" DROP DEFAULT;--> statement-breakpoint
 ALTER TABLE "public"."system_settings" ALTER COLUMN "file_storage_provider" SET DATA TYPE text;--> statement-breakpoint
 ALTER TABLE "public"."system_settings" ALTER COLUMN "backup_storage_provider" SET DATA TYPE text;--> statement-breakpoint
 ALTER TABLE "public"."system_storage_providers" ALTER COLUMN "provider_type" SET DATA TYPE text;--> statement-breakpoint
@@ -425,4 +427,6 @@ DROP TYPE "public"."storage_provider_type";--> statement-breakpoint
 CREATE TYPE "public"."storage_provider_type" AS ENUM('local', 'aws_s3', 'azure_blob', 'gcp_storage', 'digitalocean_spaces', 'r2', 'minio');--> statement-breakpoint
 ALTER TABLE "public"."system_settings" ALTER COLUMN "file_storage_provider" SET DATA TYPE "public"."storage_provider_type" USING "file_storage_provider"::"public"."storage_provider_type";--> statement-breakpoint
 ALTER TABLE "public"."system_settings" ALTER COLUMN "backup_storage_provider" SET DATA TYPE "public"."storage_provider_type" USING "backup_storage_provider"::"public"."storage_provider_type";--> statement-breakpoint
+ALTER TABLE "public"."system_settings" ALTER COLUMN "file_storage_provider" SET DEFAULT 'local';--> statement-breakpoint
+ALTER TABLE "public"."system_settings" ALTER COLUMN "backup_storage_provider" SET DEFAULT 'local';--> statement-breakpoint
 ALTER TABLE "public"."system_storage_providers" ALTER COLUMN "provider_type" SET DATA TYPE "public"."storage_provider_type" USING "provider_type"::"public"."storage_provider_type";
