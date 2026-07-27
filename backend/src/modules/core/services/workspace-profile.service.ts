@@ -11,6 +11,7 @@ export interface WorkspaceProfileData {
   health_json?: Record<string, any>;
   recommendations_json?: Array<any>;
   quick_wins_json?: Array<any>;
+  updated_at?: Date;
 }
 
 export class WorkspaceProfileService {
