@@ -7,10 +7,10 @@ export { PublicRoutes, NonLayoutPublicRoutes, StaticPageRoutes } from "./public"
 export { DashboardRoutes } from "./dashboard";
 export { EmployeeRoutes, ProjectRoutes, HRRoutes } from "./employeeProjectHr";
 export { FinancialRoutes, ClientRoutes, ReportRoutes } from "./financialClientReport";
-export { InventoryRoutes, ProcurementRoutes, AssetRoutes } from "./inventoryProcurementAsset";
+export { InventoryRoutes } from "./inventoryProcurementAsset";
+export { AdminRoutes } from "./admin";
 export {
   WorkflowRoutes,
   IntegrationRoutes,
-  QuotationRoutes,
   OtherFeatureRoutes,
 } from "./workflowIntegrationQuotationOther";

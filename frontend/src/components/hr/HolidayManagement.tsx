@@ -62,13 +62,15 @@ export function HolidayManagement() {
       }
       
       // Fetch holidays from database using PostgreSQL service
-      const data = await selectRecords<Holiday>('holidays', {
+      const response = await selectRecords<Holiday>('holidays', {
         where: { agency_id: agencyId },
         orderBy: 'date ASC'
       });
       
+      const responseData = Array.isArray(response) ? response : (response?.data || []);
+      
       // Map database fields to interface fields
-      const mappedHolidays = data.map(holiday => ({
+      const mappedHolidays = responseData.map((holiday: any) => ({
         ...holiday,
         type: (holiday.is_national_holiday ? 'public' : holiday.is_company_holiday ? 'company' : 'optional') as 'public' | 'company' | 'optional',
         is_mandatory: holiday.is_company_holiday || holiday.is_national_holiday

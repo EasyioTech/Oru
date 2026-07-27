@@ -1,21 +1,14 @@
-/**
- * Hook for project pipeline/Kanban view
- */
-
 import { useState, useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api';
+import { Project, PIPELINE_STAGES } from '../utils/projectUtils';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/database';
-import { Project } from '../utils/projectUtils';
-import { PIPELINE_STAGES } from '../utils/projectUtils';
 
-export const useProjectPipeline = (
-  projects: Project[],
-  onProjectsUpdated: () => void
-) => {
-  const { toast } = useToast();
+export const useProjectPipeline = (projects: Project[], onProjectsUpdated: () => void) => {
   const [draggedProject, setDraggedProject] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  // Group projects by status
   const projectsByStatus = useMemo(() => {
     return PIPELINE_STAGES.reduce((acc, stage) => {
       acc[stage.status] = projects.filter(project => {
@@ -27,115 +20,36 @@ export const useProjectPipeline = (
     }, {} as Record<string, Project[]>);
   }, [projects]);
 
-  const handleProjectStatusChange = async (projectId: string, newStatus: string) => {
-    try {
-      const dbStatus = newStatus === 'in-progress' ? 'in_progress' : 
-                      newStatus === 'on-hold' ? 'on_hold' : newStatus;
-
-      const { data, error } = await db
-        .from('projects')
-        .update({ status: dbStatus })
-        .eq('id', projectId)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: 'Success',
-        description: 'Project status updated successfully',
-      });
-
+  const { mutateAsync: handleProjectStatusChange } = useMutation({
+    mutationFn: async ({ id, status }: { id: string, status: string }) => {
+      const dbStatus = status === 'in-progress' ? 'in_progress' : 
+                      status === 'on-hold' ? 'on_hold' : status;
+      await api.put(`/projects/${id}`, { status: dbStatus });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
       onProjectsUpdated();
-    } catch (error: unknown) {
-      console.error('Error updating project status:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update project status',
-        variant: 'destructive',
-      });
+      toast({ title: 'Success', description: 'Project status updated successfully' });
     }
-  };
-
-  const onDragStart = (e: React.DragEvent, projectId: string) => {
-    setDraggedProject(projectId);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', projectId);
-    const dragElement = e.currentTarget as HTMLElement;
-    if (dragElement) {
-      dragElement.style.opacity = '0.5';
-      dragElement.style.transform = 'scale(0.95) rotate(2deg)';
-      dragElement.style.cursor = 'grabbing';
-    }
-  };
-
-  const onDragEnd = (e: React.DragEvent) => {
-    setDraggedProject(null);
-    const dragElement = e.currentTarget as HTMLElement;
-    if (dragElement) {
-      dragElement.style.opacity = '1';
-      dragElement.style.transform = 'scale(1) rotate(0deg)';
-      dragElement.style.cursor = 'pointer';
-    }
-  };
-
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = 'move';
-    const target = e.currentTarget as HTMLElement;
-    const dropZone = target.querySelector('.pipeline-column') as HTMLElement;
-    if (dropZone) {
-      dropZone.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2', 'bg-blue-50/50');
-      dropZone.style.transform = 'scale(1.01)';
-    }
-  };
-
-  const onDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const target = e.currentTarget as HTMLElement;
-    const dropZone = target.querySelector('.pipeline-column') as HTMLElement;
-    if (dropZone) {
-      dropZone.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'bg-blue-50/50');
-      dropZone.style.transform = 'scale(1)';
-    }
-  };
-
-  const onDrop = (e: React.DragEvent, newStatus: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const projectId = e.dataTransfer.getData('text/plain');
-    
-    const target = e.currentTarget as HTMLElement;
-    const dropZone = target.querySelector('.pipeline-column') as HTMLElement;
-    if (dropZone) {
-      dropZone.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'bg-blue-50/50');
-      dropZone.style.transform = 'scale(1)';
-    }
-
-    if (projectId) {
-      const project = projects.find(p => p.id === projectId);
-      if (project) {
-        const currentStatus = project.status === 'in_progress' ? 'in-progress' : 
-                            project.status === 'on_hold' ? 'on-hold' : project.status;
-        if (currentStatus !== newStatus) {
-          handleProjectStatusChange(projectId, newStatus);
-        }
-      }
-    }
-    
-    setDraggedProject(null);
-  };
+  });
 
   return {
     projectsByStatus,
     draggedProject,
-    onDragStart,
-    onDragEnd,
-    onDragOver,
-    onDragLeave,
-    onDrop,
+    onDragStart: (e: React.DragEvent, id: string) => {
+      setDraggedProject(id);
+      e.dataTransfer.setData('text/plain', id);
+    },
+    onDragEnd: () => setDraggedProject(null),
+    onDragOver: (e: React.DragEvent) => e.preventDefault(),
+    onDragLeave: (e: React.DragEvent) => e.preventDefault(),
+    onDrop: (e: React.DragEvent, status: string) => {
+      e.preventDefault();
+      const projectId = e.dataTransfer.getData('text/plain');
+      if (projectId) {
+        handleProjectStatusChange({ id: projectId, status });
+      }
+      setDraggedProject(null);
+    },
   };
 };
-

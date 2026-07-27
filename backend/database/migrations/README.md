@@ -1,6 +1,6 @@
 # PostgreSQL Database Migrations
 
-This directory contains clean, organized PostgreSQL database migration scripts for the BuildFlow ERP system.
+This directory contains clean, organized PostgreSQL database migration scripts for the Oru Erp system.
 
 ## Migration Files
 

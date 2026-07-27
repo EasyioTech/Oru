@@ -6,10 +6,11 @@ import { NavLink } from 'react-router-dom';
 import {
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getIcon } from '../config/icons';
-import type { PageConfig } from '@/utils/rolePages';
+import type { PageConfig } from '@/utils/navPages';
 import type { NavCategoryConfig } from '../config/nav-categories';
 import { cn } from '@/lib/utils';
 
@@ -28,13 +29,14 @@ export function SidebarNavItem({
   isMobile,
   categoryConfig,
 }: SidebarNavItemProps) {
+  const { setOpenMobile } = useSidebar();
   const IconComponent = getIcon(page.icon);
 
   const getNavCls = ({ isActive: linkActive }: { isActive: boolean }) =>
     cn(
       'relative rounded-md transition-all duration-150',
       isActive || linkActive
-        ? 'bg-sidebar-primary/15 text-sidebar-primary-foreground'
+        ? 'bg-sidebar-primary/15 text-sidebar-primary'
         : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
     );
 
@@ -42,6 +44,9 @@ export function SidebarNavItem({
     <NavLink
       to={page.path}
       end={page.path === '/'}
+      onClick={() => {
+        if (isMobile) setOpenMobile(false);
+      }}
       className={({ isActive: linkActive }) => getNavCls({ isActive: isActive || linkActive })}
     >
       <div
@@ -63,7 +68,7 @@ export function SidebarNavItem({
         {(!collapsed || isMobile) && (
           <span className={cn(
             'text-sm flex-1 text-left truncate min-w-0',
-            isActive ? 'font-medium text-white' : 'font-normal'
+            isActive ? 'font-medium' : 'font-normal'
           )}>
             {page.title}
           </span>

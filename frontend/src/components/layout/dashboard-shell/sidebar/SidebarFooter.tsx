@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Settings } from 'lucide-react';
-import type { PageConfig } from '@/utils/rolePages';
+import type { PageConfig } from '@/utils/navPages';
 import { cn } from '@/lib/utils';
 
 interface SidebarFooterProps {

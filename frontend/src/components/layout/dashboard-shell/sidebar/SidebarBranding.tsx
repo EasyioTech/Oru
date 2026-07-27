@@ -45,7 +45,7 @@ export function SidebarBranding({ collapsed, isMobile }: SidebarBrandingProps) {
       )}
       {(!collapsed || isMobile) && (
         <div className="flex flex-col min-w-0 flex-1 justify-center">
-          <span className="text-sm font-semibold text-white/90 truncate tracking-tight">
+          <span className="text-sm font-semibold text-sidebar-foreground truncate tracking-tight">
             {agencySettings?.agency_name || systemName}
           </span>
           <span className="text-[10px] text-sidebar-foreground/40 truncate">

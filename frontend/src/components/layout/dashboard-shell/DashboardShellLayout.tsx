@@ -1,7 +1,7 @@
 /**
  * Dashboard shell: Sidebar + Header + content area.
- * Sidebar uses library width (16rem / 5rem) so spacer and bar align—no overlap.
- * Header is z-20 so it sits above sidebar at the corner; single-row shell bar.
+ * Desktop: single 56px (h-14) sticky header.
+ * Mobile:  auto-height sticky header — content starts BELOW it via flex column.
  */
 
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -24,17 +24,18 @@ export function DashboardShellLayout({ children }: DashboardShellLayoutProps) {
       </a>
       <SidebarRoot />
       <SidebarInset className="flex flex-col min-w-0 overflow-hidden">
+        {/* Header — always h-14, single row on all screen sizes */}
         <header
-          className="sticky top-0 z-20 h-14 shrink-0 bg-background/80 backdrop-blur-sm border-b border-border/40"
+          className="sticky top-0 z-20 h-14 shrink-0 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm"
           role="banner"
         >
-          <div className="flex h-full items-center gap-3 px-3 sm:px-4 md:px-5 lg:px-6 overflow-hidden">
-            <div className="flex-1 min-w-0 flex items-center">
-              <HeaderRoot />
-            </div>
-          </div>
+          <HeaderRoot />
         </header>
-        <main id="main-content" className="flex-1 min-h-0 p-3 sm:p-4 md:p-5 lg:p-6 overflow-auto" tabIndex={-1}>
+        <main
+          id="main-content"
+          className="flex-1 min-h-0 p-3 sm:p-4 md:p-5 lg:p-6 overflow-auto"
+          tabIndex={-1}
+        >
           <ViewAsUserBanner />
           {children}
         </main>

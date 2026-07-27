@@ -33,14 +33,14 @@ const routeMap: Record<string, BreadcrumbItem[]> = {
  */
 export function getBreadcrumbsFromPath(pathname: string): BreadcrumbItem[] {
   if (routeMap[pathname]) {
-    if (pathname === '/dashboard') {
+    if (pathname === '/dashboard' || pathname === '/agency' || pathname === '/super-admin') {
       return routeMap[pathname];
     }
     return [{ label: 'Home', path: '/dashboard' }, ...routeMap[pathname]];
   }
 
   const crumbs: BreadcrumbItem[] = [];
-  if (pathname !== '/dashboard') {
+  if (pathname !== '/dashboard' && !pathname.startsWith('/agency') && !pathname.startsWith('/super-admin')) {
     crumbs.push({ label: 'Home', path: '/dashboard' });
   }
 

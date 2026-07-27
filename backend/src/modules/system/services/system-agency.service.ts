@@ -1,14 +1,12 @@
-
-import { db } from '../../../infrastructure/database/index.js';
-import { agencies, users, profiles, userRoles, agencyPageAssignments, pageCatalog } from '../../../infrastructure/database/schema.js';
+import { users, profiles, userRoles } from '../../../infrastructure/database/schema.js';
 import { eq, and } from 'drizzle-orm';
-import { FastifyInstance } from 'fastify';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export class SystemAgencyService {
-    constructor(private readonly app: FastifyInstance) { }
+    constructor(private db: NodePgDatabase<any>) { }
 
     async getAgencyData(agencyId: string) {
-        const agencyUsers = await db.select({
+        const agencyUsers = await this.db.select({
             id: users.id,
             full_name: profiles.fullName,
             email: users.email,
@@ -26,16 +24,7 @@ export class SystemAgencyService {
         };
     }
 
-    async getAgencyPages(agencyId: string) {
-        const assignments = await db.select({
-            id: agencyPageAssignments.id,
-            pageId: agencyPageAssignments.pageId,
-            status: agencyPageAssignments.status,
-            title: pageCatalog.title,
-            path: pageCatalog.path,
-        }).from(agencyPageAssignments)
-            .innerJoin(pageCatalog, eq(agencyPageAssignments.pageId, pageCatalog.id))
-            .where(eq(agencyPageAssignments.agencyId, agencyId));
-        return assignments;
+    async getAgencyPages(_agencyId: string) {
+        return [];
     }
 }

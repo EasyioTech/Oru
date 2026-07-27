@@ -31,15 +31,16 @@ const TextReveal = ({ children, delay = 0 }: { children: string; delay?: number 
 
 const ShimmerBadge = () => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-    className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted border border-border overflow-hidden group mb-8"
+    transition={{ duration: 0.5, ease: "easeOut" }}
+    className="relative inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/50 border border-border/50 backdrop-blur-md group mb-8 cursor-default"
   >
-    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
-    <span className="text-xs sm:text-xs font-bold text-muted-foreground tracking-tight uppercase">
-      Optimizing Productivity for Modern Agencies
+    <div className="w-1.5 h-1.5 rounded-full bg-primary/70" />
+    <span className="text-[13px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+      Oru ERP 2.0 is now available
     </span>
+    <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-all group-hover:translate-x-0.5" />
   </motion.div>
 );
 
@@ -239,50 +240,48 @@ const DashboardPreview = () => (
 
 export const Hero = () => {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16 overflow-hidden bg-background">
-      <GridPattern />
-      <GlowOrb color="blue" size={600} position={{ top: '10%', left: '20%' }} blur={100} />
-      <GlowOrb color="emerald" size={400} position={{ bottom: '20%', right: '15%' }} blur={100} />
-
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.8)_100%)] pointer-events-none" />
-
-      <div className="relative z-10 max-w-6xl mx-auto text-center">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-16 overflow-hidden bg-background">
+      {/* Subtle top-center radial gradient for depth */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      
+      <div className="relative z-10 max-w-5xl mx-auto text-center">
         <ShimmerBadge />
 
-        <h1 className="mt-4 text-4xl sm:text-5xl lg:text-7xl font-display font-semibold text-foreground leading-[1.1] tracking-[-0.02em]">
-          <TextReveal delay={0.2}>The operating system for</TextReveal>
-          <br />
-          <span className="text-zinc-500">
-            <TextReveal delay={0.6}>modern agencies</TextReveal>
-          </span>
-        </h1>
+        <motion.h1 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mt-4 text-4xl sm:text-5xl lg:text-7xl font-sans font-bold text-foreground leading-[1.05] tracking-tighter"
+        >
+          The operating system for
+          <br className="hidden sm:block" />
+          <span className="text-muted-foreground"> modern agencies</span>
+        </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1 }}
-          className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium"
         >
           Manage projects, track finances, automate workflows, and scale your agency
           with one powerful platform built for the way you work.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link to="/agency-signup">
             <Button
               size="lg"
               variant="primary"
-              className="px-8 h-12 text-base rounded-xl"
+              className="px-8 h-11 text-[15px] font-medium rounded-full shadow-sm hover:shadow transition-all group"
             >
-              <span className="relative z-10 flex items-center gap-2">
-                Start Free Trial
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
+              Start Free Trial
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
             </Button>
           </Link>
 
@@ -290,7 +289,7 @@ export const Hero = () => {
             <Button
               size="lg"
               variant="outline"
-              className="px-8 h-12 text-base rounded-xl"
+              className="px-8 h-11 text-[15px] font-medium rounded-full border-border/50 hover:bg-secondary/50 transition-all"
             >
               Sign In
             </Button>

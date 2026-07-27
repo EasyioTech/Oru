@@ -30,12 +30,12 @@ async function getActiveProvider() {
   try {
     const { getEmailConfig } = require('../utils/systemSettings');
     const emailConfig = await getEmailConfig();
-    
+
     // Use system settings if configured
     if (emailConfig.provider && emailConfig.provider !== 'smtp') {
       return emailConfig.provider.toLowerCase();
     }
-    
+
     // Check if provider-specific settings are configured in system settings
     if (emailConfig.sendgrid.apiKey) return PROVIDERS.SENDGRID;
     if (emailConfig.mailgun.apiKey && emailConfig.mailgun.domain) return PROVIDERS.MAILGUN;
@@ -45,7 +45,7 @@ async function getActiveProvider() {
     // Fall back to environment variables if system settings not available
     console.warn('[Email] Could not load system settings, using environment variables:', error.message);
   }
-  
+
   // Fallback to environment variables
   // Priority order: explicit provider > Mailtrap > Postmark > SendGrid > Mailgun > AWS SES > Resend > SMTP
   if (process.env.EMAIL_PROVIDER) {
@@ -75,26 +75,26 @@ async function getActiveProvider() {
 // Create transporter based on provider
 async function createTransporter(config = {}) {
   const provider = config.provider || await getActiveProvider();
-  
+
   switch (provider) {
     case PROVIDERS.SENDGRID:
       return await createSendGridTransporter(config);
-    
+
     case PROVIDERS.MAILGUN:
       return await createMailgunTransporter(config);
-    
+
     case PROVIDERS.AWS_SES:
       return await createSESTransporter(config);
-    
+
     case PROVIDERS.RESEND:
       return await createResendTransporter(config);
-    
+
     case PROVIDERS.POSTMARK:
       return await createPostmarkTransporter(config);
-    
+
     case PROVIDERS.MAILTRAP:
       return await createMailtrapTransporter(config);
-    
+
     case PROVIDERS.SMTP:
     default:
       return await createSMTPTransporter(config);
@@ -111,13 +111,13 @@ async function createSMTPTransporter(config = {}) {
   } catch (error) {
     // Fall back to environment variables
   }
-  
+
   const host = config.host || emailConfig.smtp?.host || process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(config.port || emailConfig.smtp?.port || process.env.SMTP_PORT || '587', 10);
   const user = config.user || emailConfig.smtp?.user || process.env.SMTP_USER || '';
   const password = config.password || emailConfig.smtp?.password || process.env.SMTP_PASSWORD || '';
   const from = config.from || emailConfig.smtp?.from || process.env.SMTP_FROM || user || 'noreply@oru.app';
-  
+
   // Determine secure/SSL settings
   // Mailtrap sandbox uses STARTTLS on port 2525 (not SSL)
   // Port 465 = SSL, Port 587/2525 = STARTTLS
@@ -170,9 +170,9 @@ async function createSendGridTransporter(config = {}) {
   } catch (error) {
     // Fall back to environment variables
   }
-  
+
   const apiKey = config.apiKey || emailConfig.sendgrid?.apiKey || process.env.SENDGRID_API_KEY;
-  
+
   if (!apiKey) {
     throw new Error('SendGrid API key is required. Set SENDGRID_API_KEY environment variable or configure in system settings.');
   }
@@ -196,10 +196,10 @@ async function createMailgunTransporter(config = {}) {
   } catch (error) {
     // Fall back to environment variables
   }
-  
+
   const apiKey = config.apiKey || emailConfig.mailgun?.apiKey || process.env.MAILGUN_API_KEY;
   const domain = config.domain || emailConfig.mailgun?.domain || process.env.MAILGUN_DOMAIN;
-  
+
   if (!apiKey || !domain) {
     throw new Error('Mailgun API key and domain are required. Set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.');
   }
@@ -220,7 +220,7 @@ function createSESTransporter(config = {}) {
   const region = config.region || process.env.AWS_SES_REGION || 'us-east-1';
   const accessKeyId = config.accessKeyId || process.env.AWS_ACCESS_KEY_ID;
   const secretAccessKey = config.secretAccessKey || process.env.AWS_SECRET_ACCESS_KEY;
-  
+
   if (!accessKeyId || !secretAccessKey) {
     throw new Error('AWS credentials are required. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.');
   }
@@ -241,7 +241,7 @@ function createSESTransporter(config = {}) {
 // Resend Transporter
 function createResendTransporter(config = {}) {
   const apiKey = config.apiKey || process.env.RESEND_API_KEY;
-  
+
   if (!apiKey) {
     throw new Error('Resend API key is required. Set RESEND_API_KEY environment variable.');
   }
@@ -254,7 +254,7 @@ function createResendTransporter(config = {}) {
 // Postmark Transporter
 function createPostmarkTransporter(config = {}) {
   const apiToken = config.apiToken || process.env.POSTMARK_API_TOKEN;
-  
+
   if (!apiToken) {
     throw new Error('Postmark API token is required. Set POSTMARK_API_TOKEN environment variable.');
   }
@@ -267,7 +267,7 @@ function createPostmarkTransporter(config = {}) {
 // Mailtrap Transporter
 function createMailtrapTransporter(config = {}) {
   const apiToken = config.apiToken || process.env.MAILTRAP_API_TOKEN;
-  
+
   if (!apiToken) {
     throw new Error('Mailtrap API token is required. Set MAILTRAP_API_TOKEN environment variable.');
   }
@@ -281,7 +281,7 @@ function createMailtrapTransporter(config = {}) {
 async function sendEmailViaResend(mailOptions, config = {}) {
   const apiKey = config.apiKey || process.env.RESEND_API_KEY;
   const from = mailOptions.from || process.env.RESEND_FROM || 'onboarding@resend.dev';
-  
+
   // Use built-in fetch (Node.js 18+) or require node-fetch for older versions
   let fetch;
   try {
@@ -290,7 +290,7 @@ async function sendEmailViaResend(mailOptions, config = {}) {
   } catch (e) {
     throw new Error('Resend requires Node.js 18+ with built-in fetch or node-fetch package');
   }
-  
+
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -311,7 +311,7 @@ async function sendEmailViaResend(mailOptions, config = {}) {
   });
 
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.message || 'Failed to send email via Resend');
   }
@@ -327,7 +327,7 @@ async function sendEmailViaResend(mailOptions, config = {}) {
 async function sendEmailViaPostmark(mailOptions, config = {}) {
   const apiToken = config.apiToken || process.env.POSTMARK_API_TOKEN;
   const from = mailOptions.from || process.env.POSTMARK_FROM || 'noreply@oru.app';
-  
+
   // Use built-in fetch (Node.js 18+) or require node-fetch for older versions
   let fetch;
   try {
@@ -336,7 +336,7 @@ async function sendEmailViaPostmark(mailOptions, config = {}) {
   } catch (e) {
     throw new Error('Postmark requires Node.js 18+ with built-in fetch or node-fetch package');
   }
-  
+
   // Postmark API endpoint
   const response = await fetch('https://api.postmarkapp.com/email', {
     method: 'POST',
@@ -352,8 +352,8 @@ async function sendEmailViaPostmark(mailOptions, config = {}) {
       HtmlBody: mailOptions.html,
       TextBody: mailOptions.text || mailOptions.html.replace(/<[^>]*>/g, ''),
       Attachments: mailOptions.attachments?.map(att => {
-        const content = typeof att.content === 'string' 
-          ? att.content 
+        const content = typeof att.content === 'string'
+          ? att.content
           : Buffer.from(att.content).toString('base64');
         return {
           Name: att.filename,
@@ -367,7 +367,7 @@ async function sendEmailViaPostmark(mailOptions, config = {}) {
   });
 
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.Message || data.ErrorCode || 'Failed to send email via Postmark');
   }
@@ -460,7 +460,7 @@ async function sendEmailViaMailtrap(mailOptions, config = {}) {
   }
 
   if (mailOptions.replyTo) {
-    emailPayload.reply_to = typeof mailOptions.replyTo === 'string' 
+    emailPayload.reply_to = typeof mailOptions.replyTo === 'string'
       ? { email: mailOptions.replyTo }
       : mailOptions.replyTo;
   }
@@ -468,10 +468,10 @@ async function sendEmailViaMailtrap(mailOptions, config = {}) {
   if (mailOptions.attachments && mailOptions.attachments.length > 0) {
     emailPayload.attachments = mailOptions.attachments.map(att => ({
       filename: att.filename,
-      content: typeof att.content === 'string' 
+      content: typeof att.content === 'string'
         ? Buffer.from(att.content, 'base64')
-        : Buffer.isBuffer(att.content) 
-          ? att.content 
+        : Buffer.isBuffer(att.content)
+          ? att.content
           : Buffer.from(att.content),
       content_id: att.contentId || att.filename,
       disposition: att.disposition || 'attachment',
@@ -516,7 +516,7 @@ async function sendEmail(to, subject, html, text = null, attachments = [], optio
   try {
     const provider = options.provider || await getActiveProvider();
     const config = options.config || {};
-    
+
     // Handle Resend separately (HTTP API)
     if (provider === PROVIDERS.RESEND) {
       const mailOptions = {
@@ -566,14 +566,14 @@ async function sendEmail(to, subject, html, text = null, attachments = [], optio
       cachedProvider = provider;
     }
 
-    const from = options.from || 
-                 config.from || 
-                 process.env.SMTP_FROM || 
-                 process.env.RESEND_FROM ||
-                 process.env.SENDGRID_FROM ||
-                 process.env.POSTMARK_FROM ||
-                 process.env.MAILTRAP_FROM ||
-                 'noreply@oru.app';
+    const from = options.from ||
+      config.from ||
+      process.env.SMTP_FROM ||
+      process.env.RESEND_FROM ||
+      process.env.SENDGRID_FROM ||
+      process.env.POSTMARK_FROM ||
+      process.env.MAILTRAP_FROM ||
+      'noreply@oru.app';
 
     const mailOptions = {
       from,
@@ -587,7 +587,7 @@ async function sendEmail(to, subject, html, text = null, attachments = [], optio
 
     const result = await cachedTransporter.sendMail(mailOptions);
     console.log(`[Email] ✅ Email sent via ${provider}:`, result.messageId);
-    
+
     return {
       success: true,
       messageId: result.messageId,
@@ -629,7 +629,7 @@ async function sendReportEmail(recipients, reportData, reportName, format = 'pdf
             <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
           </div>
           <div class="footer">
-            <p>This is an automated email from BuildFlow ERP System.</p>
+            <p>This is an automated email from Oru Erp System.</p>
           </div>
         </div>
       </body>
@@ -671,7 +671,7 @@ async function sendNotificationEmail(to, title, message, actionUrl = null, optio
             ${actionUrl ? `<p><a href="${actionUrl}" class="button">View Details</a></p>` : ''}
           </div>
           <div class="footer">
-            <p>BuildFlow ERP System</p>
+            <p>Oru Erp System</p>
           </div>
         </div>
       </body>
@@ -716,7 +716,7 @@ async function send2FASetupEmail(to, recoveryCodes, options = {}) {
             </div>
           </div>
           <div class="footer">
-            <p>BuildFlow ERP System</p>
+            <p>Oru Erp System</p>
           </div>
         </div>
       </body>

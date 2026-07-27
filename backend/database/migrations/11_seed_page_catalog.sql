@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Seed Page Catalog
+-- Oru Erp - Seed Page Catalog
 -- ============================================================================
 -- This migration seeds the page_catalog table with all pages from routePermissions.ts
 -- Database: buildflow_db

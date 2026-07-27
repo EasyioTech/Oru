@@ -1,39 +1,103 @@
-
-import { FastifyInstance } from 'fastify';
-import { ProjectManagementService } from './services/project-management.service.js';
-import { ProjectDetailsService } from './services/project-details.service.js';
-import { CreateProjectInput, UpdateProjectInput, ProjectsQueryInput } from './schemas.js';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { eq, and, ilike, or, SQL } from 'drizzle-orm';
+import { projects, projectTasks } from './schema.js';
+import { ProjectFilters, NewProject, NewTask } from './types.js';
+import { indexProjects, removeFromIndex } from '../../infrastructure/meilisearch/indexer.js';
 
 export class ProjectService {
-    private management: ProjectManagementService;
-    private details: ProjectDetailsService;
+    constructor(
+        private db: NodePgDatabase<any> | any,
+        private agencyId: string
+    ) { }
 
-    constructor(private readonly app: FastifyInstance) {
-        this.management = new ProjectManagementService(app);
-        this.details = new ProjectDetailsService(app);
+    // --- PROJECTS ---
+
+    async getProjects(filters?: ProjectFilters) {
+        const conditions: SQL[] = [eq(projects.agencyId, this.agencyId)];
+        
+        if (filters?.status && filters.status !== 'all') {
+            conditions.push(eq(projects.status, filters.status));
+        }
+        
+        if (filters?.clientId) {
+            conditions.push(eq(projects.clientId, filters.clientId));
+        }
+        
+        if (filters?.search) {
+            conditions.push(or(
+                ilike(projects.name, `%${filters.search}%`),
+                ilike(projects.projectCode, `%${filters.search}%`)
+            ) as SQL);
+        }
+
+        const data = await this.db.select().from(projects).where(and(...conditions));
+        return data;
     }
 
-    async getProjects(agencyId: string, params?: ProjectsQueryInput) {
-        return this.management.getProjects(agencyId, params);
+    async getProject(id: string) {
+        const [project] = await this.db.select().from(projects).where(and(eq(projects.id, id), eq(projects.agencyId, this.agencyId)));
+        if (!project) throw new Error('Project not found');
+        return project;
     }
 
-    async getProject(agencyId: string, id: string) {
-        return this.management.getProject(agencyId, id);
+    async createProject(data: NewProject) {
+        const [project] = await this.db.insert(projects).values({ 
+            ...data,
+            agencyId: this.agencyId
+        }).returning();
+        Promise.resolve().then(() => indexProjects(this.agencyId, [project]).catch(() => {}));
+        return project;
     }
 
-    async getProjectDetails(agencyId: string, id: string) {
-        return this.details.getProjectDetails(agencyId, id);
+    async updateProject(id: string, data: Partial<NewProject>) {
+        const [project] = await this.db.update(projects)
+            .set({ ...data, updatedAt: new Date() })
+            .where(and(eq(projects.id, id), eq(projects.agencyId, this.agencyId)))
+            .returning();
+        Promise.resolve().then(() => indexProjects(this.agencyId, [project]).catch(() => {}));
+        return project;
     }
 
-    async createProject(agencyId: string, input: CreateProjectInput, userId: string) {
-        return this.management.createProject(agencyId, input, userId);
+    async deleteProject(id: string) {
+        await this.db.update(projects)
+            .set({ deletedAt: new Date() })
+            .where(and(eq(projects.id, id), eq(projects.agencyId, this.agencyId)));
+        Promise.resolve().then(() => removeFromIndex('projects', id).catch(() => {}));
     }
 
-    async updateProject(agencyId: string, id: string, input: UpdateProjectInput) {
-        return this.management.updateProject(agencyId, id, input);
+    // --- TASKS ---
+
+    async getTasks(projectId: string) {
+        const data = await this.db.select().from(projectTasks).where(and(eq(projectTasks.projectId, projectId), eq(projectTasks.agencyId, this.agencyId)));
+        return data;
     }
 
-    async deleteProject(agencyId: string, id: string) {
-        return this.management.deleteProject(agencyId, id);
+    async getTask(taskId: string) {
+        const [task] = await this.db.select().from(projectTasks).where(and(eq(projectTasks.id, taskId), eq(projectTasks.agencyId, this.agencyId)));
+        if (!task) throw new Error('Task not found');
+        return task;
+    }
+
+    async createTask(projectId: string, data: NewTask) {
+        const [task] = await this.db.insert(projectTasks).values({
+            ...data,
+            agencyId: this.agencyId,
+            projectId
+        }).returning();
+        return task;
+    }
+
+    async updateTask(taskId: string, data: Partial<NewTask>) {
+        const [task] = await this.db.update(projectTasks)
+            .set({ ...data, updatedAt: new Date() })
+            .where(and(eq(projectTasks.id, taskId), eq(projectTasks.agencyId, this.agencyId)))
+            .returning();
+        return task;
+    }
+
+    async deleteTask(taskId: string) {
+        await this.db.update(projectTasks)
+            .set({ deletedAt: new Date() })
+            .where(and(eq(projectTasks.id, taskId), eq(projectTasks.agencyId, this.agencyId)));
     }
 }

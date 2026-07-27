@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - GST Compliance Schema Migration
+-- Oru Erp - GST Compliance Schema Migration
 -- ============================================================================
 -- This migration creates the GST compliance tables and functions
 -- Database: buildflow_db

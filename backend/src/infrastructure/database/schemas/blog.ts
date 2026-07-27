@@ -1,7 +1,6 @@
 import { pgTable, uuid, text, boolean, timestamp, jsonb, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { users } from './users.js';
-import { pageCatalog } from './catalog.js';
 
 /**
  * Blog Posts Table
@@ -23,9 +22,6 @@ export const blogPosts = pgTable('blog_posts', {
     seoDescription: text('seo_description'),
     seoKeywords: text('seo_keywords').array(),
     
-    // Content Integration
-    relatedFeatureId: uuid('related_feature_id').references(() => pageCatalog.id, { onDelete: 'set null' }),
-    
     // Status
     isPublished: boolean('is_published').default(false).notNull(),
     isFeatured: boolean('is_featured').default(false).notNull(),
@@ -40,7 +36,6 @@ export const blogPosts = pgTable('blog_posts', {
     slugIdx: uniqueIndex('idx_blog_posts_slug').on(table.slug),
     publishedIdx: index('idx_blog_posts_published').on(table.publishedAt).where(sql`is_published = true`),
     categoryIdx: index('idx_blog_posts_category').on(table.category),
-    featureIdx: index('idx_blog_posts_feature').on(table.relatedFeatureId),
 }));
 
 /**

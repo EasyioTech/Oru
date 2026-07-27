@@ -7,7 +7,6 @@ export * from './schemas/agency.js';
 export * from './schemas/system.js';
 export * from './schemas/monitoring.js';
 export * from './schemas/provisioning.js';
-export * from './schemas/catalog.js';
 export * from './schemas/plans.js';
 export * from './schemas/features.js';
 

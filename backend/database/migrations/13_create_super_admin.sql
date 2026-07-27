@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Super Admin User Creation Migration
+-- Oru Erp - Super Admin User Creation Migration
 -- ============================================================================
 -- This migration creates a super admin user in the buildflow_db database
 -- Database: buildflow_db

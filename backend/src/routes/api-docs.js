@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
   res.json({
     openapi: '3.0.0',
     info: {
-      title: 'BuildFlow ERP API',
+      title: 'Oru Erp API',
       version: '1.0.0',
       description: 'Comprehensive ERP API for BuildFlow Agency Management System',
     },

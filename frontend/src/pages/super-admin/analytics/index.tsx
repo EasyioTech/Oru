@@ -1,67 +1,82 @@
-/**
- * System Analytics Page for Super Admin
- */
-
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
-import { useSystemAnalytics } from '@/hooks/useSystemAnalytics';
-import { SystemDashboardCharts } from '@/components/system/SystemDashboardCharts';
-import { PageContainer } from '@/components/layout/PageContainer';
-import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { useAdminMetrics } from '@/hooks/useAdminMetrics';
+import { Card as TremorCard, Metric, Text, Grid } from '@tremor/react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const Analytics = () => {
-  const { user, userRole, isSystemSuperAdmin } = useAuth();
-  
-  const { metrics, loading } = useSystemAnalytics({
-    userId: user?.id || '',
-    userRole: userRole || ''
-  });
+export default function AnalyticsPage() {
+  const { user } = useAuth();
+  const { metrics, isLoading } = useAdminMetrics();
 
-  if (!isSystemSuperAdmin && userRole !== 'super_admin') {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  if (user?.role !== 'super_admin') return <Navigate to="/" />;
+
+  if (isLoading) return <div className="p-6">Loading metrics...</div>;
+  if (!metrics) return <div className="p-6">Failed to load metrics.</div>;
 
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">System Analytics</h1>
-          <p className="text-muted-foreground mt-1">
-            Platform-wide analytics and insights
-          </p>
-        </div>
-        
-        {loading && !metrics ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-        ) : metrics ? (
-          <SystemDashboardCharts metrics={metrics} />
-        ) : (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">No analytics data available</p>
-            </CardContent>
-          </Card>
-        )}
+    <div className="container mx-auto p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Platform Analytics</h1>
+        <p className="text-muted-foreground">High-level KPIs and trends.</p>
       </div>
-    </PageContainer>
+
+      <Grid numItemsSm={2} numItemsLg={4} className="gap-6">
+        <TremorCard>
+          <Text>Total Agencies</Text>
+          <Metric>{metrics.totalAgencies}</Metric>
+        </TremorCard>
+        <TremorCard>
+          <Text>Active Agencies</Text>
+          <Metric>{metrics.activeAgencies}</Metric>
+        </TremorCard>
+        <TremorCard>
+          <Text>Total Users</Text>
+          <Metric>{metrics.totalUsers}</Metric>
+        </TremorCard>
+        <TremorCard>
+          <Text>Total Revenue</Text>
+          <Metric>
+            ${Object.values(metrics.revenueByPlan || {}).reduce((a, b) => a + b, 0).toLocaleString()}
+          </Metric>
+        </TremorCard>
+      </Grid>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Agencies by Plan</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={metrics.agenciesByPlan || []}>
+                <XAxis dataKey="plan" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue by Plan</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={Object.entries(metrics.revenueByPlan || {}).map(([plan, revenue]) => ({ plan, revenue }))}
+              >
+                <XAxis dataKey="plan" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="revenue" fill="#10b981" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
-};
-
-export default Analytics;
-
+}

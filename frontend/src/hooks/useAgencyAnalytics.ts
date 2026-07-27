@@ -93,7 +93,7 @@ export const useAgencyAnalytics = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchAgencyMetrics();

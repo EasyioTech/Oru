@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Core Schema Migration
+-- Oru Erp - Core Schema Migration
 -- ============================================================================
 -- This migration creates the core authentication and agency tables
 -- Database: buildflow_db

@@ -142,7 +142,7 @@ export class WorkspaceProfileService {
       const activities = await this.db.query.workspaceActivity.findMany({
         where: eq(workspaceActivity.workspace_id, workspaceId),
         limit,
-        orderBy: (t) => [t.timestamp],
+        orderBy: (t: any) => [t.timestamp],
       });
       return activities;
     } catch (error) {

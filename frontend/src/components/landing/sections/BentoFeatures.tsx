@@ -265,28 +265,28 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: n
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
-      className={`group relative rounded-[2.5rem] border border-border bg-card/40 backdrop-blur-xl overflow-hidden shadow-2xl shadow-black/5 hover:shadow-primary/5 transition-all duration-700 cursor-pointer p-8 ${feature.gridClass}`}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
+      className={`group relative rounded-3xl border border-border/60 bg-card/40 backdrop-blur-md overflow-hidden shadow-sm hover:shadow-md hover:border-border transition-all duration-300 cursor-pointer p-8 ${feature.gridClass}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="flex flex-col h-full relative z-10">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-3.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/5">
+            <div className="p-3 rounded-xl bg-secondary border border-border/50 text-foreground group-hover:scale-105 transition-transform duration-300 shadow-sm">
               <feature.icon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-foreground font-display tracking-tight group-hover:text-primary transition-colors">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground mt-1 leading-relaxed max-w-[240px]">{feature.description}</p>
+              <h3 className="text-[17px] font-semibold text-foreground tracking-tight transition-colors">{feature.title}</h3>
+              <p className="text-[14px] text-muted-foreground mt-1 leading-relaxed max-w-[240px]">{feature.description}</p>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-            <ArrowUpRight className="w-5 h-5 text-primary" />
+          <div className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+            <ArrowUpRight className="w-4 h-4 text-foreground" />
           </div>
         </div>
 
-        <div className="flex-1 min-h-[220px] rounded-[1.5rem] border border-border overflow-hidden ring-4 ring-secondary/30 group-hover:ring-primary/5 transition-all duration-700 shadow-inner">
+        <div className="flex-1 min-h-[220px] rounded-2xl border border-border/50 overflow-hidden bg-background/50 group-hover:border-border transition-all duration-300">
           <Preview />
         </div>
       </div>

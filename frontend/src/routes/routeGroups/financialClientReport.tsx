@@ -89,17 +89,7 @@ export const FinancialRoutes = () => [
       </ProtectedRoute>
     }
   />,
-  <Route
-    key="/gst-compliance"
-    path="/gst-compliance"
-    element={
-      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.GstCompliance /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
+
   <Route
     key="/reimbursements"
     path="/reimbursements"

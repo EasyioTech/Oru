@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, RefreshCw, BarChart3 } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -200,28 +201,24 @@ const Reports = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Reports & Analytics</h1>
-          <p className="text-muted-foreground">View comprehensive business reports and performance metrics</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={refreshAll} disabled={Object.values(loading).some(l => l)}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${Object.values(loading).some(l => l) ? 'animate-spin' : ''}`} />
-            Refresh All
-          </Button>
-          <Button variant="outline" onClick={handleExportAll} disabled={loading.monthly || loading.yearly}>
-            <Download className="mr-2 h-4 w-4" />
-            Export All
-          </Button>
-          <Dialog open={createReportOpen} onOpenChange={setCreateReportOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <BarChart3 className="mr-2 h-4 w-4" />
-                Create Custom Report
-              </Button>
-            </DialogTrigger>
+    <div className="space-y-5">
+      <PageHeader
+        title="Reports &amp; Analytics"
+        description="View comprehensive business reports and performance metrics"
+        actions={
+          <div className="flex gap-2 flex-wrap">
+            <Button size="sm" variant="outline" className="h-8 sm:h-9 gap-1 text-xs sm:text-sm" onClick={refreshAll} disabled={Object.values(loading).some(l => l)}>
+              <RefreshCw className={`h-3.5 w-3.5 ${Object.values(loading).some(l => l) ? 'animate-spin' : ''}`} /> Refresh
+            </Button>
+            <Button size="sm" variant="outline" className="h-8 sm:h-9 gap-1 text-xs sm:text-sm" onClick={handleExportAll} disabled={loading.monthly || loading.yearly}>
+              <Download className="h-3.5 w-3.5" /> Export
+            </Button>
+            <Dialog open={createReportOpen} onOpenChange={setCreateReportOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="h-8 sm:h-9 gap-1 text-xs sm:text-sm">
+                  <BarChart3 className="h-3.5 w-3.5" /> Custom Report
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Create Custom Report</DialogTitle>

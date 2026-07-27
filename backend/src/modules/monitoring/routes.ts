@@ -1,7 +1,7 @@
 
 import { FastifyPluginAsync } from 'fastify';
 import { MonitoringService } from './service.js';
-import { listHealthMetricsResponseSchema, listAuditLogsResponseSchema, usageAnalyticsSchema, systemHealthSchema } from './schemas.js';
+import { listHealthMetricsResponseSchema, listAuditLogsResponseSchema, systemHealthSchema } from './schemas.js';
 import { z } from 'zod';
 import { ForbiddenError } from '../../utils/errors.js';
 
@@ -44,23 +44,6 @@ const monitoringRoutes: FastifyPluginAsync = async (fastify) => {
         }
     });
 
-    // Get Analytics
-    fastify.get('/analytics', {
-        onRequest: [fastify.authenticate],
-    }, async (request, reply) => {
-        try {
-            if (!request.ability.can('read', 'System')) {
-                throw new ForbiddenError();
-            }
-
-            const analytics = await service.getUsageAnalytics();
-            const response = z.array(usageAnalyticsSchema).parse(analytics);
-            return { success: true, data: response };
-        } catch (error) {
-            fastify.log.error(error);
-            throw error;
-        }
-    });
     // Get Live Health
     fastify.get('/live-health', {
         onRequest: [fastify.authenticate],

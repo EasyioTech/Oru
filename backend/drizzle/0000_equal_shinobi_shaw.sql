@@ -427,7 +427,7 @@ CREATE TABLE IF NOT EXISTS "system_email_providers" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "system_settings" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"system_name" text DEFAULT 'BuildFlow ERP' NOT NULL,
+	"system_name" text DEFAULT 'Oru Erp' NOT NULL,
 	"system_tagline" text,
 	"system_description" text,
 	"logo_url" text,

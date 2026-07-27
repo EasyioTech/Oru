@@ -1,22 +1,20 @@
-
-import { db } from '../../../infrastructure/database/index.js';
 import { systemSettings, systemFeatures } from '../../../infrastructure/database/schema.js';
 import { eq } from 'drizzle-orm';
-import { FastifyInstance } from 'fastify';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AppError, NotFoundError } from '../../../utils/errors.js';
 import { UpdateSystemSettingsInput, CreateFeatureInput, UpdateFeatureInput } from '../schemas.js';
 import { encrypt, decrypt } from '../../../utils/encryption.js';
 
 export class SystemManagementService {
-    constructor(private readonly app: FastifyInstance) { }
+    constructor(private db: NodePgDatabase<any>) { }
 
     private maskSecret(encryptedValue?: string | null): string | undefined {
         return encryptedValue ? '***' : undefined;
     }
 
     async getSettings() {
-        await db.insert(systemSettings).values({ systemName: 'BuildFlow ERP' }).onConflictDoNothing();
-        const [settings] = await db.select().from(systemSettings).limit(1);
+        await this.db.insert(systemSettings).values({ systemName: 'Oru Erp' }).onConflictDoNothing();
+        const [settings] = await this.db.select().from(systemSettings).limit(1);
         if (!settings) throw new AppError('Failed to initialize system settings');
 
         const socialLinks = (settings.socialLinks as Record<string, string>) || {};
@@ -40,7 +38,7 @@ export class SystemManagementService {
     }
 
     async updateSettings(updates: UpdateSystemSettingsInput) {
-        let currentSettings = await db.select().from(systemSettings).limit(1).then(res => res[0]);
+        let currentSettings = await this.db.select().from(systemSettings).limit(1).then(res => res[0]);
         if (!currentSettings) throw new AppError('System settings not initialized');
 
         // Extract social fields
@@ -91,7 +89,7 @@ export class SystemManagementService {
         dbUpdates.socialLinks = socialLinks;
         dbUpdates.legalLinks = legalLinks;
 
-        await db.update(systemSettings)
+        await this.db.update(systemSettings)
             .set({ ...dbUpdates, updatedAt: new Date() })
             .where(eq(systemSettings.id, currentSettings.id));
 
@@ -99,12 +97,12 @@ export class SystemManagementService {
     }
 
     async getSystemFeatures() {
-        const featuresList = await db.select().from(systemFeatures).where(eq(systemFeatures.isActive, true));
-        return { features: featuresList, enabledModules: ['agencies', 'users', 'catalog'] };
+        const featuresList = await this.db.select().from(systemFeatures).where(eq(systemFeatures.isActive, true));
+        return { features: featuresList, enabledModules: ['agencies', 'users', 'crm', 'hr', 'finance', 'projects', 'procurement', 'reports', 'inventory'] };
     }
 
     async createFeature(input: CreateFeatureInput) {
-        const [feature] = await db.insert(systemFeatures).values({ ...input }).returning();
+        const [feature] = await this.db.insert(systemFeatures).values({ ...input }).returning();
         return feature;
     }
 
@@ -145,7 +143,7 @@ export class SystemManagementService {
     }
 
     async updateFeature(featureId: string, updates: UpdateFeatureInput) {
-        const [updatedFeature] = await db.update(systemFeatures)
+        const [updatedFeature] = await this.db.update(systemFeatures)
             .set({ ...updates, updatedAt: new Date() })
             .where(eq(systemFeatures.id, featureId))
             .returning();
@@ -157,7 +155,7 @@ export class SystemManagementService {
     }
 
     async deleteFeature(featureId: string) {
-        const [deletedFeature] = await db.delete(systemFeatures)
+        const [deletedFeature] = await this.db.delete(systemFeatures)
             .where(eq(systemFeatures.id, featureId))
             .returning();
 

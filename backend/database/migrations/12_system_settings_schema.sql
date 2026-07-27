@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - System Settings Schema Migration
+-- Oru Erp - System Settings Schema Migration
 -- ============================================================================
 -- This migration creates the system_settings table for super admin configuration
 -- Database: buildflow_db
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- System Identity
-    system_name TEXT NOT NULL DEFAULT 'BuildFlow ERP',
+    system_name TEXT NOT NULL DEFAULT 'Oru Erp',
     system_tagline TEXT,
     system_description TEXT,
     
@@ -106,7 +106,7 @@ DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM public.system_settings LIMIT 1) THEN
         INSERT INTO public.system_settings (system_name, system_tagline, system_description)
-        VALUES ('BuildFlow ERP', 'Complete Business Management Solution', 'A comprehensive ERP system for managing your business operations');
+        VALUES ('Oru Erp', 'Complete Business Management Solution', 'A comprehensive ERP system for managing your business operations');
     END IF;
 END $$;
 

@@ -1,5 +1,6 @@
-// PostgreSQL-compatible Database Client for Browser
-// Makes HTTP API calls to backend server that connects to PostgreSQL
-
-// Re-export from HTTP client (removed localStorage implementation)
-export * from './client-http';
+export const pgClient = {
+  query: async () => ({ rows: [] }),
+};
+export const queryOne = async () => null;
+export const queryMany = async () => [];
+export const execute = async () => null;

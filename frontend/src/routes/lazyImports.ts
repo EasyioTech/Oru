@@ -7,20 +7,16 @@ export const SauthLogin = React.lazy(() => import("../pages/auth/sauth-login"));
 export const SignupSuccess = React.lazy(() => import("../pages/auth/signup-success"));
 export const ForgotPassword = React.lazy(() => import("../pages/auth/forgot-password"));
 export const NotFound = React.lazy(() => import("../pages/public/not-found"));
-export const OnboardingWizard = React.lazy(() => import("../components/onboarding/OnboardingWizard"));
-
+export const OnboardingWizard = React.lazy(() => import("../pages/auth/agency-signup"));
 // Dashboard & Core
 export const Index = React.lazy(() => import("../pages/dashboards"));
 export const AgencyAdminDashboard = React.lazy(() => import("../pages/dashboards/agency-admin"));
-export const AgencySetup = React.lazy(() => import("../pages/agency-setup"));
-export const AgencySetupProgress = React.lazy(() => import("../pages/agency-setup/agency-setup-progress"));
 export const SuperAdminDashboard = React.lazy(() => import("../pages/dashboards/super-admin"));
 export const SuperAdminDashboardNew = React.lazy(() => import("../pages/super-admin/dashboard"));
 export const AgencyManagement = React.lazy(() => import("../pages/super-admin/agency-management"));
 export const AgencyDataViewer = React.lazy(() => import("../pages/super-admin/agency-data-viewer"));
 export const SystemSettings = React.lazy(() => import("../pages/super-admin/system-settings"));
 export const PlanManagement = React.lazy(() => import("../pages/super-admin/plan-management"));
-export const PageCatalogManagement = React.lazy(() => import("../pages/super-admin/page-catalog-management"));
 export const SuperAdminAnalytics = React.lazy(() => import("../pages/super-admin/analytics"));
 export const SuperAdminLayout = React.lazy(() => import("../components/super-admin/SuperAdminLayout").then(m => ({ default: m.SuperAdminLayout })));
 export const SystemDashboard = React.lazy(() => import("../pages/dashboards/system"));
@@ -29,6 +25,7 @@ export const SystemEmailPage = React.lazy(() => import("../pages/super-admin/sys
 
 // Employee Management
 export const EmployeeManagement = React.lazy(() => import("../pages/employees"));
+export const EmployeeDetails = React.lazy(() => import("../pages/employees/employee-details"));
 export const CreateEmployee = React.lazy(() => import("../pages/employees/create-employee"));
 export const AssignUserRoles = React.lazy(() => import("../pages/employees/assign-user-roles"));
 export const EmployeeProjects = React.lazy(() => import("../pages/employees/employee-projects"));
@@ -59,7 +56,6 @@ export const Receipts = React.lazy(() => import("../pages/financial/receipts"));
 export const Ledger = React.lazy(() => import("../pages/financial/ledger"));
 export const CreateJournalEntry = React.lazy(() => import("../pages/financial/create-journal-entry"));
 export const FinancialManagement = React.lazy(() => import("../pages/financial"));
-export const GstCompliance = React.lazy(() => import("../pages/financial/gst-compliance"));
 export const Reimbursements = React.lazy(() => import("../pages/financial/reimbursements").then(m => ({ default: m.Reimbursements })));
 
 // Clients & CRM
@@ -76,50 +72,12 @@ export const CustomReports = React.lazy(() => import("../pages/reports/custom-re
 export const ScheduledReports = React.lazy(() => import("../pages/reports/scheduled-reports"));
 export const ReportExports = React.lazy(() => import("../pages/reports/report-exports"));
 
-// Inventory
-export const InventoryManagement = React.lazy(() => import("../pages/inventory"));
-export const InventoryProducts = React.lazy(() => import("../pages/inventory/products"));
-export const InventoryBOM = React.lazy(() => import("../pages/inventory/bom"));
-export const InventorySerialBatch = React.lazy(() => import("../pages/inventory/serial-batch"));
-export const InventoryReports = React.lazy(() => import("../pages/inventory/reports"));
-export const InventorySettings = React.lazy(() => import("../pages/inventory/settings"));
-export const InventoryWarehouses = React.lazy(() => import("../pages/inventory/warehouses"));
-export const InventoryStockLevels = React.lazy(() => import("../pages/inventory/stock-levels"));
-export const InventoryTransfers = React.lazy(() => import("../pages/inventory/transfers"));
-export const InventoryAdjustments = React.lazy(() => import("../pages/inventory/adjustments"));
+// Inventory — deferred, module not active in MVP
 
-// Procurement
-export const ProcurementManagement = React.lazy(() => import("../pages/procurement"));
-export const ProcurementVendors = React.lazy(() => import("../pages/procurement/vendors"));
-export const ProcurementPurchaseOrders = React.lazy(() => import("../pages/procurement/purchase-orders"));
-export const ProcurementRequisitions = React.lazy(() => import("../pages/procurement/requisitions"));
-export const ProcurementGoodsReceipts = React.lazy(() => import("../pages/procurement/goods-receipts"));
-export const ProcurementRFQ = React.lazy(() => import("../pages/procurement/rfq"));
-export const ProcurementVendorContracts = React.lazy(() => import("../pages/procurement/vendor-contracts"));
-export const ProcurementVendorPerformance = React.lazy(() => import("../pages/procurement/vendor-performance"));
-export const ProcurementReports = React.lazy(() => import("../pages/procurement/reports"));
-export const ProcurementSettings = React.lazy(() => import("../pages/procurement/settings"));
-
-// Assets
-export const Assets = React.lazy(() => import("../pages/assets"));
-export const AssetCategories = React.lazy(() => import("../pages/assets/categories"));
-export const AssetLocations = React.lazy(() => import("../pages/assets/locations"));
-export const AssetMaintenance = React.lazy(() => import("../pages/assets/maintenance"));
-export const AssetDepreciation = React.lazy(() => import("../pages/assets/depreciation"));
-export const AssetDisposals = React.lazy(() => import("../pages/assets/disposals"));
-export const AssetReports = React.lazy(() => import("../pages/assets/reports"));
-export const AssetSettings = React.lazy(() => import("../pages/assets/settings"));
-
-// Quotations & Job Costing
-export const Quotations = React.lazy(() => import("../pages/quotations"));
-export const QuotationForm = React.lazy(() => import("../pages/quotations/form"));
-export const JobCosting = React.lazy(() => import("../pages/job-costing"));
-
-// Other Features
+export const OnboardingPage = React.lazy(() => import('../pages/onboarding'));
 export const DepartmentManagement = React.lazy(() => import("../pages/department-management"));
 export const Calendar = React.lazy(() => import("../pages/calendar"));
 export const Notifications = React.lazy(() => import("../pages/notifications"));
-export const PageRequestCenter = React.lazy(() => import("../pages/system/page-request-center"));
 export const ViewAsUser = React.lazy(() => import("../pages/system/view-as-user"));
 
 // Component Modules

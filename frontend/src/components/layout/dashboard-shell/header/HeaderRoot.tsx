@@ -1,5 +1,10 @@
 /**
- * Sticky header bar: Leading (trigger + breadcrumbs) + Trailing (notifications, theme, user).
+ * HeaderRoot — single-row header on ALL screen sizes.
+ *
+ * [≡ Sidebar | / | 🔲 PageIcon  Page Title · Breadcrumb]  ·····  [Search | Theme | Clock | Notifs | Help | ─ | Avatar]
+ *
+ * The outer <header> in DashboardShellLayout is sticky + shrink-0 so it
+ * never overlaps page content — we just fill h-14 exactly.
  */
 
 import { useLocation } from 'react-router-dom';
@@ -8,46 +13,29 @@ import { useBreadcrumbs } from './useBreadcrumbs';
 import { HeaderLeading } from './HeaderLeading';
 import { HeaderTrailing } from './HeaderTrailing';
 import { useAgencySettings } from '@/hooks/useAgencySettings';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
 
 export function HeaderRoot() {
   const location = useLocation();
   const breadcrumbs = useBreadcrumbs(location.pathname);
-  const isMobile = useIsMobile();
   const { settings: agencySettings } = useAgencySettings();
 
   return (
     <TooltipProvider>
-      <div
-        className={cn(
-          'flex w-full min-w-0 h-full',
-          isMobile ? 'flex-col gap-2' : 'flex-row items-center justify-between gap-3 lg:gap-4'
-        )}
-      >
-        <div className={cn(isMobile ? '' : 'flex-1 min-w-0 overflow-hidden flex items-center')}>
+      <div className="flex h-14 w-full items-center gap-2 px-3 sm:px-4 md:px-5 lg:px-6">
+
+        {/* ── Left: sidebar trigger + page identity ── */}
+        <div className="flex-1 min-w-0 flex items-center">
           <HeaderLeading breadcrumbs={breadcrumbs} />
         </div>
-        {agencySettings?.agency_name && !isMobile && (
-          <div className="hidden xl:flex items-center gap-2 px-4 flex-shrink-0">
-            {agencySettings?.logo_url &&
-              typeof agencySettings.logo_url === 'string' &&
-              agencySettings.logo_url.trim() !== '' && (
-                <img
-                  src={agencySettings.logo_url}
-                  alt="Agency Logo"
-                  className="h-6 w-6 object-contain"
-                  style={{ display: 'block' }}
-                />
-              )}
-            <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-              {agencySettings.agency_name}
-            </span>
-          </div>
-        )}
+
+        {/* ── Centre: empty space to push trailing items to the right ── */}
+        <div className="flex-1" />
+
+        {/* ── Right: action icons ── */}
         <div className="flex-shrink-0">
           <HeaderTrailing />
         </div>
+
       </div>
     </TooltipProvider>
   );

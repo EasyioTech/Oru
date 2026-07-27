@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Documents Management Tables Migration
+-- Oru Erp - Documents Management Tables Migration
 -- ============================================================================
 -- This migration creates tables for document management with folders, versions, and permissions
 -- Database: buildflow_db

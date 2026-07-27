@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Enhanced System Settings Schema Migration
+-- Oru Erp - Enhanced System Settings Schema Migration
 -- ============================================================================
 -- This migration adds additional settings categories:
 -- - Email/SMTP Configuration

@@ -1,118 +1,70 @@
-
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { ProjectService } from './service.js';
-import { createProjectSchema, updateProjectSchema, projectsQuerySchema } from './schemas.js';
-import { ForbiddenError } from '../../utils/errors.js';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
+import { ForbiddenError } from '../../utils/errors.js';
 
 const projectRoutes: FastifyPluginAsync = async (fastify) => {
-    const service = new ProjectService(fastify);
+    const svc = (req: FastifyRequest) =>
+        new ProjectService((req as any).agencyDb || fastify.db, req.user.agencyId as string);
 
-    // GET /projects
-    fastify.get('/', {
-        onRequest: [fastify.authenticate],
-    }, async (request) => {
-        try {
-            if (!request.ability.can('read', 'Project')) {
-                throw new ForbiddenError();
-            }
+    // --- PROJECTS ---
 
-            const query = projectsQuerySchema.parse(request.query);
-            const agencyId = request.user.agencyId;
-            if (!agencyId) throw new ForbiddenError('No agency context');
-
-            const data = await service.getProjects(agencyId, query);
-            return { success: true, data: mapToSnakeCase(data) };
-        } catch (error) {
-            fastify.log.error({ error, context: 'GET /projects' });
-            throw error;
-        }
+    fastify.get('/', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('read', 'Project')) throw new ForbiddenError();
+        return { success: true, data: (await svc(request).getProjects(request.query as any)).map((d: any) => mapToSnakeCase(d)) };
     });
 
-    // GET /projects/:id
-    fastify.get('/:id', {
-        onRequest: [fastify.authenticate],
-    }, async (request) => {
-        try {
-            if (!request.ability.can('read', 'Project')) {
-                throw new ForbiddenError();
-            }
-
-            const { id } = request.params as { id: string };
-            const agencyId = request.user.agencyId;
-            if (!agencyId) throw new ForbiddenError('No agency context');
-
-            const data = await service.getProjectDetails(agencyId, id);
-            return { success: true, data: mapToSnakeCase(data) };
-        } catch (error) {
-            fastify.log.error({ error, id: (request.params as any).id, context: 'GET /projects/:id' });
-            throw error;
-        }
+    fastify.get('/:id', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('read', 'Project')) throw new ForbiddenError();
+        const { id } = request.params as { id: string };
+        const project = await svc(request).getProject(id);
+        const tasks = await svc(request).getTasks(id);
+        return { success: true, data: { ...mapToSnakeCase(project), tasks: tasks.map((t: any) => mapToSnakeCase(t)) } };
     });
 
-    // POST /projects
-    fastify.post('/', {
-        onRequest: [fastify.authenticate],
-    }, async (request, reply) => {
-        try {
-            if (!request.ability.can('create', 'Project')) {
-                throw new ForbiddenError();
-            }
-
-            const validated = createProjectSchema.parse(request.body);
-            const agencyId = request.user.agencyId;
-            const userId = request.user.id;
-            if (!agencyId) throw new ForbiddenError('No agency context');
-
-            const project = await service.createProject(agencyId, validated, userId);
-            return reply.code(201).send({ success: true, data: mapToSnakeCase(project) });
-        } catch (error) {
-            fastify.log.error({ error, context: 'POST /projects' });
-            throw error;
-        }
+    fastify.post('/', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        if (request.ability.cannot('create', 'Project')) throw new ForbiddenError();
+        return reply.code(201).send({ success: true, data: mapToSnakeCase(await svc(request).createProject(request.body as any)) });
     });
 
-    // PATCH /projects/:id
-    fastify.patch('/:id', {
-        onRequest: [fastify.authenticate],
-    }, async (request) => {
-        try {
-            if (!request.ability.can('update', 'Project')) {
-                throw new ForbiddenError();
-            }
-
-            const { id } = request.params as { id: string };
-            const validated = updateProjectSchema.parse(request.body);
-            const agencyId = request.user.agencyId;
-            if (!agencyId) throw new ForbiddenError('No agency context');
-
-            const project = await service.updateProject(agencyId, id, validated);
-            return { success: true, data: mapToSnakeCase(project) };
-        } catch (error) {
-            fastify.log.error({ error, id: (request.params as any).id, context: 'PATCH /projects/:id' });
-            throw error;
-        }
+    fastify.put('/:id', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('update', 'Project')) throw new ForbiddenError();
+        const { id } = request.params as { id: string };
+        return { success: true, data: mapToSnakeCase(await svc(request).updateProject(id, request.body as any)) };
     });
 
-    // DELETE /projects/:id
-    fastify.delete('/:id', {
-        onRequest: [fastify.authenticate],
-    }, async (request) => {
-        try {
-            if (!request.ability.can('delete', 'Project')) {
-                throw new ForbiddenError();
-            }
+    fastify.delete('/:id', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('delete', 'Project')) throw new ForbiddenError();
+        const { id } = request.params as { id: string };
+        await svc(request).deleteProject(id);
+        return { success: true };
+    });
 
-            const { id } = request.params as { id: string };
-            const agencyId = request.user.agencyId;
-            if (!agencyId) throw new ForbiddenError('No agency context');
+    // --- TASKS ---
 
-            await service.deleteProject(agencyId, id);
-            return { success: true };
-        } catch (error) {
-            fastify.log.error({ error, id: (request.params as any).id, context: 'DELETE /projects/:id' });
-            throw error;
-        }
+    fastify.get('/:projectId/tasks', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('read', 'Task')) throw new ForbiddenError();
+        const { projectId } = request.params as { projectId: string };
+        return { success: true, data: (await svc(request).getTasks(projectId)).map((d: any) => mapToSnakeCase(d)) };
+    });
+
+    fastify.post('/:projectId/tasks', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        if (request.ability.cannot('create', 'Task')) throw new ForbiddenError();
+        const { projectId } = request.params as { projectId: string };
+        return reply.code(201).send({ success: true, data: mapToSnakeCase(await svc(request).createTask(projectId, request.body as any)) });
+    });
+
+    fastify.put('/tasks/:taskId', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('update', 'Task')) throw new ForbiddenError();
+        const { taskId } = request.params as { taskId: string };
+        return { success: true, data: mapToSnakeCase(await svc(request).updateTask(taskId, request.body as any)) };
+    });
+
+    fastify.delete('/tasks/:taskId', { onRequest: [fastify.authenticate] }, async (request) => {
+        if (request.ability.cannot('delete', 'Task')) throw new ForbiddenError();
+        const { taskId } = request.params as { taskId: string };
+        await svc(request).deleteTask(taskId);
+        return { success: true };
     });
 };
 

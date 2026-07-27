@@ -76,7 +76,6 @@ export function SidebarRoot() {
           <SidebarNav
             pagesByCategory={navResult.pagesByCategory}
             currentPath={location.pathname}
-            setupComplete={navResult.setupComplete}
           />
 
           <SidebarFooterSection

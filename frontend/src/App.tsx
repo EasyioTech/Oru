@@ -2,10 +2,6 @@
  * Main App Component
  * Provides app-wide providers and routing configuration
  */
-
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
@@ -22,6 +18,7 @@ import HoverReceiver from "tooling/visual-edits/VisualEditsMessenger";
 import { ThemeSync } from "@/core/layout/ThemeSync";
 import { BrandingProvider } from "@/contexts/BrandingContext";
 import { AppRoutes } from "@/routes";
+import { NuqsAdapter } from 'nuqs/adapters/react-router';
 
 // Initialize console logger on app load
 import "@/utils/consoleLogger";
@@ -38,16 +35,19 @@ const AppContent = () => {
     <>
       <ThemeSync />
       <BrowserRouter>
-        <ScrollToTop />
-        <AuthRedirect />
-        {!authLoading && user && <TicketFloatingButton />}
-        <AppRoutes />
+        <NuqsAdapter>
+          <ScrollToTop />
+          <AuthRedirect />
+          {!authLoading && user && <TicketFloatingButton />}
+          <AppRoutes />
+        </NuqsAdapter>
       </BrowserRouter>
     </>
   );
 };
 
 import { HelmetProvider } from "react-helmet-async";
+import { MinimalToastContainer } from "@/components/shared/MinimalToast";
 
 const App = () => (
   <HelmetProvider>
@@ -60,8 +60,7 @@ const App = () => (
         disableTransitionOnChange
       >
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
+          <MinimalToastContainer />
           <HoverReceiver />
           <ErrorBoundary>
             <BrandingProvider>

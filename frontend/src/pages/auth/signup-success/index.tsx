@@ -176,7 +176,7 @@ const SignupSuccess = () => {
         {/* Action Buttons */}
         <div className="text-center space-y-4 mb-12">
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth">
+            <Link to="/auth?registered=true">
               <Button size="lg" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 h-12 px-8">
                 Sign In to Your Account
                 <ArrowRight className="ml-2 h-5 w-5" />

@@ -27,6 +27,17 @@ export const EmployeeRoutes = () => [
   <Route key="/users" path="/users" element={<Navigate to="/employee-management" replace />} />,
   <Route key="/employees" path="/employees" element={<Navigate to="/employee-management" replace />} />,
   <Route
+    key="/employees/:id"
+    path="/employees/:id"
+    element={
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
+        <DashboardLayout>
+          <SuspenseRoute><Pages.EmployeeDetails /></SuspenseRoute>
+        </DashboardLayout>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
     key="/create-employee"
     path="/create-employee"
     element={

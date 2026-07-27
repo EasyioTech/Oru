@@ -9,7 +9,7 @@ import {
   SidebarMenu,
 } from '@/components/ui/sidebar';
 import { getCategoryConfig } from '../config/nav-categories';
-import type { PageConfig } from '@/utils/rolePages';
+import type { PageConfig } from '@/utils/navPages';
 import { SidebarNavItem } from './SidebarNavItem';
 import { cn } from '@/lib/utils';
 

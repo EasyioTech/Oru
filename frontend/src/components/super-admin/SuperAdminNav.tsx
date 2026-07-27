@@ -50,11 +50,6 @@ const menuItems = [
     path: "/super-admin/plans",
   },
   {
-    title: "Page Catalog",
-    icon: FileText,
-    path: "/super-admin/page-catalog",
-  },
-  {
     title: "Analytics",
     icon: BarChart3,
     path: "/super-admin/analytics",

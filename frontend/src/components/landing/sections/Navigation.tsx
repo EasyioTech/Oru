@@ -71,14 +71,14 @@ export default function Navigation() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-          ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
+          ? 'bg-background/80 backdrop-blur-md border-b border-border/40 shadow-sm'
           : 'bg-transparent',
         !visible && '-translate-y-full opacity-0'
       )}
     >
-      <nav className="max-w-[1120px] mx-auto px-6 h-[72px] flex items-center justify-between">
+      <nav className="max-w-[1120px] mx-auto px-6 h-16 flex items-center justify-between">
         <Link
           to="/"
           className="flex items-center group"
@@ -87,35 +87,35 @@ export default function Navigation() {
             setMobileOpen(false);
           }}
         >
-          <div className="w-16 h-16 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden">
-            <ThemeLogo className="h-14 w-auto object-contain" />
+          <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden">
+            <ThemeLogo className="h-8 w-auto object-contain" />
           </div>
         </Link>
 
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-4">
           <button
             type="button"
             onClick={handleThemeToggle}
             className={cn(
-              'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors',
-              'text-muted-foreground hover:text-foreground hover:bg-muted/80',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors',
+              'text-muted-foreground hover:text-foreground hover:bg-secondary',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50'
             )}
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {mounted && isDark ? (
-              <Sun className="h-5 w-5" />
+              <Sun className="h-[18px] w-[18px]" />
             ) : (
-              <Moon className="h-5 w-5" />
+              <Moon className="h-[18px] w-[18px]" />
             )}
           </button>
 
-          <div className="hidden md:flex items-center gap-2">
-            <Link to="/auth" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mr-4">
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/auth" className="text-[14px] font-medium text-muted-foreground hover:text-foreground transition-colors mr-2">
               Sign In
             </Link>
-            <Button variant="primary" href="/agency-signup" size="md" className="font-semibold shadow-lg shadow-primary/10">
+            <Button variant="primary" href="/agency-signup" size="md" className="font-medium rounded-full px-5 h-9 text-[13px] shadow-sm">
               Start Free Trial
             </Button>
           </div>

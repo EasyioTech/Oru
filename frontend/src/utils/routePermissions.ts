@@ -1,5 +1,4 @@
 import { AppRole, hasRoleOrHigher } from './roleUtils';
-import { hasPageAccess } from './agencyPageAccess';
 
 export interface RoutePermission {
   path: string;
@@ -16,19 +15,6 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/agency-signup': { path: '/agency-signup', requiredRoles: [], allowHigherRoles: false },
   '/signup-success': { path: '/signup-success', requiredRoles: [], allowHigherRoles: false },
   '/forgot-password': { path: '/forgot-password', requiredRoles: [], allowHigherRoles: false },
-
-  // Agency setup
-  '/agency-setup': {
-    path: '/agency-setup',
-    requiredRoles: ['agency_admin'],
-    allowHigherRoles: true,
-    description: 'Agency configuration and setup'
-  },
-  '/agency-setup-progress': {
-    path: '/agency-setup-progress',
-    requiredRoles: [],
-    allowHigherRoles: false
-  },
 
   // Dashboards
   '/dashboard': { path: '/dashboard', requiredRoles: [], allowHigherRoles: false },
@@ -100,11 +86,8 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
     allowHigherRoles: true,
     description: 'Employee view of assigned projects'
   },
-  '/jobs': { path: '/jobs', requiredRoles: ['manager'], allowHigherRoles: true, description: 'Job costing' },
-
   // Settings
   '/settings': { path: '/settings', requiredRoles: [], allowHigherRoles: false },
-  '/page-requests': { path: '/page-requests', requiredRoles: [], allowHigherRoles: false },
   '/permissions': { path: '/permissions', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
   // HR Management
@@ -185,13 +168,6 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
     allowHigherRoles: true,
     description: 'Create journal entry'
   },
-  '/gst-compliance': {
-    path: '/gst-compliance',
-    requiredRoles: ['agency_admin'],
-    allowHigherRoles: true,
-    description: 'GST compliance management'
-  },
-  '/quotations': { path: '/quotations', requiredRoles: ['manager'], allowHigherRoles: true },
   '/reimbursements': { path: '/reimbursements', requiredRoles: [], allowHigherRoles: false },
 
   // Clients & CRM
@@ -255,28 +231,6 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/inventory/transfers': { path: '/inventory/transfers', requiredRoles: ['agency_admin'], allowHigherRoles: true },
   '/inventory/adjustments': { path: '/inventory/adjustments', requiredRoles: ['agency_admin'], allowHigherRoles: true },
 
-  // Procurement
-  '/procurement': { path: '/procurement', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/vendors': { path: '/procurement/vendors', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/purchase-orders': { path: '/procurement/purchase-orders', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/requisitions': { path: '/procurement/requisitions', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/goods-receipts': { path: '/procurement/goods-receipts', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/rfq': { path: '/procurement/rfq', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/vendor-contracts': { path: '/procurement/vendor-contracts', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/vendor-performance': { path: '/procurement/vendor-performance', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/reports': { path: '/procurement/reports', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/procurement/settings': { path: '/procurement/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-
-  // Assets
-  '/assets': { path: '/assets', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/categories': { path: '/assets/categories', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/locations': { path: '/assets/locations', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/maintenance': { path: '/assets/maintenance', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/depreciation': { path: '/assets/depreciation', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/disposals': { path: '/assets/disposals', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/reports': { path: '/assets/reports', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-  '/assets/settings': { path: '/assets/settings', requiredRoles: ['agency_admin'], allowHigherRoles: true },
-
   // Workflows & Integrations
   '/workflows': { path: '/workflows', requiredRoles: ['agency_admin'], allowHigherRoles: true },
   '/workflows/instances': { path: '/workflows/instances', requiredRoles: ['agency_admin'], allowHigherRoles: true },
@@ -294,7 +248,6 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/super-admin/agencies/:id/data': { path: '/super-admin/agencies/:id/data', requiredRoles: ['super_admin'], allowHigherRoles: false },
   '/super-admin/system-settings': { path: '/super-admin/system-settings', requiredRoles: ['super_admin'], allowHigherRoles: false },
   '/super-admin/plans': { path: '/super-admin/plans', requiredRoles: ['super_admin'], allowHigherRoles: false },
-  '/super-admin/page-catalog': { path: '/super-admin/page-catalog', requiredRoles: ['super_admin'], allowHigherRoles: false },
   '/super-admin/analytics': { path: '/super-admin/analytics', requiredRoles: ['super_admin'], allowHigherRoles: false },
   '/system-health': { path: '/system-health', requiredRoles: ['super_admin'], allowHigherRoles: false },
   '/system-email': { path: '/system-email', requiredRoles: ['super_admin'], allowHigherRoles: false },
@@ -314,19 +267,6 @@ export function getRequiredRolesForRoute(path: string): AppRole[] {
 }
 
 export async function canAccessRoute(userRole: AppRole | null, routePath: string): Promise<boolean> {
-  if (!userRole) return false;
-
-  const hasAgencyDatabase = typeof window !== 'undefined' && !!localStorage.getItem('agency_database');
-  const isSystemSuperAdmin = userRole === 'super_admin' && !hasAgencyDatabase;
-  if (isSystemSuperAdmin) return true;
-
-  try {
-    const hasAccess = await hasPageAccess(routePath);
-    if (!hasAccess) return false;
-  } catch {
-    // fall through to role check
-  }
-
   return canAccessRouteSync(userRole, routePath);
 }
 

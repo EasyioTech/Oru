@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Agency Provisioning Jobs (Main DB)
+-- Oru Erp - Agency Provisioning Jobs (Main DB)
 -- ============================================================================
 -- Async agency creation: jobs table for 202 Accepted + poll pattern.
 -- Database: buildflow_db

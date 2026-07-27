@@ -12,6 +12,7 @@ import { ProfileSettingsTab } from "./components/ProfileSettingsTab";
 import { AgencySettingsTab } from "./components/AgencySettingsTab";
 import { NotificationSettingsTab } from "./components/NotificationSettingsTab";
 import { SecuritySettingsTab } from "./components/SecuritySettingsTab";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const Settings = () => {
   const { userRole } = useAuth();
@@ -30,13 +31,8 @@ const Settings = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Manage your account, agency, and application preferences</p>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <PageHeader title="Settings" description="Manage your account, agency, and application preferences" />
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>

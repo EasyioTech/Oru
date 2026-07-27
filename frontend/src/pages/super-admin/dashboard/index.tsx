@@ -170,19 +170,6 @@ const SuperAdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:bg-accent transition-colors" onClick={() => navigate('/super-admin/page-catalog')}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Page Catalog
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                Manage available pages
-              </p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* System Status Alert */}

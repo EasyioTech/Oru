@@ -1,13 +1,13 @@
 
 import { db } from '../../infrastructure/database/index.js';
 import { redisConnection } from '../../infrastructure/redis/index.js';
-import { systemHealthMetrics, auditLogs, pageUsageAnalytics } from '../../infrastructure/database/schema.js';
+import { systemHealthMetrics, auditLogs } from '../../infrastructure/database/schema.js';
 import { eq, desc, sql } from 'drizzle-orm';
 import { FastifyBaseLogger } from 'fastify';
 import { AppError } from '../../utils/errors.js';
 import os from 'os';
 import { promises as fs } from 'fs';
-import { s3Client } from '../../infrastructure/s3/index.js';
+import { getS3Client } from '../../infrastructure/s3/index.js';
 import { HeadBucketCommand } from '@aws-sdk/client-s3';
 
 export class MonitoringService {
@@ -137,17 +137,6 @@ export class MonitoringService {
         }
     }
 
-    async getUsageAnalytics(limit = 50) {
-        try {
-            return await db.select().from(pageUsageAnalytics)
-                .orderBy(desc(pageUsageAnalytics.date))
-                .limit(limit);
-        } catch (error) {
-            this.logger.error({ error, context: 'getUsageAnalytics' });
-            throw new AppError('Failed to fetch usage analytics');
-        }
-    }
-
     private async getDiskUsage() {
         try {
             // Check usage of the root volume or current working directory volume
@@ -173,8 +162,9 @@ export class MonitoringService {
             if (!bucket) return undefined;
 
             const start = Date.now();
+            const { client } = await getS3Client();
             await this.withTimeout(
-                s3Client.send(new HeadBucketCommand({ Bucket: bucket })),
+                client.send(new HeadBucketCommand({ Bucket: bucket })),
                 3000
             );
             const latency = Date.now() - start;

@@ -1,13 +1,11 @@
 
 import { z } from 'zod';
 import { createSelectSchema } from 'drizzle-zod';
-import { systemHealthMetrics, auditLogs, pageUsageAnalytics } from '../../infrastructure/database/schema.js';
+import { systemHealthMetrics, auditLogs } from '../../infrastructure/database/schema.js';
 import { mapToSnakeCase } from '../../utils/case-transform.js';
 
 export const healthMetricSchema = createSelectSchema(systemHealthMetrics);
 export const auditLogSchema = createSelectSchema(auditLogs);
-export const usageAnalyticsSchema = createSelectSchema(pageUsageAnalytics);
-
 // Response schemas
 export const healthMetricResponseSchema = healthMetricSchema.transform(data => mapToSnakeCase(data));
 export const listHealthMetricsResponseSchema = z.object({

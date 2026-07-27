@@ -270,7 +270,7 @@ const SidebarTrigger = React.forwardRef<
       variant="ghost"
       size="icon"
       className={cn(
-        "h-9 w-9 sm:h-8 sm:w-8 touch-manipulation",
+        "h-10 w-10 sm:h-9 sm:w-9 touch-manipulation",
         "hover:bg-accent hover:text-accent-foreground",
         "active:bg-accent/80 transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -283,7 +283,7 @@ const SidebarTrigger = React.forwardRef<
       aria-label="Toggle Sidebar"
       {...props}
     >
-      <Menu className="h-5 w-5 sm:h-4 sm:w-4" />
+      <Menu className="h-6 w-6 sm:h-5 sm:w-5" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )

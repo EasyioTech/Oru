@@ -12,12 +12,9 @@ import {
   FinancialRoutes,
   ClientRoutes,
   ReportRoutes,
-  InventoryRoutes,
-  ProcurementRoutes,
-  AssetRoutes,
+  AdminRoutes,
   WorkflowRoutes,
   IntegrationRoutes,
-  QuotationRoutes,
   OtherFeatureRoutes,
 } from "./routeGroups";
 
@@ -27,18 +24,15 @@ export const AppRoutes = () => (
     {StaticPageRoutes()}
     {NonLayoutPublicRoutes()}
     {DashboardRoutes()}
+    {AdminRoutes()}
     {EmployeeRoutes()}
     {ProjectRoutes()}
     {HRRoutes()}
     {FinancialRoutes()}
     {ClientRoutes()}
     {ReportRoutes()}
-    {InventoryRoutes()}
-    {ProcurementRoutes()}
-    {AssetRoutes()}
     {WorkflowRoutes()}
     {IntegrationRoutes()}
-    {QuotationRoutes()}
     {OtherFeatureRoutes()}
     <Route path="*" element={<SuspenseRoute><Pages.NotFound /></SuspenseRoute>} />
   </Routes>

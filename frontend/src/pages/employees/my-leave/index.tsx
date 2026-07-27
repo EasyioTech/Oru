@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from "@/hooks/use-toast";
 import { fetchLeaveTypes, fetchLeaveRequests, LeaveRequest as ApiLeaveRequest } from '@/services/api/hr/leaves';
 import LeaveRequestFormDialog from "@/components/shared/LeaveRequestFormDialog";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 interface LeaveRequest {
   id: string;
@@ -196,17 +197,16 @@ const MyLeave = () => {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">My Leave</h1>
-          <p className="text-muted-foreground">Manage your leave requests and view balances</p>
-        </div>
-        <Button onClick={() => setShowLeaveRequestDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Request Leave
-        </Button>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="My Leave"
+        description="Manage your leave requests and view balances"
+        actions={
+          <Button size="sm" className="h-8 sm:h-9 gap-1.5 text-xs sm:text-sm" onClick={() => setShowLeaveRequestDialog(true)}>
+            <Plus className="h-3.5 w-3.5" /> Request Leave
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <LeaveBalanceCard

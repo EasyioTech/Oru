@@ -17,6 +17,7 @@ export const NonLayoutPublicRoutes = () => [
   <Route key="/forgot-password" path="/forgot-password" element={<SuspenseRoute><Pages.ForgotPassword /></SuspenseRoute>} />,
   <Route key="/login" path="/login" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
   <Route key="/register" path="/register" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
+  <Route key="/onboarding" path="/onboarding" element={<SuspenseRoute><Pages.OnboardingPage /></SuspenseRoute>} />,
 ];
 
 export const StaticPageRoutes = () => null;

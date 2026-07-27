@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Create Departments Table and Add Missing Columns
+-- Oru Erp - Create Departments Table and Add Missing Columns
 -- ============================================================================
 -- This migration creates the departments table and adds missing columns:
 -- - manager_id: Reference to profiles.user_id for department manager

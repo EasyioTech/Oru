@@ -7,52 +7,7 @@ import * as Pages from "../lazyImports";
 export const WorkflowRoutes = () => [];
 export const IntegrationRoutes = () => [];
 
-export const QuotationRoutes = () => [
-  <Route
-    key="/quotations"
-    path="/quotations"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.Quotations /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/quotations/new"
-    path="/quotations/new"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.QuotationForm /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/quotations/:id"
-    path="/quotations/:id"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.QuotationForm /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/jobs"
-    path="/jobs"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.JobCosting /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-];
+export const QuotationRoutes = () => [];
 
 export const OtherFeatureRoutes = () => [
   <Route
@@ -62,17 +17,6 @@ export const OtherFeatureRoutes = () => [
       <ProtectedRoute>
         <DashboardLayout>
           <SuspenseRoute><Pages.Settings /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/page-requests"
-    path="/page-requests"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.PageRequestCenter /></SuspenseRoute>
         </DashboardLayout>
       </ProtectedRoute>
     }

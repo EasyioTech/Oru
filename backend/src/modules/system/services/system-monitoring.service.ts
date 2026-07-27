@@ -1,8 +1,6 @@
-
-import { db } from '../../../infrastructure/database/index.js';
 import { agencies, users, systemHealthMetrics, profiles, tickets, userSessions, projects, clients } from '../../../infrastructure/database/schema.js';
 import { eq, sql, desc, count, isNotNull, and, sum, gte } from 'drizzle-orm';
-import { FastifyInstance } from 'fastify';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { TicketsQueryInput } from '../schemas.js';
 import { redisConnection } from '../../../infrastructure/redis/index.js';
 import os from 'os';
@@ -26,7 +24,7 @@ export interface DetailedHealthResult {
 }
 
 export class SystemMonitoringService {
-    constructor(private readonly app: FastifyInstance) { }
+    constructor(private db: NodePgDatabase<any>) { }
 
     async checkDetailedHealth() {
         const start = Date.now();
@@ -46,11 +44,11 @@ export class SystemMonitoringService {
         // 1. Check Postgres (Father DB)
         try {
             const pgStart = Date.now();
-            await db.execute(sql`SELECT 1`);
+            await this.db.execute(sql`SELECT 1`);
             results.postgres.status = 'up';
             results.postgres.latency = Date.now() - pgStart;
         } catch (error) {
-            this.app.log.error({ error, context: 'health-check-postgres' });
+            console.error({ error, context: 'health-check-postgres' });
         }
 
         // 2. Check Redis
@@ -60,7 +58,7 @@ export class SystemMonitoringService {
             results.redis.status = 'up';
             results.redis.latency = Date.now() - redisStart;
         } catch (error) {
-            this.app.log.error({ error, context: 'health-check-redis' });
+            console.error({ error, context: 'health-check-redis' });
         }
 
         return {
@@ -86,9 +84,9 @@ export class SystemMonitoringService {
         // Check if database creation is possible (Permission check)
         try {
             // We don't actually create a DB, but check if we can list databases as a proxy for permission
-            await db.execute(sql`SELECT datname FROM pg_database LIMIT 1`);
+            await this.db.execute(sql`SELECT datname FROM pg_database LIMIT 1`);
         } catch (error: unknown) {
-            this.app.log.error({ error, context: 'signup-preflight-permission' });
+            console.error({ error, context: 'signup-preflight-permission' });
             return {
                 allowed: false,
                 reason: 'INSUFFICIENT_PERMISSIONS',
@@ -104,25 +102,25 @@ export class SystemMonitoringService {
     }
 
     async getMetrics() {
-        const [totalAgenciesResult] = await db.select({ count: count() }).from(agencies);
-        const [activeAgenciesResult] = await db.select({ count: count() }).from(agencies).where(eq(agencies.isActive, true));
-        const [totalUsersResult] = await db.select({ count: count() }).from(users);
-        const [activeUsersResult] = await db.select({ count: count() }).from(users).where(eq(users.status, 'active'));
+        const [totalAgenciesResult] = await this.db.select({ count: count() }).from(agencies);
+        const [activeAgenciesResult] = await this.db.select({ count: count() }).from(agencies).where(eq(agencies.isActive, true));
+        const [totalUsersResult] = await this.db.select({ count: count() }).from(users);
+        const [activeUsersResult] = await this.db.select({ count: count() }).from(users).where(eq(users.status, 'active'));
 
-        const [totalProjectsResult] = await db.select({ count: count() }).from(projects);
-        const [totalClientsResult] = await db.select({ count: count() }).from(clients);
+        const [totalProjectsResult] = await this.db.select({ count: count() }).from(projects);
+        const [totalClientsResult] = await this.db.select({ count: count() }).from(clients);
 
-        const plansResult = await db.select({ plan: agencies.subscriptionPlan, count: count() }).from(agencies).groupBy(agencies.subscriptionPlan);
+        const plansResult = await this.db.select({ plan: agencies.subscriptionPlan, count: count() }).from(agencies).groupBy(agencies.subscriptionPlan);
         const subscriptionPlans: Record<string, number> = { basic: 0, pro: 0, enterprise: 0 };
         plansResult.forEach(row => { if (row.plan) subscriptionPlans[row.plan] = row.count; });
 
-        const [latestHealth] = await db.select().from(systemHealthMetrics).orderBy(desc(systemHealthMetrics.timestamp)).limit(1);
-        const agenciesList = await db.select().from(agencies).orderBy(desc(agencies.createdAt)).limit(50);
+        const [latestHealth] = await this.db.select().from(systemHealthMetrics).orderBy(desc(systemHealthMetrics.timestamp)).limit(1);
+        const agenciesList = await this.db.select().from(agencies).orderBy(desc(agencies.createdAt)).limit(50);
         
-        const usersPerAgency = await db.select({ agencyId: profiles.agencyId, count: count() }).from(profiles).where(isNotNull(profiles.agencyId)).groupBy(profiles.agencyId);
+        const usersPerAgency = await this.db.select({ agencyId: profiles.agencyId, count: count() }).from(profiles).where(isNotNull(profiles.agencyId)).groupBy(profiles.agencyId);
         const agencyUserMap = new Map(usersPerAgency.map(row => [row.agencyId as string, row.count]));
 
-        const projectsPerAgency = await db.select({ agencyId: projects.agencyId, count: count() }).from(projects).groupBy(projects.agencyId);
+        const projectsPerAgency = await this.db.select({ agencyId: projects.agencyId, count: count() }).from(projects).groupBy(projects.agencyId);
         const agencyProjectMap = new Map(projectsPerAgency.map(row => [row.agencyId as string, row.count]));
 
         return {
@@ -168,12 +166,12 @@ export class SystemMonitoringService {
 
     async getRealtimeUsage() {
         const now = new Date();
-        const [sessionCount] = await db
+        const [sessionCount] = await this.db
             .select({ count: count() })
             .from(userSessions)
             .where(and(eq(userSessions.isActive, true), sql`${userSessions.expiresAt} > ${now}`));
 
-        const [distinctUserCount] = await db
+        const [distinctUserCount] = await this.db
             .select({ count: sql<number>`COUNT(DISTINCT ${userSessions.userId})` })
             .from(userSessions)
             .where(and(eq(userSessions.isActive, true), sql`${userSessions.expiresAt} > ${now}`));
@@ -192,7 +190,7 @@ export class SystemMonitoringService {
         const conditions = [];
         if (params?.status) conditions.push(eq(tickets.status, params.status));
         const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-        const ticketsList = await db.select().from(tickets).where(whereClause).orderBy(desc(tickets.createdAt)).limit(limit).offset(offset);
+        const ticketsList = await this.db.select().from(tickets).where(whereClause).orderBy(desc(tickets.createdAt)).limit(limit).offset(offset);
         return { tickets: ticketsList };
     }
 
@@ -200,14 +198,14 @@ export class SystemMonitoringService {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const [totalResult] = await db.select({ count: count() }).from(tickets);
-        const [openResult] = await db.select({ count: count() }).from(tickets).where(eq(tickets.status, 'open'));
-        const [inProgressResult] = await db.select({ count: count() }).from(tickets).where(eq(tickets.status, 'in_progress'));
-        const [resolvedResult] = await db.select({ count: count() }).from(tickets).where(eq(tickets.status, 'resolved'));
-        const [newTodayResult] = await db.select({ count: count() }).from(tickets).where(gte(tickets.createdAt, today));
-        const [resolvedTodayResult] = await db.select({ count: count() }).from(tickets).where(and(eq(tickets.status, 'resolved'), gte(tickets.updatedAt, today)));
+        const [totalResult] = await this.db.select({ count: count() }).from(tickets);
+        const [openResult] = await this.db.select({ count: count() }).from(tickets).where(eq(tickets.status, 'open'));
+        const [inProgressResult] = await this.db.select({ count: count() }).from(tickets).where(eq(tickets.status, 'in_progress'));
+        const [resolvedResult] = await this.db.select({ count: count() }).from(tickets).where(eq(tickets.status, 'resolved'));
+        const [newTodayResult] = await this.db.select({ count: count() }).from(tickets).where(gte(tickets.createdAt, today));
+        const [resolvedTodayResult] = await this.db.select({ count: count() }).from(tickets).where(and(eq(tickets.status, 'resolved'), gte(tickets.updatedAt, today)));
 
-        const recentTickets = await db.select().from(tickets).orderBy(desc(tickets.createdAt)).limit(10);
+        const recentTickets = await this.db.select().from(tickets).orderBy(desc(tickets.createdAt)).limit(10);
 
         return {
             stats: {
@@ -223,4 +221,3 @@ export class SystemMonitoringService {
         };
     }
 }
-

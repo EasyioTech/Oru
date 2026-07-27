@@ -1,13 +1,17 @@
 
-import { db } from '../../infrastructure/database/index.js';
-import { notifications } from '../../infrastructure/database/schema.js';
+import { notifications } from './schema.js';
 import { eq, desc, and, count, inArray, sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { FastifyBaseLogger } from 'fastify';
 import { AppError, NotFoundError } from '../../utils/errors.js';
 import { CreateNotificationInput, ListNotificationsQueryInput } from './schemas.js';
 
 export class NotificationsService {
-    constructor(private logger: FastifyBaseLogger) { }
+    constructor(
+        private db: NodePgDatabase<any> | any,
+        private agencyId: string,
+        private logger: FastifyBaseLogger | any
+    ) { }
 
     async list(params: ListNotificationsQueryInput, userId: string) {
         try {
@@ -24,15 +28,15 @@ export class NotificationsService {
 
             const whereClause = and(...conditions);
 
-            const [countResult] = await db.select({ count: count() }).from(notifications).where(whereClause);
+            const [countResult] = await this.db.select({ count: count() }).from(notifications).where(whereClause);
             const total = countResult.count;
 
-            const [unreadResult] = await db.select({ count: count() })
+            const [unreadResult] = await this.db.select({ count: count() })
                 .from(notifications)
                 .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
             const unreadCount = unreadResult.count;
 
-            const items = await db.select().from(notifications)
+            const items = await this.db.select().from(notifications)
                 .where(whereClause)
                 .orderBy(desc(notifications.createdAt))
                 .limit(limit)
@@ -55,7 +59,7 @@ export class NotificationsService {
 
     async getUnreadCount(userId: string) {
         try {
-            const [result] = await db.select({ count: count() })
+            const [result] = await this.db.select({ count: count() })
                 .from(notifications)
                 .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
             return result.count;
@@ -67,7 +71,7 @@ export class NotificationsService {
 
     async markAsRead(id: string, userId: string) {
         try {
-            const [notification] = await db.update(notifications)
+            const [notification] = await this.db.update(notifications)
                 .set({ isRead: true, readAt: new Date() })
                 .where(and(eq(notifications.id, id), eq(notifications.userId, userId)))
                 .returning();
@@ -83,7 +87,7 @@ export class NotificationsService {
 
     async markAllAsRead(userId: string) {
         try {
-            const result = await db.update(notifications)
+            const result = await this.db.update(notifications)
                 .set({ isRead: true, readAt: new Date() })
                 .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
                 .returning();
@@ -96,7 +100,7 @@ export class NotificationsService {
 
     async create(data: CreateNotificationInput) {
         try {
-            const [notification] = await db.insert(notifications).values(data).returning();
+            const [notification] = await this.db.insert(notifications).values(data).returning();
             return notification;
         } catch (error) {
             this.logger.error({ error, context: 'createNotification' });
@@ -106,7 +110,7 @@ export class NotificationsService {
 
     async delete(id: string, userId: string) {
         try {
-            const [notification] = await db.delete(notifications)
+            const [notification] = await this.db.delete(notifications)
                 .where(and(eq(notifications.id, id), eq(notifications.userId, userId)))
                 .returning();
 

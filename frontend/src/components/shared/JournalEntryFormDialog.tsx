@@ -1,539 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { selectRecords, selectOne, executeTransaction, insertRecord } from '@/services/api/core';
-import { useAuth } from '@/hooks/useAuth';
 import { Plus, Trash2 } from 'lucide-react';
 
-interface JournalEntryLine {
-  id?: string;
-  account_id: string;
-  description: string;
-  debit_amount: number;
-  credit_amount: number;
-  line_number: number;
-}
+const journalSchema = z.object({
+  entry_date: z.string().min(1, 'Date is required'),
+  description: z.string().min(1, 'Description is required'),
+  reference: z.string().optional().or(z.literal('')),
+  status: z.enum(['draft', 'posted', 'reversed']).default('draft'),
+  lines: z.array(z.object({
+    account_id: z.string().min(1, 'Account is required'),
+    description: z.string().optional().or(z.literal('')),
+    debit_amount: z.number().default(0),
+    credit_amount: z.number().default(0),
+  })).min(2, 'At least 2 lines required')
+}).refine(data => {
+  const totalDebits = data.lines.reduce((acc, curr) => acc + (curr.debit_amount || 0), 0);
+  const totalCredits = data.lines.reduce((acc, curr) => acc + (curr.credit_amount || 0), 0);
+  return Math.abs(totalDebits - totalCredits) < 0.01;
+}, { message: "Debits must equal credits", path: ["lines"] });
 
-interface JournalEntry {
-  id?: string;
-  entry_number?: string;
-  entry_date: string;
-  description: string;
-  reference?: string | null;
-  status: 'draft' | 'posted' | 'reversed';
-  lines: JournalEntryLine[];
-}
+type JournalFormValues = z.infer<typeof journalSchema>;
 
-interface JournalEntryFormDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  entry?: JournalEntry | null;
-  onEntrySaved: () => void;
-}
-
-const JournalEntryFormDialog: React.FC<JournalEntryFormDialogProps> = ({ 
-  isOpen, 
-  onClose, 
-  entry, 
-  onEntrySaved 
-}) => {
+export default function JournalEntryFormDialog({ isOpen, onClose, entry, onEntrySaved }: any) {
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [accounts, setAccounts] = useState<unknown[]>([]);
-  const [formData, setFormData] = useState<JournalEntry>({
-    entry_date: entry?.entry_date || new Date().toISOString().split('T')[0],
-    description: entry?.description || '',
-    reference: entry?.reference || '',
-    status: entry?.status || 'draft',
-    lines: entry?.lines || [
-      { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 1 },
-      { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 2 },
-    ],
+  const queryClient = useQueryClient();
+  const { data: accounts = [] } = useQuery({ queryKey: ['accounts'], queryFn: async () => (await fetch('/api/finance/bank-accounts')).json().then(r => r.data || []) });
+
+  const { register, control, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm<JournalFormValues>({
+    resolver: zodResolver(journalSchema),
+    defaultValues: { entry_date: new Date().toISOString().split('T')[0], description: '', status: 'draft', lines: [{ account_id: '', debit_amount: 0, credit_amount: 0 }, { account_id: '', debit_amount: 0, credit_amount: 0 }] }
   });
-  const fetchAccounts = React.useCallback(async () => {
-    try {
-      if (!user?.id) return;
-      // Get agency_id from profile
-      const profile = await selectOne('profiles', { user_id: user.id });
-      if (!profile?.agency_id) return;
+  
+  const { fields, append, remove } = useFieldArray({ control, name: "lines" });
+  const lines = watch("lines");
 
-      let accountsData: unknown[] = [];
-      try {
-        // Prefer agency-scoped accounts when the column exists
-        accountsData = await selectRecords('chart_of_accounts', {
-          where: { is_active: true, agency_id: profile.agency_id },
-          orderBy: 'account_code ASC',
-        });
-      } catch (err: unknown) {
-        // Fallback if agency_id column does not exist in current schema
-        if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
-          console.warn('chart_of_accounts has no agency_id column, falling back to global accounts');
-          accountsData = await selectRecords('chart_of_accounts', {
-            where: { is_active: true },
-            orderBy: 'account_code ASC',
-          });
-        } else {
-          throw err;
-        }
-      }
+  useEffect(() => {
+    if (entry) reset(entry);
+    else reset({ entry_date: new Date().toISOString().split('T')[0], description: '', status: 'draft', lines: [{ account_id: '', debit_amount: 0, credit_amount: 0 }, { account_id: '', debit_amount: 0, credit_amount: 0 }] });
+  }, [entry, reset, isOpen]);
 
-      setAccounts(accountsData || []);
-    } catch (error) {
-      console.error('Error fetching accounts:', error);
-    }
-  }, [user?.id]);
-
-  const addLine = () => {
-    setFormData(prev => ({
-      ...prev,
-      lines: [
-        ...prev.lines,
-        {
-          account_id: '',
-          description: '',
-          debit_amount: 0,
-          credit_amount: 0,
-          line_number: prev.lines.length + 1,
-        },
-      ],
-    }));
-  };
-
-  const removeLine = (index: number) => {
-    if (formData.lines.length <= 2) {
-      toast({
-        title: 'Error',
-        description: 'Journal entry must have at least 2 lines',
-        variant: 'destructive',
+  const mutation = useMutation({
+    mutationFn: async (data: JournalFormValues) => {
+      const res = await fetch(entry ? `/api/finance/journal-entries/${entry.id}` : `/api/finance/journal-entries`, {
+        method: entry ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
-      return;
-    }
-    setFormData(prev => ({
-      ...prev,
-      lines: prev.lines.filter((_, i) => i !== index).map((line, i) => ({ ...line, line_number: i + 1 })),
-    }));
-  };
-
-  const updateLine = (index: number, field: keyof JournalEntryLine, value: unknown) => {
-    setFormData(prev => ({
-      ...prev,
-      lines: prev.lines.map((line, i) => 
-        i === index ? { ...line, [field]: value } : line
-      ),
-    }));
-  };
-
-  const validateEntry = (): boolean => {
-    // Validate required fields
-    if (!formData.description.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Description is required',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    if (!formData.entry_date) {
-      toast({
-        title: 'Error',
-        description: 'Entry date is required',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    // Check that all lines have accounts
-    if (formData.lines.some(line => !line.account_id)) {
-      toast({
-        title: 'Error',
-        description: 'All lines must have an account selected',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    // Check that each line has either debit or credit (not both, not neither)
-    for (const line of formData.lines) {
-      const hasDebit = (line.debit_amount || 0) > 0;
-      const hasCredit = (line.credit_amount || 0) > 0;
-      if (!hasDebit && !hasCredit) {
-        toast({
-          title: 'Error',
-          description: `Line ${line.line_number} must have either a debit or credit amount`,
-          variant: 'destructive',
-        });
-        return false;
-      }
-      if (hasDebit && hasCredit) {
-        toast({
-          title: 'Error',
-          description: `Line ${line.line_number} cannot have both debit and credit amounts`,
-          variant: 'destructive',
-        });
-        return false;
-      }
-    }
-
-    // Check that total debits equal total credits
-    const totalDebits = formData.lines.reduce((sum, line) => sum + (parseFloat(line.debit_amount?.toString() || '0') || 0), 0);
-    const totalCredits = formData.lines.reduce((sum, line) => sum + (parseFloat(line.credit_amount?.toString() || '0') || 0), 0);
-    
-    if (Math.abs(totalDebits - totalCredits) > 0.01) {
-      toast({
-        title: 'Error',
-        description: `Total debits (₹${totalDebits.toFixed(2)}) must equal total credits (₹${totalCredits.toFixed(2)})`,
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateEntry()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const totalDebits = formData.lines.reduce((sum, line) => sum + (line.debit_amount || 0), 0);
-      const totalCredits = formData.lines.reduce((sum, line) => sum + (line.credit_amount || 0), 0);
-
-      const entryData: unknown = {
-        entry_date: formData.entry_date,
-        description: formData.description.trim(),
-        reference: formData.reference?.trim() || null,
-        status: formData.status,
-        total_debit: totalDebits,
-        total_credit: totalCredits,
-      };
-
-      // Use transactions for updates to ensure data consistency
-      if (entry?.id) {
-        
-        // Use transaction for atomic update
-        await executeTransaction(async (client: unknown) => {
-          // Update entry
-          await client.query(
-            `UPDATE journal_entries 
-             SET entry_date = $1, description = $2, reference = $3, status = $4, 
-                 total_debit = $5, total_credit = $6, updated_at = NOW()
-             WHERE id = $7`,
-            [
-              entryData.entry_date,
-              entryData.description,
-              entryData.reference,
-              entryData.status,
-              entryData.total_debit,
-              entryData.total_credit,
-              entry.id
-            ]
-          );
-
-          // Delete existing lines
-          await client.query(
-            'DELETE FROM journal_entry_lines WHERE journal_entry_id = $1',
-            [entry.id]
-          );
-
-          // Insert new lines
-          for (const line of formData.lines) {
-            await client.query(
-              `INSERT INTO journal_entry_lines 
-               (journal_entry_id, account_id, description, debit_amount, credit_amount, line_number, created_at, updated_at)
-               VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
-              [
-                entry.id,
-                line.account_id,
-                line.description.trim() || formData.description.trim(),
-                line.debit_amount || 0,
-                line.credit_amount || 0,
-                line.line_number
-              ]
-            );
-          }
-        });
-      } else {
-        // Get agency_id from profile
-        const profile = user?.id ? await selectOne('profiles', { user_id: user.id }) : null;
-        if (!profile?.agency_id) {
-          toast({
-            title: 'Error',
-            description: 'Unable to determine agency. Please ensure you are logged in.',
-            variant: 'destructive',
-          });
-          setLoading(false);
-          return;
-        }
-
-        // Generate entry number
-        const year = new Date().getFullYear();
-        const timestamp = String(Date.now()).slice(-6);
-        entryData.entry_number = `JE-${year}-${timestamp}`;
-
-        // Insert new entry
-        const newEntry = await insertRecord('journal_entries', {
-          entry_number: entryData.entry_number,
-          entry_date: entryData.entry_date,
-          description: entryData.description,
-          reference: entryData.reference,
-          status: entryData.status,
-          total_debit: entryData.total_debit,
-          total_credit: entryData.total_credit,
-          created_by: user?.id || null,
-          agency_id: profile.agency_id,
-        }, user?.id);
-
-        const newEntryId = (newEntry as unknown).id;
-
-        // Insert lines
-        for (const line of formData.lines) {
-          await insertRecord('journal_entry_lines', {
-            journal_entry_id: newEntryId,
-            account_id: line.account_id,
-            description: line.description.trim() || formData.description.trim(),
-            debit_amount: line.debit_amount || 0,
-            credit_amount: line.credit_amount || 0,
-            line_number: line.line_number,
-          }, user?.id);
-        }
-      }
-
-      toast({
-        title: 'Success',
-        description: entry?.id ? 'Journal entry updated successfully' : 'Journal entry created successfully',
-      });
-
-      onEntrySaved();
-      onClose();
-    } catch (error: unknown) {
-      console.error('Error saving journal entry:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to save journal entry',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const totalDebits = formData.lines.reduce((sum, line) => sum + (line.debit_amount || 0), 0);
-  const totalCredits = formData.lines.reduce((sum, line) => sum + (line.credit_amount || 0), 0);
-  const isBalanced = Math.abs(totalDebits - totalCredits) < 0.01;
-    useEffect(() => {
-        if (isOpen) {
-          fetchAccounts();
-          if (entry) {
-            setFormData({
-              entry_date: entry.entry_date,
-              description: entry.description,
-              reference: entry.reference || '',
-              status: entry.status,
-              lines: entry.lines || [],
-            });
-          } else {
-            setFormData({
-              entry_date: new Date().toISOString().split('T')[0],
-              description: '',
-              reference: '',
-              status: 'draft',
-              lines: [
-                { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 1 },
-                { account_id: '', description: '', debit_amount: 0, credit_amount: 0, line_number: 2 },
-              ],
-            });
-          }
-        }
-      }, [isOpen, entry, fetchAccounts]);
+      if (!res.ok) throw new Error('Failed to save journal entry');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['journal-entries'] });
+      toast({ title: 'Success', description: 'Entry saved' });
+      onEntrySaved?.();
+      onClose?.();
+    },
+    onError: (err: any) => toast({ title: 'Error', description: err.message, variant: 'destructive' })
+  });
+  
+  const totalDebits = lines?.reduce((acc, curr) => acc + (curr.debit_amount || 0), 0) || 0;
+  const totalCredits = lines?.reduce((acc, curr) => acc + (curr.credit_amount || 0), 0) || 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{entry?.id ? 'Edit Journal Entry' : 'Create New Journal Entry'}</DialogTitle>
-          <DialogDescription>
-            {entry?.id ? 'Update journal entry details below.' : 'Fill in the details to create a new journal entry. Debits must equal credits.'}
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="entry_date">Entry Date *</Label>
-              <Input
-                id="entry_date"
-                type="date"
-                value={formData.entry_date}
-                onChange={(e) => setFormData(prev => ({ ...prev, entry_date: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, status: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="posted">Posted</SelectItem>
-                  <SelectItem value="reversed">Reversed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="reference">Reference</Label>
-              <Input
-                id="reference"
-                value={formData.reference || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, reference: e.target.value }))}
-                placeholder="Reference number"
-              />
+      <DialogContent className="max-w-3xl">
+        <DialogHeader><DialogTitle>{entry ? 'Edit Entry' : 'New Entry'}</DialogTitle></DialogHeader>
+        <form onSubmit={handleSubmit(data => mutation.mutate(data))} className="space-y-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2"><Label>Date *</Label><Input type="date" {...register('entry_date')} /></div>
+            <div className="space-y-2"><Label>Reference</Label><Input {...register('reference')} /></div>
+            <div className="space-y-2"><Label>Status</Label>
+              <select {...register('status')} className="flex h-10 w-full rounded-md border border-zinc-200 px-3">
+                {['draft', 'posted', 'reversed'].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
           </div>
-
+          <div className="space-y-2"><Label>Description *</Label><Textarea {...register('description')} /></div>
+          
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={2}
-              placeholder="Journal entry description"
-              required
-            />
-          </div>
-
-          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <Label>Journal Entry Lines *</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addLine}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add Line
-              </Button>
+              <Label>Lines</Label>
+              <Button type="button" variant="outline" size="sm" onClick={() => append({ account_id: '', description: '', debit_amount: 0, credit_amount: 0 })}><Plus className="h-4 w-4 mr-1"/> Add</Button>
             </div>
-
-            <div className="border rounded-lg p-4 space-y-4">
-              <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground pb-2 border-b">
-                <div className="col-span-3">Account</div>
-                <div className="col-span-4">Description</div>
-                <div className="col-span-2">Debit</div>
-                <div className="col-span-2">Credit</div>
-                <div className="col-span-1"></div>
+            {fields.map((field, i) => (
+              <div key={field.id} className="grid grid-cols-12 gap-2">
+                <div className="col-span-4">
+                  <select {...register(`lines.${i}.account_id` as const)} className="flex h-10 w-full rounded-md border border-zinc-200 px-3">
+                    <option value="">Select Account</option>
+                    {accounts.map((a: any) => <option key={a.id} value={a.id}>{a.account_name || a.name || a.bank_name}</option>)}
+                  </select>
+                </div>
+                <div className="col-span-3"><Input placeholder="Desc" {...register(`lines.${i}.description` as const)} /></div>
+                <div className="col-span-2"><Input type="number" step="0.01" {...register(`lines.${i}.debit_amount` as const, { valueAsNumber: true })} /></div>
+                <div className="col-span-2"><Input type="number" step="0.01" {...register(`lines.${i}.credit_amount` as const, { valueAsNumber: true })} /></div>
+                <div className="col-span-1"><Button type="button" variant="ghost" onClick={() => remove(i)}><Trash2 className="h-4 w-4 text-red-500"/></Button></div>
               </div>
-
-              {formData.lines.map((line, index) => (
-                <div key={index} className="grid grid-cols-12 gap-2 items-center">
-                  <div className="col-span-3">
-                    <Select
-                      value={line.account_id}
-                      onValueChange={(value) => updateLine(index, 'account_id', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select account" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {accounts.map((acc) => (
-                          <SelectItem key={acc.id} value={acc.id}>
-                            {acc.account_code} - {acc.account_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="col-span-4">
-                    <Input
-                      value={line.description}
-                      onChange={(e) => updateLine(index, 'description', e.target.value)}
-                      placeholder="Line description"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={line.debit_amount || ''}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        updateLine(index, 'debit_amount', val);
-                        updateLine(index, 'credit_amount', 0);
-                      }}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={line.credit_amount || ''}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        updateLine(index, 'credit_amount', val);
-                        updateLine(index, 'debit_amount', 0);
-                      }}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    {formData.lines.length > 2 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeLine(index)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              <div className="grid grid-cols-12 gap-2 pt-2 border-t font-semibold">
-                <div className="col-span-7 text-right">Totals:</div>
-                <div className={`col-span-2 ${isBalanced ? 'text-green-600' : 'text-red-600'}`}>
-                  ₹{totalDebits.toFixed(2)}
-                </div>
-                <div className={`col-span-2 ${isBalanced ? 'text-green-600' : 'text-red-600'}`}>
-                  ₹{totalCredits.toFixed(2)}
-                </div>
-                <div className="col-span-1"></div>
-              </div>
-              {!isBalanced && (
-                <div className="text-sm text-red-600 text-center">
-                  Difference: ₹{Math.abs(totalDebits - totalCredits).toFixed(2)}
-                </div>
-              )}
+            ))}
+            {errors.lines?.root && <p className="text-red-500 text-sm">{errors.lines.root.message}</p>}
+            <div className="flex justify-between font-bold">
+              <span>Totals:</span>
+              <span>Debits: {totalDebits.toFixed(2)} | Credits: {totalCredits.toFixed(2)}</span>
             </div>
           </div>
-
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading || !isBalanced} className="w-full sm:w-auto">
-              {loading ? 'Saving...' : entry?.id ? 'Update Entry' : 'Create Entry'}
-            </Button>
-          </DialogFooter>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default JournalEntryFormDialog;
+}

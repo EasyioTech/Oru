@@ -7,7 +7,6 @@ import * as auth from './schemas/auth.js';
 import * as system from './schemas/system.js';
 import * as monitoring from './schemas/monitoring.js';
 import * as provisioning from './schemas/provisioning.js';
-import * as catalog from './schemas/catalog.js';
 import * as plans from './schemas/plans.js';
 import * as features from './schemas/features.js';
 
@@ -20,7 +19,6 @@ export const schema = {
     ...system,
     ...monitoring,
     ...provisioning,
-    ...catalog,
     ...plans,
     ...features
 };
@@ -34,6 +32,5 @@ export * from './schemas/auth.js';
 export * from './schemas/system.js';
 export * from './schemas/monitoring.js';
 export * from './schemas/provisioning.js';
-export * from './schemas/catalog.js';
 export * from './schemas/plans.js';
 export * from './schemas/features.js';

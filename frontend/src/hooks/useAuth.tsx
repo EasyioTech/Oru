@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { AppRole } from '@/utils/roleUtils';
 import { selectRecords, selectOne } from '@/services/api/core';
@@ -386,7 +386,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     session,
     profile,
@@ -398,7 +398,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInSauth,
     signOut,
     refreshProfile
-  };
+  }), [user, session, profile, userRole, loading, isSystemSuperAdmin]);
 
   return (
     <AuthContext.Provider value={value}>

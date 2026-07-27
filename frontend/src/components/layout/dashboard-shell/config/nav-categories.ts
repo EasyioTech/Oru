@@ -14,8 +14,6 @@ export type NavCategoryKey =
   | 'finance'
   | 'projects'
   | 'inventory'
-  | 'procurement'
-  | 'assets'
   | 'workflows'
   | 'automation'
   | 'reports'
@@ -38,8 +36,6 @@ const raw: Record<string, { label: string; icon: string; color: string; order: n
   finance: { label: 'Finance', icon: 'DollarSign', color: 'text-yellow-600', order: 5 },
   projects: { label: 'Projects', icon: 'Briefcase', color: 'text-indigo-600', order: 6 },
   inventory: { label: 'Inventory', icon: 'Package', color: 'text-amber-600', order: 7 },
-  procurement: { label: 'Procurement', icon: 'ShoppingCart', color: 'text-teal-600', order: 8 },
-  assets: { label: 'Assets', icon: 'Building2', color: 'text-slate-600', order: 9 },
   workflows: { label: 'Workflows', icon: 'Workflow', color: 'text-violet-600', order: 10 },
   automation: { label: 'Automation', icon: 'Zap', color: 'text-rose-600', order: 11 },
   reports: { label: 'Reports & Analytics', icon: 'ChartLine', color: 'text-cyan-600', order: 12 },

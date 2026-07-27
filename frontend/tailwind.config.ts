@@ -106,7 +106,9 @@ fontFamily: {
 				lg: ['var(--text-lg)', { lineHeight: 'var(--leading-normal)' }],
 				xl: ['var(--text-xl)', { lineHeight: 'var(--leading-tight)' }],
 				'2xl': ['var(--text-2xl)', { lineHeight: 'var(--leading-tight)' }],
-				'3xl': ['var(--text-3xl)', { lineHeight: 'var(--leading-tight)' }]
+				'3xl': ['var(--text-3xl)', { lineHeight: 'var(--leading-tight)' }],
+				'4xl': ['var(--text-4xl)', { lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tighter)' }],
+				'5xl': ['var(--text-5xl)', { lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tighter)' }]
 			},
 			fontWeight: {
 				normal: 'var(--font-normal)',

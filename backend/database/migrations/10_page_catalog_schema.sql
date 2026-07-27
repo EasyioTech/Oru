@@ -1,5 +1,5 @@
 -- ============================================================================
--- BuildFlow ERP - Page Catalog Schema Migration
+-- Oru Erp - Page Catalog Schema Migration
 -- ============================================================================
 -- This migration creates tables for dynamic page catalog management
 -- Database: buildflow_db

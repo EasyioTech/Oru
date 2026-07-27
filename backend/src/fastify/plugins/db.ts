@@ -14,6 +14,7 @@ declare module 'fastify' {
 
     interface FastifyRequest {
         db: typeof db;
+        agencyDb?: typeof db; // Added to support new module architecture
         getAgencyDb: (databaseName: string) => Promise<NodePgDatabase<typeof schema>>;
     }
 }
@@ -36,14 +37,22 @@ async function runMigrationIfExists(client: any, migrationName: string) {
 
 const dbPlugin: FastifyPluginAsync = async (fastify) => {
     // Initialize main database schema and run migrations
-    try {
-        const client = await db.$client;
+    const migrations = [
+        '20_create_blog_schema.sql',
+        '21_inventory_schema.sql',
+        '22_procurement_schema.sql',
+        '23_reports_schema.sql',
+        '24_admin_schema.sql',
+    ];
 
-        // Run blog schema migration
-        await runMigrationIfExists(client, '20_create_blog_schema.sql');
-        fastify.log.info('✅ Blog schema migration verified');
-    } catch (error: any) {
-        fastify.log.warn(`Blog schema migration skipped or already exists: ${error.message}`);
+    const client = await db.$client;
+    for (const migration of migrations) {
+        try {
+            await runMigrationIfExists(client, migration);
+            fastify.log.info(`✅ Migration verified: ${migration}`);
+        } catch (error: any) {
+            fastify.log.warn(`Migration skipped (${migration}): ${error.message}`);
+        }
     }
 
     // Decorate FastifyInstance with db

@@ -1,19 +1,19 @@
-
 import { FastifyInstance } from 'fastify';
 import { SystemMonitoringService } from './services/system-monitoring.service.js';
 import { SystemManagementService } from './services/system-management.service.js';
 import { SystemAgencyService } from './services/system-agency.service.js';
 import { UpdateSystemSettingsInput, TicketsQueryInput, CreateFeatureInput, UpdateFeatureInput } from './schemas.js';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export class SystemService {
     private monitoring: SystemMonitoringService;
     private management: SystemManagementService;
     private agency: SystemAgencyService;
 
-    constructor(private readonly app: FastifyInstance) {
-        this.monitoring = new SystemMonitoringService(app);
-        this.management = new SystemManagementService(app);
-        this.agency = new SystemAgencyService(app);
+    constructor(private db: NodePgDatabase<any>) {
+        this.monitoring = new SystemMonitoringService(db);
+        this.management = new SystemManagementService(db);
+        this.agency = new SystemAgencyService(db);
     }
 
     // Delegate methods

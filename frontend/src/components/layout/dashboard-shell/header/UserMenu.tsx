@@ -51,11 +51,11 @@ function getRoleLabel(role: string | null): string {
 }
 
 interface UserMenuProps {
-  /** Avatar size class (e.g. h-9 w-9 or h-10 w-10) */
+  /** Avatar size class (e.g. h-8 w-8 or h-9 w-9) */
   avatarSize?: string;
 }
 
-export function UserMenu({ avatarSize = 'h-9 w-9' }: UserMenuProps) {
+export function UserMenu({ avatarSize = 'h-8 w-8' }: UserMenuProps) {
   const { user, profile, userRole, signOut } = useAuth();
   const navigate = useNavigate();
   const userDisplayName = profile?.full_name || user?.email || 'User';
@@ -81,7 +81,16 @@ export function UserMenu({ avatarSize = 'h-9 w-9' }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn('relative rounded-full p-0 flex-shrink-0', avatarSize)}>
+        <Button
+          variant="ghost"
+          className={cn(
+            'relative rounded-full p-0 flex-shrink-0',
+            'ring-offset-background transition-all',
+            'hover:ring-2 hover:ring-primary/30 hover:ring-offset-1',
+            'focus-visible:ring-2 focus-visible:ring-ring',
+            avatarSize
+          )}
+        >
           <Avatar className={avatarSize}>
             <AvatarImageWithAuth src={avatarSrc} alt={userDisplayName} />
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">

@@ -129,10 +129,11 @@ export function HolidayFormDialog({
       
       // Check for duplicate holiday on the same date (only for new holidays)
       if (!editHoliday) {
-        const existingHoliday = await selectOne('holidays', {
+        const response = await selectOne('holidays', {
           agency_id: agencyId,
           date: holidayDate
         });
+        const existingHoliday = response && 'data' in response ? response.data : response;
         
         if (existingHoliday) {
           toast({
@@ -145,12 +146,13 @@ export function HolidayFormDialog({
         }
       } else {
         // For updates, check if another holiday exists on this date (excluding current one)
-        const existingHoliday = await selectOne('holidays', {
+        const response = await selectOne('holidays', {
           agency_id: agencyId,
           date: holidayDate
         });
+        const existingHoliday = response && 'data' in response ? response.data : response;
         
-        if (existingHoliday && existingHoliday.id !== editHoliday.id) {
+        if (existingHoliday && (existingHoliday as any).id !== editHoliday.id) {
           toast({
             title: "Duplicate Holiday",
             description: `Another holiday already exists on ${format(formData.date, 'MMMM d, yyyy')}. Please choose a different date.`,

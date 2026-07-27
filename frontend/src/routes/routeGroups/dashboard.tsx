@@ -14,28 +14,6 @@ import * as Pages from "../lazyImports";
  */
 export const DashboardRoutes = () => [
   <Route
-    key="/agency-setup"
-    path="/agency-setup"
-    element={
-      <ProtectedRoute requiredRole={["agency_admin", "super_admin"]}>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.AgencySetup /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/agency-setup-progress"
-    path="/agency-setup-progress"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.AgencySetupProgress /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
     key="/dashboard"
     path="/dashboard"
     element={
@@ -108,17 +86,6 @@ export const DashboardRoutes = () => [
       <ProtectedRoute requiredRole="super_admin">
         <Pages.SuperAdminLayout>
           <SuspenseRoute><Pages.PlanManagement /></SuspenseRoute>
-        </Pages.SuperAdminLayout>
-      </ProtectedRoute>
-    }
-  />,
-  <Route
-    key="/super-admin/page-catalog"
-    path="/super-admin/page-catalog"
-    element={
-      <ProtectedRoute requiredRole="super_admin">
-        <Pages.SuperAdminLayout>
-          <SuspenseRoute><Pages.PageCatalogManagement /></SuspenseRoute>
         </Pages.SuperAdminLayout>
       </ProtectedRoute>
     }

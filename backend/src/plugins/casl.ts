@@ -5,7 +5,7 @@ import { createMongoAbility, MongoAbility, AbilityBuilder } from '@casl/ability'
 import { FastifyPluginAsync } from 'fastify';
 
 export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-export type Subjects = 'Agency' | 'User' | 'System' | 'Catalog' | 'Ticket' | 'Project' | 'Client' | 'Lead' | 'CRMActivity' | 'Department' | 'Employee' | 'all';
+export type Subjects = 'Agency' | 'User' | 'System' | 'Catalog' | 'Ticket' | 'Project' | 'Task' | 'Client' | 'Lead' | 'CRMActivity' | 'Department' | 'Employee' | 'LeaveRequest' | 'Warehouse' | 'Product' | 'StockEntry' | 'Supplier' | 'PurchaseRequisition' | 'PurchaseOrder' | 'GoodsReceipt' | 'Budget' | 'BankReconciliation' | 'all';
 
 export type AppAbility = MongoAbility<[Actions, Subjects]>;
 

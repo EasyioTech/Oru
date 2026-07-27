@@ -4266,7 +4266,7 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'BuildFlow ERP'"
+          "default": "'Oru Erp'"
         },
         "system_tagline": {
           "name": "system_tagline",
