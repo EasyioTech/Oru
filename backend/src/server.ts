@@ -21,6 +21,7 @@ import swaggerPlugin from './plugins/swagger.js';
 import { ensureBucketExists } from './infrastructure/s3/index.js';
 import searchPlugin from './fastify/plugins/search.js';
 import { queuesPlugin } from './fastify/plugins/queues.js';
+import { schedulerPlugin } from './fastify/plugins/scheduler.js';
 import { startWorkers } from './jobs/workers.js';
 import { redisConnection } from './infrastructure/redis/index.js';
 
@@ -100,6 +101,7 @@ await server.register(caslPlugin);
 await server.register(swaggerPlugin);
 await server.register(searchPlugin);
 await server.register(queuesPlugin);
+await server.register(schedulerPlugin);
 
 // --- 4. Define Root Routes BEFORE Static to avoid interception ---
 
