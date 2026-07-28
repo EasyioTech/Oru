@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useCapabilities } from '../hooks';
+import { useCapabilities, useActivityTracking } from '../hooks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shared/components/ui/card';
 import { Button } from '../../../shared/components/ui/button';
 import { CheckCircle2, Lock, AlertCircle } from 'lucide-react';
@@ -38,6 +38,7 @@ const MODULE_DESCRIPTIONS: Record<string, { description: string; benefits: strin
 
 export function ModuleToggle({ workspaceId, onModuleToggle }: ModuleToggleProps) {
   const { data: capabilities, isLoading } = useCapabilities(workspaceId);
+  const { trackActivity } = useActivityTracking(workspaceId);
 
   const handleToggle = useCallback(
     async (moduleId: string, enabled: boolean) => {
@@ -51,8 +52,12 @@ export function ModuleToggle({ workspaceId, onModuleToggle }: ModuleToggleProps)
           body: JSON.stringify({ module: moduleId, action }),
         });
       }
+      await trackActivity({
+        action: enabled ? 'disable_module' : 'enable_module',
+        module: moduleId,
+      });
     },
-    [workspaceId, onModuleToggle]
+    [workspaceId, onModuleToggle, trackActivity]
   );
 
   if (isLoading) return <div className="text-center text-gray-500">Loading modules...</div>;
