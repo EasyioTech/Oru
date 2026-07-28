@@ -42,10 +42,17 @@ export function ModuleToggle({ workspaceId, onModuleToggle }: ModuleToggleProps)
   const handleToggle = useCallback(
     async (moduleId: string, enabled: boolean) => {
       if (onModuleToggle) {
-        await onModuleToggle(moduleId, !enabled);
+        await onModuleToggle(moduleId, enabled);
+      } else {
+        const action = enabled ? 'disable' : 'enable';
+        await fetch(`/api/workspace/${workspaceId}/modules/${moduleId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ module: moduleId, action }),
+        });
       }
     },
-    [onModuleToggle]
+    [workspaceId, onModuleToggle]
   );
 
   if (isLoading) return <div className="text-center text-gray-500">Loading modules...</div>;
