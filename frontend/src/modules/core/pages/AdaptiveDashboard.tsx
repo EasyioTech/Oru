@@ -1,5 +1,5 @@
 import { useDashboardContext, useWorkspaceProfile } from '../hooks';
-import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity } from '../components';
+import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity, OnboardingFlow } from '../components';
 import { Skeleton } from '../../../shared/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
@@ -36,6 +36,9 @@ export function AdaptiveDashboard({ workspaceId }: AdaptiveDashboardProps) {
 
   return (
     <div className="space-y-6">
+      {/* Onboarding Flow */}
+      <OnboardingFlow workspaceId={workspaceId} />
+
       {/* Top Section: Greeting + Key Action */}
       <CommandCenter workspaceId={workspaceId} />
 
@@ -52,16 +55,6 @@ export function AdaptiveDashboard({ workspaceId }: AdaptiveDashboardProps) {
           <RecentActivity workspaceId={workspaceId} />
         </div>
       </div>
-
-      {/* Setup Needed Notice */}
-      {context.needs_setup && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-2">Setup Your Workspace</h3>
-          <p className="text-sm text-blue-700">
-            Complete initial setup to unlock all features and improve health score.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
