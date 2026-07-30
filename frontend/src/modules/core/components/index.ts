@@ -10,3 +10,4 @@ export { WorkspaceSummary } from './WorkspaceSummary';
 export { EmptyState, OnboardingGuide } from './EmptyStates';
 export { SearchCommand } from './SearchCommand';
 export { FavoritesDropdown } from './FavoritesDropdown';
+export { QuickCreateMenu } from './QuickCreateMenu';
