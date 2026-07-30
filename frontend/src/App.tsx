@@ -8,6 +8,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
+import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { AuthRedirect } from "@/core/auth/AuthRedirect";
 import { ErrorBoundary } from "@/core/layout/ErrorBoundary";
 import { TicketFloatingButton } from "@/components/shared/TicketFloatingButton";
@@ -65,9 +66,11 @@ const App = () => (
           <ErrorBoundary>
             <BrandingProvider>
               <AuthProvider>
-                <ViewAsUserProvider>
-                  <AppContent />
-                </ViewAsUserProvider>
+                <WorkspaceProvider>
+                  <ViewAsUserProvider>
+                    <AppContent />
+                  </ViewAsUserProvider>
+                </WorkspaceProvider>
               </AuthProvider>
             </BrandingProvider>
           </ErrorBoundary>
