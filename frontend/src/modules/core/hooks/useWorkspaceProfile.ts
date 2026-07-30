@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../../lib/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface WorkspaceProfile {
   workspace_id: string;
