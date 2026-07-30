@@ -1,0 +1,89 @@
+diff --git a/frontend/src/modules/core/stores/dashboardStore.ts b/frontend/src/modules/core/stores/dashboardStore.ts
+new file mode 100644
+index 0000000..3b9f80f
+--- /dev/null
++++ b/frontend/src/modules/core/stores/dashboardStore.ts
+@@ -0,0 +1,83 @@
++import { create } from 'zustand';
++import { persist } from 'zustand/middleware';
++
++export interface Favorite {
++  id: string;
++  type: 'report' | 'team' | 'client';
++  title: string;
++  url: string;
++  icon?: string;
++  timestamp: number;
++}
++
++export interface UserPreferences {
++  theme: 'light' | 'dark';
++  density: 'compact' | 'normal';
++  notificationFrequency: 'daily' | 'weekly' | 'never';
++  defaultFilters?: Record<string, any>;
++  dashboardRefreshInterval: number;
++}
++
++export interface HealthAlert {
++  id: string;
++  type: 'warning' | 'error' | 'info';
++  title: string;
++  message: string;
++  timestamp: number;
++  relatedUrl?: string;
++}
++
++interface DashboardStore {
++  favorites: Favorite[];
++  preferences: UserPreferences;
++  healthAlerts: HealthAlert[];
++  addFavorite: (favorite: Favorite) => void;
++  removeFavorite: (id: string) => void;
++  updatePreference: (key: keyof UserPreferences, value: any) => void;
++  setHealthAlerts: (alerts: HealthAlert[]) => void;
++}
++
++const defaultPreferences: UserPreferences = {
++  theme: 'light',
++  density: 'normal',
++  notificationFrequency: 'daily',
++  dashboardRefreshInterval: 30000,
++};
++
++export const dashboardStore = create<DashboardStore>()(
++  persist(
++    (set) => ({
++      favorites: [],
++      preferences: defaultPreferences,
++      healthAlerts: [],
++
++      addFavorite: (favorite: Favorite) =>
++        set((state) => {
++          const filtered = state.favorites.filter((f) => f.id !== favorite.id);
++          if (filtered.length >= 15) filtered.shift(); // FIFO cap
++          return { favorites: [...filtered, favorite] };
++        }),
++
++      removeFavorite: (id: string) =>
++        set((state) => ({
++          favorites: state.favorites.filter((f) => f.id !== id),
++        })),
++
++      updatePreference: (key, value) =>
++        set((state) => ({
++          preferences: { ...state.preferences, [key]: value },
++        })),
++
++      setHealthAlerts: (alerts) => set({ healthAlerts: alerts }),
++    }),
++    {
++      name: 'dashboard-store',
++      partialize: (state) => ({
++        favorites: state.favorites,
++        preferences: state.preferences,
++      }),
++    }
++  )
++);
++
++export default dashboardStore;
