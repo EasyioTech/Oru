@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDashboardContext } from '../hooks';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shared/components/ui/card';
-import { Button } from '../../../shared/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle, ChevronRight } from 'lucide-react';
 
 interface OnboardingStep {

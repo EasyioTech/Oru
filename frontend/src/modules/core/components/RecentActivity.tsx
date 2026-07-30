@@ -1,5 +1,5 @@
 import { useDashboardSection } from '../hooks';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shared/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
 
 interface RecentActivityProps {

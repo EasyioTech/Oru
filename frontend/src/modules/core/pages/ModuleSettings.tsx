@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useWorkspaceProfile } from '../hooks';
 import { ModuleToggle } from '../components';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle } from 'lucide-react';
 
 interface ModuleSettingsProps {

@@ -1,5 +1,5 @@
 import { useWorkspaceProfile, useCapabilities } from '../hooks';
-import { Card, CardContent } from '../../../shared/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BarChart3, Users, Zap, TrendingUp } from 'lucide-react';
 
 interface WorkspaceSummaryProps {
