@@ -1,5 +1,5 @@
 import { useDashboardContext, useWorkspaceProfile } from '../hooks';
-import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity, OnboardingFlow } from '../components';
+import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity, OnboardingFlow, QuickWins } from '../components';
 import { Skeleton } from '../../../shared/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
@@ -41,6 +41,9 @@ export function AdaptiveDashboard({ workspaceId }: AdaptiveDashboardProps) {
 
       {/* Top Section: Greeting + Key Action */}
       <CommandCenter workspaceId={workspaceId} />
+
+      {/* Quick Wins */}
+      <QuickWins workspaceId={workspaceId} />
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

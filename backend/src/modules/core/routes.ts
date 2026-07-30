@@ -2,6 +2,8 @@ import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { WorkspaceProfileService, CapabilityEngine, ContextEngine, HealthScorer, RecommendationEngine } from './index.js';
 import { ForbiddenError } from '../../utils/errors.js';
 
+const VALID_MODULES = ['crm', 'hr', 'projects', 'finance', 'inventory', 'procurement', 'reports', 'admin'];
+
 const coreRoutes: FastifyPluginAsync = async (fastify) => {
   const auth = { onRequest: [fastify.authenticate] };
 
@@ -96,7 +98,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
     return { success: true, data: { score, status, needs, strengths } };
   });
 
-  fastify.post<{ Params: { workspaceId: string }; Body: { module: string; action: 'enable' | 'disable' } }>(
+  fastify.post<{ Params: { workspaceId: string; module: string }; Body: { action: string } }>(
     '/workspace/:workspaceId/modules/:module',
     auth,
     async (request) => {
@@ -104,6 +106,8 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
       const { action } = request.body;
 
       if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+      if (!VALID_MODULES.includes(module)) throw new Error('Invalid module');
+      if (!['enable', 'disable'].includes(action)) throw new Error('Invalid action');
 
       const db = (request as any).agencyDb || fastify.db;
       const profileSvc = new WorkspaceProfileService(db, fastify.log);
@@ -112,14 +116,14 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
       if (!profile) throw new Error('Workspace profile not found');
 
       const modulesJson = profile.modules_json || {};
-      if (!modulesJson[module]) {
-        modulesJson[module] = { enabled: false };
-      }
+      const moduleData = modulesJson[module] || { enabled: false };
 
-      modulesJson[module].enabled = action === 'enable';
+      const updatedModules = Object.assign({}, modulesJson, {
+        [module]: { ...moduleData, enabled: action === 'enable' }
+      });
 
       await profileSvc.updateProfile(workspaceId, {
-        modules_json: modulesJson,
+        modules_json: updatedModules,
       });
 
       await profileSvc.logActivity(
@@ -130,7 +134,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
         { module }
       );
 
-      return { success: true, data: { module, enabled: modulesJson[module].enabled } };
+      return { success: true, data: { module, enabled: updatedModules[module].enabled } };
     }
   );
 };
