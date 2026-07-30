@@ -8,6 +8,7 @@ import ProtectedRoute from "@/core/auth/ProtectedRoute";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SuspenseRoute } from "../SuspenseRoute";
 import * as Pages from "../lazyImports";
+import { AdaptiveDashboard } from "@/modules/core/pages/AdaptiveDashboard";
 
 /**
  * Dashboard & Core Routes
@@ -19,7 +20,7 @@ export const DashboardRoutes = () => [
     element={
       <ProtectedRoute>
         <DashboardLayout>
-          <SuspenseRoute><Pages.Index /></SuspenseRoute>
+          <SuspenseRoute><AdaptiveDashboard /></SuspenseRoute>
         </DashboardLayout>
       </ProtectedRoute>
     }
