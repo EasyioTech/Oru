@@ -1,6 +1,6 @@
 import { useDashboardContext, useWorkspaceProfile } from '../hooks';
 import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity, OnboardingFlow, QuickWins, WorkspaceSummary } from '../components';
-import { Skeleton } from '../../../shared/components/ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
 interface AdaptiveDashboardProps {
