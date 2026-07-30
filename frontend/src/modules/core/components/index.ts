@@ -7,3 +7,4 @@ export { ModuleToggle } from './ModuleToggle';
 export { AdaptiveNavigation } from './AdaptiveNavigation';
 export { QuickWins } from './QuickWins';
 export { WorkspaceSummary } from './WorkspaceSummary';
+export { EmptyState, OnboardingGuide } from './EmptyStates';
