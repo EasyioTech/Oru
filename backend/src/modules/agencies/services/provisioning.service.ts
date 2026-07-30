@@ -2,12 +2,24 @@ import { db } from '../../../infrastructure/database/index.js';
 import { agencies } from '../../../infrastructure/database/schema.js';
 import { eq, and, sql } from 'drizzle-orm';
 import { FastifyBaseLogger } from 'fastify';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AppError, NotFoundError } from '../../../utils/errors.js';
 import { CompleteAgencySetupInput, ProvisionAgencyInput, CreateAgencyInput, createAgencySchema } from '../schemas.js';
 import { redisConnection } from '../../../infrastructure/redis/index.js';
+import { WorkspaceProfileService } from '../../core/services/workspace-profile.service.js';
 
 export class AgencyProvisioningService {
-    constructor(private logger: FastifyBaseLogger) {}
+    private workspaceProfileService: WorkspaceProfileService;
+
+    constructor(
+        private logger: FastifyBaseLogger,
+        private dbConnection?: NodePgDatabase<any>
+    ) {
+        this.workspaceProfileService = new WorkspaceProfileService(
+            dbConnection || db,
+            logger
+        );
+    }
 
     async signupPreflight() {
         const results: any = {
@@ -249,6 +261,12 @@ export class AgencyProvisioningService {
                 isActive: true,
             }).returning();
 
+            const workspaceId = `workspace-${agency.id}-${Date.now()}`;
+            await this.workspaceProfileService.createDefaultWorkspace(
+                workspaceId,
+                agency.id
+            );
+
             const result = await this.completeAgencySetup({
                 companyName: agency.name,
                 domain: agency.domain,
@@ -258,7 +276,12 @@ export class AgencyProvisioningService {
                 id: agency.id,
             });
 
-            return { agency, jobId: result.jobId };
+            this.logger.info(
+                { agencyId: agency.id, workspaceId },
+                'Agency created with default workspace provisioned'
+            );
+
+            return { agency, jobId: result.jobId, workspaceId };
         } catch (error) {
             this.logger.error({ error, context: 'createAgency', input });
             throw new AppError('Failed to create agency');

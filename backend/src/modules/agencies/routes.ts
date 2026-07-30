@@ -4,10 +4,11 @@ import { AgencyProvisioningService } from './services/provisioning.service.js';
 import { listAgenciesResponseSchema, agencyResponseSchema, createAgencySchema, updateAgencySchema, completeAgencySetupSchema, provisionAgencySchema } from './schemas.js';
 import { ForbiddenError } from '../../utils/errors.js';
 import agencySettingsRoutes from './routes/settings.routes.js';
+import { db } from '../../infrastructure/database/index.js';
 
 const agencyRoutes: FastifyPluginAsync = async (fastify) => {
     const service = new AgenciesService(fastify.log);
-    const provisioning = new AgencyProvisioningService(fastify.log);
+    const provisioning = new AgencyProvisioningService(fastify.log, db);
 
     // Register settings sub-routes (dashboard, users, usage, agency-settings, provisioning)
     await fastify.register(agencySettingsRoutes);
