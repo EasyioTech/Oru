@@ -1,5 +1,5 @@
 import { useDashboardContext, useWorkspaceProfile } from '../hooks';
-import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity, OnboardingFlow, QuickWins } from '../components';
+import { CommandCenter, WorkspaceHealth, ModuleActivity, RecentActivity, OnboardingFlow, QuickWins, WorkspaceSummary } from '../components';
 import { Skeleton } from '../../../shared/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
@@ -36,6 +36,9 @@ export function AdaptiveDashboard({ workspaceId }: AdaptiveDashboardProps) {
 
   return (
     <div className="space-y-6">
+      {/* Summary Metrics */}
+      <WorkspaceSummary workspaceId={workspaceId} />
+
       {/* Onboarding Flow */}
       <OnboardingFlow workspaceId={workspaceId} />
 
