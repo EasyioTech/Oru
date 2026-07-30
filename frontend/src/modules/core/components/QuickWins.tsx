@@ -18,7 +18,8 @@ const QUICK_WIN_ACTIONS: Record<string, { label: string; url: string; impact: st
 export function QuickWins({ workspaceId }: QuickWinsProps) {
   const { data: context } = useDashboardContext(workspaceId);
 
-  if (!context?.quick_wins || context.quick_wins.length === 0) {
+  const ctx = context as any;
+  if (!ctx?.quick_wins || ctx.quick_wins.length === 0) {
     return null;
   }
 
@@ -33,7 +34,7 @@ export function QuickWins({ workspaceId }: QuickWinsProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {context.quick_wins.map((win: any) => {
+          {ctx.quick_wins.map((win: any) => {
             const action = QUICK_WIN_ACTIONS[win.id];
             if (!action) return null;
 

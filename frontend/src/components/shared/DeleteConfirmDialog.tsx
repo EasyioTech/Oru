@@ -9,8 +9,8 @@ interface DeleteConfirmDialogProps {
   onDeleted: () => void;
   itemType: string;
   itemName: string;
-  itemId: string;
-  tableName: string;
+  itemId?: string;
+  tableName?: string;
   softDelete?: boolean; // If true, sets is_active to false instead of hard delete
   userId?: string; // Current user ID for audit logging
   /** Optional custom description (e.g. "This will deactivate the department." vs "This will permanently remove...") */
@@ -63,7 +63,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
 
       onDeleted();
       onClose();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error(`Error deleting ${itemType}:`, error);
       toast({
         title: 'Error',

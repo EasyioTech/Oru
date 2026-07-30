@@ -6,7 +6,7 @@ import { type SystemSettings } from '@/services/api/system';
 
 interface LoggingSectionProps {
   formData: Partial<SystemSettings>;
-  onChange: (field: keyof SystemSettings, value: unknown) => void;
+  onChange: (field: keyof SystemSettings, value: any) => void;
 }
 
 export function LoggingSection({ formData, onChange }: LoggingSectionProps) {

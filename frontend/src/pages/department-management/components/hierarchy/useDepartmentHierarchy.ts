@@ -112,7 +112,7 @@ export function useDepartmentHierarchy({
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (departments.length > 0 && expandedDepartments.size === 0) setExpandedDepartments(new Set(departments.map(d => d.id))); }, [departments, expandedDepartments.size]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => { buildHierarchy(); }, [buildHierarchy]);
 
   const stats = useMemo(() => computeStats(departments), [departments]);

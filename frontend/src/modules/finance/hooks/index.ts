@@ -15,7 +15,7 @@ export const useJournalEntries = (filters?: { status?: string; dateFrom?: string
 export const useCreateJournalEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/finance/journal', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/finance/journal', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['finance_journal'] }),
   });
 };
@@ -41,7 +41,7 @@ export const useBudget = (id: string) =>
 export const useCreateBudget = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/finance/budgets', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/finance/budgets', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['finance_budgets'] }),
   });
 };
@@ -49,7 +49,7 @@ export const useCreateBudget = () => {
 export const useUpdateBudget = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/finance/budgets/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['finance_budgets'] });

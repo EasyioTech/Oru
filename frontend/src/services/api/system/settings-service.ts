@@ -38,7 +38,7 @@ export async function getInventorySettings() {
 /**
  * Update inventory settings
  */
-export async function updateInventorySettings(settings: unknown) {
+export async function updateInventorySettings(settings: any) {
   const token = localStorage.getItem('auth_token');
   if (!token) {
     throw new Error('Authentication required');
@@ -95,7 +95,7 @@ export async function getProcurementSettings() {
 /**
  * Update procurement settings
  */
-export async function updateProcurementSettings(settings: unknown) {
+export async function updateProcurementSettings(settings: any) {
   const token = localStorage.getItem('auth_token');
   if (!token) {
     throw new Error('Authentication required');
@@ -152,7 +152,7 @@ export async function getAssetSettings() {
 /**
  * Update asset settings
  */
-export async function updateAssetSettings(settings: unknown) {
+export async function updateAssetSettings(settings: any) {
   const token = localStorage.getItem('auth_token');
   if (!token) {
     throw new Error('Authentication required');
@@ -209,7 +209,7 @@ export async function getWorkflowSettings() {
 /**
  * Update workflow settings
  */
-export async function updateWorkflowSettings(settings: unknown) {
+export async function updateWorkflowSettings(settings: any) {
   const token = localStorage.getItem('auth_token');
   if (!token) {
     throw new Error('Authentication required');
@@ -266,7 +266,7 @@ export async function getIntegrationSettings() {
 /**
  * Update integration settings
  */
-export async function updateIntegrationSettings(settings: unknown) {
+export async function updateIntegrationSettings(settings: any) {
   const token = localStorage.getItem('auth_token');
   if (!token) {
     throw new Error('Authentication required');

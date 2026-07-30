@@ -1,12 +1,13 @@
 import { selectRecords, selectOne, insertRecord, updateRecord, deleteRecord } from '../../core';
+import { BaseProjectService } from './_base';
 import { Project, Task, TaskAssignment, TaskComment, TimeTracking, ProjectFilters, TaskFilters } from './types';
 
-export class ProjectCoreService extends BaseApiService {
+export class ProjectCoreService extends BaseProjectService {
   static async getProjects(filters?: ProjectFilters, profile?: unknown, userId?: string | null): Promise<Project[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const where: unknown = { agency_id: agencyId };
-    const queryFilters: unknown[] = [];
+    const where: any = { agency_id: agencyId };
+    const queryFilters: any[] = [];
 
     if (filters?.status && filters.status.length > 0) {
       queryFilters.push({ column: 'status', operator: 'in', value: filters.status });
@@ -35,10 +36,10 @@ export class ProjectCoreService extends BaseApiService {
     });
 
     // Fetch related data
-    const clientIds = [...new Set(projects.map((p: unknown) => p.client_id).filter(Boolean))];
+    const clientIds = [...new Set(projects.map((p: any) => p.client_id).filter(Boolean))];
     const managerIds = [...new Set([
-      ...projects.map((p: unknown) => p.project_manager_id).filter(Boolean),
-      ...projects.map((p: unknown) => p.account_manager_id).filter(Boolean)
+      ...projects.map((p: any) => p.project_manager_id).filter(Boolean),
+      ...projects.map((p: any) => p.account_manager_id).filter(Boolean)
     ])].filter(Boolean);
 
     const clients = clientIds.length > 0 ? await selectRecords('clients', {
@@ -49,10 +50,10 @@ export class ProjectCoreService extends BaseApiService {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: managerIds } }
     }) : [];
 
-    const clientMap = new Map(clients.map((c: unknown) => [c.id, c]));
-    const managerMap = new Map(managers.map((m: unknown) => [m.user_id, m]));
+    const clientMap = new Map<string, any>(clients.map((c: any) => [c.id, c]));
+    const managerMap = new Map<string, any>(managers.map((m: any) => [m.user_id, m]));
 
-    return projects.map((project: unknown) => ({
+    return projects.map((project: any) => ({
       ...project,
       assigned_team: Array.isArray(project.assigned_team) ? project.assigned_team : 
                     typeof project.assigned_team === 'string' ? JSON.parse(project.assigned_team || '[]') : [],
@@ -104,7 +105,7 @@ export class ProjectCoreService extends BaseApiService {
   static async createProject(data: Partial<Project>, profile?: unknown, userId?: string | null): Promise<Project> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const projectData: unknown = {
+    const projectData: any = {
       name: data.name,
       description: data.description || null,
       project_code: data.project_code || await this.generateProjectCode(agencyId),
@@ -139,7 +140,7 @@ export class ProjectCoreService extends BaseApiService {
   static async updateProject(id: string, data: Partial<Project>, profile?: unknown, userId?: string | null): Promise<Project> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const updateData: unknown = {};
+    const updateData: any = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.project_code !== undefined) updateData.project_code = data.project_code;

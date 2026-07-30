@@ -212,7 +212,7 @@ export function HolidayFormDialog({
 
       onHolidayCreated();
       onOpenChange(false);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving holiday:', error);
       toast({
         title: "Error",

@@ -52,7 +52,7 @@ export const calculateBudgetVariance = (budget: number | null, actualCost: numbe
 /**
  * Calculate task completion rate
  */
-export const calculateTaskCompletionRate = (tasks: unknown[]): number => {
+export const calculateTaskCompletionRate = (tasks: any[]): number => {
   if (tasks.length === 0) return 0;
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   return (completedTasks / tasks.length) * 100;

@@ -12,10 +12,13 @@ import { useProfileSettings } from '../hooks/useProfileSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { validateFileSize } from '../utils/settingsValidation';
 import { useToast } from '@/hooks/use-toast';
+import { useUIPreferences } from '@/hooks/useUIPreferences';
+import { Switch } from '@/components/ui/switch';
 
 export const ProfileSettingsTab = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { showSupportTicketButton, setSupportTicketVisibility } = useUIPreferences();
   const {
     profileSettings,
     setProfileSettings,
@@ -175,6 +178,24 @@ export const ProfileSettingsTab = () => {
           <p className="text-xs text-muted-foreground">
             Optional. Used for login credentials and personal contact
           </p>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium">UI Preferences</h3>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Show Support Ticket Button</Label>
+              <p className="text-xs text-muted-foreground">
+                Display the floating help button in the bottom right corner of the application.
+              </p>
+            </div>
+            <Switch
+              checked={showSupportTicketButton}
+              onCheckedChange={setSupportTicketVisibility}
+            />
+          </div>
         </div>
 
         <Button onClick={saveProfileSettings} disabled={loading} className="w-full md:w-auto">

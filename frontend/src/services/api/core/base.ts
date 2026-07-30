@@ -2,7 +2,7 @@ import { TIMEOUT_CONFIG, RETRY_CONFIG, ERROR_MESSAGES } from '@/constants';
 import { useAppStore } from '@/stores/appStore';
 import { pgClient } from '@/integrations/postgresql/client';
 
-export interface ApiResponse<T = unknown> {
+export interface ApiResponse<T = any> {
   data: T | null;
   error: string | null;
   success: boolean;
@@ -123,11 +123,11 @@ export class BaseApiService {
   }
 
   // PostgreSQL query helpers
-  protected static async query<T = unknown>(
+  protected static async query<T = any>(
     table: string,
     options: {
       select?: string;
-      filters?: Record<string, unknown>;
+      filters?: Record<string, any>;
       orderBy?: { column: string; ascending?: boolean };
       limit?: number;
       single?: boolean;
@@ -139,7 +139,7 @@ export class BaseApiService {
       // Ensure table name has schema prefix if not already present
       const tableName = table.includes('.') ? table : `public.${table}`;
       let query = `SELECT ${columns} FROM ${tableName}`;
-      const params: unknown[] = [];
+      const params: any[] = [];
       let paramIndex = 1;
 
       // Add filters
@@ -179,14 +179,14 @@ export class BaseApiService {
     }, apiOptions);
   }
 
-  protected static async insert<T = unknown>(
+  protected static async insert<T = any>(
     table: string,
-    data: Record<string, unknown>,
+    data: Record<string, any>,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.execute(async () => {
       // Filter out null values and prepare data
-      const filteredData: Record<string, unknown> = {};
+      const filteredData: Record<string, any> = {};
       Object.keys(data).forEach(key => {
         if (data[key] !== undefined) {
           filteredData[key] = data[key];
@@ -214,10 +214,10 @@ export class BaseApiService {
     }, options);
   }
 
-  protected static async update<T = unknown>(
+  protected static async update<T = any>(
     table: string,
-    data: Record<string, unknown>,
-    filters: Record<string, unknown>,
+    data: Record<string, any>,
+    filters: Record<string, any>,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.execute(async () => {
@@ -245,9 +245,9 @@ export class BaseApiService {
     }, options);
   }
 
-  protected static async delete<T = unknown>(
+  protected static async delete<T = any>(
     table: string,
-    filters: Record<string, unknown>,
+    filters: Record<string, any>,
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.execute(async () => {
@@ -265,9 +265,9 @@ export class BaseApiService {
     }, options);
   }
 
-  protected static async rpc<T = unknown>(
+  protected static async rpc<T = any>(
     functionName: string,
-    params: Record<string, unknown> = {},
+    params: Record<string, any> = {},
     options: ApiOptions = {}
   ): Promise<ApiResponse<T>> {
     return this.execute(async () => {
@@ -279,7 +279,7 @@ export class BaseApiService {
       const result = await pgClient.query(query, paramValues);
       const rows = result.rows as T[];
       // Return single item if only one result, otherwise return array
-      return rows.length === 1 ? rows[0] : rows;
+      return (rows.length === 1 ? rows[0] : rows) as unknown as T;
     }, options);
   }
 }

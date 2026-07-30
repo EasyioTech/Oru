@@ -20,7 +20,7 @@ interface WorkspaceProviderProps {
 
 export const WorkspaceProvider = ({ children }: WorkspaceProviderProps) => {
   const { profile: userProfile } = useAuth();
-  const workspaceId = userProfile?.workspaceId || null;
+  const workspaceId = (userProfile as any)?.workspaceId || (userProfile as any)?.agency_id || null;
   const { data: profile, isPending: isLoading, error } = useWorkspaceProfile(workspaceId || '');
 
   const value = useMemo<WorkspaceContextType>(

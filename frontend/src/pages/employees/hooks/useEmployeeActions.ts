@@ -59,7 +59,7 @@ export const useEmployeeActions = () => {
           : "Employee updated successfully",
       });
       onSuccess?.();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error updating employee:', error);
       const message = error instanceof Error ? error.message : "Failed to update employee. Please try again.";
       toast({
@@ -92,7 +92,7 @@ export const useEmployeeActions = () => {
         description: "Employee deleted successfully",
       });
       if (onSuccess) onSuccess();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error deleting employee:', error);
       toast({
         title: "Error",
@@ -122,7 +122,7 @@ export const useEmployeeActions = () => {
         description: "User deleted successfully. They will now appear in the 'Trash' tab.",
       });
       if (onSuccess) onSuccess();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error deleting user:', error);
       toast({
         title: "Error",

@@ -55,8 +55,15 @@ export default function CreateEmployee() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   return (
-    <div className="space-y-5">
+    <div className="container mx-auto px-4 py-8 max-w-7xl animate-in fade-in duration-500">
       <div className="mb-2">
         <Link to="/employees" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" />Back to Employees
@@ -69,7 +76,6 @@ export default function CreateEmployee() {
 
       {createdCredentials && (
         <CredentialsSuccessCard
-          credentials={createdCredentials}
           credentialsText={credentialsText}
           copiedCreds={copiedCreds}
           onCopy={copyCredentials}
@@ -148,6 +154,7 @@ export default function CreateEmployee() {
                     uploadedFiles={uploadedFiles}
                     onFileUpload={handleFileUpload}
                     onRemoveFile={removeFile}
+                    formatFileSize={formatFileSize}
                   />
                   
                   <Card>

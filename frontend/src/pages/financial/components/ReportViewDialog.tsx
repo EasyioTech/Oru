@@ -5,7 +5,7 @@ import { Download, FileText } from 'lucide-react';
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  reportViewData: { title: string; data: unknown } | null;
+  reportViewData: { title: string; data: any } | null;
   onNavigateReports: () => void;
 }
 

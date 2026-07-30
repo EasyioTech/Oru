@@ -14,7 +14,7 @@ interface EmployeeViewProps {
   todayAttendance: AttendanceRecord[];
   showReportsDialog: boolean;
   setShowReportsDialog: (v: boolean) => void;
-  reportData: unknown;
+  reportData: any;
   reportLoading: boolean;
   handleViewReports: () => void;
   handleExportReport: () => void;

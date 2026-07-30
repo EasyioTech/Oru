@@ -13,7 +13,7 @@ import { useJournalEntries } from './useJournalEntries';
 import { useTransactions } from './useTransactions';
 import { useProjects } from './useProjects';
 
-export const useFinancialData = (user: unknown, profile: unknown) => {
+export const useFinancialData = (user: any, profile: any) => {
   const { toast } = useToast();
   const [agencyId, setAgencyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);

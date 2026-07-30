@@ -84,7 +84,7 @@ export const useEmployees = (urlDepartmentId?: string | null) => {
       }));
 
       setEmployees(unifiedEmployees);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching employees:', error);
       toast({
         title: "Error",

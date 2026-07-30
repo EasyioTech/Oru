@@ -13,7 +13,7 @@ interface PayrollRecordsTabProps {
   setSearchTerm: (v: string) => void;
   selectedPeriod: string;
   setSelectedPeriod: (v: string) => void;
-  payrollPeriods: unknown[];
+  payrollPeriods: any[];
   selectedRecords: Set<string>;
   bulkActionLoading: boolean;
   onSelectRecord: (id: string) => void;
@@ -32,7 +32,7 @@ export function PayrollRecordsTab({
   onSelectRecord, onSelectAll, onBulkApprove, onBulkMarkPaid,
   onNewPayroll, onEditPayroll, onDeletePayroll, onDownloadPaySlip,
 }: PayrollRecordsTabProps) {
-  const currentPeriodName = (payrollPeriods.find((p: unknown) => (p as { id: string }).id === selectedPeriod) as { name?: string } | undefined)?.name;
+  const currentPeriodName = (payrollPeriods.find((p: any) => (p as { id: string }).id === selectedPeriod) as { name?: string } | undefined)?.name;
 
   return (
     <Card>

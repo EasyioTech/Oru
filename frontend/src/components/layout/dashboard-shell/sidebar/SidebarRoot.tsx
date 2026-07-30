@@ -26,7 +26,7 @@ export function SidebarRoot() {
   const effectiveRole = auth.userRole;
   const loading = auth.loading;
   const profile = auth.profile;
-  const workspaceId = profile?.workspaceId || '';
+  const workspaceId = (profile as any)?.workspaceId || '';
   const location = useLocation();
   const { state, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();

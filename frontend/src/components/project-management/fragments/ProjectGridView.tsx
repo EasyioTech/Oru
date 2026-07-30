@@ -227,7 +227,7 @@ export function ProjectGridView({
                       <Copy className="h-4 w-4 mr-2" />
                       Duplicate
                     </DropdownMenuItem>
-                    {project.status !== 'archived' && (
+                    {(project.status as string) !== 'archived' && (
                       <DropdownMenuItem onClick={(e) => {
                         e.stopPropagation();
                         onArchiveProject(project);

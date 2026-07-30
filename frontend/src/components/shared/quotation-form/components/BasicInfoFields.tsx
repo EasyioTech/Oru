@@ -13,7 +13,7 @@ interface BasicInfoFieldsProps {
 }
 
 export function BasicInfoFields({ formData, setFormData, clients, loadingClients }: BasicInfoFieldsProps) {
-  const update = (field: keyof Quotation) => (value: unknown) =>
+  const update = (field: keyof Quotation) => (value: any) =>
     setFormData(prev => ({ ...prev, [field]: value }));
 
   return (

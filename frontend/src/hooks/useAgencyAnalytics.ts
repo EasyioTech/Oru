@@ -82,7 +82,7 @@ export const useAgencyAnalytics = () => {
 
       setAgency(json.data.agency ?? null);
       setMetrics(json.data.metrics ?? DEFAULT_METRICS);
-    } catch (err: unknown) {
+    } catch (err: any) {
       logError('Error fetching agency metrics:', err);
       setError((err as Error).message);
       toast({

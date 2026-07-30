@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useAgencySettings as useAgencySettingsHook } from '@/hooks/useAgencySettings';
-import { uploadFile } from '@/services/api/storage';
+import { uploadFile } from '@/services/api/storage/index';
 import { getApiRoot } from '@/config/api';
 import { parseWorkingDays } from '../utils/settingsHelpers';
 
@@ -79,7 +79,7 @@ export const useAgencySettingsExtended = () => {
   const saveAgencySettings = async () => {
     setLoading(true);
     try {
-      const settingsToSave: unknown = {
+      const settingsToSave: any = {
         agency_name: agencySettings.agency_name,
         domain: agencySettings.domain,
         default_currency: agencySettings.default_currency,
@@ -102,7 +102,7 @@ export const useAgencySettingsExtended = () => {
           await uploadFile('logos', pathWithinBucket, fileBuffer, user?.id ?? null, logoFile.type);
           const logoUrl = `${getApiRoot().replace(/\/$/, '')}/files/logos/${encodeURIComponent(pathWithinBucket)}`;
           settingsToSave.logo_url = logoUrl;
-        } catch (uploadErr: unknown) {
+        } catch (uploadErr: any) {
           toast({
             title: "Upload failed",
             description: uploadErr.message || "Failed to upload logo",
@@ -131,7 +131,7 @@ export const useAgencySettingsExtended = () => {
       } else {
         throw new Error(result.error || 'Failed to save settings');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving agency settings:', error);
       toast({
         title: "Error",

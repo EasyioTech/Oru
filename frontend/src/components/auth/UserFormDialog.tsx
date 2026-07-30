@@ -94,7 +94,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
           id: d.id,
           name: d.name
         })));
-      } catch (error: unknown) {
+      } catch (error: any) {
         console.error('Error fetching departments:', error);
         setDepartments([]);
       }
@@ -232,7 +232,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
           // Update existing role
           await updateRecord(
             'user_roles',
-            { role: formData.role as unknown },
+            { role: formData.role as any },
             { id: existingRoles[0].id },
             currentUser?.id
           );
@@ -245,7 +245,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
           await insertRecord('user_roles', {
             id: generateUUID(),
             user_id: user.id,
-            role: formData.role as unknown,
+            role: formData.role as any,
             agency_id: agencyId
           }, currentUser?.id);
         }
@@ -354,7 +354,7 @@ const UserFormDialog = ({ isOpen, onClose, user, onUserSaved }: UserFormDialogPr
 
         onUserSaved();
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving user:', error);
       toast({
         title: "Error",

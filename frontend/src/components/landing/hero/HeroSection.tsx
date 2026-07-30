@@ -35,7 +35,7 @@ export function HeroSection() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
             <Link to="/agency-signup">
               <Button size="lg" className="h-14 px-8 text-base font-semibold gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/25">
-                Start Free Trial
+                Get Started Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -53,7 +53,7 @@ export function HeroSection() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '300ms' }}>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-500" />
-              <span>14-day free trial</span>
+              <span>Free forever to start</span>
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-emerald-500" />
@@ -118,7 +118,7 @@ function BrowserChrome() {
 }
 
 function DashboardMockup() {
-  const { stats, recentProjects, recentInvoices, teamActivity } = DASHBOARD_PREVIEW_DATA;
+  const { stats, recentProjects, recentInvoices, teamActivity } = DASHBOARD_PREVIEW_DATA as any;
   
   return (
     <div className="grid grid-cols-12 gap-3 md:gap-4">
@@ -134,7 +134,7 @@ function DashboardMockup() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <RevenueChart />
-          <ActivityFeed activities={teamActivity} />
+          <ActivityCard activities={teamActivity} />
           <QuickActions />
         </div>
       </div>
@@ -179,7 +179,7 @@ function Sidebar() {
   );
 }
 
-function StatsRow({ stats }: { stats: typeof DASHBOARD_PREVIEW_DATA.stats }) {
+function StatsRow({ stats }: { stats: any }) {
   const icons = [TrendingUp, Users, DollarSign, CheckCircle];
   const colors = ['emerald', 'blue', 'violet', 'amber'];
   
@@ -207,7 +207,7 @@ function StatsRow({ stats }: { stats: typeof DASHBOARD_PREVIEW_DATA.stats }) {
   );
 }
 
-function ProjectsCard({ projects }: { projects: typeof DASHBOARD_PREVIEW_DATA.recentProjects }) {
+function ProjectsCard({ projects }: { projects: any }) {
   return (
     <div className="p-4 rounded-xl bg-background border border-border">
       <div className="flex items-center justify-between mb-4">
@@ -239,7 +239,7 @@ function ProjectsCard({ projects }: { projects: typeof DASHBOARD_PREVIEW_DATA.re
   );
 }
 
-function InvoicesCard({ invoices }: { invoices: typeof DASHBOARD_PREVIEW_DATA.recentInvoices }) {
+function InvoicesCard({ invoices }: { invoices: any }) {
   const statusColors = {
     paid: 'bg-emerald-500/10 text-emerald-700',
     pending: 'bg-amber-500/10 text-amber-700',
@@ -297,7 +297,7 @@ function RevenueChart() {
   );
 }
 
-function ActivityFeed({ activities }: { activities: typeof DASHBOARD_PREVIEW_DATA.teamActivity }) {
+function ActivityCard({ activities }: { activities: any }) {
   return (
     <div className="p-4 rounded-xl bg-background border border-border">
       <h3 className="font-semibold text-sm mb-4">Recent Activity</h3>

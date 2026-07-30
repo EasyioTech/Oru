@@ -56,8 +56,8 @@ export function TaskPerformanceList({ tasks, loading }: TaskPerformanceListProps
 
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    let aValue: unknown;
-    let bValue: unknown;
+    let aValue: any;
+    let bValue: any;
 
     switch (sortField) {
       case 'title':

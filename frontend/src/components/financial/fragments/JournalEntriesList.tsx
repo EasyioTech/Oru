@@ -5,7 +5,7 @@ import { Plus, Edit, Trash2, FileText } from 'lucide-react';
 import { getStatusColor } from './types';
 
 interface JournalEntriesListProps {
-  entries: unknown[];
+  entries: any[];
   loading: boolean;
   pageSize: number;
   currentPage: number;
@@ -13,8 +13,8 @@ interface JournalEntriesListProps {
   totalItems: number;
   deleteLoading: boolean;
   onNewEntry: () => void;
-  onEditEntry: (entry: unknown) => void;
-  onDeleteEntry: (entry: unknown) => void;
+  onEditEntry: (entry: any) => void;
+  onDeleteEntry: (entry: any) => void;
   onPageChange: (page: number) => void;
 }
 

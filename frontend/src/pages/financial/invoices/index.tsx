@@ -52,7 +52,7 @@ const Invoices = () => {
         ? scoped.filter(inv => inv.client_id === clientFilterId)
         : scoped;
       setInvoices(filteredByClient);
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError('Error fetching invoices:', error);
       toast({
         title: "Error",

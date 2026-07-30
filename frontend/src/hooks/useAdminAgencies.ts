@@ -23,7 +23,7 @@ export function useAdminAgencies() {
 
   const updateAgencyStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: AdminAgency['status'] }) => {
-      const response = await api.patch(`/admin/agencies/${id}`, { status });
+      const response = await api.put(`/admin/agencies/${id}`, { status });
       return response.data.data;
     },
     onSuccess: () => {

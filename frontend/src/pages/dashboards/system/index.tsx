@@ -14,8 +14,6 @@ import { RealTimeUsageWidget } from '@/components/system/RealTimeUsageWidget';
 import PlanManagement from '@/components/system/PlanManagement';
 import { AgencySettings } from '@/components/system/AgencySettings';
 import { SystemSettings } from '@/components/system/SystemSettings';
-import PageCatalogManagement from '@/components/system/PageCatalogManagement';
-import PageRequestManagement from '@/components/system/PageRequestManagement';
 import { RefreshCw, AlertTriangle, CheckCircle, TrendingUp, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -271,8 +269,7 @@ const SystemDashboard = () => {
             <SystemSettings />
             <AgencySettings agencies={agencies} onRefresh={refreshMetrics} />
             <PlanManagement />
-            <PageCatalogManagement />
-            <PageRequestManagement />
+
           </TabsContent>
         </Tabs>
       </div>

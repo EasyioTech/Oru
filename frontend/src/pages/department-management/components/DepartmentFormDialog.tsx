@@ -63,7 +63,7 @@ export function DepartmentFormDialog({
         ? departmentsData.filter(d => d.id !== department.id)
         : departmentsData;
       setDepartments(filteredDepartments.map(d => ({ id: d.id, name: d.name })));
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error("Error fetching departments:", error);
       toast({ title: "Error", description: "Failed to fetch departments", variant: "destructive" });
       setDepartments([]);
@@ -204,7 +204,7 @@ export function DepartmentFormDialog({
       }
       onDepartmentSaved();
       onOpenChange(false);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error("Error saving department:", error);
       const errorMessage = (error as Error)?.message || (error as { detail?: string })?.detail || "Failed to save department";
       toast({ title: "Error", description: String(errorMessage), variant: "destructive" });

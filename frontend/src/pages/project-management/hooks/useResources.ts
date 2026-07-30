@@ -24,7 +24,7 @@ export const useResources = () => {
       
       const employeesData = await getEmployeesForAssignmentAuto(profile, user?.id);
       
-      const employees: unknown[] = employeesData.map(emp => ({
+      const employees: any[] = employeesData.map(emp => ({
         user_id: emp.user_id,
         display_name: emp.full_name,
         full_name: emp.full_name,
@@ -32,7 +32,7 @@ export const useResources = () => {
         is_fully_active: emp.is_active
       }));
       
-      const userIds = employees.map((e: unknown) => e.user_id).filter(Boolean);
+      const userIds = employees.map((e: any) => e.user_id).filter(Boolean);
       
       const [employeeDetails, allTasks, allProjects] = await Promise.all([
         userIds.length > 0 
@@ -44,7 +44,7 @@ export const useResources = () => {
         projectService.getProjects({}, profile, user?.id)
       ]);
       
-      const employeeIds = employeeDetails.map((ed: unknown) => ed.id).filter(Boolean);
+      const employeeIds = employeeDetails.map((ed: any) => ed.id).filter(Boolean);
       const salaryMap = new Map();
       
       if (employeeIds.length > 0) {
@@ -55,13 +55,13 @@ export const useResources = () => {
           });
           
           const employeeIdToSalary = new Map();
-          salaryDetails.forEach((s: unknown) => {
+          salaryDetails.forEach((s: any) => {
             if (!employeeIdToSalary.has(s.employee_id)) {
               employeeIdToSalary.set(s.employee_id, s);
             }
           });
           
-          employeeDetails.forEach((ed: unknown) => {
+          employeeDetails.forEach((ed: any) => {
             const salary = employeeIdToSalary.get(ed.id);
             if (salary && ed.user_id) {
               salaryMap.set(ed.user_id, salary);
@@ -74,10 +74,10 @@ export const useResources = () => {
       
       const resourceMap = new Map();
       
-      employees.forEach((emp: unknown) => {
+      employees.forEach((emp: any) => {
         const userTasks = allTasks.filter(t => 
           t.assignee_id === emp.user_id || 
-          t.assignments?.some((a: unknown) => a.user_id === emp.user_id)
+          t.assignments?.some((a: any) => a.user_id === emp.user_id)
         );
         
         const userProjects = allProjects.filter(p => 
@@ -121,7 +121,7 @@ export const useResources = () => {
       });
       
       setResources(Array.from(resourceMap.values()));
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching resources:', error);
       toast({
         title: "Error",

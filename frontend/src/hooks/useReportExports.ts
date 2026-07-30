@@ -14,7 +14,7 @@ export interface ReportExport {
   generated_at: string;
   expires_at?: string;
   download_count: number;
-  parameters?: Record<string, unknown>;
+  parameters?: Record<string, any>;
 }
 
 export function useReportExports(filters: { status?: string, format?: string, search?: string, date_from?: string, date_to?: string } = {}) {

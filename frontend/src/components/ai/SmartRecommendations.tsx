@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { getAgencyId } from "@/utils/agencyUtils";
 import { selectRecords, rawQuery } from "@/services/api/core";
-import { db } from "@/integrations/postgresql/client";
+
 
 interface Automation {
   id: string;
@@ -89,8 +89,8 @@ export function SmartRecommendations() {
       const generatedAutomations: Automation[] = [];
       
       // Invoice automation - if there are completed projects without invoices
-      const completedProjectsWithoutInvoices = (projects || []).filter((p: unknown) => 
-        p.status === 'completed' && !invoices?.some((inv: unknown) => inv.project_id === p.id)
+      const completedProjectsWithoutInvoices = (projects || []).filter((p: any) => 
+        p.status === 'completed' && !invoices?.some((inv: any) => inv.project_id === p.id)
       );
       if (completedProjectsWithoutInvoices.length > 0) {
         generatedAutomations.push({
@@ -108,7 +108,7 @@ export function SmartRecommendations() {
       }
 
       // Task reminder automation
-      const overdueTasks = (tasks || []).filter((t: unknown) => {
+      const overdueTasks = (tasks || []).filter((t: any) => {
         if (!t.due_date) return false;
         return new Date(t.due_date) < new Date() && t.status !== 'completed';
       });
@@ -128,7 +128,7 @@ export function SmartRecommendations() {
       }
 
       // Attendance tracking automation
-      const recentAttendance = (attendance || []).filter((a: unknown) => {
+      const recentAttendance = (attendance || []).filter((a: any) => {
         const date = new Date(a.date);
         const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         return date > weekAgo;
@@ -152,7 +152,7 @@ export function SmartRecommendations() {
       const generatedRecommendations: Recommendation[] = [];
       
       // Budget alert recommendation
-      const projectsNearBudget = (projects || []).filter((p: unknown) => {
+      const projectsNearBudget = (projects || []).filter((p: any) => {
         if (!p.budget || !p.actual_cost) return false;
         const budgetPercent = (p.actual_cost / p.budget) * 100;
         return budgetPercent >= 75 && budgetPercent < 100;
@@ -185,7 +185,7 @@ export function SmartRecommendations() {
       }
 
       // Client follow-up recommendation
-      const pendingInvoices = (invoices || []).filter((inv: unknown) => 
+      const pendingInvoices = (invoices || []).filter((inv: any) => 
         inv.status === 'sent' || inv.status === 'pending'
       );
       if (pendingInvoices.length > 0) {

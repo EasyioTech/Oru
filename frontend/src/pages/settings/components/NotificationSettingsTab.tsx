@@ -2,21 +2,31 @@
  * Notification Settings Tab Component
  */
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Save, Bell, Mail, Loader2 } from "lucide-react";
-import { useNotificationSettings } from '../hooks/useNotificationSettings';
+import { useNotificationSettings, NotificationSettings } from '../hooks/useNotificationSettings';
 
 export const NotificationSettingsTab = () => {
   const {
     notificationSettings,
-    setNotificationSettings,
     loading,
     saveNotificationSettings,
   } = useNotificationSettings();
+
+  const [localSettings, setLocalSettings] = useState<NotificationSettings>(notificationSettings);
+
+  useEffect(() => {
+    setLocalSettings(notificationSettings);
+  }, [notificationSettings]);
+
+  const handleSave = () => {
+    saveNotificationSettings(localSettings);
+  };
 
   return (
     <Card>
@@ -42,8 +52,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="emailNotifications"
-              checked={notificationSettings.email_notifications}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, email_notifications: checked }))}
+              checked={localSettings.email_notifications}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, email_notifications: checked }))}
             />
           </div>
 
@@ -54,8 +64,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="pushNotifications"
-              checked={notificationSettings.push_notifications}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, push_notifications: checked }))}
+              checked={localSettings.push_notifications}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, push_notifications: checked }))}
             />
           </div>
         </div>
@@ -73,8 +83,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="taskReminders"
-              checked={notificationSettings.task_reminders}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, task_reminders: checked }))}
+              checked={localSettings.task_reminders}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, task_reminders: checked }))}
             />
           </div>
 
@@ -85,8 +95,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="leaveNotifications"
-              checked={notificationSettings.leave_notifications}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, leave_notifications: checked }))}
+              checked={localSettings.leave_notifications}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, leave_notifications: checked }))}
             />
           </div>
 
@@ -97,8 +107,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="payrollNotifications"
-              checked={notificationSettings.payroll_notifications}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, payroll_notifications: checked }))}
+              checked={localSettings.payroll_notifications}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, payroll_notifications: checked }))}
             />
           </div>
 
@@ -109,8 +119,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="projectUpdates"
-              checked={notificationSettings.project_updates}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, project_updates: checked }))}
+              checked={localSettings.project_updates}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, project_updates: checked }))}
             />
           </div>
 
@@ -121,8 +131,8 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="systemAlerts"
-              checked={notificationSettings.system_alerts}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, system_alerts: checked }))}
+              checked={localSettings.system_alerts}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, system_alerts: checked }))}
             />
           </div>
 
@@ -133,13 +143,13 @@ export const NotificationSettingsTab = () => {
             </div>
             <Switch
               id="marketingEmails"
-              checked={notificationSettings.marketing_emails}
-              onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, marketing_emails: checked }))}
+              checked={localSettings.marketing_emails}
+              onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, marketing_emails: checked }))}
             />
           </div>
         </div>
 
-        <Button onClick={saveNotificationSettings} disabled={loading} className="w-full md:w-auto">
+        <Button onClick={handleSave} disabled={loading} className="w-full md:w-auto">
           {loading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (

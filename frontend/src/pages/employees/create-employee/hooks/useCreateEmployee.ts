@@ -14,6 +14,7 @@ interface Credentials {
   email: string;
   password: string;
   companyName: string;
+  personalEmail?: string;
 }
 
 export function useCreateEmployee() {
@@ -89,7 +90,7 @@ export function useCreateEmployee() {
         email: emailNorm, password: 'Password will be sent via email',
         companyName: 'Company',
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError("Error creating employee:", error);
       toast({ title: "Error", description: error instanceof Error ? error.message : "Error creating employee. Please try again.", variant: "destructive" });
     } finally {
@@ -165,8 +166,8 @@ export function useCreateEmployee() {
   const dismissCredentials = () => {
     setCreatedCredentials(null);
     form.reset(DEFAULT_FORM_VALUES as FormValues);
-    form.setValue('dateOfBirth', undefined as unknown as Date);
-    form.setValue('hireDate', undefined as unknown as Date);
+    form.setValue('dateOfBirth', undefined as any as Date);
+    form.setValue('hireDate', undefined as any as Date);
     setDateOfBirthInput(''); setHireDateInput('');
   };
 

@@ -63,7 +63,7 @@ export function SidebarNavItem({
             collapsed && !isMobile ? 'h-[18px] w-[18px]' : 'h-4 w-4',
             isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
           )}
-          strokeWidth={1.75}
+          {...({ strokeWidth: 1.75 } as any)}
         />
         {(!collapsed || isMobile) && (
           <span className={cn(

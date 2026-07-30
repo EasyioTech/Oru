@@ -20,7 +20,7 @@ export function CategoryManager() {
     try {
       const data = await permissionsService.getPermissionCategories();
       setCategories(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       // If API is not available, show empty state gracefully
       console.warn('Categories API not available:', error);
       setCategories([]);
@@ -50,7 +50,7 @@ export function CategoryManager() {
       toast.success('Category management feature coming soon');
       setNewCategory('');
       setShowAddDialog(false);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to create category');
     }
   };

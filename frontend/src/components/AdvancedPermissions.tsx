@@ -57,7 +57,7 @@ const AdvancedPermissions = () => {
         totalUsers,
         recentChanges: 0, // Audit log feature not yet implemented
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError('Failed to load stats:', error);
       // Set default stats on error
       setStats({

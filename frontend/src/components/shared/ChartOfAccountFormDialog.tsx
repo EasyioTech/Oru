@@ -36,7 +36,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [parentAccounts, setParentAccounts] = useState<unknown[]>([]);
+  const [parentAccounts, setParentAccounts] = useState<any[]>([]);
   const [formData, setFormData] = useState<ChartOfAccount>({
     account_code: account?.account_code || '',
     account_name: account?.account_name || '',
@@ -53,7 +53,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
       const userProfile = profile || await selectOne('profiles', { user_id: user.id });
       const agencyId = await getAgencyId(userProfile, user.id);
       
-      const where: Record<string, unknown> = { is_active: true };
+      const where: Record<string, any> = { is_active: true };
       if (agencyId) {
         where.agency_id = agencyId;
       }
@@ -63,7 +63,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
         orderBy: 'account_code ASC',
       });
       setParentAccounts(accounts || []);
-    } catch (error: unknown) {
+    } catch (error: any) {
       // Fallback if agency_id column doesn't exist
       if (error?.code === '42703' || String(error?.message || '').includes('agency_id')) {
         const accounts = await selectRecords('chart_of_accounts', {
@@ -123,7 +123,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
 
       // Validate account code is unique within agency (if creating new or changing code)
       if (!account?.id || formData.account_code !== account.account_code) {
-        const where: Record<string, unknown> = { account_code: formData.account_code.trim() };
+        const where: Record<string, any> = { account_code: formData.account_code.trim() };
         if (agencyId) {
           where.agency_id = agencyId;
         }
@@ -140,7 +140,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
         }
       }
 
-      const cleanedData: unknown = {
+      const cleanedData: any = {
         account_code: formData.account_code.trim(),
         account_name: formData.account_name.trim(),
         account_type: formData.account_type,
@@ -172,7 +172,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
 
       onAccountSaved();
       onClose();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving account:', error);
       // Check for unique constraint violation
       if (error.message?.includes('unique') || error.message?.includes('duplicate')) {
@@ -243,7 +243,7 @@ const ChartOfAccountFormDialog: React.FC<ChartOfAccountFormDialogProps> = ({
               <Label htmlFor="account_type">Account Type *</Label>
               <Select 
                 value={formData.account_type} 
-                onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, account_type: value }))}
+                onValueChange={(value: any) => setFormData(prev => ({ ...prev, account_type: value }))}
               >
                 <SelectTrigger>
                   <SelectValue />

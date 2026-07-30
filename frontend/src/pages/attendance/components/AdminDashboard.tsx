@@ -25,7 +25,7 @@ interface AdminDashboardProps {
   urlDepartmentName: string | null;
   showReportsDialog: boolean;
   setShowReportsDialog: (v: boolean) => void;
-  reportData: unknown;
+  reportData: any;
   reportLoading: boolean;
   handleViewReports: () => void;
   handleExportReport: () => void;

@@ -8,6 +8,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarRoot } from './sidebar';
 import { HeaderRoot } from './header';
 import { ViewAsUserBanner } from '@/components/auth/ViewAsUserBanner';
+import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
 
 interface DashboardShellLayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,7 @@ export function DashboardShellLayout({ children }: DashboardShellLayoutProps) {
           tabIndex={-1}
         >
           <ViewAsUserBanner />
+          <EmailVerificationBanner />
           {children}
         </main>
       </SidebarInset>

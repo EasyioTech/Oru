@@ -12,7 +12,7 @@ export const useWarehouses = () =>
 export const useCreateWarehouse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/inventory/warehouses', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/inventory/warehouses', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inventory_warehouses'] }),
   });
 };
@@ -38,7 +38,7 @@ export const useProduct = (id: string) =>
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/inventory/products', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/inventory/products', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inventory_products'] }),
   });
 };
@@ -46,7 +46,7 @@ export const useCreateProduct = () => {
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/inventory/products/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['inventory_products'] });
@@ -69,7 +69,7 @@ export const useStockLevels = (filters?: { warehouseId?: string; productId?: str
 export const useAddStockEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/inventory/stock/entry', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/inventory/stock/entry', 'POST', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory_stock'] });
       queryClient.invalidateQueries({ queryKey: ['inventory_products'] });

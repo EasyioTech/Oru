@@ -114,7 +114,7 @@ export const useSecuritySettings = () => {
         new_password: '',
         confirm_password: '',
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error changing password:', error);
       toast({
         title: "Error",
@@ -148,7 +148,7 @@ export const useSecuritySettings = () => {
         title: "Success",
         description: "Two-factor authentication has been disabled",
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to disable 2FA",

@@ -16,7 +16,7 @@ export const useProjectTasks = (projectId: string | undefined) => {
     try {
       const data = await projectService.getTasks({ project_id: projectId }, profile, user?.id);
       setTasks(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error loading tasks:', error);
     }
   }, [projectId, profile, user?.id]);

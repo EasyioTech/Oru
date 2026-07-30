@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { GSTService, type GSTSettings, type GSTReturn, type GSTTransaction, type GSTLiability } from '@/services/api/financial';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { logError } from '@/utils/consoleLogger';
 
 // Re-export types for backward compatibility
 export type { GSTSettings, GSTReturn, GSTTransaction, GSTLiability };

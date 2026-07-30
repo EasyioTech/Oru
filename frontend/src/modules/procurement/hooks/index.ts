@@ -22,7 +22,7 @@ export const usePurchaseRequisition = (id: string) =>
 export const useCreatePurchaseRequisition = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/procurement/requisitions', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/procurement/requisitions', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['procurement_requisitions'] }),
   });
 };
@@ -56,7 +56,7 @@ export const usePurchaseOrder = (id: string) =>
 export const useCreatePurchaseOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/procurement/orders', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/procurement/orders', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['procurement_orders'] }),
   });
 };
@@ -64,7 +64,7 @@ export const useCreatePurchaseOrder = () => {
 export const useUpdatePurchaseOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/procurement/orders/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['procurement_orders'] });
@@ -95,7 +95,7 @@ export const useSuppliers = (filters?: { status?: string; search?: string }) =>
 export const useCreateSupplier = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/procurement/suppliers', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/procurement/suppliers', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['procurement_suppliers'] }),
   });
 };
@@ -103,7 +103,7 @@ export const useCreateSupplier = () => {
 export const useUpdateSupplier = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/procurement/suppliers/${id}`, 'PUT', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['procurement_suppliers'] }),
   });

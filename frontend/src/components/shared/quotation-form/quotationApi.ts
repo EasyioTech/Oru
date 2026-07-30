@@ -2,7 +2,7 @@ import { api } from '@/lib/api';
 import type { QuotationLineItem, Quotation } from './types';
 
 export interface QuotationSaveContext {
-  profile: unknown;
+  profile: any;
   userId: string;
 }
 

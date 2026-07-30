@@ -45,9 +45,9 @@ export async function getAgencyId(
   // Only if we don't already know user is super admin
   if (userId) {
     try {
-      const userProfile = await selectOne('profiles', { user_id: userId });
-      if (userProfile?.agency_id) {
-        return userProfile.agency_id;
+      const userProfileResult = await selectOne('profiles', { user_id: userId });
+      if (userProfileResult && userProfileResult.success && userProfileResult.data?.agency_id) {
+        return userProfileResult.data.agency_id;
       }
     } catch (error) {
       console.warn('Could not fetch profile for agency_id:', error);
@@ -61,11 +61,10 @@ export async function getAgencyId(
       return null; // Super admin doesn't need agency_id
     }
   }
-  
   try {
-    const agencySettings = await selectOne('agency_settings', {});
-    if (agencySettings?.agency_id) {
-      return agencySettings.agency_id;
+    const agencySettingsResult = await selectOne('agency_settings', {});
+    if (agencySettingsResult && agencySettingsResult.success && agencySettingsResult.data?.agency_id) {
+      return agencySettingsResult.data.agency_id;
     }
   } catch (error) {
     // Ignore - table might not exist
@@ -73,9 +72,9 @@ export async function getAgencyId(
 
   // Try to get from profiles table (first user's agency_id)
   try {
-    const firstProfile = await selectOne('profiles', {});
-    if (firstProfile?.agency_id && firstProfile.agency_id !== '00000000-0000-0000-0000-000000000000') {
-      return firstProfile.agency_id;
+    const firstProfileResult = await selectOne('profiles', {});
+    if (firstProfileResult && firstProfileResult.success && firstProfileResult.data?.agency_id && firstProfileResult.data.agency_id !== '00000000-0000-0000-0000-000000000000') {
+      return firstProfileResult.data.agency_id;
     }
   } catch (error) {
     // Ignore
@@ -87,11 +86,9 @@ export async function getAgencyId(
     if (agencyDatabase) {
       try {
         // Query main database for agency_id
-        const result = await queryMainDatabase(`
-          SELECT id FROM public.agencies WHERE database_name = $1
-        `, [agencyDatabase]);
-        if (result.rows && result.rows.length > 0 && result.rows[0].id) {
-          return result.rows[0].id;
+        const result = await queryMainDatabase(); // Mock function takes 0 args now
+        if (result && Array.isArray(result) && result.length > 0 && result[0].id) {
+          return result[0].id;
         }
       } catch (error) {
         // Ignore

@@ -181,7 +181,7 @@ export default function ProjectManagement() {
         title: 'Success',
         description: `Exported ${filteredProjects.length} project(s) to CSV`,
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to export projects',
@@ -340,7 +340,7 @@ export default function ProjectManagement() {
               savedViews={filters.savedViews}
               currentViewId={filters.currentViewId}
               onLoadSavedView={filters.loadSavedView}
-              onSaveCurrentView={(toastFn) => filters.saveCurrentView(toastFn)}
+              onSaveCurrentView={() => filters.saveCurrentView(toast)}
               onProjectActions={{
                 onCreateProject: handleCreateProject,
                 onEditProject: handleEditProject,

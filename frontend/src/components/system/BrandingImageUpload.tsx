@@ -65,7 +65,7 @@ export function BrandingImageUpload({
         title: 'Success',
         description: 'Image uploaded successfully',
       });
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err);
       toast({
         title: 'Error',

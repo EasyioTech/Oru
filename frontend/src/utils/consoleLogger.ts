@@ -51,28 +51,28 @@ class ConsoleLogger {
     try {
       // Intercept console.error
       const originalError = console.error;
-      console.error = (...args: unknown[]) => {
+      console.error = (...args: any[]) => {
         this.captureLog('error', args);
         originalError.apply(console, args);
       };
 
       // Intercept console.warn
       const originalWarn = console.warn;
-      console.warn = (...args: unknown[]) => {
+      console.warn = (...args: any[]) => {
         this.captureLog('warn', args);
         originalWarn.apply(console, args);
       };
 
       // Intercept console.log (optional, for debugging)
       const originalLog = console.log;
-      console.log = (...args: unknown[]) => {
+      console.log = (...args: any[]) => {
         this.captureLog('log', args);
         originalLog.apply(console, args);
       };
 
       // Intercept console.info
       const originalInfo = console.info;
-      console.info = (...args: unknown[]) => {
+      console.info = (...args: any[]) => {
         this.captureLog('info', args);
         originalInfo.apply(console, args);
       };
@@ -103,7 +103,7 @@ class ConsoleLogger {
     });
   }
 
-  private captureLog(level: ConsoleLogEntry['level'], args: unknown[]) {
+  private captureLog(level: ConsoleLogEntry['level'], args: any[]) {
     try {
       const message = args
         .map((arg) => {
@@ -228,21 +228,21 @@ if (typeof window !== 'undefined') {
  * - In production: debug/info/warn logs are suppressed to keep the console clean.
  */
 
-export const logDebug = (...args: unknown[]): void => {
+export const logDebug = (...args: any[]): void => {
   if (import.meta.env.DEV) {
      
     console.log(...args);
   }
 };
 
-export const logInfo = (...args: unknown[]): void => {
+export const logInfo = (...args: any[]): void => {
   if (import.meta.env.DEV) {
      
     console.info(...args);
   }
 };
 
-export const logWarn = (...args: unknown[]): void => {
+export const logWarn = (...args: any[]): void => {
   if (import.meta.env.DEV) {
      
     console.warn(...args);
@@ -251,7 +251,7 @@ export const logWarn = (...args: unknown[]): void => {
 
 // For errors, we still allow logging in production, but callers should also
 // surface a user-facing message (toast, notification, etc.) where appropriate.
-export const logError = (...args: unknown[]): void => {
+export const logError = (...args: any[]): void => {
    
   console.error(...args);
 };

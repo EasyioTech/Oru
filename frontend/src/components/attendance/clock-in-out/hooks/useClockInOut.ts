@@ -13,12 +13,12 @@ export function useClockInOut() {
   });
 
   const { mutateAsync: handleClockIn } = useMutation({
-    mutationFn: async () => api.post('/hr/attendance/clock-in'),
+    mutationFn: async () => api.post('/hr/attendance/clock-in', {}),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['attendance-today'] }),
   });
 
   const { mutateAsync: handleClockOut } = useMutation({
-    mutationFn: async () => api.post('/hr/attendance/clock-out'),
+    mutationFn: async () => api.post('/hr/attendance/clock-out', {}),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['attendance-today'] }),
   });
 

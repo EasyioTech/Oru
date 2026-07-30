@@ -6,7 +6,7 @@ import { type SystemSettings } from '@/services/api/system';
 
 interface EmailTabProps {
   formData: Partial<SystemSettings>;
-  onChange: (field: keyof SystemSettings, value: unknown) => void;
+  onChange: (field: keyof SystemSettings, value: any) => void;
 }
 
 export function EmailTab({ formData, onChange }: EmailTabProps) {

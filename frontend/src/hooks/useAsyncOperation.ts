@@ -11,11 +11,11 @@ export interface AsyncOptions {
   retryCount?: number;
   retryDelay?: number;
   timeout?: number;
-  onSuccess?: (data: unknown) => void;
+  onSuccess?: (data: any) => void;
   onError?: (error: Error) => void;
 }
 
-export const useAsyncOperation = <T = unknown>(options: AsyncOptions = {}) => {
+export const useAsyncOperation = <T = any>(options: AsyncOptions = {}) => {
   const {
     retryCount = 3,
     retryDelay = 1000,
@@ -93,7 +93,7 @@ export const useAsyncOperation = <T = unknown>(options: AsyncOptions = {}) => {
           clearTimeout(timeoutId);
           throw error;
         }
-      } catch (error: unknown) {
+      } catch (error: any) {
         // Handle abort
         if (error.name === 'AbortError') {
           setState(prev => ({
@@ -176,7 +176,7 @@ export const useAsyncOperation = <T = unknown>(options: AsyncOptions = {}) => {
 };
 
 // Utility hook for simple async operations
-export const useAsyncCallback = <T extends unknown[], R>(
+export const useAsyncCallback = <T extends any[], R>(
   asyncFunction: (...args: T) => Promise<R>,
   options: AsyncOptions = {}
 ) => {

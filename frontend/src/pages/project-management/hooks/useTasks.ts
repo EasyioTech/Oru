@@ -21,7 +21,7 @@ export const useTasks = (
 
   const fetchTasks = useCallback(async (abortSignal?: AbortSignal) => {
     try {
-      const filters: unknown = {};
+      const filters: any = {};
       if (statusFilter !== 'all') {
         filters.status = [statusFilter];
       }
@@ -37,7 +37,7 @@ export const useTasks = (
       if (abortSignal?.aborted) return;
       
       setTasks(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       if (abortSignal?.aborted) return;
       
       console.error('Error fetching tasks:', error);

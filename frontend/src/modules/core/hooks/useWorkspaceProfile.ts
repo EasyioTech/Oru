@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 
 export interface WorkspaceProfile {
   workspace_id: string;
@@ -22,10 +23,9 @@ export function useWorkspaceProfile(workspaceId?: string) {
     queryKey: ['workspace-profile', id],
     queryFn: async () => {
       if (!id) throw new Error('No workspace ID');
-      const res = await fetch(`/api/workspace/${id}/profile`);
-      if (!res.ok) throw new Error('Failed to fetch workspace profile');
-      const { data } = await res.json();
-      return data as WorkspaceProfile;
+      const res = await api.get(`/core/workspace/${id}/profile`);
+      return res.data.data as WorkspaceProfile;
+
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes

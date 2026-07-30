@@ -9,8 +9,8 @@ import { Mail, ExternalLink } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface TeamTabProps {
-  teamMembers: unknown[];
-  departments: unknown[];
+  teamMembers: any[];
+  departments: any[];
   loading: boolean;
   onNavigate: (path: string) => void;
 }

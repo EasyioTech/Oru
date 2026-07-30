@@ -4,7 +4,6 @@
  */
 
 // Import bcryptjs - Vite will handle the CommonJS transformation
-// @ts-expect-error - bcryptjs is a CommonJS module
 import bcryptjs from 'bcryptjs';
 
 // Re-export with proper typing

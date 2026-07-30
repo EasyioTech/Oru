@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { selectOne, updateRecord, insertRecord } from '@/services/api/core';
 import { getAgencyId } from '@/utils/agencyUtils';
 import { getApiRoot } from '@/config/api';
-import { uploadFile } from '@/services/api/storage';
+import { uploadFile } from '@/services/api/storage/index';
 
 export interface ProfileSettings {
   id?: string;
@@ -92,7 +92,7 @@ export const useProfileSettings = () => {
           const fileBuffer = await avatarFile.arrayBuffer();
           await uploadFile('avatars', pathWithinBucket, fileBuffer, user.id, avatarFile.type);
           avatarUrl = `${getApiRoot().replace(/\/$/, '')}/files/avatars/${encodeURIComponent(pathWithinBucket)}`;
-        } catch (uploadError: unknown) {
+        } catch (uploadError: any) {
           console.error('Error uploading avatar:', uploadError);
           avatarUrl = avatarPreview;
         }
@@ -129,7 +129,7 @@ export const useProfileSettings = () => {
         title: "Success",
         description: "Profile settings updated successfully",
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving profile settings:', error);
       toast({
         title: "Error",

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { api } from '@/lib/api';
 import { useWorkspaceProfile } from '../hooks';
 import { ModuleToggle } from '../components';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,16 +16,11 @@ export function ModuleSettings({ workspaceId }: ModuleSettingsProps) {
 
   const handleModuleToggle = useCallback(async (moduleId: string, enabled: boolean) => {
     try {
-      const response = await fetch(`/api/workspace/${workspaceId}/activity`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await api.post(`/core/workspace/${workspaceId}/activity`, {
           action: enabled ? 'enable_module' : 'disable_module',
           module: moduleId,
-        }),
       });
 
-      if (!response.ok) throw new Error('Failed to update module settings');
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');

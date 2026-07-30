@@ -97,12 +97,13 @@ export const useReportsData = () => {
         if (previousResponse.success && previousResponse.data) {
           setPreviousMonthData(previousResponse.data);
         }
-      } catch (err: unknown) {
+      } catch (err: any) {
         setError(err.message || 'Failed to load monthly data');
         addNotification({
           type: 'error',
           title: 'Error',
           message: 'Failed to load monthly report data',
+          priority: 'high'
         });
       } finally {
         setLoading(prev => ({ ...prev, monthly: false }));
@@ -135,12 +136,13 @@ export const useReportsData = () => {
         if (previousResponse.success && previousResponse.data) {
           setPreviousYearData(previousResponse.data);
         }
-      } catch (err: unknown) {
+      } catch (err: any) {
         setError(err.message || 'Failed to load yearly data');
         addNotification({
           type: 'error',
           title: 'Error',
           message: 'Failed to load yearly report data',
+          priority: 'high'
         });
       } finally {
         setLoading(prev => ({ ...prev, yearly: false }));
@@ -230,7 +232,7 @@ export const useReportsData = () => {
     const fetchSavedReports = async () => {
       setLoading(prev => ({ ...prev, saved: true }));
       try {
-        const filters: unknown = {};
+        const filters: Record<string, any> = {};
         if (user?.id) {
           filters.generated_by = user.id;
         }
@@ -302,12 +304,14 @@ export const useReportsData = () => {
         type: 'success',
         title: 'Refresh Complete',
         message: 'All reports have been refreshed',
+        priority: 'medium'
       });
     } catch (err: unknown) {
       addNotification({
         type: 'error',
         title: 'Refresh Failed',
         message: 'Failed to refresh reports',
+        priority: 'high'
       });
     } finally {
       setLoading({

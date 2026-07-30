@@ -22,7 +22,7 @@ export const useReportDefinition = (id: string) =>
 export const useCreateReportDefinition = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/reports/definitions', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/reports/definitions', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reports_definitions'] }),
   });
 };
@@ -30,7 +30,7 @@ export const useCreateReportDefinition = () => {
 export const useUpdateReportDefinition = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/reports/definitions/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['reports_definitions'] });

@@ -81,16 +81,16 @@ export interface AgencySettings {
     end: string;
   };
   features?: Record<string, boolean>;
-  smtp_settings?: Record<string, unknown>;
-  payment_gateways?: Record<string, unknown>;
-  tax_settings?: Record<string, unknown>;
-  invoice_settings?: Record<string, unknown>;
-  leave_settings?: Record<string, unknown>;
-  payroll_settings?: Record<string, unknown>;
-  attendance_settings?: Record<string, unknown>;
-  performance_settings?: Record<string, unknown>;
-  recruitment_settings?: Record<string, unknown>;
-  project_settings?: Record<string, unknown>;
+  smtp_settings?: Record<string, any>;
+  payment_gateways?: Record<string, any>;
+  tax_settings?: Record<string, any>;
+  invoice_settings?: Record<string, any>;
+  leave_settings?: Record<string, any>;
+  payroll_settings?: Record<string, any>;
+  attendance_settings?: Record<string, any>;
+  performance_settings?: Record<string, any>;
+  recruitment_settings?: Record<string, any>;
+  project_settings?: Record<string, any>;
   created_at?: string;
   updated_at?: string;
 }
@@ -312,7 +312,7 @@ export interface ReportExport extends BaseModel {
   generated_at: string;
   expires_at?: string;
   download_count: number;
-  parameters?: Record<string, unknown>;
+  parameters?: Record<string, any>;
 }
 
 export interface ScheduledReport extends BaseModel {

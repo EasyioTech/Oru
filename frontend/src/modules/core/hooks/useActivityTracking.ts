@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api';
 
 interface ActivityEvent {
   action: string;
   module?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
 }
 
 export function useActivityTracking(workspaceId?: string) {
@@ -15,11 +16,7 @@ export function useActivityTracking(workspaceId?: string) {
       if (!workspaceId) return;
 
       try {
-        await fetch(`/api/workspace/${workspaceId}/activity`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(event),
-        });
+        await api.post(`/core/workspace/${workspaceId}/activity`, event);
 
         queryClient.invalidateQueries({
           queryKey: ['workspace-dashboard-context', workspaceId],

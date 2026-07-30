@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,7 @@ export function AuditLogViewer() {
       if (result.pagination) {
         setTotalPages(result.pagination.totalPages);
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       // If API is not available, show empty state gracefully
       console.warn('Audit logs API not available:', error);
       setLogs([]);
@@ -79,7 +79,7 @@ export function AuditLogViewer() {
       }
 
       toast.success('Audit logs exported successfully');
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to export audit logs');
     }
   };

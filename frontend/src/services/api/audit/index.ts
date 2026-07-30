@@ -29,8 +29,8 @@ export interface AuditLog {
   action: string;
   user_id: string | null;
   record_id: string | null;
-  old_values: Record<string, unknown> | null;
-  new_values: Record<string, unknown> | null;
+  old_values: Record<string, any> | null;
+  new_values: Record<string, any> | null;
   ip_address: string | null;
   user_agent: string | null;
   created_at: string;
@@ -78,13 +78,13 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
   }
 
   if (!('success' in parsed)) {
-    return parsed as unknown as T;
+    return parsed as any as T;
   }
 
   if (!parsed.success) {
     // Type guard: if success is false, it's an error response
-    const errorResponse = parsed as { success: false; error?: string; message?: string };
-    const message = errorResponse.error || errorResponse.message || 'Request failed';
+    const errorResponse = parsed as ApiErrorShape;
+    const message = errorResponse.error?.message || errorResponse.message || 'Request failed';
     throw new Error(message);
   }
 
@@ -138,21 +138,21 @@ export async function getAuditLogs(params?: {
 
   if (!('success' in parsed)) {
     return {
-      data: parsed as unknown as AuditLog[],
+      data: parsed as any as AuditLog[],
       pagination: undefined
     };
   }
 
   if (!parsed.success) {
     // Type guard: if success is false, it's an error response
-    const errorResponse = parsed as { success: false; error?: string; message?: string };
-    const message = errorResponse.error || errorResponse.message || 'Request failed';
+    const errorResponse = parsed as ApiErrorShape;
+    const message = errorResponse.error?.message || errorResponse.message || 'Request failed';
     throw new Error(message);
   }
   
   return {
     data: parsed.data,
-    pagination: (parsed as unknown).pagination
+    pagination: (parsed as any).pagination
   };
 }
 

@@ -1,1 +1,1 @@
-export const queryMainDatabase = async () => [];
+export const queryMainDatabase = async (query?: string, params?: any[]) => [];

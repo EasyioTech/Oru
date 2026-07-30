@@ -26,7 +26,7 @@ export function BulkOperations() {
     try {
       const result = await permissionsService.getPermissions();
       setPermissions(result.data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       // If API is not available, show empty state gracefully
       console.warn('Permissions API not available:', error);
       setPermissions([]);
@@ -62,7 +62,7 @@ export function BulkOperations() {
       setShowConfirmDialog(false);
       setSelectedTargets([]);
       setSelectedPermissions([]);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to perform bulk operation');
     } finally {
       setSaving(false);

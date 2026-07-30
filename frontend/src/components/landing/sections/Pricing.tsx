@@ -20,7 +20,7 @@ const plans = [
       'Email support',
       '5GB storage',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Started Free',
     popular: false,
   },
   {
@@ -40,7 +40,7 @@ const plans = [
       '50GB storage',
       'API access',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Started Free',
     popular: true,
   },
   {
@@ -78,7 +78,7 @@ export const Pricing = () => {
         <SectionTitle
           badge="Pricing"
           title="Simple, transparent pricing"
-          description="Choose the plan that fits your agency. All plans include a 14-day free trial."
+          description="Choose the plan that fits your agency. Start free — no credit card, no commitment."
         />
 
         <motion.div

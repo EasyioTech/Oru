@@ -29,7 +29,7 @@ export class CustomReportService extends BaseApiService {
       name: string;
       description?: string;
       report_type: string;
-      parameters: Record<string, unknown>;
+      parameters: Record<string, any>;
       created_by: string;
       agency_id?: string;
     },
@@ -68,7 +68,7 @@ export class CustomReportService extends BaseApiService {
     data: Partial<{
       name: string;
       description: string;
-      parameters: Record<string, unknown>;
+      parameters: Record<string, any>;
     }>,
     options: ApiOptions = {}
   ): Promise<ApiResponse<CustomReport>> {

@@ -26,7 +26,7 @@ export const api = {
     return { data };
   },
   
-  post: async (endpoint: string, body: unknown) => {
+  post: async (endpoint: string, body: any) => {
     const baseUrl = getApiBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
     const token = localStorage.getItem('auth_token');
@@ -48,7 +48,7 @@ export const api = {
     return { data };
   },
   
-  put: async (endpoint: string, body: unknown) => {
+  put: async (endpoint: string, body: any) => {
     const baseUrl = getApiBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
     const token = localStorage.getItem('auth_token');

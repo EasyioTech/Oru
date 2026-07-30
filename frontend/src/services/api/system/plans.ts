@@ -44,13 +44,13 @@ async function parseJson<T>(response: Response): Promise<T> {
   }
 
   if (!('success' in parsed)) {
-    return parsed as unknown as T;
+    return parsed as any as T;
   }
 
   if (!parsed.success) {
     // Type guard: if success is false, it's an error response
-    const errorResponse = parsed as { success: false; error?: string; message?: string };
-    const message = errorResponse.error || errorResponse.message || 'Request failed';
+    const errorResponse = parsed as ApiEnvelopeError;
+    const message = errorResponse.error?.message || errorResponse.message || 'Request failed';
     throw new Error(message);
   }
 
@@ -116,7 +116,7 @@ export async function deactivatePlanApi(planId: string): Promise<void> {
     method: 'DELETE',
     headers: authHeaders(),
   });
-  await parseJson<unknown>(response);
+  await parseJson<any>(response);
 }
 
 export async function createFeatureApi(
@@ -156,5 +156,5 @@ export async function deleteFeatureApi(featureId: string): Promise<void> {
     method: 'DELETE',
     headers: authHeaders(),
   });
-  await parseJson<unknown>(response);
+  await parseJson<any>(response);
 }

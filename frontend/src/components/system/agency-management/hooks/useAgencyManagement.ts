@@ -45,7 +45,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       setSelectedAgency(details);
       setEditForm(details);
       setIsDetailsDialogOpen(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to load agency details', variant: 'destructive' });
     } finally {
       setIsLoadingDetails(false);
@@ -59,7 +59,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       setAgencyUsers(users);
       setSelectedAgency(details);
       setIsUsersDialogOpen(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to load agency users', variant: 'destructive' });
     } finally {
       setIsLoadingDetails(false);
@@ -73,7 +73,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       setAgencyUsage(usage);
       setSelectedAgency(details);
       setIsUsageDialogOpen(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to load agency usage', variant: 'destructive' });
     } finally {
       setIsLoadingDetails(false);
@@ -87,7 +87,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       await updateAgency(agencyId, { is_active: !currentStatus });
       toast({ title: 'Success', description: `Agency ${currentStatus ? 'deactivated' : 'activated'} successfully` });
       onRefresh();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to update agency status', variant: 'destructive' });
     } finally {
       setIsUpdating(false);
@@ -100,7 +100,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       setSelectedAgency(details);
       setEditForm(details);
       setIsEditDialogOpen(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to load agency details', variant: 'destructive' });
     }
   };
@@ -110,7 +110,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       const details = await fetchAgencyDetails(agencyId);
       setAgencyToDelete(details);
       setDeleteConfirmName('');
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to load agency details', variant: 'destructive' });
     }
   };
@@ -123,7 +123,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       toast({ title: 'Success', description: 'Agency updated successfully' });
       setIsEditDialogOpen(false);
       onRefresh();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to update agency', variant: 'destructive' });
     } finally {
       setIsUpdating(false);
@@ -139,7 +139,7 @@ export function useAgencyManagement(agencies: AgencyData[], onRefresh: () => voi
       setAgencyToDelete(null);
       setDeleteConfirmName('');
       onRefresh();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to delete agency', variant: 'destructive' });
     } finally {
       setIsDeleting(false);

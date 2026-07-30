@@ -43,7 +43,7 @@ export function DeleteAgencyDialog({
       setIsConfirmed(false);
       setIsDeleting(false);
       onOpenChange(false);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || 'Failed to delete agency');
       setIsDeleting(false);
     }

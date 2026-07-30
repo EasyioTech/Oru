@@ -280,7 +280,7 @@ export const Hero = () => {
               variant="primary"
               className="px-8 h-11 text-[15px] font-medium rounded-full shadow-sm hover:shadow transition-all group"
             >
-              Start Free Trial
+              Get Started Free
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
             </Button>
           </Link>
@@ -313,7 +313,7 @@ export const Hero = () => {
             <svg className="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>14-day free trial</span>
+            <span>Free forever to start</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-border md:block hidden" />
           <div className="flex items-center gap-2">

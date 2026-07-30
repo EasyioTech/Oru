@@ -60,7 +60,7 @@ export class EmployeeService extends BaseApiService {
       employmentType?: string;
     },
     options: ApiOptions = {}
-  ): Promise<ApiResponse<unknown>> {
+  ): Promise<ApiResponse<any>> {
     // Note: This would typically involve multiple steps:
     // 1. Create user account in auth
     // 2. Create profile record
@@ -84,7 +84,7 @@ export class EmployeeService extends BaseApiService {
   static async deleteEmployee(
     userId: string,
     options: ApiOptions = {}
-  ): Promise<ApiResponse<unknown>> {
+  ): Promise<ApiResponse<any>> {
     return this.update('employee_details', { is_active: false }, { user_id: userId }, options);
   }
 }

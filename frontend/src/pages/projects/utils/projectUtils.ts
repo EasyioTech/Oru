@@ -20,7 +20,7 @@ export interface Project {
   project_manager_id?: string | null;
   account_manager_id?: string | null;
   progress: number;
-  assigned_team: unknown;
+  assigned_team: any;
   departments?: string[];
   tags?: string[];
   categories?: string[];

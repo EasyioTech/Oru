@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { getAccessibleEmployees } from "@/services/api/hr";
@@ -48,7 +48,7 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
               onEmployeeChange(currentUserEmployee.user_id);
             }
           }
-        } catch (err: unknown) {
+        } catch (err: any) {
           console.error('Error fetching all employees:', err);
           setError('Failed to load employees. Please try again.');
           // Fallback to self-only
@@ -73,7 +73,7 @@ export function EmployeeSelector({ selectedEmployeeId, onEmployeeChange }: Emplo
           onEmployeeChange(user.id);
         }
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching employees:', error);
       setError('Failed to load employees. Please refresh the page.');
       // Fallback to self-only

@@ -17,7 +17,7 @@ const SystemEmail = () => {
     const { toast } = useToast();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<unknown>(null);
+    const [result, setResult] = useState<any>(null);
 
     if (!isSystemSuperAdmin && userRole !== 'super_admin') {
         return <Navigate to="/dashboard" replace />;
@@ -60,7 +60,7 @@ const SystemEmail = () => {
                 title: "Success",
                 description: "Test email sent successfully",
             });
-        } catch (error: unknown) {
+        } catch (error: any) {
             toast({
                 title: "Error",
                 description: error.message,

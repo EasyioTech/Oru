@@ -31,23 +31,26 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-type Color = 'blue' | 'emerald' | 'purple' | 'orange' | 'cyan';
+type Color = 'lime' | 'teal' | 'pink' | 'sky' | 'purple';
 
-const COLOR_MAP: Record<Color, { bg: string; border: string; icon: string; dot: string }> = {
-  blue:    { bg: 'bg-blue-500/8',    border: 'border-blue-500/15',    icon: 'text-blue-500',    dot: 'bg-blue-500' },
-  emerald: { bg: 'bg-emerald-500/8', border: 'border-emerald-500/15', icon: 'text-emerald-500', dot: 'bg-emerald-500' },
-  purple:  { bg: 'bg-purple-500/8',  border: 'border-purple-500/15',  icon: 'text-purple-500',  dot: 'bg-purple-500' },
-  orange:  { bg: 'bg-orange-500/8',  border: 'border-orange-500/15',  icon: 'text-orange-500',  dot: 'bg-orange-500' },
-  cyan:    { bg: 'bg-cyan-500/8',    border: 'border-cyan-500/15',    icon: 'text-cyan-500',    dot: 'bg-cyan-500' },
+const COLOR_MAP: Record<Color, { card: string; text: string; icon: string; dot: string }> = {
+  lime:   { card: 'bg-lime-100 dark:bg-lime-500/10',   text: 'text-lime-800 dark:text-lime-400',   icon: 'text-lime-700 dark:text-lime-400',   dot: 'bg-lime-500' },
+  teal:   { card: 'bg-teal-100 dark:bg-teal-500/10',   text: 'text-teal-800 dark:text-teal-400',   icon: 'text-teal-700 dark:text-teal-400',   dot: 'bg-teal-500' },
+  pink:   { card: 'bg-pink-100 dark:bg-pink-500/10',   text: 'text-pink-800 dark:text-pink-400',   icon: 'text-pink-700 dark:text-pink-400',   dot: 'bg-pink-500' },
+  sky:    { card: 'bg-sky-100 dark:bg-sky-500/10',     text: 'text-sky-800 dark:text-sky-400',     icon: 'text-sky-700 dark:text-sky-400',     dot: 'bg-sky-500' },
+  purple: { card: 'bg-purple-100 dark:bg-purple-500/10', text: 'text-purple-800 dark:text-purple-400', icon: 'text-purple-700 dark:text-purple-400', dot: 'bg-purple-500' },
 };
 
-const StatCard = ({
+type CardVariant = 'users' | 'projects' | 'revenue' | 'invoices';
+
+const DomainStatCard = ({
   title,
   value,
   subtitle,
   icon: Icon,
   trend,
-  color = 'blue',
+  color = 'sky',
+  variant,
   onClick,
 }: {
   title: string;
@@ -56,49 +59,109 @@ const StatCard = ({
   icon: React.ElementType;
   trend?: string;
   color?: Color;
+  variant: CardVariant;
   onClick?: () => void;
 }) => {
   const c = COLOR_MAP[color];
+
+  // Specific micro-illustrations based on the domain variant
+  const renderBackground = () => {
+    switch (variant) {
+      case 'users':
+        return (
+          <svg className="absolute right-0 bottom-0 w-32 h-32 text-current opacity-[0.03] transform translate-x-4 translate-y-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+            <circle cx="12" cy="8" r="5" />
+            <path d="M3 21v-2a7 7 0 0 1 14 0v2" />
+            <circle cx="19" cy="8" r="4" />
+            <path d="M15 21v-2a5 5 0 0 1 6 0v2" />
+          </svg>
+        );
+      case 'projects':
+        return (
+          <svg className="absolute right-0 bottom-0 w-32 h-32 text-current opacity-[0.03] transform translate-x-2 translate-y-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M8 3v18M16 3v18M3 9h18M3 15h18" />
+          </svg>
+        );
+      case 'revenue':
+        return (
+          <svg className="absolute right-0 bottom-0 w-full h-16 text-current opacity-[0.06] transform translate-y-4" viewBox="0 0 100 24" fill="none" stroke="currentColor" strokeWidth="0.5" preserveAspectRatio="none">
+            <path d="M0 24 Q 10 10 20 15 T 40 10 T 60 18 T 80 5 T 100 12 L 100 24 Z" fill="currentColor" opacity="0.5" stroke="none" />
+            <path d="M0 24 Q 10 10 20 15 T 40 10 T 60 18 T 80 5 T 100 12" />
+          </svg>
+        );
+      case 'invoices':
+        return (
+          <svg className="absolute right-0 bottom-0 w-28 h-28 text-current opacity-[0.04] transform translate-x-4 translate-y-6 rotate-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className={cn(
-        'group relative rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-sm',
+        'group relative rounded-2xl border border-transparent p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden',
+        c.card,
         onClick && 'cursor-pointer',
       )}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-muted-foreground">{title}</span>
-        <Icon className={cn('w-4 h-4', c.icon)} strokeWidth={1.75} />
+      {/* Abstract Domain Background */}
+      <div className={cn("absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105", c.text)}>
+        {renderBackground()}
       </div>
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-2xl font-bold tracking-tight text-foreground">{value}</div>
-          {subtitle && <div className="text-xs text-muted-foreground/70 mt-0.5">{subtitle}</div>}
+      
+      {/* Subtle Glow Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className={cn("p-1.5 rounded-md bg-background/40 backdrop-blur-sm", c.text)}>
+              <Icon className="w-4 h-4" strokeWidth={2} />
+            </div>
+            <span className={cn("text-sm font-semibold tracking-wide uppercase opacity-80", c.text)}>{title}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          {trend && (
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{trend}</span>
-          )}
-          <span className={cn('h-1.5 w-5 rounded-full opacity-50', c.dot)} />
+        
+        <div className="flex flex-col gap-1">
+          <div className={cn("text-3xl font-display font-bold tracking-tight", c.text)}>{value}</div>
+          <div className="flex items-center justify-between mt-1">
+            {subtitle && <div className={cn("text-xs font-medium opacity-70", c.text)}>{subtitle}</div>}
+            
+            {trend && (
+              <div className="flex items-center gap-1 bg-background/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                <span className={cn("text-xs font-bold", c.text)}>{trend}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      
       {onClick && (
-        <ArrowRight className="absolute bottom-4 right-4 w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+        <ArrowRight className={cn("absolute top-5 right-5 w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", c.text)} />
       )}
     </motion.div>
   );
 };
 
-const QuickActionCard = ({
+const PremiumQuickActionCard = ({
   title,
   description,
   icon: Icon,
   href,
-  color = 'blue',
+  color = 'sky',
   badge,
 }: {
   title: string;
@@ -110,6 +173,11 @@ const QuickActionCard = ({
 }) => {
   const navigate = useNavigate();
   const c = COLOR_MAP[color];
+  
+  // Extracting border color from c.dot (e.g. 'bg-sky-500' -> 'border-sky-500/50')
+  const glowBorder = c.dot.replace('bg-', 'border-') + '/50';
+  const glowShadow = c.dot.replace('bg-', 'shadow-') + '/20';
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -117,27 +185,28 @@ const QuickActionCard = ({
       transition={{ duration: 0.4 }}
       onClick={() => navigate(href)}
       className={cn(
-        'group relative rounded-xl border bg-card p-5 transition-all duration-500 cursor-pointer',
-        `hover:${c.border.replace('border-', 'border-')}`,
-        'hover:shadow-lg hover:scale-[1.01]',
+        'group relative rounded-xl border bg-card p-5 transition-all duration-300 cursor-pointer overflow-hidden',
+        `hover:${glowBorder} hover:shadow-lg hover:${glowShadow} hover:-translate-y-0.5`
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
+      {/* Hover Background Accent */}
+      <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300 pointer-events-none", c.dot)} />
+      
       <div className="relative z-10">
-        <div className="flex items-start gap-3 mb-3">
-          <div className={cn('p-2.5 rounded-xl', c.bg)}>
-            <Icon className={cn('w-5 h-5', c.icon)} />
+        <div className="flex items-start gap-4 mb-2">
+          <div className={cn("p-2.5 rounded-full transition-colors duration-300", c.card, "group-hover:bg-transparent")}>
+            <Icon className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", c.text)} />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 pt-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold text-foreground font-display tracking-tight">{title}</h3>
+              <h3 className="text-sm font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors">{title}</h3>
               {badge && (
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0">{badge}</Badge>
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{badge}</Badge>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
+            <p className="text-xs mt-1 leading-relaxed text-muted-foreground group-hover:text-foreground/80 transition-colors">{description}</p>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 mt-2" />
         </div>
       </div>
     </motion.div>
@@ -204,30 +273,27 @@ const AgencyAdminDashboard = () => {
   }
 
   const quickActions = [
-    { title: 'Manage Team', description: 'Add, edit, and manage team members', icon: Users, href: '/employees', color: 'blue' as Color },
+    { title: 'Manage Team', description: 'Add, edit, and manage team members', icon: Users, href: '/employees', color: 'sky' as Color },
     { title: 'Projects', description: 'Track and manage all projects', icon: FolderKanban, href: '/projects', color: 'purple' as Color },
-    { title: 'Financial Management', description: 'Invoices, expenses, and revenue', icon: DollarSign, href: '/financial-management', color: 'emerald' as Color },
-    { title: 'CRM & Clients', description: 'Manage client relationships', icon: Briefcase, href: '/crm', color: 'orange' as Color },
-    { title: 'Reports', description: 'View detailed reports and insights', icon: BarChart3, href: '/reports', color: 'cyan' as Color },
-    { title: 'Settings', description: 'Configure agency settings', icon: Settings, href: '/settings', color: 'blue' as Color },
+    { title: 'Financial Management', description: 'Invoices, expenses, and revenue', icon: DollarSign, href: '/financial-management', color: 'lime' as Color },
+    { title: 'CRM & Clients', description: 'Manage client relationships', icon: Briefcase, href: '/crm', color: 'pink' as Color },
+    { title: 'Reports', description: 'View detailed reports and insights', icon: BarChart3, href: '/reports', color: 'teal' as Color },
+    { title: 'Settings', description: 'Configure agency settings', icon: Settings, href: '/settings', color: 'sky' as Color },
     { title: 'Calendar & Events', description: 'Manage events and holidays', icon: Calendar, href: '/calendar', color: 'purple' as Color },
-    { title: 'Attendance', description: 'Track team attendance records', icon: Clock, href: '/attendance', color: 'emerald' as Color },
+    { title: 'Attendance', description: 'Track team attendance records', icon: Clock, href: '/attendance', color: 'lime' as Color },
   ];
 
-  const agencyName = agency?.name || profile?.agency_name || 'Your Agency';
+  const agencyName = agency?.name || (profile as any)?.agency_name || 'Your Agency';
   const agencyPlan = agency?.subscriptionPlan;
   const monthlyTrend = metrics.totalRevenue > 0 && metrics.monthlyRevenue > 0
     ? `${Math.round((metrics.monthlyRevenue / metrics.totalRevenue) * 100)}% of total`
     : undefined;
 
   return (
-    <div className="relative w-full min-h-full bg-background antialiased overflow-hidden">
+    <div className="w-full min-h-full bg-background antialiased overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="relative w-full h-full">
           <GridPattern />
-          <GlowOrb color="blue" size={300} className="top-[10%] right-[5%] opacity-15" blur={60} />
-          <GlowOrb color="emerald" size={250} className="bottom-[10%] right-[5%] opacity-15" blur={60} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.15)_100%)]" />
         </div>
       </div>
 
@@ -246,8 +312,8 @@ const AgencyAdminDashboard = () => {
                   {agencyName}
                 </h1>
                 {agencyPlan && (
-                  <Badge variant="outline" className="border-purple-500/20 bg-purple-500/10 text-purple-400 capitalize gap-1">
-                    <Crown className="w-3 h-3" />
+                  <Badge variant="secondary" className="capitalize gap-1 px-2.5 py-0.5 rounded-md font-medium text-xs">
+                    <Crown className="w-3.5 h-3.5" />
                     {agencyPlan}
                   </Badge>
                 )}
@@ -258,7 +324,7 @@ const AgencyAdminDashboard = () => {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-sm sm:text-base text-muted-foreground"
               >
-                Welcome back, {profile?.first_name || user?.email?.split('@')[0] || 'Admin'} — here's your agency overview
+                Welcome back, {(profile as any)?.first_name || user?.email?.split('@')[0] || 'Admin'} — here's your agency overview
               </motion.p>
             </div>
             <div className="flex items-center gap-3">
@@ -274,37 +340,41 @@ const AgencyAdminDashboard = () => {
 
           {/* Key Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <StatCard
+            <DomainStatCard
               title="Total Users"
               value={metrics.totalUsers}
               subtitle={`${metrics.activeUsers} active`}
               icon={Users}
-              color="blue"
+              color="sky"
+              variant="users"
               onClick={() => navigate('/employees')}
             />
-            <StatCard
+            <DomainStatCard
               title="Projects"
               value={metrics.totalProjects}
               subtitle={`${metrics.activeProjects} active`}
               icon={Building}
               color="purple"
+              variant="projects"
               onClick={() => navigate('/projects')}
             />
-            <StatCard
+            <DomainStatCard
               title="Total Revenue"
               value={`$${metrics.totalRevenue.toLocaleString()}`}
               subtitle={`$${metrics.monthlyRevenue.toLocaleString()} this month`}
               icon={DollarSign}
-              color="emerald"
+              color="lime"
+              variant="revenue"
               trend={monthlyTrend}
               onClick={() => navigate('/financial-management')}
             />
-            <StatCard
+            <DomainStatCard
               title="Invoices"
               value={metrics.totalInvoices}
               subtitle={`${metrics.totalClients} clients`}
               icon={FileText}
-              color="orange"
+              color="pink"
+              variant="invoices"
               onClick={() => navigate('/financial-management')}
             />
           </div>
@@ -323,7 +393,7 @@ const AgencyAdminDashboard = () => {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {quickActions.map((action) => (
-              <QuickActionCard key={action.href} {...action} />
+              <PremiumQuickActionCard key={action.href} {...action} />
             ))}
           </div>
         </section>
@@ -344,14 +414,16 @@ const AgencyAdminDashboard = () => {
               </div>
               <div className="space-y-4">
                 {[
-                  { label: 'New Users', sub: 'Added to your agency', value: metrics.recentActivity.newUsers, icon: UserPlus, color: 'bg-blue-500/10', ic: 'text-blue-400' },
-                  { label: 'New Projects', sub: 'Created this month', value: metrics.recentActivity.newProjects, icon: FolderKanban, color: 'bg-purple-500/10', ic: 'text-purple-400' },
-                  { label: 'New Invoices', sub: 'Generated this month', value: metrics.recentActivity.newInvoices, icon: FileText, color: 'bg-emerald-500/10', ic: 'text-emerald-400' },
-                ].map((item) => (
+                  { label: 'New Users', sub: 'Added to your agency', value: metrics.recentActivity.newUsers, icon: UserPlus, color: 'sky' as Color },
+                  { label: 'New Projects', sub: 'Created this month', value: metrics.recentActivity.newProjects, icon: FolderKanban, color: 'purple' as Color },
+                  { label: 'New Invoices', sub: 'Generated this month', value: metrics.recentActivity.newInvoices, icon: FileText, color: 'lime' as Color },
+                ].map((item) => {
+                  const c = COLOR_MAP[item.color];
+                  return (
                   <div key={item.label} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
                     <div className="flex items-center gap-3">
-                      <div className={cn('p-2 rounded-lg', item.color)}>
-                        <item.icon className={cn('w-4 h-4', item.ic)} />
+                      <div className={cn('p-2 rounded-lg', c.card)}>
+                        <item.icon className={cn('w-4 h-4', c.icon)} />
                       </div>
                       <div>
                         <div className="text-sm font-medium text-foreground">{item.label}</div>
@@ -360,7 +432,7 @@ const AgencyAdminDashboard = () => {
                     </div>
                     <div className="text-lg font-semibold text-foreground">{item.value}</div>
                   </div>
-                ))}
+                )})}
               </div>
             </motion.div>
 
@@ -372,38 +444,33 @@ const AgencyAdminDashboard = () => {
               className="space-y-4"
             >
               {/* Agency Status */}
-              <div className={cn(
-                'rounded-xl border p-6',
-                agency?.isActive
-                  ? 'border-emerald-500/20 bg-emerald-500/10'
-                  : 'border-yellow-500/20 bg-yellow-500/10',
-              )}>
+              <div className="rounded-xl border bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className={cn('p-2 rounded-lg', agency?.isActive ? 'bg-emerald-500/20' : 'bg-yellow-500/20')}>
-                    <CheckCircle2 className={cn('w-5 h-5', agency?.isActive ? 'text-emerald-400' : 'text-yellow-400')} />
+                  <div className={cn('p-2 rounded-md', agency?.isActive ? 'bg-emerald-500/10' : 'bg-yellow-500/10')}>
+                    <CheckCircle2 className={cn('w-5 h-5', agency?.isActive ? 'text-emerald-500' : 'text-yellow-500')} />
                   </div>
                   <div>
-                    <div className={cn('text-sm font-semibold', agency?.isActive ? 'text-emerald-400' : 'text-yellow-400')}>
+                    <div className="text-sm font-semibold text-foreground">
                       {agency?.isActive ? 'Agency Active' : 'Agency Inactive'}
                     </div>
-                    <div className={cn('text-xs opacity-80', agency?.isActive ? 'text-emerald-400' : 'text-yellow-400')}>
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {agency?.domain ? `${agency.domain}` : 'All systems operational'}
                     </div>
                   </div>
                 </div>
                 {agency?.maxUsers && (
-                  <div className="mt-3 pt-3 border-t border-current/10">
-                    <div className="flex justify-between text-xs">
-                      <span className={cn('opacity-70', agency?.isActive ? 'text-emerald-400' : 'text-yellow-400')}>
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">
                         Users ({metrics.totalUsers}/{agency.maxUsers})
                       </span>
-                      <span className={cn('font-medium', agency?.isActive ? 'text-emerald-400' : 'text-yellow-400')}>
+                      <span className="font-medium text-foreground">
                         {Math.round((metrics.totalUsers / agency.maxUsers) * 100)}%
                       </span>
                     </div>
-                    <div className="mt-1.5 h-1.5 rounded-full bg-current/10 overflow-hidden">
+                    <div className="h-2 rounded-full bg-secondary overflow-hidden">
                       <div
-                        className={cn('h-full rounded-full', agency?.isActive ? 'bg-emerald-400' : 'bg-yellow-400')}
+                        className={cn('h-full rounded-full', agency?.isActive ? 'bg-emerald-500' : 'bg-yellow-500')}
                         style={{ width: `${Math.min(100, Math.round((metrics.totalUsers / agency.maxUsers) * 100))}%` }}
                       />
                     </div>
@@ -420,13 +487,13 @@ const AgencyAdminDashboard = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Pending</span>
-                    <Badge variant="outline" className="border-yellow-500/20 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                    <Badge variant="secondary" className="text-yellow-600 dark:text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20">
                       {metrics.leaveRequests.pending}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Approved</span>
-                    <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <Badge variant="secondary" className="text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20">
                       {metrics.leaveRequests.approved}
                     </Badge>
                   </div>

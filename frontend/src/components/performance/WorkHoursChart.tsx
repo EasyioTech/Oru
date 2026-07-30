@@ -245,8 +245,8 @@ export function WorkHoursChart({ workHours, hoursByProject, loading, selectedEmp
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {hoursByProject.map((hp: unknown, index) => {
-                    const totalProjectHours = hoursByProject.reduce((sum: number, p: unknown) => sum + p.total_hours, 0);
+                  {hoursByProject.map((hp: any, index) => {
+                    const totalProjectHours = hoursByProject.reduce((sum: number, p: any) => sum + p.total_hours, 0);
                     const percentage = totalProjectHours > 0 ? (hp.total_hours / totalProjectHours) * 100 : 0;
                     return (
                       <TableRow key={index}>

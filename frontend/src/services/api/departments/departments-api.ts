@@ -80,7 +80,7 @@ export async function fetchDepartmentsList(params: DepartmentsListParams): Promi
     throw new Error(msg || `Departments list failed: ${res.status}`);
   }
   const json = (await res.json()) as DepartmentsListResponse;
-  const data = json.data ?? (json as unknown);
+  const data = json.data ?? (json as any);
   const departments = Array.isArray(data) ? data : (data.departments ?? []);
   const total = Array.isArray(data) ? data.length : (data.total ?? json.meta?.total ?? departments.length);
   return { departments, total };

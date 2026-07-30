@@ -26,7 +26,7 @@ export default function SystemHealthPage() {
     refetchInterval: 10000,
   });
 
-  if (user?.role !== 'super_admin') return <Navigate to="/" />;
+  if (!(user as any)?.roles?.includes('super_admin')) return <Navigate to="/" />;
   if (isLoading || !health) return <div className="p-6">Loading health...</div>;
 
   const getStatusColor = (status: string) => {

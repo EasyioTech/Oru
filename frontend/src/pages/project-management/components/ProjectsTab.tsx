@@ -16,6 +16,8 @@ import { ProjectTimeline } from "@/components/project-management/ProjectTimeline
 import { HealthScore } from "@/components/project-management/fragments/types";
 import { filterAndSortProjects, extractAllTags, calculateHealthScore } from '../utils/projectUtils';
 
+import { DateRange } from "react-day-picker";
+
 interface ProjectsTabProps {
   projects: Project[];
   filteredProjects: Project[];
@@ -27,7 +29,7 @@ interface ProjectsTabProps {
     priorityFilter: string;
     searchTerm: string;
     selectedTags: string[];
-    dateRange?: { from?: Date; to?: Date };
+    dateRange?: DateRange;
     showArchived: boolean;
     deletingProjectId: string | null;
     sortBy: string;
@@ -49,16 +51,16 @@ interface ProjectsTabProps {
     toggleTag: (tag: string) => void;
     tagFilterOpen: boolean;
     setTagFilterOpen: (open: boolean) => void;
-    setDateRange: (range?: { from?: Date; to?: Date }) => void;
+    setDateRange: (range?: DateRange) => void;
     handleSortChange: (value: string) => void;
     setShowArchived: (show: boolean) => void;
     setBulkActionOpen: (open: boolean) => void;
     clearAllFilters: () => void;
   };
-  savedViews: unknown[];
+  savedViews: any[];
   currentViewId: string | null;
   onLoadSavedView: (viewId: string) => void;
-  onSaveCurrentView: (toast: unknown) => void;
+  onSaveCurrentView: () => void;
   onProjectActions: {
     onCreateProject: () => void;
     onEditProject: (project: Project) => void;

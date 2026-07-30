@@ -72,7 +72,7 @@ export default function SystemHealth() {
       } else {
         throw new Error(result.error?.message || result.error || 'Failed to fetch health data');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const err = error as Error;
       const errorMessage = err?.message || 'Failed to fetch system health';
 

@@ -5,8 +5,8 @@
 import { useState } from 'react';
 import { projectService } from '@/services/api/projects';
 
-export const useEmployeeProjects = (profile: unknown, userId: string | undefined) => {
-  const [employeeProjects, setEmployeeProjects] = useState<unknown[]>([]);
+export const useEmployeeProjects = (profile: any, userId: string | undefined) => {
+  const [employeeProjects, setEmployeeProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const loadEmployeeProjects = async (employeeId: string) => {
@@ -14,9 +14,9 @@ export const useEmployeeProjects = (profile: unknown, userId: string | undefined
     try {
       const allProjects = await projectService.getProjects({}, profile, userId);
       
-      const employeeProjects = allProjects.filter((project: unknown) => {
+      const employeeProjects = allProjects.filter((project: any) => {
         const inTeam = project.assigned_team && Array.isArray(project.assigned_team) && 
-          project.assigned_team.some((member: unknown) => {
+          project.assigned_team.some((member: any) => {
             const memberId = typeof member === 'string' ? member : member.user_id || member.id || String(member);
             return memberId === employeeId;
           });

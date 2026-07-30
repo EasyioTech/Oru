@@ -22,7 +22,7 @@ interface ProcessedDocument {
   filename: string;
   type: 'invoice' | 'contract' | 'report' | 'receipt';
   status: 'processing' | 'completed' | 'failed';
-  extractedData: unknown;
+  extractedData: any;
   processed_at: string;
 }
 

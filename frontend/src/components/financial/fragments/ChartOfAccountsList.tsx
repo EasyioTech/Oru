@@ -5,7 +5,7 @@ import { Plus, Edit, Trash2, BookOpen } from 'lucide-react';
 import { getAccountTypeColor } from './types';
 
 interface ChartOfAccountsListProps {
-  accounts: unknown[];
+  accounts: any[];
   accountBalances: Record<string, number>;
   loading: boolean;
   pageSize: number;
@@ -14,8 +14,8 @@ interface ChartOfAccountsListProps {
   totalItems: number;
   deleteLoading: boolean;
   onNewAccount: () => void;
-  onEditAccount: (account: unknown) => void;
-  onDeleteAccount: (account: unknown) => void;
+  onEditAccount: (account: any) => void;
+  onDeleteAccount: (account: any) => void;
   onPageChange: (page: number) => void;
 }
 

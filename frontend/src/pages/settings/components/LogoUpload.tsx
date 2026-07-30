@@ -37,7 +37,7 @@ export const LogoUpload = ({ logoPreview, onLogoChange, onRemove }: LogoUploadPr
         const compressedDataUrl = await compressImage(file, 600, 600, 0.7);
         const sizeMB = (compressedDataUrl.length / (1024 * 1024)).toFixed(2);
         onLogoChange(file, compressedDataUrl);
-      } catch (error: unknown) {
+      } catch (error: any) {
         toast({
           title: "Error",
           description: error.message || "Failed to process logo image",

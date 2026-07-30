@@ -29,14 +29,14 @@ const Attendance = () => {
         insights={state.insights}
         selectedPeriod={state.selectedPeriod}
         setSelectedPeriod={state.setSelectedPeriod}
-        urlDepartmentName={state.urlDepartmentName}
+        urlDepartmentName={(state as any).urlDepartmentName}
         showReportsDialog={state.showReportsDialog}
         setShowReportsDialog={state.setShowReportsDialog}
         reportData={state.reportData}
         reportLoading={state.reportLoading}
         handleViewReports={state.handleViewReports}
         handleExportReport={state.handleExportReport}
-        getStatusColor={state.getStatusColor}
+        getStatusColor={state.getStatusColor as any}
       />
     );
   }
@@ -53,7 +53,7 @@ const Attendance = () => {
       reportLoading={state.reportLoading}
       handleViewReports={state.handleViewReports}
       handleExportReport={state.handleExportReport}
-      getStatusColor={state.getStatusColor}
+      getStatusColor={state.getStatusColor as any}
     />
   );
 };

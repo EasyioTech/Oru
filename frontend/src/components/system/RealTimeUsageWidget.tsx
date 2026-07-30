@@ -83,7 +83,7 @@ export const RealTimeUsageWidget = () => {
         throw new Error('Invalid response format');
       }
 
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage = error?.message || 'Failed to load real-time usage statistics';
       
       // Check for CORS errors specifically

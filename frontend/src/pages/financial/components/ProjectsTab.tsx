@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatCurrencySymbol } from '../utils/financialFormatters';
 
 interface Props {
-  projects: unknown[];
+  projects: any[];
 }
 
 export function ProjectsTab({ projects }: Props) {
@@ -28,7 +28,7 @@ export function ProjectsTab({ projects }: Props) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {(projects as Record<string, unknown>[]).map(project => (
+          {(projects as Record<string, any>[]).map(project => (
             <Card key={project.id as string} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">

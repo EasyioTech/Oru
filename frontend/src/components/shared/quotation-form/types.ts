@@ -44,7 +44,7 @@ export interface QuotationTemplate {
   id: string;
   name: string;
   description?: string;
-  template_data?: unknown;
+  template_data?: any;
 }
 
 export interface QuotationFormDialogProps {

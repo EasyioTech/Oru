@@ -8,24 +8,24 @@ import { useToast } from '@/hooks/use-toast';
 export const useLeadActions = (onLeadsChange: () => void) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [selectedLead, setSelectedLead] = useState<unknown | null>(null);
+  const [selectedLead, setSelectedLead] = useState<any | null>(null);
   const [leadFormOpen, setLeadFormOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
-  const [leadToConvert, setLeadToConvert] = useState<unknown | null>(null);
+  const [leadToConvert, setLeadToConvert] = useState<any | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [leadToDelete, setLeadToDelete] = useState<unknown | null>(null);
+  const [leadToDelete, setLeadToDelete] = useState<any | null>(null);
 
   const handleNewLead = useCallback(() => {
     setSelectedLead(null);
     setLeadFormOpen(true);
   }, []);
 
-  const handleEditLead = useCallback((lead: unknown) => {
+  const handleEditLead = useCallback((lead: any) => {
     setSelectedLead(lead);
     setLeadFormOpen(true);
   }, []);
 
-  const handleDeleteLead = useCallback((lead: unknown) => {
+  const handleDeleteLead = useCallback((lead: any) => {
     setLeadToDelete(lead);
     setDeleteDialogOpen(true);
   }, []);
@@ -42,7 +42,7 @@ export const useLeadActions = (onLeadsChange: () => void) => {
     setLeadToDelete(null);
   }, [onLeadsChange]);
 
-  const handleConvertToClient = useCallback((lead: unknown) => {
+  const handleConvertToClient = useCallback((lead: any) => {
     setLeadToConvert(lead);
     setConvertDialogOpen(true);
   }, []);
@@ -68,7 +68,7 @@ export const useLeadActions = (onLeadsChange: () => void) => {
           }
         } 
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: (error as Error).message || 'Failed to create quotation',

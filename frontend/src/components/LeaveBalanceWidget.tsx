@@ -30,7 +30,10 @@ export const LeaveBalanceWidget = ({
   const { data: balances, isLoading: loading } = useQuery({
     queryKey: ['leave-balances', employeeId, year],
     queryFn: async () => {
-      const res = await api.get('/hr/leaves/balances', { params: { employeeId, year } });
+      const qs = new URLSearchParams();
+      if (employeeId) qs.append('employeeId', employeeId);
+      if (year) qs.append('year', String(year));
+      const res = await api.get(`/hr/leaves/balances?${qs.toString()}`);
       return (res.data.data || []) as LeaveBalance[];
     },
   });

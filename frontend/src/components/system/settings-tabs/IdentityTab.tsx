@@ -9,7 +9,7 @@ import type { SystemSettings } from '@/services/api/system';
 
 interface IdentityTabProps {
   formData: Partial<SystemSettings>;
-  onChange: (field: keyof SystemSettings, value: unknown) => void;
+  onChange: (field: keyof SystemSettings, value: any) => void;
 }
 
 export function IdentityTab({ formData, onChange }: IdentityTabProps) {

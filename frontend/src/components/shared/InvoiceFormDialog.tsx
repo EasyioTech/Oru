@@ -37,9 +37,9 @@ const InvoiceFormDialog: React.FC<InvoiceFormDialogProps> = ({ isOpen, onClose, 
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [clients, setClients] = useState<unknown[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
   const [clientsLoading, setClientsLoading] = useState(true);
-  const [projects, setProjects] = useState<unknown[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [formData, setFormData] = useState<Invoice>({
     client_id: invoice?.client_id || '',
@@ -161,7 +161,7 @@ const InvoiceFormDialog: React.FC<InvoiceFormDialogProps> = ({ isOpen, onClose, 
     setLoading(true);
 
     try {
-      const cleanedData: unknown = {
+      const cleanedData: any = {
         ...formData,
         client_id: formData.client_id || null,
         subtotal: parseFloat(String(formData.subtotal || 0)),

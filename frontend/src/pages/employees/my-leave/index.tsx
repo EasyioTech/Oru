@@ -117,7 +117,7 @@ const MyLeave = () => {
 
       setMyLeaveRequests(transformedRequests);
 
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching leave data:', error);
       toast({
         title: "Error",
@@ -173,7 +173,7 @@ const MyLeave = () => {
     }
   };
 
-  const LeaveBalanceCard = ({ title, balance, icon, color }: unknown) => (
+  const LeaveBalanceCard = ({ title, balance, icon, color }: any) => (
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between mb-4">

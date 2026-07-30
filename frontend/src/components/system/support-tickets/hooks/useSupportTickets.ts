@@ -31,7 +31,7 @@ export function useSupportTickets() {
       setRecentTickets(Array.isArray(data.recentTickets) ? data.recentTickets : []);
       const tickets = await fetchTickets({ limit: 100 });
       setAllTickets(Array.isArray(tickets) ? tickets : []);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setStats(null); setRecentTickets([]); setAllTickets([]);
       toast({ title: 'Error loading ticket data', description: (err as Error)?.message || 'Failed to load tickets', variant: 'destructive' });
     } finally { setLoading(false); }
@@ -52,7 +52,7 @@ export function useSupportTickets() {
       await createTicket(ticketForm);
       toast({ title: 'Success', description: 'Ticket created successfully' });
       setIsCreateOpen(false); setTicketForm({ ...DEFAULT_FORM }); loadData();
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast({ title: 'Error', description: (err as Error)?.message || 'Failed to create ticket', variant: 'destructive' });
     }
   };
@@ -61,7 +61,7 @@ export function useSupportTickets() {
     try {
       const ticket = await fetchTicket(ticketId);
       setSelectedTicket(ticket); setIsViewOpen(true);
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast({ title: 'Error', description: (err as Error)?.message || 'Failed to load ticket details', variant: 'destructive' });
     }
   };
@@ -84,7 +84,7 @@ export function useSupportTickets() {
       });
       toast({ title: 'Success', description: 'Ticket updated successfully' });
       setIsEditOpen(false); setSelectedTicket(null); loadData();
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast({ title: 'Error', description: (err as Error)?.message || 'Failed to update ticket', variant: 'destructive' });
     }
   };
@@ -96,17 +96,17 @@ export function useSupportTickets() {
       await deleteTicket(ticketId);
       toast({ title: 'Success', description: 'Ticket deleted successfully' });
       loadData();
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast({ title: 'Error', description: (err as Error)?.message || 'Failed to delete ticket', variant: 'destructive' });
     } finally { setIsDeleting(null); }
   };
 
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {
-      await updateTicket(ticketId, { status: newStatus as unknown });
+      await updateTicket(ticketId, { status: newStatus as any });
       toast({ title: 'Success', description: 'Ticket status updated' });
       loadData();
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast({ title: 'Error', description: (err as Error)?.message || 'Failed to update ticket status', variant: 'destructive' });
     }
   };

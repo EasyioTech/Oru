@@ -22,7 +22,7 @@ export function useSystemSettings() {
       setSettings(data);
       setFormData(data);
       setIsDirty(false);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error Loading Settings',
         description: (error as Error).message || 'Failed to load system settings',
@@ -41,7 +41,7 @@ export function useSystemSettings() {
         Object.entries(formData).forEach(([key, value]) => {
           const k = key as keyof SystemSettings;
           if (JSON.stringify(value) !== JSON.stringify(settings[k])) {
-            (changedData as Record<string, unknown>)[k] = value;
+            (changedData as Record<string, any>)[k] = value;
           }
         });
       }
@@ -52,7 +52,7 @@ export function useSystemSettings() {
       setIsDirty(false);
       await refreshBranding();
       toast({ title: 'Settings Saved', description: 'System settings have been updated successfully.' });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error Saving Settings',
         description: (error as Error).message || 'Failed to save system settings',
@@ -63,7 +63,7 @@ export function useSystemSettings() {
     }
   };
 
-  const handleChange = (field: keyof SystemSettings, value: unknown) => {
+  const handleChange = (field: keyof SystemSettings, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };

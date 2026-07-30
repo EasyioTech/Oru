@@ -43,13 +43,13 @@ async function parseJson<T>(response: Response): Promise<T> {
   }
 
   if (!('success' in parsed)) {
-    return parsed as unknown as T;
+    return parsed as any as T;
   }
 
   if (!parsed.success) {
     // Type guard: if success is false, it's an error response
-    const errorResponse = parsed as { success: false; error?: string; message?: string };
-    const message = errorResponse.error || errorResponse.message || 'Request failed';
+    const errorResponse = parsed as ApiEnvelopeError;
+    const message = errorResponse.error?.message || errorResponse.message || 'Request failed';
     throw new Error(message);
   }
 
@@ -231,7 +231,7 @@ export async function deleteAgency(agencyId: string): Promise<void> {
 /**
  * Fetch agency settings from normalized tables (agency_settings, agency_branding, agency_preferences, agency_financial_settings)
  */
-export async function fetchAgencySettings(agencyId: string): Promise<{ settings: Record<string, unknown> }> {
+export async function fetchAgencySettings(agencyId: string): Promise<{ settings: Record<string, any> }> {
   const endpoint = getApiEndpoint('/agencies/agency-settings');
   const headers: Record<string, string> = {
     ...authHeaders(),
@@ -254,7 +254,7 @@ export async function fetchAgencySettings(agencyId: string): Promise<{ settings:
  */
 export async function updateAgencySettingsApi(
   agencyDatabase: string,
-  payload: Record<string, unknown>
+  payload: Record<string, any>
 ): Promise<void> {
   const endpoint = getApiEndpoint('/agencies/agency-settings');
   const headers: Record<string, string> = {

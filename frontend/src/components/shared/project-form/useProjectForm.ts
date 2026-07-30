@@ -92,7 +92,7 @@ export function useProjectForm(project: Project | null | undefined, isOpen: bool
   useEffect(() => {
     if (!isOpen) return;
     if (project?.id) {
-      const p = project as unknown;
+      const p = project as any;
       setFormData({
         name: p.name || '', description: p.description || '', project_code: p.project_code || null,
         project_type: p.project_type || null, status: normalizeForDisplay(p.status), priority: p.priority || 'medium',
@@ -109,9 +109,9 @@ export function useProjectForm(project: Project | null | undefined, isOpen: bool
       let parsed: string[] = [];
       if (p.assigned_team) {
         if (typeof p.assigned_team === 'string') {
-          try { const j = JSON.parse(p.assigned_team); if (Array.isArray(j)) parsed = j.map((m: unknown) => typeof m === 'string' ? m : m.user_id || m.id || String(m)); } catch { parsed = []; }
+          try { const j = JSON.parse(p.assigned_team); if (Array.isArray(j)) parsed = j.map((m: any) => typeof m === 'string' ? m : m.user_id || m.id || String(m)); } catch { parsed = []; }
         } else if (Array.isArray(p.assigned_team)) {
-          parsed = p.assigned_team.map((m: unknown) => typeof m === 'string' ? m : m.user_id || m.id || String(m));
+          parsed = p.assigned_team.map((m: any) => typeof m === 'string' ? m : m.user_id || m.id || String(m));
         }
       }
       setSelectedTeamMembers(parsed);
@@ -144,14 +144,14 @@ export function useProjectForm(project: Project | null | undefined, isOpen: bool
     setLoading(true);
     try {
       const payload: Partial<ProjectType> = {
-        ...formData, status: normalizeForDB(formData.status) as unknown,
+        ...formData, status: normalizeForDB(formData.status) as any,
         name: formData.name.trim(), description: formData.description?.trim() || null,
         assigned_team: selectedTeamMembers, departments: selectedDepartments,
       };
       if (project?.id) { await projectService.updateProject(project.id, payload, profile, user?.id); toast({ title: 'Success', description: 'Project updated successfully' }); }
       else { await projectService.createProject(payload, profile, user?.id); toast({ title: 'Success', description: 'Project created successfully' }); }
       onProjectSaved(); onClose();
-    } catch (error: unknown) { toast({ title: 'Error', description: (error as Error).message || 'Failed to save project', variant: 'destructive' }); }
+    } catch (error: any) { toast({ title: 'Error', description: (error as Error).message || 'Failed to save project', variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 

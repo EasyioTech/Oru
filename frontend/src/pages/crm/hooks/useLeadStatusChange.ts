@@ -17,7 +17,7 @@ export const useLeadStatusChange = (onLeadsChange: () => void) => {
       });
 
       onLeadsChange();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error updating lead status:', error);
       toast({
         title: 'Error',

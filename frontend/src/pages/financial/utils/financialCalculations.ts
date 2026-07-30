@@ -44,7 +44,7 @@ export const calculateAccountBalances = (balancesData: AccountBalance[]): Record
 /**
  * Calculate ledger summary from transactions
  */
-export const calculateLedgerSummary = (transactions: unknown[]) => {
+export const calculateLedgerSummary = (transactions: any[]) => {
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -78,7 +78,7 @@ export const calculateLedgerSummary = (transactions: unknown[]) => {
  * Calculate accounting stats from accounts and balances
  */
 export const calculateAccountingStats = (
-  chartOfAccounts: unknown[],
+  chartOfAccounts: any[],
   accountBalances: Record<string, number>,
   ledgerSummary: ReturnType<typeof calculateLedgerSummary>
 ) => {
@@ -107,7 +107,7 @@ export const calculateAccountingStats = (
 /**
  * Calculate job stats
  */
-export const calculateJobStats = (jobs: unknown[]) => {
+export const calculateJobStats = (jobs: any[]) => {
   return {
     totalJobs: jobs.length,
     activeJobs: jobs.filter(job => job.status === 'in_progress').length,

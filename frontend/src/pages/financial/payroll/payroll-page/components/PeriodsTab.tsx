@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 
 interface PeriodsTabProps {
-  payrollPeriods: unknown[];
+  payrollPeriods: any[];
   onNewPeriod: () => void;
-  onEditPeriod: (period: unknown) => void;
-  onDeletePeriod: (period: unknown) => void;
+  onEditPeriod: (period: any) => void;
+  onDeletePeriod: (period: any) => void;
 }
 
 function getPeriodBadgeVariant(status: string): 'default' | 'secondary' | 'outline' {

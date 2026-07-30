@@ -14,7 +14,7 @@ import { selectRecords, selectOne } from '@/services/api/core';
 import { logError } from '@/utils/consoleLogger';
 
 interface TransactionsTabProps {
-  transactions: unknown[];
+  transactions: any[];
   loading: boolean;
   searchTerm: string;
   dateRange: { start: string; end: string };
@@ -25,7 +25,7 @@ interface TransactionsTabProps {
     monthlyExpenses: number;
     netProfit: number;
   };
-  onTransactionClick: (transaction: unknown) => void;
+  onTransactionClick: (transaction: any) => void;
 }
 
 const getTransactionIcon = (type: string) => {
@@ -77,7 +77,7 @@ export const TransactionsTab = ({
 
   const totalPages = Math.ceil(displayedTransactions.length / pageSize);
 
-  const handleTransactionClick = async (transaction: unknown) => {
+  const handleTransactionClick = async (transaction: any) => {
     try {
       const entry = await selectOne('journal_entries', { entry_number: transaction.entry_number });
       if (entry) {

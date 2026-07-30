@@ -9,7 +9,7 @@ export default function AnalyticsPage() {
   const { user } = useAuth();
   const { metrics, isLoading } = useAdminMetrics();
 
-  if (user?.role !== 'super_admin') return <Navigate to="/" />;
+  if (!(user as any)?.roles?.includes('super_admin')) return <Navigate to="/" />;
 
   if (isLoading) return <div className="p-6">Loading metrics...</div>;
   if (!metrics) return <div className="p-6">Failed to load metrics.</div>;

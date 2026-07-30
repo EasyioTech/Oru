@@ -36,7 +36,7 @@ export const useProjectFilters = () => {
     setCurrentViewId(null);
   }, []);
 
-  const saveCurrentView = useCallback((toast: unknown) => {
+  const saveCurrentView = useCallback((toast: any) => {
     const viewName = prompt('Enter a name for this view:');
     if (!viewName) return;
     

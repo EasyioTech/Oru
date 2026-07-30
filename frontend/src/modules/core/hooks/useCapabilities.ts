@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../../lib/auth';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 
 export interface ModuleCapability {
   module: string;
@@ -26,10 +27,8 @@ export function useCapabilities(workspaceId?: string) {
     queryKey: ['workspace-capabilities', id],
     queryFn: async () => {
       if (!id) throw new Error('No workspace ID');
-      const res = await fetch(`/api/workspace/${id}/capabilities`);
-      if (!res.ok) throw new Error('Failed to fetch capabilities');
-      const { data } = await res.json();
-      return data as Capabilities;
+      const res = await api.get(`/core/workspace/${id}/capabilities`);
+      return res.data.data as Capabilities;
     },
     enabled: !!id,
     staleTime: 10 * 60 * 1000, // 10 minutes

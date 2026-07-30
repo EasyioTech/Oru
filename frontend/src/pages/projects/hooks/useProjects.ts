@@ -36,7 +36,7 @@ export const useProjects = (
   return {
     projects: projects || [],
     loading,
-    fetchProjects: async () => {}, // mock to satisfy old usages temporarily
+    fetchProjects: async (...args: any[]) => {}, // mock to satisfy old usages temporarily
     setProjects: () => {},
   };
 };

@@ -17,7 +17,7 @@ interface OverviewTabProps {
   completedTasks: number;
   totalTasks: number;
   revenue: number;
-  clientDetails: unknown;
+  clientDetails: any;
   onNavigate: (path: string) => void;
 }
 

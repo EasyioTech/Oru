@@ -42,7 +42,7 @@ export function TwoFactorSetup({ onComplete }: TwoFactorSetupProps = {}) {
         title: '2FA Setup Started',
         description: 'Scan the QR code with your authenticator app',
       });
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || 'Failed to setup 2FA');
       toast({
         title: 'Setup Failed',
@@ -78,7 +78,7 @@ export function TwoFactorSetup({ onComplete }: TwoFactorSetupProps = {}) {
           onComplete();
         }, 2000); // Wait 2 seconds to show success message
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || 'Invalid verification code');
       toast({
         title: 'Verification Failed',

@@ -12,6 +12,7 @@ import { ReimbursementReviewDialog } from '@/components/ReimbursementReviewDialo
 import DeleteConfirmDialog from '@/components/shared/DeleteConfirmDialog';
 import { Plus, Search, Edit, Trash2, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function ReimbursementsPage() {
   const { reimbursements, isLoading, deleteReimbursement, updateReimbursement } = useReimbursements();

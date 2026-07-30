@@ -50,7 +50,7 @@ export interface CustomReport {
   name: string;
   description?: string;
   report_type: string;
-  parameters: Record<string, unknown>;
+  parameters: Record<string, any>;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -61,7 +61,7 @@ export interface Report {
   name: string;
   description?: string;
   report_type: 'attendance' | 'payroll' | 'leave' | 'employee' | 'project' | 'financial' | 'gst' | 'custom';
-  parameters: Record<string, unknown>;
+  parameters: Record<string, any>;
   file_path?: string;
   file_name?: string;
   file_size?: number;
@@ -84,7 +84,7 @@ export interface ScheduledReport {
   time?: string;
   recipients: string[];
   format: 'pdf' | 'excel' | 'csv';
-  filters?: Record<string, unknown>;
+  filters?: Record<string, any>;
   is_active: boolean;
   last_run_at?: string;
   next_run_at?: string;
@@ -111,7 +111,7 @@ export interface ReportExport {
   generated_at: string;
   expires_at?: string;
   download_count: number;
-  parameters?: Record<string, unknown>;
+  parameters?: Record<string, any>;
 }
 
 export interface AnalyticsMetrics {

@@ -10,11 +10,11 @@ import { useNavigate } from 'react-router-dom';
 import { getActivityIcon } from '../utils/crmUtils';
 
 interface ActivitiesTabProps {
-  activities: unknown[];
+  activities: any[];
   loading: boolean;
   onNewActivity: () => void;
-  onEditActivity: (activity: unknown) => void;
-  onDeleteActivity: (activity: unknown) => void;
+  onEditActivity: (activity: any) => void;
+  onDeleteActivity: (activity: any) => void;
 }
 
 export const ActivitiesTab = ({

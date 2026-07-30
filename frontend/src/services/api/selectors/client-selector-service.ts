@@ -83,7 +83,7 @@ export async function getClientsForSelection(
 
   try {
     // Build filters
-    const filters: unknown[] = [];
+    const filters: any[] = [];
     
     // Always filter by agency_id
     filters.push({
@@ -120,7 +120,7 @@ export async function getClientsForSelection(
     }
 
     // Build query options
-    const queryOptions: unknown = {
+    const queryOptions: any = {
       filters,
       orderBy: 'name ASC'
     };
@@ -134,12 +134,13 @@ export async function getClientsForSelection(
     }
 
     // Execute query
-    let clients = await selectRecords('clients', queryOptions);
+    const clientsResult = await selectRecords('clients', queryOptions);
+    let clients = clientsResult && clientsResult.success && clientsResult.data ? clientsResult.data : [];
 
     // Apply search filter in memory (for better performance with large datasets, consider SQL LIKE)
     if (search) {
       const searchLower = search.toLowerCase();
-      clients = clients.filter((client: unknown) =>
+      clients = clients.filter((client: any) =>
         client.name?.toLowerCase().includes(searchLower) ||
         client.company_name?.toLowerCase().includes(searchLower) ||
         client.email?.toLowerCase().includes(searchLower) ||
@@ -149,7 +150,7 @@ export async function getClientsForSelection(
     }
 
     // Transform to ClientOption format
-    const clientOptions: ClientOption[] = clients.map((client: unknown) => ({
+    const clientOptions: ClientOption[] = clients.map((client: any) => ({
       id: client.id,
       name: client.name || 'Unnamed Client',
       company_name: client.company_name,
@@ -188,14 +189,16 @@ export async function getClientById(
   }
 
   try {
-    const client = await selectOne('clients', {
+    const clientResult = await selectOne('clients', {
       id: clientId,
       agency_id: agencyId
     });
 
-    if (!client) {
+    if (!clientResult || !clientResult.success || !clientResult.data) {
       return null;
     }
+    
+    const client = clientResult.data;
 
     return {
       id: client.id,

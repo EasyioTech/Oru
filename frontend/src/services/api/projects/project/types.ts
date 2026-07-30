@@ -21,7 +21,7 @@ export interface Project {
   departments: string[];
   tags: string[];
   categories: string[];
-  custom_fields: Record<string, unknown>;
+  custom_fields: Record<string, any>;
   progress: number;
   agency_id: string;
   created_by: string | null;
@@ -32,6 +32,15 @@ export interface Project {
     id: string;
     name: string;
     company_name: string | null;
+    email?: string | null;
+    phone?: string | null;
+    contact_person?: string | null;
+    contact_email?: string | null;
+    contact_phone?: string | null;
+    address?: string | null;
+    payment_terms?: string | null;
+    industry?: string | null;
+    status?: string | null;
   };
   project_manager?: {
     id: string;
@@ -60,10 +69,10 @@ export interface Task {
   created_by: string | null;
   completed_at: string | null;
   tags: string[];
-  attachments: unknown[];
-  checklist: unknown[];
+  attachments: any[];
+  checklist: any[];
   dependencies: string[];
-  custom_fields: Record<string, unknown>;
+  custom_fields: Record<string, any>;
   agency_id: string;
   created_at: string;
   updated_at: string;
@@ -101,7 +110,7 @@ export interface TaskComment {
   user_id: string;
   comment: string;
   parent_comment_id: string | null;
-  attachments: unknown[];
+  attachments: any[];
   mentions: string[];
   agency_id: string;
   created_at: string;

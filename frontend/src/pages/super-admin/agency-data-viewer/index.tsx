@@ -19,7 +19,7 @@ export default function AgencyDataViewer() {
   const [search, setSearch] = useQueryState('search', { defaultValue: '' });
   const [selectedAgency, setSelectedAgency] = useState<AdminAgency | null>(null);
 
-  if (user?.role !== 'super_admin') return <Navigate to="/" />;
+  if (!(user as any)?.roles?.includes('super_admin')) return <Navigate to="/" />;
 
   const filteredAgencies = agencies.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase())
@@ -88,7 +88,6 @@ export default function AgencyDataViewer() {
         <DataTable
           columns={columns}
           data={filteredAgencies}
-          onRowClick={(row) => setSelectedAgency(row)}
         />
       )}
 

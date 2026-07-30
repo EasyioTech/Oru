@@ -12,8 +12,8 @@ export function getStatusColor(status: string): 'default' | 'secondary' | 'outli
 
 interface PaySlipData {
   employeeName: string;
-  employee: Record<string, unknown>;
-  period: Record<string, unknown> | null;
+  employee: Record<string, any>;
+  period: Record<string, any> | null;
   record: PayrollRecord;
 }
 

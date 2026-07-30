@@ -147,7 +147,7 @@ export const usePlanManagement = () => {
       });
 
       await loadAvailableFeatures();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error creating feature:', error);
       toast({
         title: "Error",
@@ -168,7 +168,7 @@ export const usePlanManagement = () => {
       });
 
       await loadAvailableFeatures();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error updating feature:', error);
       toast({
         title: "Error",
@@ -183,7 +183,7 @@ export const usePlanManagement = () => {
     try {
       await deleteFeatureApi(featureId);
       await loadAvailableFeatures();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error deleting feature:', error);
       toast({
         title: "Error",

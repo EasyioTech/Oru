@@ -16,7 +16,7 @@ export function useDocumentManager() {
 
   const { data: documents, isLoading: loadingDocs } = useQuery({
     queryKey: ['documents', currentFolder],
-    queryFn: async () => (await api.get(`/storage/documents`, { params: { folder: currentFolder } })).data.data as Document[],
+    queryFn: async () => (await api.get(`/storage/documents${currentFolder ? `?folder=${currentFolder}` : ''}`)).data.data as Document[],
   });
 
   return {
@@ -29,11 +29,11 @@ export function useDocumentManager() {
     loading: loadingFolders || loadingDocs,
     searchTerm, setSearchTerm,
     viewMode, setViewMode,
-    showFolderDialog: false, setShowFolderDialog: () => {},
-    showPermissionsDialog: false, setShowPermissionsDialog: () => {},
-    showSettingsDialog: false, setShowSettingsDialog: () => {},
-    selectedDocument: null, setSelectedDocument: () => {},
-    folderForm: { name: '', description: '' }, setFolderForm: () => {},
+    showFolderDialog: false, setShowFolderDialog: (v: boolean) => {},
+    showPermissionsDialog: false, setShowPermissionsDialog: (v: boolean) => {},
+    showSettingsDialog: false, setShowSettingsDialog: (v: boolean) => {},
+    selectedDocument: null as Document | null, setSelectedDocument: (v: Document | null) => {},
+    folderForm: { name: '', description: '' }, setFolderForm: (v: any) => {},
     handleCreateFolder: async () => {},
     handleFileUpload: async () => {},
     handleDownload: async () => {},

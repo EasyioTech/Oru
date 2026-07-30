@@ -79,7 +79,7 @@ export const EmployeeCard = ({
                 <RoleIcon className="h-3 w-3 text-primary flex-shrink-0" />
               </div>
               <Badge variant={getRoleBadgeVariant(employee.role)} className="text-[10px] px-1.5 py-0 uppercase tracking-wider font-medium">
-                {getRoleDisplayName(employee.role as unknown)}
+                {getRoleDisplayName(employee.role as any)}
               </Badge>
             </div>
             {employee.position ? (

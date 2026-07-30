@@ -52,17 +52,17 @@ export const useDragAndDrop = (
     }
     
     setProjects(prev => prev.map(p => 
-      p.id === projectId ? { ...p, status: newStatus as unknown } : p
+      p.id === projectId ? { ...p, status: newStatus as any } : p
     ));
     
     try {
-      await projectService.updateProject(projectId, { status: newStatus as unknown }, profile, user?.id);
+      await projectService.updateProject(projectId, { status: newStatus as any }, profile, user?.id);
       toast({
         title: 'Success',
         description: `Project status updated to ${newStatus.replace('_', ' ')}`,
       });
       onProjectsChange();
-    } catch (error: unknown) {
+    } catch (error: any) {
       setProjects(prev => prev.map(p => 
         p.id === projectId ? { ...p, status: project.status } : p
       ));

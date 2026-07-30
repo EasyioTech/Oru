@@ -6,7 +6,7 @@
 /**
  * Export report data as JSON
  */
-export const exportReportAsJSON = (type: string, data: unknown, filename?: string): void => {
+export const exportReportAsJSON = (type: string, data: any, filename?: string): void => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -22,11 +22,11 @@ export const exportReportAsJSON = (type: string, data: unknown, filename?: strin
  * Export all reports
  */
 export const exportAllReports = (reportsData: {
-  monthly: unknown;
-  yearly: unknown;
-  trends: unknown[];
-  departments: unknown[];
-  projects: unknown[];
+  monthly: any;
+  yearly: any;
+  trends: any[];
+  departments: any[];
+  projects: any[];
 }): void => {
   const data = {
     ...reportsData,

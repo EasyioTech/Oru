@@ -25,7 +25,7 @@ export const useEmployeeFilters = (
     } else if (selectedTab === 'admins') {
       filtered = filtered.filter(emp => emp.is_active && ['super_admin', 'agency_admin'].includes(emp.role));
     } else if (selectedTab === 'managers') {
-      filtered = filtered.filter(emp => emp.is_active && ROLE_CATEGORIES.management.includes(emp.role as unknown));
+      filtered = filtered.filter(emp => emp.is_active && ROLE_CATEGORIES.management.includes(emp.role as any));
     }
     // "all" tab shows ALL employees regardless of status - no filter applied
 

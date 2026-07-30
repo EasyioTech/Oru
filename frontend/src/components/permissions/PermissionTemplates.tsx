@@ -38,7 +38,7 @@ export function PermissionTemplates() {
     try {
       const data = await getPermissionTemplates();
       setTemplates(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       // If API is not available, show empty state gracefully
       console.warn('Templates API not available:', error);
       setTemplates([]);
@@ -56,7 +56,7 @@ export function PermissionTemplates() {
     try {
       const result = await permissionsService.getPermissions();
       setPermissions(result.data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       // If API is not available, show empty state gracefully
       console.warn('Permissions API not available:', error);
       setPermissions([]);
@@ -94,7 +94,7 @@ export function PermissionTemplates() {
       setShowCreateDialog(false);
       setTemplateForm({ name: '', description: '', selectedPermissions: [] });
       await fetchTemplates();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to create template');
     }
   };
@@ -110,7 +110,7 @@ export function PermissionTemplates() {
       setShowApplyDialog(false);
       setSelectedTemplate(null);
       setSelectedTargets([]);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to apply template');
     }
   };

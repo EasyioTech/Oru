@@ -3,7 +3,7 @@
  * Comprehensive task management with multiple views and full functionality
  */
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,7 +87,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
   const fetchTasks = React.useCallback(async () => {
     setLoading(true);
     try {
-      const filters: unknown = {};
+      const filters: any = {};
       if (projectId) {
         filters.project_id = projectId;
       }
@@ -106,7 +106,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
       
       const data = await projectService.getTasks(filters, profile, user?.id);
       setTasks(data || []);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching tasks:', error);
       toast({
         title: "Error",
@@ -122,7 +122,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
       await projectService.updateTask(taskId, { 
         status: newStatus,
         completed_at: newStatus === 'completed' ? new Date().toISOString() : null
-      } as unknown, profile, user?.id);
+      } as any, profile, user?.id);
 
       setTasks(tasks.map(task => 
         task.id === taskId ? { ...task, status: newStatus } : task
@@ -132,7 +132,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
         title: "Success",
         description: "Task status updated successfully",
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to update task status",
@@ -152,7 +152,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
         title: "Success",
         description: "Task deleted successfully",
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to delete task",
@@ -409,7 +409,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
                           <div className="flex items-center gap-1 flex-wrap">
                             {task.assignments.slice(0, 3).map((assignment) => (
                               <Avatar key={assignment.id} className="h-5 w-5">
-                                <AvatarImage src={assignment.user?.avatar_url} />
+                                <AvatarImage src={(assignment.user as any)?.avatar_url} />
                                 <AvatarFallback className="text-xs">
                                   {assignment.user?.full_name?.charAt(0) || 'U'}
                                 </AvatarFallback>
@@ -425,7 +425,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
                         {task.assignee_id && (!task.assignments || task.assignments.length === 0) && (
                           <div className="flex items-center text-xs">
                             <Avatar className="h-5 w-5 mr-2">
-                              <AvatarImage src={task.assignee?.avatar_url} />
+                              <AvatarImage src={(task.assignee as any)?.avatar_url} />
                               <AvatarFallback>
                                 {task.assignee?.full_name?.charAt(0) || 'U'}
                               </AvatarFallback>
@@ -492,7 +492,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
                             <>
                               {task.assignments.slice(0, 3).map((assignment) => (
                                 <Avatar key={assignment.id} className="h-6 w-6">
-                                  <AvatarImage src={assignment.user?.avatar_url} />
+                                  <AvatarImage src={(assignment.user as any)?.avatar_url} />
                                   <AvatarFallback className="text-xs">
                                     {assignment.user?.full_name?.charAt(0) || 'U'}
                                   </AvatarFallback>
@@ -504,7 +504,7 @@ export function TaskKanbanBoard({ projectId }: TaskKanbanBoardProps) {
                             </>
                           ) : task.assignee_id ? (
                             <Avatar className="h-6 w-6">
-                              <AvatarImage src={task.assignee?.avatar_url} />
+                              <AvatarImage src={(task.assignee as any)?.avatar_url} />
                               <AvatarFallback className="text-xs">
                                 {task.assignee?.full_name?.charAt(0) || 'U'}
                               </AvatarFallback>

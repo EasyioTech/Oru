@@ -23,9 +23,9 @@ interface ProjectCardProps {
   onView: (project: Project) => void;
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
-  onNavigateToEmployees?: (params: unknown) => void;
-  onNavigateToAttendance?: (params: unknown) => void;
-  onNavigateToPayroll?: (params: unknown) => void;
+  onNavigateToEmployees?: (params: any) => void;
+  onNavigateToAttendance?: (params: any) => void;
+  onNavigateToPayroll?: (params: any) => void;
   onNavigateToDepartment?: (departmentId: string, departmentName?: string) => void;
   urlDepartmentId?: string | null;
   legacyDepartmentId?: string | null;

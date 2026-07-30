@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchLeaveTypes, createLeaveRequest, updateLeaveRequest } from '@/services/api/hr/leaves';
-import { LeaveRequest, LeaveType } from '@/integrations/postgresql/types';
+import type { User, LeaveRequest } from '@/types/models';
 import { getEmployeesForAssignmentAuto } from '@/services/api/selectors';
 
 interface LeaveRequestFormDialogProps {
@@ -33,7 +33,7 @@ const LeaveRequestFormDialog: React.FC<LeaveRequestFormDialogProps> = ({
   const isAdminOrHR = userRole === 'agency_admin' || userRole === 'super_admin' || userRole === 'manager';
   const canManageRequests = isAdminOrHR && !isEmployeeView;
   const [loading, setLoading] = useState(false);
-  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
+  const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 

@@ -136,7 +136,7 @@ export class ScheduledReportService extends BaseApiService {
     date_from?: string;
     date_to?: string;
     search?: string;
-  }): Promise<ReportExport[]> {
+  }): Promise<ApiResponse<ReportExport[]>> {
     return this.execute(async () => {
       const token = getStorageItem('auth_token');
       if (!token) throw new Error('Authentication required');

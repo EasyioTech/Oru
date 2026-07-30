@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation } from '@tanstack/react-query';
+import { useUIPreferences } from '@/hooks/useUIPreferences';
 
 const ticketSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -21,6 +22,11 @@ const ticketSchema = z.object({
 export function TicketFloatingButton() {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const { showSupportTicketButton } = useUIPreferences();
+  
+  if (!showSupportTicketButton) {
+    return null;
+  }
   
   const { register, handleSubmit, reset, formState: { isSubmitting, errors } } = useForm({
     resolver: zodResolver(ticketSchema),

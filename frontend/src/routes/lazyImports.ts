@@ -56,7 +56,7 @@ export const Receipts = React.lazy(() => import("../pages/financial/receipts"));
 export const Ledger = React.lazy(() => import("../pages/financial/ledger"));
 export const CreateJournalEntry = React.lazy(() => import("../pages/financial/create-journal-entry"));
 export const FinancialManagement = React.lazy(() => import("../pages/financial"));
-export const Reimbursements = React.lazy(() => import("../pages/financial/reimbursements").then(m => ({ default: m.Reimbursements })));
+export const Reimbursements = React.lazy(() => import("../pages/financial/reimbursements"));
 
 // Clients & CRM
 export const Clients = React.lazy(() => import("../pages/crm/clients"));

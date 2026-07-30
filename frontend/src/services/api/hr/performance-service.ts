@@ -187,7 +187,7 @@ export async function getTaskPerformance(
     dateRange.endDate
   ]);
   
-  return results.map((row: Record<string, unknown>) => ({
+  return results.map((row: Record<string, any>) => ({
     id: row.id,
     title: row.title,
     project_name: row.project_name,
@@ -232,7 +232,7 @@ export async function getWorkHours(
     dateRange.endDate
   ]);
   
-  return results.map((row: Record<string, unknown>) => ({
+  return results.map((row: Record<string, any>) => ({
     date: row.date,
     total_hours: Number(row.total_hours || 0),
     overtime_hours: Number(row.overtime_hours || 0),
@@ -269,7 +269,7 @@ export async function getWorkHoursByProject(
     dateRange.endDate
   ]);
   
-  return results.map((row: Record<string, unknown>) => ({
+  return results.map((row: Record<string, any>) => ({
     project_name: row.project_name,
     total_hours: Number(row.total_hours || 0),
   }));
@@ -322,7 +322,7 @@ export async function getDailyActivity(
   
   return {
     date,
-    tasks: tasks.map((row: Record<string, unknown>) => ({
+    tasks: tasks.map((row: Record<string, any>) => ({
       task_id: row.task_id,
       task_title: row.task_title,
       hours_logged: Number(row.hours_logged || 0),
@@ -382,8 +382,8 @@ export async function getDailyActivitiesBatch(
   const taskRecords = await rawQuery(tasksQuery, [employeeId, dates]);
   
   // Group tasks by date
-  const tasksByDate: Record<string, unknown[]> = {};
-  taskRecords.forEach((row: Record<string, unknown>) => {
+  const tasksByDate: Record<string, any[]> = {};
+  taskRecords.forEach((row: Record<string, any>) => {
     const dateStr = format(new Date(row.date), 'yyyy-MM-dd');
     if (!tasksByDate[dateStr]) {
       tasksByDate[dateStr] = [];
@@ -399,7 +399,7 @@ export async function getDailyActivitiesBatch(
   // Build activities array
   const activities: DailyActivity[] = dates.map(date => {
     // Find attendance record - handle both string and Date formats
-    const attendance = attendanceRecords.find((r: Record<string, unknown>) => {
+    const attendance = attendanceRecords.find((r: Record<string, any>) => {
       const recordDate = r.date instanceof Date 
         ? format(r.date, 'yyyy-MM-dd')
         : r.date?.toString().split('T')[0] || r.date;
@@ -522,7 +522,7 @@ export async function getPerformanceTrends(
     period
   ]);
   
-  return results.map((row: Record<string, unknown>) => ({
+  return results.map((row: Record<string, any>) => ({
     date: row.date,
     tasks_completed: Number(row.tasks_completed || 0),
     hours_worked: Number(row.hours_worked || 0),

@@ -22,7 +22,7 @@ export const useEmployee = (id: string) =>
 export const useCreateEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/hr/employees', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/hr/employees', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hr_employees'] }),
   });
 };
@@ -30,7 +30,7 @@ export const useCreateEmployee = () => {
 export const useUpdateEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/hr/employees/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['hr_employees'] });
@@ -66,7 +66,7 @@ export const useDepartment = (id: string) =>
 export const useCreateDepartment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/hr/departments', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/hr/departments', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hr_departments'] }),
   });
 };
@@ -74,7 +74,7 @@ export const useCreateDepartment = () => {
 export const useUpdateDepartment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/hr/departments/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['hr_departments'] });
@@ -105,7 +105,7 @@ export const useLeaveRequests = (filters?: { status?: string; employeeId?: strin
 export const useCreateLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/hr/leave', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/hr/leave', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hr_leave'] }),
   });
 };
@@ -113,7 +113,7 @@ export const useCreateLeaveRequest = () => {
 export const useUpdateLeaveRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/hr/leave/${id}`, 'PUT', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hr_leave'] }),
   });
@@ -150,7 +150,7 @@ export const useAttendance = (filters?: { employeeId?: string; month?: string; y
 export const useCheckIn = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/hr/attendance/check-in', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/hr/attendance/check-in', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hr_attendance'] }),
   });
 };
@@ -158,7 +158,7 @@ export const useCheckIn = () => {
 export const useCheckOut = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/hr/attendance/check-out', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/hr/attendance/check-out', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hr_attendance'] }),
   });
 };

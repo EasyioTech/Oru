@@ -15,7 +15,7 @@ export function useAdminAuditLogs(params?: Record<string, any>) {
   const { data: logs, isLoading, error } = useQuery({
     queryKey: ['admin-audit-logs', params],
     queryFn: async () => {
-      const response = await api.get('/admin/audit-logs', { params });
+      const response = await api.get(`/admin/audit-logs${params ? '?' + new URLSearchParams(params as any).toString() : ''}`);
       return (response.data.data || []) as AuditLog[];
     },
   });

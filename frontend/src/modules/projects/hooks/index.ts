@@ -22,7 +22,7 @@ export const useProject = (id: string) =>
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/projects', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/projects', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
   });
 };
@@ -30,7 +30,7 @@ export const useCreateProject = () => {
 export const useUpdateProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/projects/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -59,7 +59,7 @@ export const useTasks = (projectId: string) =>
 export const useCreateTask = (projectId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate(`/projects/${projectId}/tasks`, 'POST', data),
+    mutationFn: (data: any) => fetchMutate(`/projects/${projectId}/tasks`, 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] }),
   });
 };
@@ -67,7 +67,7 @@ export const useCreateTask = (projectId: string) => {
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, projectId, data }: { id: string; projectId: string; data: unknown }) =>
+    mutationFn: ({ id, projectId, data }: { id: string; projectId: string; data: any }) =>
       fetchMutate(`/projects/tasks/${id}`, 'PUT', data),
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });

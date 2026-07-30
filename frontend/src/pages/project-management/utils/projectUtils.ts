@@ -106,8 +106,8 @@ export const filterAndSortProjects = (
   const filtered = projects.filter(project => {
     if (filters.deletingProjectId === project.id) return false;
     
-    if (!filters.showArchived && project.status === 'archived') return false;
-    if (filters.showArchived && project.status !== 'archived') return false;
+    if (!filters.showArchived && (project.status as string) === 'archived') return false;
+    if (filters.showArchived && (project.status as string) !== 'archived') return false;
     
     if (filters.statusFilter !== 'all' && project.status !== filters.statusFilter) return false;
     

@@ -47,7 +47,7 @@ export default function ClientFormDialog({
         await updateClient.mutateAsync({ id: client.id, data });
         toast({ title: 'Success', description: 'Client updated successfully' });
       } else {
-        await createClient.mutateAsync(data);
+        await createClient.mutateAsync(data as any);
         toast({ title: 'Success', description: 'Client created successfully' });
       }
       onClose();

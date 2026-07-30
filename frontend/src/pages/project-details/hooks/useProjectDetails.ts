@@ -20,7 +20,7 @@ export const useProjectDetails = (projectId: string | undefined) => {
     try {
       const data = await projectService.getProject(projectId, profile, user?.id);
       setProject(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error loading project:', error);
       toast({
         title: "Error",

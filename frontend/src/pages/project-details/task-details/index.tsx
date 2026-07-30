@@ -77,7 +77,7 @@ export default function TaskDetails() {
     try {
       const data = await projectService.getTask(id, profile, user?.id);
       setTask(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error loading task:', error);
       toast({
         title: "Error",
@@ -95,7 +95,7 @@ export default function TaskDetails() {
     try {
       const data = await projectService.getTaskComments(id, profile, user?.id);
       setComments(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error loading comments:', error);
     }
   }, [id, profile, user?.id]);
@@ -106,7 +106,7 @@ export default function TaskDetails() {
     try {
       const data = await projectService.getTaskTimeTracking(id, profile, user?.id);
       setTimeEntries(data);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error loading time tracking:', error);
     }
   }, [id, profile, user?.id]);
@@ -138,7 +138,7 @@ export default function TaskDetails() {
         title: "Success",
         description: "Comment added successfully"
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to add comment",
@@ -174,7 +174,7 @@ export default function TaskDetails() {
         title: "Success",
         description: "Time logged successfully"
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to log time",
@@ -376,7 +376,7 @@ export default function TaskDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Checklist</p>
                     <div className="space-y-2">
-                      {task.checklist.map((item: unknown, idx: number) => {
+                      {task.checklist.map((item: any, idx: number) => {
                         const text = typeof item === 'string' ? item : item.text || '';
                         const completed = typeof item === 'object' ? (item.completed || false) : false;
                         return (
@@ -410,7 +410,7 @@ export default function TaskDetails() {
                       <div key={assignment.id} className="flex items-center justify-between p-2 border rounded">
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage src={assignment.user?.avatar_url} />
+                            <AvatarImage src={(assignment.user as any)?.avatar_url} />
                             <AvatarFallback>
                               {assignment.user?.full_name?.charAt(0) || 'U'}
                             </AvatarFallback>
@@ -418,7 +418,7 @@ export default function TaskDetails() {
                           <div>
                             <p className="font-medium">{assignment.user?.full_name || 'Unknown'}</p>
                             <p className="text-xs text-muted-foreground">
-                              Assigned {formatDateSafe(assignment.assigned_at, "MMM dd, yyyy")}
+                              Assigned {formatDateSafe((assignment as any).assigned_at, "MMM dd, yyyy")}
                             </p>
                           </div>
                         </div>
@@ -429,7 +429,7 @@ export default function TaskDetails() {
                 {task.assignee_id && (!task.assignments || !task.assignments.some(a => a.user_id === task.assignee_id)) ? (
                   <div className="flex items-center gap-3 p-2 border rounded">
                     <Avatar>
-                      <AvatarImage src={task.assignee?.avatar_url} />
+                      <AvatarImage src={(task.assignee as any)?.avatar_url} />
                       <AvatarFallback>
                         {task.assignee?.full_name?.charAt(0) || 'U'}
                       </AvatarFallback>

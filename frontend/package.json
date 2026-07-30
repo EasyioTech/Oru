@@ -27,6 +27,7 @@
     "docker:prod:down": "docker-compose down"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.10",
     "@hookform/resolvers": "^3.9.0",
     "@oru/schemas": "workspace:*",
     "@oru/types": "workspace:*",
@@ -57,8 +58,10 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "@remixicon/react": "^4.9.0",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-table": "^8.21.3",
+    "@tremor/react": "^3.18.7",
     "@types/canvas-confetti": "^1.9.0",
     "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",

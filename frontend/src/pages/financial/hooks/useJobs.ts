@@ -9,21 +9,21 @@ import { logWarn, logError } from '@/utils/consoleLogger';
 
 export const useJobs = (agencyId: string | null) => {
   const { toast } = useToast();
-  const [jobs, setJobs] = useState<unknown[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchJobs = async (agencyIdParam?: string | null) => {
     const effectiveAgencyId = agencyIdParam || agencyId;
     setLoading(true);
     try {
-      let jobsData: unknown[] = [];
+      let jobsData: any[] = [];
       if (effectiveAgencyId) {
         try {
           jobsData = await selectRecords('jobs', {
             where: { agency_id: effectiveAgencyId },
             orderBy: 'created_at DESC',
           });
-        } catch (err: unknown) {
+        } catch (err: any) {
           if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
             logWarn('jobs has no agency_id column, falling back to all jobs');
             jobsData = await selectRecords('jobs', {
@@ -39,7 +39,7 @@ export const useJobs = (agencyId: string | null) => {
         });
       }
       setJobs(jobsData || []);
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError('Error fetching jobs:', error);
       if (error?.code !== '42703') {
         toast({

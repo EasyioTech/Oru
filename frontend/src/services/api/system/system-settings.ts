@@ -182,15 +182,15 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
   }
 
   if (!('success' in parsed)) {
-    return parsed as unknown as T;
+    return parsed as any as T;
   }
 
   if (!parsed.success) {
     const errorResponse = parsed as ApiErrorShape;
     const message = (typeof errorResponse.error === 'object' ? errorResponse.error?.message : errorResponse.error) || errorResponse.message || 'Request failed';
     const error = new Error(String(message));
-    (error as unknown).code = typeof errorResponse.error === 'object' ? errorResponse.error?.code : undefined;
-    (error as unknown).details = typeof errorResponse.error === 'object' ? errorResponse.error?.details : undefined;
+    (error as any).code = typeof errorResponse.error === 'object' ? errorResponse.error?.code : undefined;
+    (error as any).details = typeof errorResponse.error === 'object' ? errorResponse.error?.details : undefined;
     throw error;
   }
 
@@ -217,7 +217,7 @@ function stripMaskedSecrets(settings: Partial<SystemSettings>): Partial<SystemSe
   const out: Partial<SystemSettings> = {};
   for (const [key, value] of Object.entries(settings)) {
     if (value === MASK_PLACEHOLDER) continue;
-    (out as Record<string, unknown>)[key] = value;
+    (out as Record<string, any>)[key] = value;
   }
   return out;
 }
@@ -240,7 +240,7 @@ export async function fetchSystemSettings(): Promise<SystemSettings> {
     }
     const data = await handleJsonResponse<{ settings: SystemSettings }>(response);
     return data.settings;
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error && error.message.includes('Failed to fetch')) {
       throw new Error('Unable to connect to the server. Please check your connection and try again.');
     }
@@ -268,7 +268,7 @@ export async function updateSystemSettings(settings: Partial<SystemSettings>): P
     }
     const data = await handleJsonResponse<{ settings: SystemSettings }>(response);
     return data.settings;
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error && error.message.includes('Failed to fetch')) {
       throw new Error('Unable to connect to the server. Please check your connection and try again.');
     }

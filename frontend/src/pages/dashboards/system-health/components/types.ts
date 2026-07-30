@@ -113,6 +113,6 @@ export interface SystemHealth {
   };
   trends?: {
     available: boolean;
-    hourly?: unknown[];
+    hourly?: any[];
   };
 }

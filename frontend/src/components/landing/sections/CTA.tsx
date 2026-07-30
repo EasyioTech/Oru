@@ -21,7 +21,7 @@ export const CTA = () => {
         >
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-xs font-medium text-zinc-400 mb-6">
             <Zap className="w-3 h-3 text-yellow-400" />
-            Start your free trial today
+            Get started — it's completely free
           </span>
         </motion.div>
 
@@ -58,7 +58,7 @@ export const CTA = () => {
               className="px-8 h-12 text-base rounded-xl"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Start Free Trial
+                Get Started Free
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Button>
@@ -82,7 +82,7 @@ export const CTA = () => {
           className="mt-10 flex items-center justify-center gap-8 flex-wrap"
         >
           {[
-            { icon: Clock, text: '14-day free trial' },
+            { icon: Clock, text: 'Free forever to start' },
             { icon: Shield, text: 'No Credit Card. No Lock-in. Just Results.' },
             { icon: Zap, text: 'Setup in 5 minutes' },
           ].map((item, i) => (

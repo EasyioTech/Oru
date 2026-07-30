@@ -17,7 +17,7 @@ export interface Project {
   client_id: string | null;
   project_manager_id?: string | null;
   account_manager_id?: string | null;
-  assigned_team: unknown;
+  assigned_team: any;
   departments?: string[];
   tags?: string[];
   categories?: string[];

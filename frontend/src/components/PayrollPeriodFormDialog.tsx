@@ -83,7 +83,7 @@ const PayrollPeriodFormDialog: React.FC<PayrollPeriodFormDialogProps> = ({
         return;
       }
 
-      const cleanedData: unknown = {
+      const cleanedData: any = {
         name: formData.name.trim(),
         start_date: formData.start_date,
         end_date: formData.end_date,
@@ -107,7 +107,7 @@ const PayrollPeriodFormDialog: React.FC<PayrollPeriodFormDialogProps> = ({
 
       onPeriodSaved();
       onClose();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving payroll period:', error);
       toast({
         title: 'Error',
@@ -145,7 +145,7 @@ const PayrollPeriodFormDialog: React.FC<PayrollPeriodFormDialogProps> = ({
               <Label htmlFor="status">Status *</Label>
               <Select 
                 value={formData.status} 
-                onValueChange={(value: unknown) => setFormData(prev => ({ ...prev, status: value }))}
+                onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}
               >
                 <SelectTrigger>
                   <SelectValue />

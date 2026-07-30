@@ -44,7 +44,7 @@ export function BasicInfoSection({ formData, setFormData }: BasicInfoSectionProp
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Priority</Label>
-          <Select value={formData.priority || 'medium'} onValueChange={(v: unknown) => set({ priority: v as Project['priority'] })}>
+          <Select value={formData.priority || 'medium'} onValueChange={(v: any) => set({ priority: v as Project['priority'] })}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {['low','medium','high','critical'].map(p => <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase()+p.slice(1)}</SelectItem>)}

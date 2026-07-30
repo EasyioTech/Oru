@@ -8,11 +8,11 @@ import { useToast } from '@/hooks/use-toast';
 import { logWarn } from '@/utils/consoleLogger';
 
 export const useFinancialReports = (
-  chartOfAccounts: unknown[],
+  chartOfAccounts: any[],
   accountBalances: Record<string, number>,
-  jobs: unknown[],
-  ledgerSummary: unknown,
-  accountingStats: unknown,
+  jobs: any[],
+  ledgerSummary: any,
+  accountingStats: any,
   agencyId: string | null,
   userId: string | undefined
 ) => {
@@ -20,12 +20,12 @@ export const useFinancialReports = (
   const navigate = useNavigate();
   const [reportGenerating, setReportGenerating] = useState<string | null>(null);
   const [reportViewOpen, setReportViewOpen] = useState(false);
-  const [reportViewData, setReportViewData] = useState<{ title: string; data: unknown } | null>(null);
+  const [reportViewData, setReportViewData] = useState<{ title: string; data: any } | null>(null);
 
   const handleGenerateReport = async (reportType: string) => {
     setReportGenerating(reportType);
     try {
-      let reportData: unknown = {};
+      let reportData: any = {};
       let reportTitle = '';
 
       switch (reportType) {
@@ -173,7 +173,7 @@ export const useFinancialReports = (
         } else {
           throw new Error(response.error || 'Failed to save report');
         }
-      } catch (error: unknown) {
+      } catch (error: any) {
         logWarn('Could not save report to database:', error);
         
         setReportViewData({ title: reportTitle, data: reportData });
@@ -184,7 +184,7 @@ export const useFinancialReports = (
           description: `${reportTitle} has been generated. View it below or navigate to Reports page.`,
         });
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to generate report',

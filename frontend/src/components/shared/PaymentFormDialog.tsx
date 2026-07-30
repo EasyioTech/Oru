@@ -49,7 +49,7 @@ export default function PaymentFormDialog({
         await updatePayment.mutateAsync({ id: payment.id, data: { ...data, status: 'completed' } });
         toast({ title: 'Success', description: 'Payment updated successfully' });
       } else {
-        await createPayment.mutateAsync({ ...data, status: 'completed' });
+        await createPayment.mutateAsync({ ...(data as any), status: 'completed' });
         toast({ title: 'Success', description: 'Payment recorded successfully' });
       }
       onClose();

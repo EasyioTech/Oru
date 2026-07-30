@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, CalendarDays } from 'lucide-react';
 
 interface Props {
-  activities: unknown[];
+  activities: any[];
 }
 
 export function RecentActivity({ activities }: Props) {

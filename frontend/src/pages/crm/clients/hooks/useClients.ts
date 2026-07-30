@@ -23,12 +23,12 @@ export const useClientMutations = () => {
     const queryClient = useQueryClient();
 
     const createClient = useMutation({
-        mutationFn: (data: unknown) => fetchMutate('/crm/clients', 'POST', data),
+        mutationFn: (data: any) => fetchMutate('/crm/clients', 'POST', data),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
     });
 
     const updateClient = useMutation({
-        mutationFn: ({ id, data }: { id: string; data: unknown }) => fetchMutate(`/crm/clients/${id}`, 'PUT', data),
+        mutationFn: ({ id, data }: { id: string; data: any }) => fetchMutate(`/crm/clients/${id}`, 'PUT', data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
             queryClient.invalidateQueries({ queryKey: ['clients', variables.id] });

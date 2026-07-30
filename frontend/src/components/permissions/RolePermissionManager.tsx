@@ -47,7 +47,7 @@ export function RolePermissionManager() {
         });
         setPermissionStates(states);
         setHasChanges(false);
-      } catch (error: unknown) {
+      } catch (error: any) {
         // If API is not available, show empty state gracefully
         console.warn('Role permissions API not available:', error);
         setPermissions([]);
@@ -126,7 +126,7 @@ export function RolePermissionManager() {
       setHasChanges(false);
       setShowSaveDialog(false);
       toast.success('Role permissions saved successfully');
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to save permissions');
     } finally {
       setSaving(false);

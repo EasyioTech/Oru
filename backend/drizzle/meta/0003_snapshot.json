@@ -1,6 +1,6 @@
 {
-  "id": "610d741f-14ee-4e4d-a6bc-353b62e1c8bc",
-  "prevId": "050d5d2a-e6a5-41d6-a181-dc779c196f90",
+  "id": "da18d013-0463-40b4-8c5b-f878925b0c13",
+  "prevId": "610d741f-14ee-4e4d-a6bc-353b62e1c8bc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -7725,7 +7725,7 @@
           "name": "workspace_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "user_id": {
           "name": "user_id",
@@ -7745,52 +7745,21 @@
           "primaryKey": false,
           "notNull": true
         },
+        "metadata_json": {
+          "name": "metadata_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "timestamp": {
           "name": "timestamp",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "metadata_json": {
-          "name": "metadata_json",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
         }
       },
-      "indexes": {
-        "idx_workspace_activity_workspace_id": {
-          "name": "idx_workspace_activity_workspace_id",
-          "columns": [
-            {
-              "expression": "workspace_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_workspace_activity_timestamp": {
-          "name": "idx_workspace_activity_timestamp",
-          "columns": [
-            {
-              "expression": "timestamp",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "workspace_activity_workspace_id_workspace_profiles_workspace_id_fk": {
           "name": "workspace_activity_workspace_id_workspace_profiles_workspace_id_fk",
@@ -7820,21 +7789,8 @@
           "name": "workspace_id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
           "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "default": "gen_random_uuid()"
         },
         "modules_json": {
           "name": "modules_json",
@@ -7877,6 +7833,20 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'[]'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getStatusColor } from './types';
 
 interface JobsListProps {
-  jobs: unknown[];
+  jobs: any[];
   loading: boolean;
   pageSize: number;
   currentPage: number;
@@ -14,9 +14,9 @@ interface JobsListProps {
   totalItems: number;
   deleteLoading: boolean;
   onNewJob: () => void;
-  onEditJob: (job: unknown) => void;
-  onDeleteJob: (job: unknown) => void;
-  onManageCosts: (job: unknown) => void;
+  onEditJob: (job: any) => void;
+  onDeleteJob: (job: any) => void;
+  onManageCosts: (job: any) => void;
   onPageChange: (page: number) => void;
 }
 

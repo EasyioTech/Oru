@@ -54,13 +54,13 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
 
   if (!('success' in parsed)) {
     // Not our standard envelope – assume raw payload
-    return parsed as unknown as T;
+    return parsed as any as T;
   }
 
   if (!parsed.success) {
     // Type guard: if success is false, it's an error response
-    const errorResponse = parsed as { success: false; error?: string; message?: string };
-    const message = errorResponse.error || errorResponse.message || 'Request failed';
+    const errorResponse = parsed as ApiErrorShape;
+    const message = errorResponse.error?.message || errorResponse.message || 'Request failed';
     throw new Error(message);
   }
 
@@ -104,5 +104,5 @@ export async function fetchSystemMetrics(): Promise<SystemMetricsResponse> {
 
   const data = await handleJsonResponse<SystemMetricsResponse>(response);
   // Runtime validation to guard against unexpected backend responses
-  return SystemMetricsResponseSchema.parse(data);
+  return SystemMetricsResponseSchema.parse(data) as SystemMetricsResponse;
 }

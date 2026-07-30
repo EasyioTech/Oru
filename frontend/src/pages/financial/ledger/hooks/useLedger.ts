@@ -32,7 +32,7 @@ export function useLedger() {
 
       const entries = await selectRecords('journal_entries', {
         where: { status: 'posted' }, orderBy: 'entry_date DESC', limit: 500,
-      }).catch((err: unknown) => {
+      }).catch((err: any) => {
         if ((err as { code?: string })?.code === '42P01') return [];
         throw err;
       });
@@ -43,36 +43,36 @@ export function useLedger() {
         setTransactions([]); setLedgerSummary(EMPTY_SUMMARY); setLoading(false); return;
       }
 
-      const agencyEntries = (entries || []).filter((e: unknown) => !agencyId || !e.agency_id || e.agency_id === agencyId);
-      const entryIds = agencyEntries.map((e: unknown) => e.id) || [];
-      let lines: unknown[] = [];
+      const agencyEntries = (entries || []).filter((e: any) => !agencyId || !e.agency_id || e.agency_id === agencyId);
+      const entryIds = agencyEntries.map((e: any) => e.id) || [];
+      let lines: any[] = [];
 
       if (entryIds.length > 0) {
         lines = await selectRecords('journal_entry_lines', {
           filters: [{ column: 'journal_entry_id', operator: 'in', value: entryIds }],
-        }).catch((err: unknown) => {
+        }).catch((err: any) => {
           if ((err as { code?: string })?.code === '42P01') return [];
           throw err;
         });
       }
 
-      let accounts: unknown[] = [];
+      let accounts: any[] = [];
       try {
-        const where: Record<string, unknown> = { is_active: true };
+        const where: Record<string, any> = { is_active: true };
         if (agencyId) where.agency_id = agencyId;
         accounts = await selectRecords('chart_of_accounts', { where, orderBy: 'account_code ASC' });
-      } catch (err: unknown) {
+      } catch (err: any) {
         if ((err as { code?: string })?.code === '42703' || String((err as Error)?.message || '').includes('agency_id')) {
           logWarn('chart_of_accounts has no agency_id column, falling back to global accounts');
           accounts = await selectRecords('chart_of_accounts', { where: { is_active: true }, orderBy: 'account_code ASC' });
         } else throw err;
       }
 
-      const accountMap = new Map((accounts || []).map((acc: unknown) => [(acc as { id: string }).id, acc]));
+      const accountMap = new Map((accounts || []).map((acc: any) => [(acc as { id: string }).id, acc]));
       let totalBalance = 0;
       const accountBalances: Record<string, number> = {};
 
-      lines.forEach((line: unknown) => {
+      lines.forEach((line: any) => {
         const l = line as { account_id?: string; debit_amount?: number; credit_amount?: number };
         if (!l?.account_id) return;
         const account = accountMap.get(l.account_id) as { account_type?: string } | undefined;
@@ -95,12 +95,12 @@ export function useLedger() {
       const transformedTransactions: Transaction[] = [];
       let runningBalance = 0;
 
-      agencyEntries.forEach((entry: unknown) => {
+      agencyEntries.forEach((entry: any) => {
         const e = entry as { id?: string; entry_date?: string; created_at?: string; description?: string; reference?: string; entry_number?: string };
         if (!e?.id) return;
-        const entryLines = lines.filter((l: unknown) => l && (l as { journal_entry_id?: string }).journal_entry_id === e.id);
+        const entryLines = lines.filter((l: any) => l && (l as { journal_entry_id?: string }).journal_entry_id === e.id);
 
-        entryLines.forEach((line: unknown) => {
+        entryLines.forEach((line: any) => {
           const l = line as { id?: string; account_id?: string; credit_amount?: number; debit_amount?: number; description?: string };
           if (!l?.id) return;
           const account = l.account_id ? (accountMap.get(l.account_id) as { account_type?: string } | undefined) : null;
@@ -145,7 +145,7 @@ export function useLedger() {
       const monthlyIncome = monthly.filter(t => t.type === 'credit').reduce((s, t) => s + (t.amount || 0), 0);
       const monthlyExpenses = monthly.filter(t => t.type === 'debit').reduce((s, t) => s + (t.amount || 0), 0);
       setLedgerSummary({ totalBalance: totalBalance || 0, monthlyIncome, monthlyExpenses, netProfit: monthlyIncome - monthlyExpenses });
-    } catch (err: unknown) {
+    } catch (err: any) {
       logError('Error fetching ledger data:', err);
       const msg = (err as Error)?.message || 'Failed to load ledger data. Please try again.';
       setError(msg);
@@ -180,7 +180,7 @@ export function useLedger() {
       document.body.removeChild(link);
       URL.revokeObjectURL(link.href);
       toast({ title: 'Success', description: 'Ledger exported successfully' });
-    } catch (err: unknown) {
+    } catch (err: any) {
       logError('Error exporting ledger:', err);
       toast({ title: 'Error', description: 'Failed to export ledger. Please try again.', variant: 'destructive' });
     }

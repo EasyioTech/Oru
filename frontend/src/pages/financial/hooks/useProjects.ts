@@ -6,8 +6,8 @@ import { useState } from 'react';
 import { projectService } from '@/services/api/projects';
 import { logError } from '@/utils/consoleLogger';
 
-export const useProjects = (agencyId: string | null, profile: unknown, userId: string | undefined) => {
-  const [projects, setProjects] = useState<unknown[]>([]);
+export const useProjects = (agencyId: string | null, profile: any, userId: string | undefined) => {
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchProjects = async (agencyIdParam?: string | null) => {
@@ -17,7 +17,7 @@ export const useProjects = (agencyId: string | null, profile: unknown, userId: s
       const projectsData = await projectService.getProjects({}, profile, userId);
       
       const projectsWithFinancials = await Promise.all(
-        projectsData.map(async (project: unknown) => {
+        projectsData.map(async (project: any) => {
           try {
             const projectWithFinancials = await projectService.getProjectWithFinancials(project.id, profile, userId);
             return projectWithFinancials || project;
@@ -29,7 +29,7 @@ export const useProjects = (agencyId: string | null, profile: unknown, userId: s
       );
       
       setProjects(projectsWithFinancials);
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError('Error fetching projects:', error);
       setProjects([]);
     } finally {

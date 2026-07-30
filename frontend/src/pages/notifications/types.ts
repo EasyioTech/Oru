@@ -5,7 +5,7 @@ export interface Notification {
   category: 'approval' | 'reminder' | 'update' | 'alert' | 'system';
   title: string;
   message: string;
-  metadata: unknown;
+  metadata: any;
   read_at: string | null;
   sent_at: string | null;
   priority: 'low' | 'normal' | 'high' | 'urgent';

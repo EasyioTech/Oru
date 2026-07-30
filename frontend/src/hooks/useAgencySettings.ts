@@ -174,7 +174,7 @@ export const useAgencySettings = () => {
           ...DEFAULT_SETTINGS,
         } as AgencySettings);
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Error fetching agency settings:', err);
       setError(err.message || 'Failed to fetch agency settings');
       // Use defaults on error
@@ -197,11 +197,11 @@ export const useAgencySettings = () => {
       const { agency_id: _, ...settingsWithoutAgencyId } = newSettings;
       
       // Only include fields that are actually provided (not undefined)
-      const settingsToSave: unknown = {};
+      const settingsToSave: any = {};
       
       // Copy only defined fields, but exclude large logo_url unless it's actually new
       Object.keys(settingsWithoutAgencyId).forEach(key => {
-        const value = (settingsWithoutAgencyId as unknown)[key];
+        const value = (settingsWithoutAgencyId as any)[key];
         
         // Special handling for logo_url: only include if it's a new/changed value
         // Don't send existing large base64 strings that haven't changed
@@ -288,7 +288,7 @@ export const useAgencySettings = () => {
       }
 
       return { success: true };
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Error saving agency settings:', err);
       setError(err.message || 'Failed to save agency settings');
       return { success: false, error: err.message };

@@ -22,7 +22,7 @@ export const useAgency = (id: string) =>
 export const useCreateAgency = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/admin/agencies', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/admin/agencies', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin_agencies'] }),
   });
 };

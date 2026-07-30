@@ -37,8 +37,8 @@ export default function Notifications() {
                 open={sendDialogOpen}
                 onOpenChange={setSendDialogOpen}
                 users={users}
-                sendForm={sendForm}
-                setSendForm={setSendForm}
+                sendForm={sendForm as any}
+                setSendForm={setSendForm as any}
                 sending={sending}
                 onSend={handleSendNotification}
               />
@@ -76,7 +76,7 @@ export default function Notifications() {
         selectedNotifications={selectedNotifications}
         onTabChange={setActiveTab}
         onToggleSelection={toggleSelection}
-        onToggleSelectAll={toggleSelectAll}
+        onToggleSelectAll={() => toggleSelectAll(filteredNotifications.map((n: any) => n.id))}
         onMarkAsRead={handleMarkAsRead}
         onDeleteRequest={(id) => { setNotificationToDelete(id); setDeleteDialogOpen(true); }}
         onNotificationClick={handleNotificationClick}

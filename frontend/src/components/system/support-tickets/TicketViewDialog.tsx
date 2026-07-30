@@ -44,7 +44,7 @@ export function TicketViewDialog({ ticket, open, onClose, onEdit }: Props) {
                   Console Logs ({Array.isArray(ticket.console_logs) ? ticket.console_logs.length : 0} entries)
                 </Label>
                 <div className="max-h-48 overflow-y-auto space-y-2">
-                  {Array.isArray(ticket.console_logs) && ticket.console_logs.map((log: unknown, idx: number) => {
+                  {Array.isArray(ticket.console_logs) && ticket.console_logs.map((log: any, idx: number) => {
                     const l = log as { level?: string; timestamp?: string; message?: string; stack?: string };
                     return (
                       <div key={idx} className="text-xs font-mono bg-white dark:bg-gray-800 p-2 rounded border">
@@ -71,7 +71,7 @@ export function TicketViewDialog({ ticket, open, onClose, onEdit }: Props) {
                     <div className="mt-2">
                       <Label className="text-xs text-muted-foreground">Recent Errors:</Label>
                       <div className="mt-1 space-y-1">
-                        {ticket.error_details.recent_errors.slice(0, 5).map((err: unknown, idx: number) => (
+                        {ticket.error_details.recent_errors.slice(0, 5).map((err: any, idx: number) => (
                           <div key={idx} className="text-xs bg-white dark:bg-gray-800 p-2 rounded">{(err as { message?: string })?.message}</div>
                         ))}
                       </div>

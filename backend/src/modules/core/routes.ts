@@ -9,7 +9,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.get<{ Params: { workspaceId: string } }>('/workspace/:workspaceId/profile', auth, async (request) => {
     const { workspaceId } = request.params;
-    if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+    if (!request.user || (request.user.id !== workspaceId && request.user.agencyId !== workspaceId && request.user.workspaceId !== workspaceId && !request.user.roles?.includes('super_admin'))) throw new ForbiddenError();
 
     const db = (request as any).agencyDb || fastify.db;
     const profileSvc = new WorkspaceProfileService(db, fastify.log);
@@ -20,7 +20,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.get<{ Params: { workspaceId: string } }>('/workspace/:workspaceId/capabilities', auth, async (request) => {
     const { workspaceId } = request.params;
-    if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+    if (!request.user || (request.user.id !== workspaceId && request.user.agencyId !== workspaceId && request.user.workspaceId !== workspaceId && !request.user.roles?.includes('super_admin'))) throw new ForbiddenError();
 
     const db = (request as any).agencyDb || fastify.db;
     const profileSvc = new WorkspaceProfileService(db, fastify.log);
@@ -50,7 +50,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.get<{ Params: { workspaceId: string } }>('/workspace/:workspaceId/dashboard-context', auth, async (request) => {
     const { workspaceId } = request.params;
-    if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+    if (!request.user || (request.user.id !== workspaceId && request.user.agencyId !== workspaceId && request.user.workspaceId !== workspaceId && !request.user.roles?.includes('super_admin'))) throw new ForbiddenError();
 
     const db = (request as any).agencyDb || fastify.db;
     const profileSvc = new WorkspaceProfileService(db, fastify.log);
@@ -71,7 +71,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
       const { workspaceId } = request.params;
       const { action, module, metadata } = request.body;
 
-      if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+      if (!request.user || (request.user.id !== workspaceId && request.user.agencyId !== workspaceId && request.user.workspaceId !== workspaceId && !request.user.roles?.includes('super_admin'))) throw new ForbiddenError();
 
       const db = (request as any).agencyDb || fastify.db;
       const profileSvc = new WorkspaceProfileService(db, fastify.log);
@@ -83,7 +83,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.get<{ Params: { workspaceId: string } }>('/workspace/:workspaceId/health', auth, async (request) => {
     const { workspaceId } = request.params;
-    if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+    if (!request.user || (request.user.id !== workspaceId && request.user.agencyId !== workspaceId && request.user.workspaceId !== workspaceId && !request.user.roles?.includes('super_admin'))) throw new ForbiddenError();
 
     const db = (request as any).agencyDb || fastify.db;
     const profileSvc = new WorkspaceProfileService(db, fastify.log);
@@ -105,7 +105,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
       const { workspaceId, module } = request.params;
       const { action } = request.body;
 
-      if (!request.user || request.user.id !== workspaceId) throw new ForbiddenError();
+      if (!request.user || (request.user.id !== workspaceId && request.user.agencyId !== workspaceId && request.user.workspaceId !== workspaceId && !request.user.roles?.includes('super_admin'))) throw new ForbiddenError();
       if (!VALID_MODULES.includes(module)) throw new Error('Invalid module');
       if (!['enable', 'disable'].includes(action)) throw new Error('Invalid action');
 

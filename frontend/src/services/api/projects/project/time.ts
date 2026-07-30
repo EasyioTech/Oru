@@ -1,8 +1,9 @@
 import { selectRecords, selectOne, insertRecord, updateRecord, deleteRecord } from '../../core';
+import { ProjectTaskService } from './tasks';
 import { Project, Task, TaskAssignment, TaskComment, TimeTracking, ProjectFilters, TaskFilters } from './types';
 
-export class ProjectTimeService extends BaseApiService {
-  static async getTaskTimeTracking(taskId: string, profile?: unknown, userId?: string | null): Promise<TimeTracking[]> {
+export class ProjectTimeService extends ProjectTaskService {
+  static async getTaskTimeTracking(taskId: string, profile?: any, userId?: string | null): Promise<TimeTracking[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
     const timeEntries = await selectRecords('task_time_tracking', {
@@ -10,14 +11,14 @@ export class ProjectTimeService extends BaseApiService {
       orderBy: 'date DESC'
     });
 
-    const userIds = [...new Set(timeEntries.map((t: unknown) => t.user_id))];
+    const userIds = [...new Set(timeEntries.map((t: any) => t.user_id))];
     const users = userIds.length > 0 ? await selectRecords('profiles', {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: userIds } }
     }) : [];
 
-    const userMap = new Map(users.map((u: unknown) => [u.user_id, u]));
+    const userMap = new Map<string, any>(users.map((u: any) => [u.user_id, u]));
 
-    return timeEntries.map((entry: unknown) => ({
+    return timeEntries.map((entry: any) => ({
       ...entry,
       user: userMap.get(entry.user_id) ? {
         id: userMap.get(entry.user_id).user_id,
@@ -26,7 +27,7 @@ export class ProjectTimeService extends BaseApiService {
     }));
   }
 
-  static async logTime(taskId: string, hours: number, date: string, description: string | null, profile?: unknown, userId?: string | null): Promise<TimeTracking> {
+  static async logTime(taskId: string, hours: number, date: string, description: string | null, profile?: any, userId?: string | null): Promise<TimeTracking> {
     const agencyId = await this.getAgencyId(profile, userId);
     
     // Calculate start_time and end_time based on hours

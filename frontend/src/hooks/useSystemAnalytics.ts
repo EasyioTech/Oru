@@ -29,7 +29,7 @@ export const useSystemAnalytics = ({ userId, userRole }: UseSystemAnalyticsProps
       setMetrics(metrics);
       setAgencies(agencies);
 
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError('Error fetching system metrics:', error);
       toast({
         title: "Error loading system metrics",

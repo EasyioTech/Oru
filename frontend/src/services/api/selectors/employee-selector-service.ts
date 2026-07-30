@@ -80,32 +80,34 @@ export async function getEmployeesForAssignment(
       // Build query options - use where clause for compatibility
       // Note: unified_employees view may not have agency_id column in all databases
       // So we'll filter after fetching if needed
-      const queryOptions: unknown = {
+      const queryOptions: any = {
         orderBy: 'display_name ASC'
       };
 
       // Execute query - fetch all and filter in memory if view doesn't support agency_id
-      let unifiedData = await selectRecords('unified_employees', queryOptions);
+      const unifiedDataResult = await selectRecords('unified_employees', queryOptions);
+      let unifiedData = unifiedDataResult && unifiedDataResult.success && unifiedDataResult.data ? unifiedDataResult.data : [];
       
       // Filter by agency_id if the view has it, otherwise filter in memory
       if (unifiedData.length > 0 && unifiedData[0].agency_id !== undefined) {
-        unifiedData = unifiedData.filter((emp: unknown) => emp.agency_id === agencyId);
+        unifiedData = unifiedData.filter((emp: any) => emp.agency_id === agencyId);
       } else {
         // Fallback: filter via profiles if view doesn't have agency_id
-        const profiles = await selectRecs('profiles', {
+        const profilesResult = await selectRecs('profiles', {
           where: { agency_id: agencyId }
         });
-        const agencyUserIds = new Set(profiles.map((p: unknown) => p.user_id));
-        unifiedData = unifiedData.filter((emp: unknown) => agencyUserIds.has(emp.user_id));
+        const profiles = profilesResult && profilesResult.success && profilesResult.data ? profilesResult.data : [];
+        const agencyUserIds = new Set(profiles.map((p: any) => p.user_id));
+        unifiedData = unifiedData.filter((emp: any) => agencyUserIds.has(emp.user_id));
       }
       
       // Filter by active status
       if (!includeInactive) {
-        unifiedData = unifiedData.filter((emp: unknown) => emp.is_fully_active === true);
+        unifiedData = unifiedData.filter((emp: any) => emp.is_fully_active === true);
       }
 
       // Transform to EmployeeOption format
-      let employees: EmployeeOption[] = unifiedData.map((emp: unknown) => ({
+      let employees: EmployeeOption[] = unifiedData.map((emp: any) => ({
         id: emp.user_id,
         user_id: emp.user_id,
         full_name: emp.display_name || emp.full_name || emp.email || 'Unknown User',
@@ -169,39 +171,42 @@ async function getEmployeesForAssignmentFallback(
 
   try {
     // Fetch profiles with agency_id filter
-    const profiles = await selectRecords('profiles', {
+    const profilesResult = await selectRecords('profiles', {
       where: { agency_id: agencyId },
       orderBy: 'full_name ASC'
     });
+    const profiles = profilesResult && profilesResult.success && profilesResult.data ? profilesResult.data : [];
 
     // Get user_ids
-    const userIds = profiles.map((p: unknown) => p.user_id).filter(Boolean);
+    const userIds = profiles.map((p: any) => p.user_id).filter(Boolean);
 
     if (userIds.length === 0) {
       return [];
     }
 
     // Fetch users
-    const users = await selectRecords('users', {
+    const usersResult = await selectRecords('users', {
       filters: [
         { column: 'id', operator: 'in', value: userIds }
       ]
     });
+    const users = usersResult && usersResult.success && usersResult.data ? usersResult.data : [];
 
     // Fetch employee_details
-    const employeeDetails = await selectRecords('employee_details', {
+    const employeeDetailsResult = await selectRecords('employee_details', {
       filters: [
         { column: 'user_id', operator: 'in', value: userIds }
       ]
     });
+    const employeeDetails = employeeDetailsResult && employeeDetailsResult.success && employeeDetailsResult.data ? employeeDetailsResult.data : [];
 
     // Create maps for quick lookup
-    const userMap = new Map(users.map((u: unknown) => [u.id, u]));
-    const employeeDetailsMap = new Map(employeeDetails.map((ed: unknown) => [ed.user_id, ed]));
+    const userMap = new Map<string, any>(users.map((u: any) => [u.id, u]));
+    const employeeDetailsMap = new Map<string, any>(employeeDetails.map((ed: any) => [ed.user_id, ed]));
 
     // Combine data
     const employees: EmployeeOption[] = profiles
-      .filter((p: unknown) => {
+      .filter((p: any) => {
         const user = userMap.get(p.user_id);
         const ed = employeeDetailsMap.get(p.user_id);
         
@@ -215,7 +220,7 @@ async function getEmployeesForAssignmentFallback(
         
         return true;
       })
-      .map((p: unknown) => {
+      .map((p: any) => {
         const user = userMap.get(p.user_id);
         const ed = employeeDetailsMap.get(p.user_id);
         

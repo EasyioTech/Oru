@@ -1,7 +1,8 @@
 // PostgreSQL Authentication Service (Browser-compatible)
 import { queryOne, queryMany, execute } from '@/integrations/postgresql/client';
 import { getApiBaseUrl } from '@/config/api';
-import type { User, Profile, UserRole } from '@/integrations/postgresql/types';
+import type { User, Profile } from '@/types/models';
+import type { AppRole as UserRole } from '@/utils/roleUtils';
 import bcrypt from '@/lib/bcrypt';
 
 const JWT_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -184,7 +185,7 @@ export async function loginUser(data: SignInData): Promise<AuthResponse> {
       requiresTwoFactor: true,
       userId: result.userId,
       agencyDatabase: result.agencyDatabase,
-    } as unknown;
+    } as any;
   }
 
   // Check if user is super admin (has super_admin role and no agency database)
@@ -300,7 +301,7 @@ export async function changePasswordLegacy(userId: string, oldPassword: string, 
     throw new Error('User not found');
   }
 
-  const passwordMatch = await comparePassword(oldPassword, user.password_hash);
+  const passwordMatch = await comparePassword(oldPassword, (user as any).password_hash);
   if (!passwordMatch) {
     throw new Error('Current password is incorrect');
   }

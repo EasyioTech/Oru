@@ -72,7 +72,7 @@ export function useAnalytics(dateRange?: { from: Date; to: Date }, refreshInterv
       ]);
 
       // Calculate revenue metrics
-      const currentRevenue = (invoices as unknown[])?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
+      const currentRevenue = (invoices as any[])?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
       
       // Calculate previous period
       const previousFromDate = new Date(fromDate);
@@ -87,17 +87,17 @@ export function useAnalytics(dateRange?: { from: Date; to: Date }, refreshInterv
         }
       });
 
-      const previousRevenue = (previousInvoices as unknown[])?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 1;
+      const previousRevenue = (previousInvoices as any[])?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 1;
       const revenueGrowth = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
 
       // Calculate metrics
-      const totalProjects = (jobs as unknown[])?.length || 0;
-      const activeProjects = (jobs as unknown[])?.filter(p => p.status === 'in_progress').length || 0;
-      const completedProjects = (jobs as unknown[])?.filter(p => p.status === 'completed').length || 0;
-      const totalEmployees = (profiles as unknown[])?.length || 0;
-      const activeEmployees = (profiles as unknown[])?.filter(e => e.is_active).length || 0;
-      const totalExpenses = (reimbursements as unknown[])?.reduce((sum, reimb) => sum + (reimb.amount || 0), 0) || 0;
-      const pendingExpenses = (reimbursements as unknown[])?.filter(r => r.status === 'submitted').length || 0;
+      const totalProjects = (jobs as any[])?.length || 0;
+      const activeProjects = (jobs as any[])?.filter(p => p.status === 'in_progress').length || 0;
+      const completedProjects = (jobs as any[])?.filter(p => p.status === 'completed').length || 0;
+      const totalEmployees = (profiles as any[])?.length || 0;
+      const activeEmployees = (profiles as any[])?.filter(e => e.is_active).length || 0;
+      const totalExpenses = (reimbursements as any[])?.reduce((sum, reimb) => sum + (reimb.amount || 0), 0) || 0;
+      const pendingExpenses = (reimbursements as any[])?.filter(r => r.status === 'submitted').length || 0;
 
       const analyticsData: AnalyticsData = {
         revenue: {
@@ -124,7 +124,7 @@ export function useAnalytics(dateRange?: { from: Date; to: Date }, refreshInterv
       };
 
       // Generate time series data
-      const timeSeries = generateTimeSeriesData(invoices as unknown[], reimbursements as unknown[], jobs as unknown[], profiles as unknown[]);
+      const timeSeries = generateTimeSeriesData(invoices as any[], reimbursements as any[], jobs as any[], profiles as any[]);
 
       setData(analyticsData);
       setTimeSeriesData(timeSeries);
@@ -141,10 +141,10 @@ export function useAnalytics(dateRange?: { from: Date; to: Date }, refreshInterv
   }, [dateRange, toast]);
 
   const generateTimeSeriesData = (
-    invoices: unknown[],
-    reimbursements: unknown[],
-    projects: unknown[],
-    employees: unknown[]
+    invoices: any[],
+    reimbursements: any[],
+    projects: any[],
+    employees: any[]
   ): TimeSeriesData => {
     const months = [];
     for (let i = 5; i >= 0; i--) {
@@ -260,8 +260,8 @@ export function useRealtimeAnalytics() {
 
         setRealtimeMetrics({
           activeUsers: 0,
-          newLeads: (leads as unknown[])?.length || 0,
-          pendingApprovals: (reimbursements as unknown[])?.length || 0,
+          newLeads: (leads as any[])?.length || 0,
+          pendingApprovals: (reimbursements as any[])?.length || 0,
           systemHealth: 'good'
         });
       } catch (error) {

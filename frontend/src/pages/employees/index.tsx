@@ -12,11 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import DeleteConfirmDialog from '@/components/shared/DeleteConfirmDialog';
 
 const COLORS = {
-  lime: '#D8F5A1', limeText: '#6D7F2A',
-  teal: '#6DB8D8', tealText: '#1B4D5C',
-  heather: '#CEBBEE', heatherText: '#4A3B5C',
-  pink: '#F8A9DD', pinkText: '#6B2851',
-  sky: '#74D1FF', skyText: '#0D47A1',
+  lime: 'bg-lime-100 text-lime-800 dark:bg-lime-500/10 dark:text-lime-400',
+  teal: 'bg-teal-100 text-teal-800 dark:bg-teal-500/10 dark:text-teal-400',
+  pink: 'bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400',
+  sky: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
 };
 
 export default function EmployeesPage() {
@@ -43,7 +42,7 @@ export default function EmployeesPage() {
       accessorKey: 'name',
       header: 'Team Member',
       cell: ({ row }) => (
-        <Link to={`/employees/${row.original.id}`} className="font-semibold text-gray-900 hover:text-blue-600">
+        <Link to={`/employees/${row.original.id}`} className="font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600">
           {row.original.first_name} {row.original.last_name}
         </Link>
       ),
@@ -53,7 +52,7 @@ export default function EmployeesPage() {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => (
-        <Badge className={row.original.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}>
+        <Badge className={row.original.status === 'active' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400'}>
           {row.original.status?.replace('_', ' ')}
         </Badge>
       ),
@@ -77,32 +76,32 @@ export default function EmployeesPage() {
     <div className="space-y-6">
       {/* Hero Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">Team Engagement</h1>
-        <p className="text-gray-600">Monitor and manage your workforce</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team Engagement</h1>
+        <p className="text-gray-600 dark:text-gray-400">Monitor and manage your workforce</p>
       </div>
 
       {/* KPI Cards with Color Palette */}
       {!isLoading && employees.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-lg" style={{ backgroundColor: COLORS.lime }}>
-            <p className="text-xs font-semibold" style={{ color: COLORS.limeText }}>Total Team</p>
-            <p className="text-3xl font-bold" style={{ color: COLORS.limeText }}>{totalEmployees}</p>
+          <div className={`p-4 rounded-xl border border-transparent ${COLORS.lime}`}>
+            <p className="text-xs font-semibold mb-1">Total Team</p>
+            <p className="text-3xl font-bold">{totalEmployees}</p>
           </div>
-          <div className="p-4 rounded-lg" style={{ backgroundColor: COLORS.teal }}>
-            <p className="text-xs font-semibold" style={{ color: COLORS.tealText }}>Active Now</p>
-            <p className="text-3xl font-bold" style={{ color: COLORS.tealText }}>{activeEmployees}</p>
+          <div className={`p-4 rounded-xl border border-transparent ${COLORS.teal}`}>
+            <p className="text-xs font-semibold mb-1">Active Now</p>
+            <p className="text-3xl font-bold">{activeEmployees}</p>
           </div>
-          <div className="p-4 rounded-lg" style={{ backgroundColor: COLORS.pink }}>
-            <p className="text-xs font-semibold" style={{ color: COLORS.pinkText }}>On Leave</p>
-            <p className="text-3xl font-bold" style={{ color: COLORS.pinkText }}>{onLeaveEmployees}</p>
+          <div className={`p-4 rounded-xl border border-transparent ${COLORS.pink}`}>
+            <p className="text-xs font-semibold mb-1">On Leave</p>
+            <p className="text-3xl font-bold">{onLeaveEmployees}</p>
           </div>
-          <div className="p-4 rounded-lg" style={{ backgroundColor: COLORS.sky }}>
+          <div className={`p-4 rounded-xl border border-transparent ${COLORS.sky}`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold" style={{ color: COLORS.skyText }}>Engagement</p>
-                <p className="text-3xl font-bold" style={{ color: COLORS.skyText }}>{engagementScore}%</p>
+                <p className="text-xs font-semibold mb-1">Engagement</p>
+                <p className="text-3xl font-bold">{engagementScore}%</p>
               </div>
-              <TrendingUp className="w-8 h-8" style={{ color: COLORS.skyText }} />
+              <TrendingUp className="w-8 h-8 opacity-80" />
             </div>
           </div>
         </div>

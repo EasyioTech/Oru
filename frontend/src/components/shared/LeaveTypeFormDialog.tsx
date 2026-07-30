@@ -8,12 +8,12 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { insertRecord, updateRecord, selectRecords } from '@/services/api/core';
-import { LeaveType } from '@/integrations/postgresql/types';
+import type { User } from '@/types/models';
 
 interface LeaveTypeFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  leaveType?: LeaveType | null;
+  leaveType?: any | null;
   onLeaveTypeSaved: () => void;
 }
 
@@ -43,7 +43,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
     if (isOpen) {
       if (leaveType && leaveType.id) {
         // Editing existing leave type
-        const leaveTypeAny = leaveType as unknown; // Type assertion for is_active which may exist in DB
+        const leaveTypeAny = leaveType as any; // Type assertion for is_active which may exist in DB
         setFormData({
           name: leaveType.name || '',
           description: leaveType.description || '',
@@ -126,7 +126,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
       if (leaveType && leaveType.id) {
         // Update existing leave type
         // Build data object explicitly to ensure correct column names
-        const updateData: Record<string, unknown> = {
+        const updateData: Record<string, any> = {
           name: formData.name.trim(),
           description: formData.description.trim() || null,
           max_days_per_year: formData.max_days_per_year,
@@ -138,7 +138,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
         // Remove any max_days property if it exists (safety check)
         delete updateData.max_days;
         
-        await updateRecord<LeaveType>(
+        await updateRecord<any>(
           'leave_types',
           updateData,
           { id: leaveType.id },
@@ -152,7 +152,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
       } else {
         // Create new leave type
         // Build data object explicitly to ensure correct column names
-        const insertData: Record<string, unknown> = {
+        const insertData: Record<string, any> = {
           name: formData.name.trim(),
           description: formData.description.trim() || null,
           max_days_per_year: formData.max_days_per_year,
@@ -165,7 +165,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
         // Remove any max_days property if it exists (safety check)
         delete insertData.max_days;
         
-        await insertRecord<LeaveType>(
+        await insertRecord<any>(
           'leave_types',
           insertData,
           user.id
@@ -179,7 +179,7 @@ const LeaveTypeFormDialog: React.FC<LeaveTypeFormDialogProps> = ({
 
       onLeaveTypeSaved();
       onClose();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving leave type:', error);
       toast({
         title: 'Error',

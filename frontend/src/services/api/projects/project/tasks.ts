@@ -1,12 +1,14 @@
 import { selectRecords, selectOne, insertRecord, updateRecord, deleteRecord } from '../../core';
 import { Project, Task, TaskAssignment, TaskComment, TimeTracking, ProjectFilters, TaskFilters } from './types';
 
-export class ProjectTaskService extends BaseApiService {
+import { BaseProjectService } from './_base';
+
+export class ProjectTaskService extends BaseProjectService {
   static async getTasks(filters?: TaskFilters, profile?: unknown, userId?: string | null): Promise<Task[]> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const where: unknown = { agency_id: agencyId };
-    const queryFilters: unknown[] = [];
+    const where: any = { agency_id: agencyId };
+    const queryFilters: any[] = [];
 
     if (filters?.project_id) {
       where.project_id = filters.project_id;
@@ -35,8 +37,8 @@ export class ProjectTaskService extends BaseApiService {
     });
 
     // Fetch related data
-    const projectIds = [...new Set(tasks.map((t: unknown) => t.project_id).filter(Boolean))];
-    const assigneeIds = [...new Set(tasks.map((t: unknown) => t.assignee_id).filter(Boolean))].filter(Boolean);
+    const projectIds = [...new Set(tasks.map((t: any) => t.project_id).filter(Boolean))];
+    const assigneeIds = [...new Set(tasks.map((t: any) => t.assignee_id).filter(Boolean))].filter(Boolean);
 
     const projects = projectIds.length > 0 ? await selectRecords('projects', {
       where: { agency_id: agencyId, id: { operator: 'in', value: projectIds } }
@@ -46,10 +48,10 @@ export class ProjectTaskService extends BaseApiService {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: assigneeIds } }
     }) : [];
 
-    const projectMap = new Map(projects.map((p: unknown) => [p.id, p]));
-    const assigneeMap = new Map(assignees.map((a: unknown) => [a.user_id, a]));
+    const projectMap = new Map<string, any>(projects.map((p: any) => [p.id, p]));
+    const assigneeMap = new Map<string, any>(assignees.map((a: any) => [a.user_id, a]));
 
-    return tasks.map((task: unknown) => ({
+    return tasks.map((task: any) => ({
       ...task,
       tags: Array.isArray(task.tags) ? task.tags : 
             typeof task.tags === 'string' ? JSON.parse(task.tags || '[]') : [],
@@ -79,14 +81,14 @@ export class ProjectTaskService extends BaseApiService {
 
     const assigneeIds = [...new Set([
       task.assignee_id,
-      ...assignments.map((a: unknown) => a.user_id)
+      ...assignments.map((a: any) => a.user_id)
     ].filter(Boolean))].filter(Boolean);
 
     const assignees = assigneeIds.length > 0 ? await selectRecords('profiles', {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: assigneeIds } }
     }) : [];
 
-    const assigneeMap = new Map(assignees.map((a: unknown) => [a.user_id, a]));
+    const assigneeMap = new Map<string, any>(assignees.map((a: any) => [a.user_id, a]));
 
     // Fetch project if task has project_id
     let project = null;
@@ -111,21 +113,21 @@ export class ProjectTaskService extends BaseApiService {
         id: project.id,
         name: project.name
       } : undefined,
-      assignments: assignments.map((a: unknown) => ({
+      assignments: assignments.map((a: any) => ({
         id: a.id,
         user_id: a.user_id,
         user: assigneeMap.get(a.user_id) ? {
           id: a.user_id,
           full_name: assigneeMap.get(a.user_id).full_name
         } : undefined
-      })).filter((a: unknown) => a.user)
+      })).filter((a: any) => a.user)
     };
   }
 
   static async createTask(data: Partial<Task>, profile?: unknown, userId?: string | null): Promise<Task> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const taskData: unknown = {
+    const taskData: any = {
       title: data.title,
       description: data.description || null,
       task_type: data.task_type || null,
@@ -164,7 +166,7 @@ export class ProjectTaskService extends BaseApiService {
   static async updateTask(id: string, data: Partial<Task>, profile?: unknown, userId?: string | null): Promise<Task> {
     const agencyId = await this.getAgencyId(profile, userId);
     
-    const updateData: unknown = {};
+    const updateData: any = {};
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.task_type !== undefined) updateData.task_type = data.task_type;
@@ -260,24 +262,24 @@ export class ProjectTaskService extends BaseApiService {
           agency_id: agencyId
         });
         if (assignerProfile) {
-          assignerName = (assignerProfile as unknown).full_name || 'Someone';
+          assignerName = (assignerProfile as any).full_name || 'Someone';
         }
       } catch (error) {
         console.warn('Failed to fetch assigner profile for notification:', error);
       }
       
-      const taskTitle = (task as unknown).title || 'Task';
+      const taskTitle = (task as any).title || 'Task';
       
       // Get project name if project_id exists
       let projectName = '';
-      if ((task as unknown).project_id) {
+      if ((task as any).project_id) {
         try {
           const project = await selectOne('projects', {
-            id: (task as unknown).project_id,
+            id: (task as any).project_id,
             agency_id: agencyId
           });
           if (project) {
-            projectName = ` in ${(project as unknown).name}`;
+            projectName = ` in ${(project as any).name}`;
           }
         } catch (error) {
           // Project fetch failed, but continue without project name
@@ -287,7 +289,7 @@ export class ProjectTaskService extends BaseApiService {
       
       // Determine priority based on task priority
       let notificationPriority: 'low' | 'normal' | 'high' | 'urgent' = 'normal';
-      const taskPriority = (task as unknown).priority;
+      const taskPriority = (task as any).priority;
       if (taskPriority === 'critical' || taskPriority === 'urgent') {
         notificationPriority = 'urgent';
       } else if (taskPriority === 'high') {
@@ -315,7 +317,7 @@ export class ProjectTaskService extends BaseApiService {
           task_id: taskId,
           assigned_by: assignedBy,
           task_title: taskTitle,
-          project_id: (task as unknown).project_id || null,
+          project_id: (task as any).project_id || null,
           project_name: projectName ? projectName.replace(' in ', '') : null,
         },
       }, assignedBy, agencyId);
@@ -343,14 +345,14 @@ export class ProjectTaskService extends BaseApiService {
       orderBy: 'created_at ASC'
     });
 
-    const userIds = [...new Set(comments.map((c: unknown) => c.user_id))];
+    const userIds = [...new Set(comments.map((c: any) => c.user_id))];
     const users = userIds.length > 0 ? await selectRecords('profiles', {
       where: { agency_id: agencyId, user_id: { operator: 'in', value: userIds } }
     }) : [];
 
-    const userMap = new Map(users.map((u: unknown) => [u.user_id, u]));
+    const userMap = new Map<string, any>(users.map((u: any) => [u.user_id, u]));
 
-    return comments.map((comment: unknown) => ({
+    return comments.map((comment: any) => ({
       ...comment,
       attachments: Array.isArray(comment.attachments) ? comment.attachments : 
                    typeof comment.attachments === 'string' ? JSON.parse(comment.attachments || '[]') : [],

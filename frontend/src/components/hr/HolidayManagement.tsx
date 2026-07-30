@@ -77,7 +77,7 @@ export function HolidayManagement() {
       }));
       
       setHolidays(mappedHolidays);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching holidays:', error);
       toast({
         title: "Error",
@@ -137,7 +137,7 @@ export function HolidayManagement() {
       // Refresh the list from database
       await fetchHolidays();
       setDeletingHoliday(null);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error deleting holiday:', error);
       toast({
         title: "Error",

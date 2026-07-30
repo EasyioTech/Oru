@@ -39,7 +39,7 @@ export function useBulkPayrollActions({ filteredRecords, fetchPayrollData, userI
       toast({ title: 'Success', description: `${selectedRecords.size} payroll record(s) approved successfully` });
       setSelectedRecords(new Set());
       fetchPayrollData();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to approve payroll records', variant: 'destructive' });
     } finally {
       setBulkActionLoading(false);
@@ -59,7 +59,7 @@ export function useBulkPayrollActions({ filteredRecords, fetchPayrollData, userI
       toast({ title: 'Success', description: `${selectedRecords.size} payroll record(s) marked as paid` });
       setSelectedRecords(new Set());
       fetchPayrollData();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to mark payroll records as paid', variant: 'destructive' });
     } finally {
       setBulkActionLoading(false);

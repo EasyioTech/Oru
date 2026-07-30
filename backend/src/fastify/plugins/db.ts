@@ -43,6 +43,7 @@ const dbPlugin: FastifyPluginAsync = async (fastify) => {
         '22_procurement_schema.sql',
         '23_reports_schema.sql',
         '24_admin_schema.sql',
+        '25_workspace_profile_schema.sql',
     ];
 
     const client = await db.$client;

@@ -60,7 +60,7 @@ export function useCreateClient() {
             setUpdaterInfo({ name: 'System', email: '', updated_at: data.updated_at || '' });
           }
         }
-      } catch (error: unknown) {
+      } catch (error: any) {
         const msg = error instanceof Error ? error.message : 'Failed to load client';
         toast({ title: 'Error', description: msg, variant: 'destructive' });
         navigate('/clients');
@@ -134,7 +134,7 @@ export function useCreateClient() {
         payment_terms: formData.payment_terms?.trim() || null, notes: formData.notes.trim() || null,
       };
       if (clientId) {
-        const { id: _id, client_number: _cn, created_by: _cb, created_at: _ca, updated_at: _ua, ...updateData } = base as Record<string, unknown>;
+        const { id: _id, client_number: _cn, created_by: _cb, created_at: _ca, updated_at: _ua, ...updateData } = base as Record<string, any>;
         const res = await fetchMutate(`/crm/clients/${clientId}`, 'PUT', updateData);
         setUpdaterInfo({ name: profile?.full_name || user?.email || 'Current User', email: user?.email || '', updated_at: res?.updated_at || new Date().toISOString() });
         toast({ title: 'Success', description: 'Client updated successfully' });
@@ -147,7 +147,7 @@ export function useCreateClient() {
         toast({ title: 'Success', description: 'Client created successfully' });
       }
       navigate('/clients');
-    } catch (error: unknown) {
+    } catch (error: any) {
       const msg = error instanceof Error ? error.message : 'Failed to create client';
       toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {

@@ -14,7 +14,7 @@ export function useRoleChangeRequests() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [employees, setEmployees] = useState<unknown[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [newRequest, setNewRequest] = useState<NewRequestForm>(DEFAULT_FORM);
@@ -49,7 +49,7 @@ export function useRoleChangeRequests() {
       }
 
       setRequests(data.map(r => ({ ...r, profile: profileMap.get(r.user_id), requested_by_profile: r.requested_by ? profileMap.get(r.requested_by) : undefined, reviewed_by_profile: r.reviewed_by ? { full_name: profileMap.get(r.reviewed_by)?.full_name || 'Unknown' } : undefined })));
-    } catch (error: unknown) {
+    } catch (error: any) {
       const msg = (error as Error)?.message || String(error);
       if (msg.includes('does not exist') || msg.includes('42P01') || msg.includes('relation')) { setRequests([]); }
       else toast.error('Failed to load role change requests');
@@ -79,7 +79,7 @@ export function useRoleChangeRequests() {
       await insertRecord('role_change_requests', { id: generateUUID(), user_id: newRequest.user_id, requested_role: newRequest.requested_role, previous_role: previousRole, reason: newRequest.reason || null, requested_by: user.id, status: 'pending' }, user.id);
       toast.success('Role change request created successfully');
       setShowCreateDialog(false); setNewRequest({ ...DEFAULT_FORM }); fetchRequests();
-    } catch (error: unknown) { toast.error((error as Error)?.message || 'Failed to create role change request'); }
+    } catch (error: any) { toast.error((error as Error)?.message || 'Failed to create role change request'); }
     finally { setCreating(false); }
   };
 
@@ -97,7 +97,7 @@ export function useRoleChangeRequests() {
       }
       toast.success(`Request ${action} successfully`);
       setShowApproveConfirm(false); setShowRejectConfirm(false); setActionRequestId(null); setActionType(null); fetchRequests();
-    } catch (error: unknown) { toast.error((error as Error)?.message || `Failed to ${action} request`); }
+    } catch (error: any) { toast.error((error as Error)?.message || `Failed to ${action} request`); }
     finally { setProcessing(false); }
   };
 
@@ -108,7 +108,7 @@ export function useRoleChangeRequests() {
       await deleteRecord('role_change_requests', { id: requestId });
       toast.success('Request deleted successfully');
       setShowDeleteConfirm(false); setActionRequestId(null); setActionType(null); fetchRequests();
-    } catch (error: unknown) { toast.error((error as Error)?.message || 'Failed to delete request'); }
+    } catch (error: any) { toast.error((error as Error)?.message || 'Failed to delete request'); }
     finally { setProcessing(false); }
   };
 

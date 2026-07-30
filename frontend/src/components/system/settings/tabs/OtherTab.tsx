@@ -7,7 +7,7 @@ import { BackupSection } from './BackupSection';
 
 interface OtherTabProps {
   formData: Partial<SystemSettings>;
-  onChange: (field: keyof SystemSettings, value: unknown) => void;
+  onChange: (field: keyof SystemSettings, value: any) => void;
 }
 
 export function OtherTab({ formData, onChange }: OtherTabProps) {

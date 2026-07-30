@@ -34,18 +34,18 @@ export const useProjectFilterOptions = () => {
           }).catch(() => [])
         ]);
 
-        setClients(clientsData.map((c: unknown) => ({
+        setClients(clientsData.map((c: any) => ({
           id: c.id,
           name: c.name,
           company_name: c.company_name
         })));
 
-        setEmployees(employeesData.map((e: unknown) => ({
+        setEmployees(employeesData.map((e: any) => ({
           id: e.user_id,
           full_name: e.full_name
         })));
 
-        setDepartments(departmentsData.map((d: unknown) => ({
+        setDepartments(departmentsData.map((d: any) => ({
           id: d.id,
           name: d.name
         })));

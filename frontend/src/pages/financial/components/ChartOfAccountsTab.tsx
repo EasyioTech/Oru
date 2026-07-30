@@ -12,15 +12,15 @@ import { getAccountTypeColor } from '../utils/financialFormatters';
 import { formatCurrencySymbol } from '../utils/financialFormatters';
 
 interface ChartOfAccountsTabProps {
-  chartOfAccounts: unknown[];
+  chartOfAccounts: any[];
   accountBalances: Record<string, number>;
   loading: boolean;
   searchTerm: string;
   accountTypeFilter: string;
   pageSize: number;
   onNewAccount: () => void;
-  onEditAccount: (account: unknown) => void;
-  onDeleteAccount: (account: unknown) => void;
+  onEditAccount: (account: any) => void;
+  onDeleteAccount: (account: any) => void;
   deleteLoading: boolean;
 }
 

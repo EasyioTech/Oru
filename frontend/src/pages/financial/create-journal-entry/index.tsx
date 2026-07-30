@@ -58,8 +58,8 @@ export default function CreateJournalEntry() {
   const onSubmit = (data: z.infer<typeof schema>) => {
     createJournalEntry.mutate({
       ...data,
-      lines: data.lines.map((l, i) => ({ ...l, line_number: i + 1 })),
-    }, {
+      lines: data.lines.map((l, i) => ({ ...l, line_number: i + 1 })) as any,
+    } as any, {
       onSuccess: () => {
         toast({ title: 'Success', description: 'Journal entry created' });
         navigate('/ledger');

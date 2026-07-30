@@ -12,9 +12,7 @@ export * from './auth';
 // Feature modules
 export * from './departments';
 export * from './projects';
-export * from './procurement';
-export * from './inventory';
-export * from './assets';
+
 export * from './reports';
 export * from './workflows';
 export * from './integrations';

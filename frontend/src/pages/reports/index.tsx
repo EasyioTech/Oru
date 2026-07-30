@@ -107,6 +107,7 @@ const Reports = () => {
         type: 'error',
         title: 'Validation Error',
         message: 'Report name is required',
+        priority: 'high'
       });
       return;
     }
@@ -117,6 +118,7 @@ const Reports = () => {
           type: 'error',
           title: 'Error',
           message: 'Unable to find user profile. Please ensure you are logged in.',
+          priority: 'high'
         });
         return;
       }
@@ -145,6 +147,7 @@ const Reports = () => {
           type: 'success',
           title: 'Success',
           message: 'Custom report created successfully',
+          priority: 'medium'
         });
         setCreateReportOpen(false);
         setNewReportName("");
@@ -161,14 +164,16 @@ const Reports = () => {
           type: 'error',
           title: 'Error',
           message: response.error || 'Failed to create custom report',
+          priority: 'high'
         });
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Failed to create report:', err);
       addNotification({
         type: 'error',
         title: 'Error',
         message: err.message || 'Failed to create custom report. Please try again.',
+        priority: 'high'
       });
     }
   };
@@ -187,16 +192,18 @@ const Reports = () => {
       type: 'success',
       title: 'Export Successful',
       message: 'All reports have been exported',
+      priority: 'medium'
     });
   };
 
   // Export individual report
-  const handleExportReport = (type: string, data: unknown) => {
+  const handleExportReport = (type: string, data: any) => {
     exportReportAsJSON(type, data);
     addNotification({
       type: 'success',
       title: 'Export Successful',
       message: `${type} report has been exported`,
+      priority: 'medium'
     });
   };
 
@@ -276,7 +283,8 @@ const Reports = () => {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      }
+    />
 
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">

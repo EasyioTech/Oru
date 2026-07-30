@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import { formatInTimeZone, toZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 export interface DateFormatConfig {
   format: string;

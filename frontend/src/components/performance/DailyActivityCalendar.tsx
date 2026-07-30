@@ -63,7 +63,7 @@ export function DailyActivityCalendar({
     lowActivity: (date: Date) => getActivityLevel(date) === 'low',
   };
 
-  const dateModifierClassNames = {
+  const dateModifiersClassNames = {
     hasActivity: 'bg-blue-100 text-blue-900 hover:bg-blue-200',
     highActivity: 'bg-green-200 text-green-900 hover:bg-green-300 font-semibold',
     mediumActivity: 'bg-blue-100 text-blue-900 hover:bg-blue-200',
@@ -98,7 +98,7 @@ export function DailyActivityCalendar({
             selected={calendarDate}
             onSelect={handleDateSelect}
             modifiers={dateModifiers}
-            modifierClassNames={dateModifierClassNames}
+            modifiersClassNames={dateModifiersClassNames}
             className="rounded-md border"
           />
         </CardContent>

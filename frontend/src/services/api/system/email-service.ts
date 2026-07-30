@@ -29,7 +29,7 @@ export interface EmailProviderStatus {
 export interface TestEmailRequest {
   to: string;
   provider?: string;
-  config?: Record<string, unknown>;
+  config?: Record<string, any>;
 }
 
 export interface SendEmailRequest {
@@ -42,7 +42,7 @@ export interface SendEmailRequest {
     content: string | Buffer;
   }>;
   provider?: string;
-  config?: Record<string, unknown>;
+  config?: Record<string, any>;
   from?: string;
 }
 
@@ -52,7 +52,7 @@ export interface NotificationEmailRequest {
   message: string;
   actionUrl?: string;
   provider?: string;
-  config?: Record<string, unknown>;
+  config?: Record<string, any>;
 }
 
 export interface ReportEmailRequest {
@@ -61,7 +61,7 @@ export interface ReportEmailRequest {
   reportName: string;
   format?: string;
   provider?: string;
-  config?: Record<string, unknown>;
+  config?: Record<string, any>;
 }
 
 export interface EmailResponse {
@@ -194,7 +194,7 @@ export async function sendReportEmail(request: ReportEmailRequest): Promise<Emai
   if (typeof request.reportData === 'string') {
     reportData = request.reportData;
   } else {
-    const bytes = new Uint8Array(request.reportData as ArrayBuffer);
+    const bytes = new Uint8Array(request.reportData as any);
     let binary = '';
     for (let i = 0; i < bytes.length; i++) {
       binary += String.fromCharCode(bytes[i]);

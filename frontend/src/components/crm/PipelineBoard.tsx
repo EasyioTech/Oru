@@ -50,7 +50,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const filters: unknown = {};
+      const filters: any = {};
       if (searchTerm) {
         filters.search = searchTerm;
       }
@@ -62,7 +62,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
 
       setLeads(leadsData);
       setStages(stagesData);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching pipeline data:', error);
       toast({
         title: 'Error',
@@ -172,7 +172,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
 
       // Refresh data
       fetchData();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error updating lead stage:', error);
       toast({
         title: 'Error',
@@ -258,7 +258,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
       });
 
       fetchData();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to duplicate lead',
@@ -275,7 +275,7 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
         description: 'Lead archived',
       });
       fetchData();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to archive lead',

@@ -103,14 +103,14 @@ export async function getDepartmentsForSelection(
           member_count: d._count?.team_assignments ?? 0,
           is_active: d.is_active !== false,
         }));
-      } catch (apiErr: unknown) {
+      } catch (apiErr: any) {
         console.error('getDepartmentsForSelection: list API failed', apiErr);
         throw apiErr;
       }
     }
 
     throw new Error('getDepartmentsForSelection: Only supported in browser environment with fetch API');
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Error in getDepartmentsForSelection:', error);
     throw new Error(`Failed to fetch departments: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -145,7 +145,7 @@ export async function getDepartmentById(
       member_count: dept._count?.team_assignments || 0,
       is_active: dept.is_active !== false
     };
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Error in getDepartmentById:', error);
     throw new Error(`Failed to fetch department: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

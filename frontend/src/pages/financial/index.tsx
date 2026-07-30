@@ -26,7 +26,7 @@ import { ProjectsTab } from './components/ProjectsTab';
 import { ReportViewDialog } from './components/ReportViewDialog';
 import { TransactionDetailsDialog } from './components/TransactionDetailsDialog';
 
-import JobFormDialog from '@/components/shared/JobFormDialog';
+
 import DeleteConfirmDialog from '@/components/shared/DeleteConfirmDialog';
 import ChartOfAccountFormDialog from '@/components/shared/ChartOfAccountFormDialog';
 import JournalEntryFormDialog from '@/components/shared/JournalEntryFormDialog';
@@ -149,7 +149,6 @@ const FinancialManagement = () => {
         </TabsContent>
       </Tabs>
 
-      <JobFormDialog isOpen={h.jobFormOpen} onClose={() => h.setJobFormOpen(false)} job={h.selectedJob} onJobSaved={h.handleJobSaved} />
       <ChartOfAccountFormDialog isOpen={h.accountFormOpen} onClose={() => h.setAccountFormOpen(false)} account={h.selectedAccount} onAccountSaved={h.handleAccountSaved} />
       <JournalEntryFormDialog isOpen={h.entryFormOpen} onClose={() => h.setEntryFormOpen(false)} entry={h.selectedEntry} onEntrySaved={h.handleEntrySaved} />
       <DeleteConfirmDialog isOpen={h.deleteDialogOpen} onClose={h.closeDeleteDialog} onDeleted={h.handleDeleteConfirm} itemType={h.jobToDelete ? 'Job' : h.accountToDelete ? 'Account' : 'Journal Entry'} itemName={(h.jobToDelete as { title?: string })?.title || (h.accountToDelete as { account_name?: string })?.account_name || (h.entryToDelete as { entry_number?: string })?.entry_number || ''} itemId={(h.jobToDelete as { id?: string })?.id || (h.accountToDelete as { id?: string })?.id || (h.entryToDelete as { id?: string })?.id || ''} tableName={h.jobToDelete ? 'jobs' : h.accountToDelete ? 'chart_of_accounts' : 'journal_entries'} />

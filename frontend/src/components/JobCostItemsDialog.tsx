@@ -70,7 +70,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
         orderBy: 'date_incurred DESC, created_at DESC',
       });
       setItems(costItems || []);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching cost items:', error);
       toast({
         title: 'Error',
@@ -162,7 +162,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
     setLoading(true);
 
     try {
-      const cleanedData: unknown = {
+      const cleanedData: any = {
         job_id: jobId,
         category: formData.category.trim(),
         description: formData.description.trim(),
@@ -194,7 +194,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
       resetForm();
       // Trigger update of job's actual_cost
       onItemsUpdated?.();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error saving cost item:', error);
       toast({
         title: 'Error',
@@ -234,7 +234,7 @@ const JobCostItemsDialog: React.FC<JobCostItemsDialogProps> = ({
       await fetchCostItems();
       // Trigger update of job's actual_cost
       onItemsUpdated?.();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error deleting cost item:', error);
       toast({
         title: 'Error',

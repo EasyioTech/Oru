@@ -23,7 +23,7 @@ export function PermissionSettings() {
       // TODO: Implement settings save API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Settings saved successfully');
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Failed to save settings');
     } finally {
       setSaving(false);

@@ -1,7 +1,20 @@
 // File Storage Service for PostgreSQL
 import { insertRecord, deleteRecord } from '../core';
-import type { FileStorage } from '@/integrations/postgresql/types';
+// using standard models instead of specific integrations
 import { getApiRoot } from '@/config/api';
+
+export interface FileStorage {
+  id?: string;
+  bucket_name?: string;
+  file_path: string;
+  file_name?: string;
+  file_size?: number;
+  mime_type?: string;
+  uploaded_by?: string | null;
+  created_at?: string;
+  data?: any;
+  [key: string]: any;
+}
 
 const STORAGE_BASE_PATH = import.meta.env.VITE_FILE_STORAGE_PATH || '/var/lib/oru/storage';
 
@@ -25,7 +38,7 @@ export async function uploadFile(
     blob = new Blob([fileContent], { type: mimeType });
   } else if (fileContent instanceof Uint8Array) {
     fileSize = fileContent.length;
-    blob = new Blob([fileContent], { type: mimeType });
+    blob = new Blob([fileContent as any], { type: mimeType });
   } else if (fileContent instanceof Blob) {
     fileSize = fileContent.size;
     blob = fileContent;
@@ -78,12 +91,12 @@ export async function uploadFile(
       ...result.data.file_storage,
       file_path: result.data.file_storage.file_path,
       data: result.data, // Include full response data for path access
-    } as unknown;
+    } as any;
   }
   
   // Fallback: Record metadata in database if API didn't return it
   // cleanPath is already declared above, reuse it
-  const fileStorage = await insertRecord<FileStorage>('file_storage', {
+  const fileStorage = await insertRecord('file_storage', {
     bucket_name: bucket,
     file_path: cleanPath,
     file_name: cleanPath.split('/').pop(),
@@ -96,7 +109,7 @@ export async function uploadFile(
     ...fileStorage,
     file_path: cleanPath,
     data: { path: `${bucket}/${cleanPath}` },
-  } as unknown;
+  } as any;
 }
 
 /**

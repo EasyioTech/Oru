@@ -84,7 +84,7 @@ export async function getProjectsForSelection(
 
   try {
     // Build filters
-    const filters: unknown[] = [];
+    const filters: any[] = [];
     
     // Always filter by agency_id
     filters.push({
@@ -120,7 +120,7 @@ export async function getProjectsForSelection(
     }
 
     // Build query options
-    const queryOptions: unknown = {
+    const queryOptions: any = {
       filters,
       orderBy: 'name ASC'
     };
@@ -139,7 +139,7 @@ export async function getProjectsForSelection(
     // Apply search filter in memory
     if (search) {
       const searchLower = search.toLowerCase();
-      projects = projects.filter((project: unknown) =>
+      projects = projects.filter((project: any) =>
         project.name?.toLowerCase().includes(searchLower) ||
         project.project_code?.toLowerCase().includes(searchLower) ||
         project.description?.toLowerCase().includes(searchLower)
@@ -148,7 +148,7 @@ export async function getProjectsForSelection(
 
     // Fetch client information for each project
     const projectOptions: ProjectOption[] = await Promise.all(
-      projects.map(async (project: unknown) => {
+      projects.map(async (project: any) => {
         let clientName: string | null = null;
         let clientCompanyName: string | null = null;
 

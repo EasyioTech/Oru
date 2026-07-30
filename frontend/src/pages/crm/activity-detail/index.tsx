@@ -13,9 +13,9 @@ const ActivityDetail = () => {
   const { activityId } = useParams<{ activityId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activity, setActivity] = useState<unknown>(null);
-  const [relatedLead, setRelatedLead] = useState<unknown>(null);
-  const [relatedClient, setRelatedClient] = useState<unknown>(null);
+  const [activity, setActivity] = useState<any>(null);
+  const [relatedLead, setRelatedLead] = useState<any>(null);
+  const [relatedClient, setRelatedClient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activityFormOpen, setActivityFormOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -44,7 +44,7 @@ const ActivityDetail = () => {
           console.error('Error fetching related client:', e);
         }
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching activity:', error);
       toast({
         title: 'Error',
@@ -268,7 +268,7 @@ const ActivityDetail = () => {
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Attachments</p>
                   <div className="space-y-2">
-                    {activity.attachments.map((attachment: unknown, index: number) => (
+                    {activity.attachments.map((attachment: any, index: number) => (
                       <div key={index} className="flex items-center gap-2 p-2 border rounded">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{attachment.name || attachment.filename}</span>

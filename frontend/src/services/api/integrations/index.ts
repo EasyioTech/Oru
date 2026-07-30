@@ -22,7 +22,7 @@ export interface Integration {
   provider?: string;
   description?: string;
   status: 'active' | 'inactive' | 'error' | 'testing';
-  configuration?: Record<string, unknown>;
+  configuration?: Record<string, any>;
   credentials_encrypted?: string;
   webhook_url?: string;
   api_endpoint?: string;
@@ -35,7 +35,7 @@ export interface Integration {
   last_sync_error?: string;
   error_count?: number;
   success_count?: number;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
   created_by?: string;
   created_by_email?: string;
   created_at: string;
@@ -52,15 +52,15 @@ export interface IntegrationLog {
   event_type?: string;
   status: 'pending' | 'success' | 'error' | 'warning';
   direction?: 'inbound' | 'outbound';
-  request_data?: Record<string, unknown>;
-  response_data?: Record<string, unknown>;
+  request_data?: Record<string, any>;
+  response_data?: Record<string, any>;
   error_message?: string;
   error_stack?: string;
   execution_time_ms?: number;
   records_processed?: number;
   records_success?: number;
   records_failed?: number;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
   created_at: string;
 }
 
@@ -68,7 +68,7 @@ export interface ApiKey {
   id: string;
   name: string;
   prefix: string;
-  permissions?: Record<string, unknown>;
+  permissions?: Record<string, any>;
   rateLimitPerMinute?: number;
   rateLimitPerHour?: number;
   rateLimitPerDay?: number;
@@ -388,7 +388,7 @@ export async function getApiKeys(): Promise<ApiKey[]> {
 
 export async function createApiKey(data: {
   name: string;
-  permissions?: Record<string, unknown>;
+  permissions?: Record<string, any>;
   rateLimitPerMinute?: number;
   rateLimitPerHour?: number;
   rateLimitPerDay?: number;
@@ -439,7 +439,7 @@ export async function revokeApiKey(keyId: string): Promise<void> {
   }
 }
 
-export async function getApiKeyUsage(keyId: string, period: string = 'day'): Promise<unknown> {
+export async function getApiKeyUsage(keyId: string, period: string = 'day'): Promise<any> {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Authentication required');

@@ -44,8 +44,8 @@ export class AnalyticsDimensionsService extends BaseApiService {
         pgClient.query(expensesQuery, params),
       ]);
 
-      const revenueMap = new Map(revenueData.rows.map((r: Record<string, unknown>) => [r.month, parseFloat(r.revenue as string || '0')]));
-      const expensesMap = new Map(expensesData.rows.map((r: Record<string, unknown>) => [r.month, parseFloat(r.expenses as string || '0')]));
+      const revenueMap = new Map(revenueData.rows.map((r: Record<string, any>) => [r.month, parseFloat(r.revenue as string || '0')]));
+      const expensesMap = new Map(expensesData.rows.map((r: Record<string, any>) => [r.month, parseFloat(r.expenses as string || '0')]));
 
       const trends: MonthlyTrend[] = [];
       for (let month = 1; month <= 12; month++) {
@@ -90,7 +90,7 @@ export class AnalyticsDimensionsService extends BaseApiService {
       const params = agencyId ? [agencyId] : [];
       const result = await pgClient.query(query, params);
 
-      return result.rows.map((row: Record<string, unknown>) => ({
+      return result.rows.map((row: Record<string, any>) => ({
         name: row.name,
         employees: parseInt(row.employees as string || '0'),
         budget: parseFloat(row.budget as string || '0'),
@@ -140,7 +140,7 @@ export class AnalyticsDimensionsService extends BaseApiService {
       const params = agencyId ? [agencyId] : [];
       const result = await pgClient.query(query, params);
 
-      return result.rows.map((row: Record<string, unknown>) => ({
+      return result.rows.map((row: Record<string, any>) => ({
         name: row.name,
         status: row.status || 'planning',
         budget: parseFloat(row.budget as string || '0'),

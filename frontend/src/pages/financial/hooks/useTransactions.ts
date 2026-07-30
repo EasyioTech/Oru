@@ -9,7 +9,7 @@ import { logDebug, logWarn, logError } from '@/utils/consoleLogger';
 
 export const useTransactions = (agencyId: string | null) => {
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<unknown[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchTransactions = async (agencyIdParam?: string | null) => {
@@ -17,7 +17,7 @@ export const useTransactions = (agencyId: string | null) => {
     setLoading(true);
     try {
       let query: string;
-      let params: unknown[] = [];
+      let params: any[] = [];
       
       if (effectiveAgencyId) {
         query = `
@@ -60,10 +60,10 @@ export const useTransactions = (agencyId: string | null) => {
         `;
       }
       
-      let txnData: unknown[] = [];
+      let txnData: any[] = [];
       try {
         txnData = await rawQuery(query, params);
-      } catch (err: unknown) {
+      } catch (err: any) {
         const message = String(err?.message || '');
         if (err?.code === '42703' || message.includes('column')) {
           if (message.includes('agency_id')) {
@@ -143,7 +143,7 @@ export const useTransactions = (agencyId: string | null) => {
       if ((txnData || []).length === 0) {
         logWarn('No transactions found. This may be normal if no journal entries have been posted yet.');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       logError('Error fetching transactions:', error);
       toast({
         title: 'Warning',

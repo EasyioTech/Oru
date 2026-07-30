@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ interface Insight {
   impact: 'low' | 'medium' | 'high';
   confidence: number;
   actionable: boolean;
-  data: unknown;
+  data: any;
   created_at: string;
 }
 
@@ -71,7 +71,7 @@ export function AIInsights() {
       const generatedInsights: Insight[] = [];
 
       // Budget overrun warning
-      const overBudgetProjects = (projects || []).filter((p: unknown) => {
+      const overBudgetProjects = (projects || []).filter((p: any) => {
         if (!p.budget || !p.actual_cost) return false;
         return p.actual_cost > p.budget;
       });
@@ -90,10 +90,10 @@ export function AIInsights() {
       }
 
       // Revenue opportunity from pending invoices
-      const pendingInvoices = (invoices || []).filter((inv: unknown) => 
+      const pendingInvoices = (invoices || []).filter((inv: any) => 
         inv.status === 'sent' || inv.status === 'pending'
       );
-      const pendingAmount = pendingInvoices.reduce((sum: number, inv: unknown) => 
+      const pendingAmount = pendingInvoices.reduce((sum: number, inv: any) => 
         sum + (Number(inv.total_amount) || 0), 0
       );
       if (pendingAmount > 0) {
@@ -111,7 +111,7 @@ export function AIInsights() {
       }
 
       // Project completion trend
-      const completedProjects = (projects || []).filter((p: unknown) => p.status === 'completed').length;
+      const completedProjects = (projects || []).filter((p: any) => p.status === 'completed').length;
       const totalProjects = projects.length || 1;
       const completionRate = (completedProjects / totalProjects) * 100;
       if (completionRate < 70 && totalProjects > 5) {
@@ -129,10 +129,10 @@ export function AIInsights() {
       }
 
       // Client engagement opportunity
-      const clientsWithoutRecentProjects = (clients || []).filter((c: unknown) => {
-        const clientProjects = (projects || []).filter((p: unknown) => p.client_id === c.id);
+      const clientsWithoutRecentProjects = (clients || []).filter((c: any) => {
+        const clientProjects = (projects || []).filter((p: any) => p.client_id === c.id);
         if (clientProjects.length === 0) return true;
-        const lastProject = clientProjects.sort((a: unknown, b: unknown) => 
+        const lastProject = clientProjects.sort((a: any, b: any) => 
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0];
         const daysSinceLastProject = (Date.now() - new Date(lastProject.created_at).getTime()) / (1000 * 60 * 60 * 24);
@@ -153,7 +153,7 @@ export function AIInsights() {
       }
 
       // Task completion efficiency
-      const overdueTasks = (tasks || []).filter((t: unknown) => {
+      const overdueTasks = (tasks || []).filter((t: any) => {
         if (!t.due_date || t.status === 'completed') return false;
         return new Date(t.due_date) < new Date();
       });
@@ -175,7 +175,7 @@ export function AIInsights() {
       // Revenue growth recommendation
       const recentInvoices = (invoices || []).slice(0, 6);
       if (recentInvoices.length >= 3) {
-        const avgRevenue = recentInvoices.reduce((sum: number, inv: unknown) => 
+        const avgRevenue = recentInvoices.reduce((sum: number, inv: any) => 
           sum + (Number(inv.total_amount) || 0), 0
         ) / recentInvoices.length;
         const potentialGrowth = avgRevenue * 0.2; // 20% growth potential

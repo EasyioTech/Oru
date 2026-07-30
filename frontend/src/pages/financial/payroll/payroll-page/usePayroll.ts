@@ -21,13 +21,13 @@ export function usePayroll() {
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [payrollSummary, setPayrollSummary] = useState<PayrollSummary>({ totalEmployees: 0, totalPayroll: 0, averageSalary: 0, pendingPayroll: 0 });
   const [payrollRecords, setPayrollRecords] = useState<PayrollRecord[]>([]);
-  const [payrollPeriods, setPayrollPeriods] = useState<unknown[]>([]);
+  const [payrollPeriods, setPayrollPeriods] = useState<any[]>([]);
   const [payrollFormOpen, setPayrollFormOpen] = useState(false);
-  const [selectedPayroll, setSelectedPayroll] = useState<unknown>(null);
+  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
   const [periodFormOpen, setPeriodFormOpen] = useState(false);
-  const [selectedPeriodObj, setSelectedPeriodObj] = useState<unknown>(null);
+  const [selectedPeriodObj, setSelectedPeriodObj] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ type: string; item: unknown } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ type: string; item: any } | null>(null);
 
   const fetchPayrollPeriods = useCallback(async () => {
     try {
@@ -45,7 +45,7 @@ export function usePayroll() {
       let departmentUserIds: string[] = [];
       if (urlDepartmentId) {
         const assignments = await selectRecords('team_assignments', { where: { department_id: urlDepartmentId, is_active: true }, select: 'user_id' });
-        departmentUserIds = (assignments || []).map((ta: unknown) => (ta as { user_id?: string }).user_id).filter(Boolean) as string[];
+        departmentUserIds = (assignments || []).map((ta: any) => (ta as { user_id?: string }).user_id).filter(Boolean) as string[];
       }
 
       let periodId = selectedPeriod;
@@ -54,17 +54,17 @@ export function usePayroll() {
         setSelectedPeriod(periodId);
       }
 
-      let payrollData: unknown[] = [];
+      let payrollData: any[] = [];
       if (periodId) {
         payrollData = await selectRecords('payroll', { where: { payroll_period_id: periodId }, orderBy: 'created_at DESC' });
       }
 
       if (urlDepartmentId && departmentUserIds.length > 0) {
-        const employeeIds = payrollData.map((p: unknown) => (p as { employee_id?: string }).employee_id).filter(Boolean);
+        const employeeIds = payrollData.map((p: any) => (p as { employee_id?: string }).employee_id).filter(Boolean);
         if (employeeIds.length > 0) {
           const empList = await selectRecords('employee_details', { filters: [{ column: 'id', operator: 'in', value: employeeIds }] });
-          const idToUserId = new Map(empList.map((e: unknown) => [(e as { id: string }).id, (e as { user_id: string }).user_id]));
-          payrollData = payrollData.filter((p: unknown) => {
+          const idToUserId = new Map<string, string>(empList.map((e: any) => [(e as { id: string }).id, (e as { user_id: string }).user_id]));
+          payrollData = payrollData.filter((p: any) => {
             const uid = idToUserId.get((p as { employee_id: string }).employee_id);
             return uid && departmentUserIds.includes(uid);
           });
@@ -73,23 +73,23 @@ export function usePayroll() {
         }
       }
 
-      const employeeDetailIds = payrollData.map((p: unknown) => (p as { employee_id?: string }).employee_id).filter(Boolean);
-      let employees: unknown[] = [];
-      let profiles: unknown[] = [];
+      const employeeDetailIds = payrollData.map((p: any) => (p as { employee_id?: string }).employee_id).filter(Boolean);
+      let employees: any[] = [];
+      let profiles: any[] = [];
       if (employeeDetailIds.length > 0) {
         employees = await selectRecords('employee_details', { filters: [{ column: 'id', operator: 'in', value: employeeDetailIds }] });
-        const userIds = employees.map((e: unknown) => (e as { user_id?: string }).user_id).filter(Boolean);
+        const userIds = employees.map((e: any) => (e as { user_id?: string }).user_id).filter(Boolean);
         if (userIds.length > 0) {
           profiles = await selectRecords('profiles', { filters: [{ column: 'user_id', operator: 'in', value: userIds }] });
         }
       }
 
-      const profileMap = new Map(profiles.map((p: unknown) => [(p as { user_id: string }).user_id, (p as { full_name: string }).full_name]));
-      const employeeMap = new Map(employees.map((e: unknown) => [(e as { id: string }).id, e as Record<string, unknown>]));
-      const currentPeriod = (payrollPeriods.find((p: unknown) => (p as { id: string }).id === periodId) || payrollPeriods[0]) as Record<string, unknown> | undefined;
+      const profileMap = new Map(profiles.map((p: any) => [(p as { user_id: string }).user_id, (p as { full_name: string }).full_name]));
+      const employeeMap = new Map(employees.map((e: any) => [(e as { id: string }).id, e as Record<string, any>]));
+      const currentPeriod = (payrollPeriods.find((p: any) => (p as { id: string }).id === periodId) || payrollPeriods[0]) as Record<string, any> | undefined;
 
-      const transformedRecords: PayrollRecord[] = payrollData.map((record: unknown) => {
-        const r = record as Record<string, unknown>;
+      const transformedRecords: PayrollRecord[] = payrollData.map((record: any) => {
+        const r = record as Record<string, any>;
         const emp = employeeMap.get(r.employee_id as string);
         const fullName = emp?.user_id
           ? (profileMap.get(emp.user_id as string) || `${emp.first_name} ${emp.last_name}`.trim())
@@ -119,7 +119,7 @@ export function usePayroll() {
         averageSalary: Math.round(transformedRecords.length > 0 ? totalPayroll / transformedRecords.length : 0),
         pendingPayroll: transformedRecords.filter(r => r.status === 'draft').length,
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error fetching payroll data:', error);
       toast({ title: 'Error', description: 'Failed to load payroll data. Please try again.', variant: 'destructive' });
     } finally {
@@ -134,9 +134,9 @@ export function usePayroll() {
 
   const handleNewPayroll = () => { setSelectedPayroll(null); setPayrollFormOpen(true); };
 
-  const handleEditPayroll = async (payroll: unknown) => {
+  const handleEditPayroll = async (payroll: any) => {
     try {
-      const fullRecord = await selectOne('payroll', { id: (payroll as { id: string }).id }) as Record<string, unknown>;
+      const fullRecord = await selectOne('payroll', { id: (payroll as { id: string }).id }) as Record<string, any>;
       if (fullRecord) {
         setSelectedPayroll({
           id: fullRecord.id,
@@ -162,10 +162,10 @@ export function usePayroll() {
     }
   };
 
-  const handleDeletePayroll = (payroll: unknown) => { setItemToDelete({ type: 'payroll', item: payroll }); setDeleteDialogOpen(true); };
+  const handleDeletePayroll = (payroll: any) => { setItemToDelete({ type: 'payroll', item: payroll }); setDeleteDialogOpen(true); };
   const handleNewPeriod = () => { setSelectedPeriodObj(null); setPeriodFormOpen(true); };
-  const handleEditPeriod = (period: unknown) => { setSelectedPeriodObj(period); setPeriodFormOpen(true); };
-  const handleDeletePeriod = (period: unknown) => { setItemToDelete({ type: 'period', item: period }); setDeleteDialogOpen(true); };
+  const handleEditPeriod = (period: any) => { setSelectedPeriodObj(period); setPeriodFormOpen(true); };
+  const handleDeletePeriod = (period: any) => { setItemToDelete({ type: 'period', item: period }); setDeleteDialogOpen(true); };
   const handlePayrollSaved = () => fetchPayrollData();
   const handlePeriodSaved = () => { fetchPayrollPeriods(); fetchPayrollData(); };
 
@@ -183,7 +183,7 @@ export function usePayroll() {
         fetchPayrollPeriods();
         if (selectedPeriod === item.id) setSelectedPeriod('');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({ title: 'Error', description: (error as Error).message || 'Failed to delete item', variant: 'destructive' });
     }
     setItemToDelete(null);
@@ -198,7 +198,7 @@ export function usePayroll() {
   const handleExportReport = async () => {
     try {
       await exportPayrollCSV(filteredRecords, selectedPeriod, toast);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error exporting report:', error);
       toast({ title: 'Error', description: 'Failed to export payroll report', variant: 'destructive' });
     }
@@ -206,13 +206,13 @@ export function usePayroll() {
 
   const handleDownloadPaySlip = async (record: PayrollRecord) => {
     try {
-      const fullRecord = await selectOne('payroll', { id: record.id }) as Record<string, unknown> | null;
+      const fullRecord = await selectOne('payroll', { id: record.id }) as Record<string, any> | null;
       if (!fullRecord) { toast({ title: 'Error', description: 'Payroll record not found', variant: 'destructive' }); return; }
-      const employee = await selectOne('employee_details', { id: record.employee_id }) as Record<string, unknown> | null;
+      const employee = await selectOne('employee_details', { id: record.employee_id }) as Record<string, any> | null;
       if (!employee) { toast({ title: 'Error', description: 'Employee details not found', variant: 'destructive' }); return; }
-      const profile = await selectOne('profiles', { user_id: employee.user_id }) as Record<string, unknown> | null;
+      const profile = await selectOne('profiles', { user_id: employee.user_id }) as Record<string, any> | null;
       const employeeName = ((profile?.full_name || `${employee.first_name} ${employee.last_name}`.trim())) as string;
-      const period = await selectOne('payroll_periods', { id: fullRecord.payroll_period_id as string }) as Record<string, unknown> | null;
+      const period = await selectOne('payroll_periods', { id: fullRecord.payroll_period_id as string }) as Record<string, any> | null;
 
       const html = generatePaySlipHTML({ employeeName, employee, period, record });
       const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
@@ -225,7 +225,7 @@ export function usePayroll() {
       link.click();
       document.body.removeChild(link);
       toast({ title: 'Success', description: 'Pay slip downloaded successfully' });
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error generating pay slip:', error);
       toast({ title: 'Error', description: 'Failed to generate pay slip', variant: 'destructive' });
     }

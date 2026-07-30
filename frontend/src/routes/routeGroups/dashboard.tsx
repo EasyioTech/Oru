@@ -20,7 +20,7 @@ export const DashboardRoutes = () => [
     element={
       <ProtectedRoute>
         <DashboardLayout>
-          <SuspenseRoute><AdaptiveDashboard /></SuspenseRoute>
+          <SuspenseRoute><Pages.Index /></SuspenseRoute>
         </DashboardLayout>
       </ProtectedRoute>
     }

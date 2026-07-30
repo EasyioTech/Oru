@@ -4,7 +4,7 @@ import { type SystemSettings } from '@/services/api/system';
 
 interface AnalyticsTabProps {
   formData: Partial<SystemSettings>;
-  onChange: (field: keyof SystemSettings, value: unknown) => void;
+  onChange: (field: keyof SystemSettings, value: any) => void;
 }
 
 export function AnalyticsTab({ formData, onChange }: AnalyticsTabProps) {

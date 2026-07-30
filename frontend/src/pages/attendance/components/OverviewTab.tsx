@@ -40,7 +40,7 @@ export function OverviewTab({ stats, attendanceRate }: OverviewTabProps) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: unknown, name: string) => {
+                formatter={(value: any, name: string) => {
                   const percent = total > 0 ? (((value as number) / total) * 100).toFixed(1) : 0;
                   return [`${value} (${percent}%)`, name];
                 }}

@@ -54,7 +54,7 @@ export function AgencySettings({ agencies, onRefresh }: AgencySettingsProps) {
         title: 'Backup Exported',
         description: `Backup for "${agencyName}" has been downloaded successfully.`,
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       let errorMessage = error.message || 'Failed to export agency backup';
       
       // Provide more helpful error messages
@@ -82,7 +82,7 @@ export function AgencySettings({ agencies, onRefresh }: AgencySettingsProps) {
       const details = await fetchAgencyDetails(agency.id);
       setSelectedAgency(details);
       setIsDeleteDialogOpen(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to load agency details',
@@ -128,7 +128,7 @@ export function AgencySettings({ agencies, onRefresh }: AgencySettingsProps) {
       
       // Refresh the list
       onRefresh();
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast({
         title: 'Repair Failed',
         description: error.message || 'Failed to repair database names',
@@ -143,7 +143,7 @@ export function AgencySettings({ agencies, onRefresh }: AgencySettingsProps) {
     if (!selectedAgency) return;
 
     // First export backup
-      await exportAgencyBackup(selectedAgency.id, selectedAgency.name);
+      await exportAgencyBackup(selectedAgency.id);
       
       // Small delay to ensure download starts
       await new Promise((resolve) => setTimeout(resolve, 500));

@@ -61,7 +61,7 @@ export const PIPELINE_STAGES = [
 /**
  * Calculate CRM statistics
  */
-export const calculateCRMStats = (leads: unknown[]) => {
+export const calculateCRMStats = (leads: any[]) => {
   const totalLeads = leads.length;
   const activeLeads = leads.filter(lead => 
     ['new', 'contacted', 'qualified', 'proposal', 'negotiation'].includes(lead.status)
@@ -90,11 +90,11 @@ export const calculateCRMStats = (leads: unknown[]) => {
  * Filter leads based on search term, status, and priority
  */
 export const filterLeads = (
-  leads: unknown[],
+  leads: any[],
   searchTerm: string,
   statusFilter: string,
   priorityFilter: string
-): unknown[] => {
+): any[] => {
   return leads.filter(lead => {
     const companyName = lead.company_name || lead.name || '';
     const contactName = lead.contact_name || lead.name || '';
@@ -115,7 +115,7 @@ export const filterLeads = (
 /**
  * Normalize lead data for backward compatibility
  */
-export const normalizeLead = (lead: unknown) => ({
+export const normalizeLead = (lead: any) => ({
   ...lead,
   estimated_value: lead.estimated_value || lead.value || 0,
   contact_name: lead.contact_name || lead.name || '',

@@ -29,7 +29,7 @@ export const fetchJson = async (path: string, options?: RequestInit) => {
   return responseData;
 };
 
-export const fetchMutate = async (path: string, method: 'POST' | 'PUT' | 'DELETE' | 'PATCH', body?: unknown) => {
+export const fetchMutate = async (path: string, method: 'POST' | 'PUT' | 'DELETE' | 'PATCH', body?: any) => {
     return fetchJson(path, {
         method,
         body: body ? JSON.stringify(body) : undefined

@@ -128,7 +128,7 @@ export class GSTService extends BaseApiService {
     );
   }
 
-  static async deleteSettings(settingsId: string): Promise<ApiResponse<null>> {
+  static async deleteSettings(settingsId: string): Promise<ApiResponse<GSTSettings>> {
     const agencyId = await getAgencyId();
     if (!agencyId) {
       return { data: null, error: 'Agency ID not found', success: false };
@@ -151,7 +151,7 @@ export class GSTService extends BaseApiService {
       return { data: null, error: 'Agency ID not found', success: false };
     }
 
-    const queryFilters: Record<string, unknown> = { agency_id: agencyId };
+    const queryFilters: Record<string, any> = { agency_id: agencyId };
     if (filters?.status) queryFilters.status = filters.status;
     if (filters?.return_type) queryFilters.return_type = filters.return_type;
     if (filters?.filing_period) queryFilters.filing_period = filters.filing_period;
@@ -248,7 +248,7 @@ export class GSTService extends BaseApiService {
 
     // Build query with date filters
     let query = `SELECT * FROM public.gst_transactions WHERE agency_id = $1`;
-    const params: unknown[] = [agencyId];
+    const params: any[] = [agencyId];
     let paramIndex = 2;
 
     if (filters?.transaction_type) {

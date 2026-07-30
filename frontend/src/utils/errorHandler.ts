@@ -13,8 +13,8 @@ export interface ErrorInfo {
 }
 
 export class ErrorHandler {
-  static analyzeError(error: unknown): ErrorInfo {
-    const errObj = (typeof error === 'object' && error !== null) ? (error as Record<string, unknown>) : null;
+  static analyzeError(error: any): ErrorInfo {
+    const errObj = (typeof error === 'object' && error !== null) ? (error as Record<string, any>) : null;
     const errorMessage = typeof error === 'string' ? error : (error instanceof Error ? error.message : (errObj?.message as string || ''));
     const errorCode = (errObj?.code as string) || (errObj?.error_code as string) || '';
     const statusCode = (errObj?.status as number) || (errObj?.statusCode as number);
@@ -62,7 +62,7 @@ export class ErrorHandler {
     };
   }
 
-  static handleError(error: unknown, options: {
+  static handleError(error: any, options: {
     showNotification?: boolean;
     logToConsole?: boolean;
     redirectOnAuth?: boolean;
@@ -147,7 +147,7 @@ export class ErrorHandler {
     delay: number = 1000
   ): () => Promise<T> {
     return async () => {
-      let lastError: unknown;
+      let lastError: any;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {

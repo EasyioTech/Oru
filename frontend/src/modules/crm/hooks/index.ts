@@ -22,7 +22,7 @@ export const useClient = (id: string) =>
 export const useCreateClient = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/crm/clients', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/crm/clients', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crm_clients'] }),
   });
 };
@@ -30,7 +30,7 @@ export const useCreateClient = () => {
 export const useUpdateClient = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/crm/clients/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['crm_clients'] });
@@ -68,7 +68,7 @@ export const useLead = (id: string) =>
 export const useCreateLead = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/crm/leads', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/crm/leads', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crm_leads'] }),
   });
 };
@@ -76,7 +76,7 @@ export const useCreateLead = () => {
 export const useUpdateLead = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/crm/leads/${id}`, 'PUT', data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['crm_leads'] });
@@ -118,7 +118,7 @@ export const useActivities = (filters?: { leadId?: string; clientId?: string }) 
 export const useCreateActivity = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: unknown) => fetchMutate('/crm/activities', 'POST', data),
+    mutationFn: (data: any) => fetchMutate('/crm/activities', 'POST', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crm_activities'] }),
   });
 };
@@ -126,7 +126,7 @@ export const useCreateActivity = () => {
 export const useUpdateActivity = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       fetchMutate(`/crm/activities/${id}`, 'PUT', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['crm_activities'] }),
   });

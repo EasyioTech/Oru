@@ -35,7 +35,7 @@ export class ReportsCrudService extends BaseApiService {
       name: string;
       description?: string;
       report_type: 'attendance' | 'payroll' | 'leave' | 'employee' | 'project' | 'financial' | 'gst' | 'custom';
-      parameters?: Record<string, unknown>;
+      parameters?: Record<string, any>;
       file_path?: string;
       file_name?: string;
       file_size?: number;
@@ -82,7 +82,7 @@ export class ReportsCrudService extends BaseApiService {
     data: Partial<{
       name: string;
       description: string;
-      parameters: Record<string, unknown>;
+      parameters: Record<string, any>;
       file_path: string;
       file_name: string;
       file_size: number;
@@ -93,7 +93,7 @@ export class ReportsCrudService extends BaseApiService {
   ): Promise<ApiResponse<Report>> {
     return this.execute<Report>(async () => {
       const updateFields: string[] = [];
-      const values: unknown[] = [];
+      const values: any[] = [];
       let paramIndex = 1;
 
       if (data.name !== undefined) { updateFields.push(`name = $${paramIndex++}`); values.push(data.name); }
@@ -141,7 +141,7 @@ export class ReportsCrudService extends BaseApiService {
   static async getDashboardData(
     filters?: { date_from?: string; date_to?: string },
     options: ApiOptions = {}
-  ): Promise<ApiResponse<unknown>> {
+  ): Promise<ApiResponse<any>> {
     return this.execute(async () => {
       const API_BASE = getApiBaseUrl();
       const token = getStorageItem('auth_token');
@@ -191,12 +191,12 @@ export class ReportsCrudService extends BaseApiService {
   static async generateCustomReport(
     module: 'inventory' | 'procurement' | 'assets' | 'financial',
     options: {
-      filters?: Record<string, unknown>;
+      filters?: Record<string, any>;
       columns?: string[];
       groupBy?: string[];
       orderBy?: string;
     } = {}
-  ): Promise<unknown[]> {
+  ): Promise<any[]> {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('Authentication required');
 

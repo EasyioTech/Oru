@@ -9,7 +9,7 @@ interface LineItemsEditorProps {
   lineItems: QuotationLineItem[];
   onAdd: () => void;
   onRemove: (id: string) => void;
-  onChange: (id: string, field: keyof QuotationLineItem, value: unknown) => void;
+  onChange: (id: string, field: keyof QuotationLineItem, value: any) => void;
   calculateLineTotal: (item: QuotationLineItem) => number;
 }
 
