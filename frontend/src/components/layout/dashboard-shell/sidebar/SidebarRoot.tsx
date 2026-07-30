@@ -16,6 +16,7 @@ import { useSidebarNav } from './useSidebarNav';
 import { SidebarBranding } from './SidebarBranding';
 import { SidebarNav } from './SidebarNav';
 import { SidebarFooterSection } from './SidebarFooter';
+import { AdaptiveNavigation } from '@/modules/core/components/AdaptiveNavigation';
 import { Building } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ export function SidebarRoot() {
   const effectiveRole = auth.userRole;
   const loading = auth.loading;
   const profile = auth.profile;
+  const workspaceId = profile?.workspaceId || '';
   const location = useLocation();
   const { state, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
@@ -73,10 +75,14 @@ export function SidebarRoot() {
             <SidebarBranding collapsed={collapsed} isMobile={isMobile} />
           </SidebarHeader>
 
-          <SidebarNav
-            pagesByCategory={navResult.pagesByCategory}
-            currentPath={location.pathname}
-          />
+          {workspaceId ? (
+            <AdaptiveNavigation workspaceId={workspaceId} />
+          ) : (
+            <SidebarNav
+              pagesByCategory={navResult.pagesByCategory}
+              currentPath={location.pathname}
+            />
+          )}
 
           <SidebarFooterSection
             settingsPage={navResult.settingsPage}
