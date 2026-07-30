@@ -26,7 +26,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
     const profileSvc = new WorkspaceProfileService(db, fastify.log);
     const profile = await profileSvc.getProfile(workspaceId);
 
-    const modulesJson = profile?.modules_json || {};
+    const modulesJson = (profile?.modules_json || {}) as Record<string, any>;
     const allModules = ['crm', 'hr', 'projects', 'finance', 'inventory', 'procurement', 'reports', 'admin'];
 
     const modules = allModules.map((mod) => ({
@@ -115,7 +115,7 @@ const coreRoutes: FastifyPluginAsync = async (fastify) => {
 
       if (!profile) throw new Error('Workspace profile not found');
 
-      const modulesJson = profile.modules_json || {};
+      const modulesJson = (profile.modules_json || {}) as Record<string, any>;
       const moduleData = modulesJson[module] || { enabled: false };
 
       const updatedModules = Object.assign({}, modulesJson, {

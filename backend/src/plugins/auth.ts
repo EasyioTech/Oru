@@ -15,6 +15,7 @@ declare module '@fastify/jwt' {
             email: string;
             roles: string[];
             agencyId?: string;
+            workspaceId?: string;
         };
     }
 }

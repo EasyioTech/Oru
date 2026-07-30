@@ -16,7 +16,7 @@ export async function createActivityLogger(profileService: WorkspaceProfileServi
     const route = `${req.method} ${req.url.split('?')[0].split('/').slice(0, 5).join('/')}`;
     const config = Object.entries(TRACKED_ROUTES).find(([pattern]) => route.includes(pattern))?.[1];
 
-    if (!config || !req.user) return;
+    if (!config || !req.user || !req.user.workspaceId) return;
 
     try {
       await profileService.logActivity(

@@ -2,17 +2,8 @@ import { eq, and } from 'drizzle-orm';
 import { workspaceProfiles, workspaceActivity } from '../../../infrastructure/database/schema.js';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyBaseLogger } from 'fastify';
-import type { WorkspaceProfile, WorkspaceActivity } from '../../../infrastructure/database/schema.js';
-
-export interface WorkspaceProfileData {
-  modules_json?: Record<string, any>;
-  collaboration_json?: Record<string, any>;
-  adoption_json?: Record<string, any>;
-  health_json?: Record<string, any>;
-  recommendations_json?: Array<any>;
-  quick_wins_json?: Array<any>;
-  updated_at?: Date;
-}
+import type { WorkspaceActivity } from '../../../infrastructure/database/schema.js';
+import type { WorkspaceProfile, WorkspaceProfileData } from '../types/workspace.js';
 
 export class WorkspaceProfileService {
   constructor(
