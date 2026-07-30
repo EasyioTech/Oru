@@ -4,6 +4,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyBaseLogger } from 'fastify';
 import type { WorkspaceActivity } from '../../../infrastructure/database/schema.js';
 import type { WorkspaceProfile, WorkspaceProfileData } from '../types/workspace.js';
+import { STARTER_MODULES } from '../config/starter-modules.js';
 
 export class WorkspaceProfileService {
   constructor(
@@ -141,6 +142,61 @@ export class WorkspaceProfileService {
       this.log.error(
         { error, workspaceId },
         'Failed to get workspace activity'
+      );
+      throw error;
+    }
+  }
+
+  async createDefaultWorkspace(
+    workspaceId: string,
+    agencyId: string
+  ): Promise<WorkspaceProfile> {
+    try {
+      const starterModules = STARTER_MODULES.map((module) => ({
+        name: module.name,
+        enabled: module.enabled,
+        createdAt: new Date(),
+      }));
+
+      const profile = await this.initializeProfile(workspaceId, agencyId);
+
+      const updated = await this.updateProfile(workspaceId, {
+        modules_json: {
+          active: starterModules.filter((m) => m.enabled),
+          available: STARTER_MODULES,
+          disabled: starterModules.filter((m) => !m.enabled),
+        },
+        adoption_json: {
+          featuresUsed: [],
+          daysActive: 0,
+          lastAction: new Date().toISOString(),
+        },
+      });
+
+      await this.db
+        .insert(workspaceActivity)
+        .values({
+          workspace_id: workspaceId,
+          user_id: agencyId,
+          module: null,
+          action: 'workspace_created',
+          metadata_json: {
+            starterModulesEnabled: starterModules
+              .filter((m) => m.enabled)
+              .map((m) => m.name),
+          },
+        });
+
+      this.log.info(
+        { workspaceId, agencyId, modulesEnabled: starterModules.filter((m) => m.enabled).length },
+        'Default workspace created with starter modules'
+      );
+
+      return updated;
+    } catch (error) {
+      this.log.error(
+        { error, workspaceId, agencyId },
+        'Failed to create default workspace'
       );
       throw error;
     }
