@@ -9,6 +9,7 @@ import type { JWT } from '@fastify/jwt';
 import type { FastifyBaseLogger } from 'fastify';
 import { agencyProvisioningQueue } from '../../jobs/queues.js';
 import type { AgencyProvisioningPayload } from '../../jobs/definitions.js';
+import { transformAgencyRow } from '../../infrastructure/transformers/agency.transformer.js';
 
 export class AuthService {
     constructor(
@@ -127,7 +128,7 @@ export class AuthService {
         }
 
         this.log.info({ userId: result.user.id, agencyId: result.agency.id }, 'Agency signup');
-        return { user: result.user, agency: result.agency, accessToken, refreshToken };
+        return { user: result.user, agency: transformAgencyRow(result.agency), accessToken, refreshToken };
     }
 
     async register(input: RegisterInput) {
@@ -264,6 +265,7 @@ export class AuthService {
 
         this.log.info({ userId: user.id, agencyId: agency.id }, 'User logged in to agency');
 
+        const transformedAgency = transformAgencyRow(agency);
         return {
             success: true,
             token: accessToken,
@@ -273,13 +275,7 @@ export class AuthService {
                 id: user.id,
                 email: user.email,
                 roles,
-                agency: {
-                    id: agency.id,
-                    name: agency.name,
-                    domain: agency.domain,
-                    status: agency.status,
-                    databaseName: agency.domain,
-                },
+                agency: transformedAgency,
             },
         };
     }
@@ -400,12 +396,7 @@ export class AuthService {
             ...user,
             profile: profile || undefined,
             roles,
-            agency: agency ? {
-                id: agency.id,
-                name: agency.name,
-                domain: agency.domain,
-                status: agency.status,
-            } : undefined,
+            agency: agency ? transformAgencyRow(agency) : undefined,
         };
     }
 }
