@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FloatingCard, PillButton, DisplayTitle, MicroLabel } from '@/components/ui/design-tokens';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LeadFormDialog from '@/components/shared/LeadFormDialog';
 import ActivityFormDialog from '@/components/shared/ActivityFormDialog';
@@ -54,16 +54,13 @@ const CRM = () => {
   const filteredLeads = filterLeads(leads, filters.searchTerm, filters.statusFilter, filters.priorityFilter);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
+    <div className="w-full flex-1 space-y-6 p-2 sm:p-6 bg-[#FAFAFA] min-h-screen">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0 px-2 pt-2">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold">CRM</h1>
-          <p className="text-sm lg:text-base text-muted-foreground">Manage customer relationships and sales pipeline</p>
+          <DisplayTitle>Customer Relationship Management</DisplayTitle>
+          <MicroLabel className="mt-2">Manage customer relationships and sales pipeline</MicroLabel>
         </div>
-        <Button onClick={leadActions.handleNewLead} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          New Lead
-        </Button>
+        <PillButton onClick={leadActions.handleNewLead} label="New Lead" icon={Plus} className="w-full sm:w-auto justify-center" />
       </div>
 
       <CRMMetrics
@@ -82,56 +79,58 @@ const CRM = () => {
         onPriorityFilterChange={filters.setPriorityFilter}
       />
 
-      <Tabs defaultValue="leads" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="leads">Leads</TabsTrigger>
-          <TabsTrigger value="activities">Activities</TabsTrigger>
-          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="leads" className="space-y-4">
-          <LeadsTab
-            leads={filteredLeads}
-            loading={loading}
-            onEditLead={leadActions.handleEditLead}
-            onDeleteLead={leadActions.handleDeleteLead}
-            onNewActivity={activityActions.handleNewActivity}
-            onConvertToClient={leadActions.handleConvertToClient}
-            onCreateQuotation={leadActions.handleCreateQuotation}
-          />
-        </TabsContent>
-        
-        <TabsContent value="activities" className="space-y-4">
-          <ActivitiesTab
-            activities={activities}
-            loading={activitiesLoading}
-            onNewActivity={activityActions.handleNewActivity}
-            onEditActivity={activityActions.handleEditActivity}
-            onDeleteActivity={activityActions.handleDeleteActivity}
-          />
-        </TabsContent>
-        
-        <TabsContent value="pipeline" className="space-y-4">
-          <PipelineBoard
-            onLeadClick={(lead) => navigate(`/crm/leads/${lead.id}`)}
-            onLeadEdit={leadActions.handleEditLead}
-            onLeadDelete={leadActions.handleDeleteLead}
-            onLeadConvert={leadActions.handleConvertToClient}
-            onScheduleActivity={(lead) => activityActions.handleNewActivity(lead.id)}
-            onAddLead={leadActions.handleNewLead}
-          />
-        </TabsContent>
+      <FloatingCard className="p-4 sm:p-6 mt-4">
+        <Tabs defaultValue="leads" className="space-y-6">
+          <TabsList className="bg-gray-100/50 p-1 rounded-full border border-gray-200 shadow-inner">
+            <TabsTrigger value="leads" className="rounded-full px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Leads</TabsTrigger>
+            <TabsTrigger value="activities" className="rounded-full px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Activities</TabsTrigger>
+            <TabsTrigger value="pipeline" className="rounded-full px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Pipeline</TabsTrigger>
+            <TabsTrigger value="reports" className="rounded-full px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Reports</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="leads" className="space-y-4 mt-4 outline-none">
+            <LeadsTab
+              leads={filteredLeads}
+              loading={loading}
+              onEditLead={leadActions.handleEditLead}
+              onDeleteLead={leadActions.handleDeleteLead}
+              onNewActivity={activityActions.handleNewActivity}
+              onConvertToClient={leadActions.handleConvertToClient}
+              onCreateQuotation={leadActions.handleCreateQuotation}
+            />
+          </TabsContent>
+          
+          <TabsContent value="activities" className="space-y-4 mt-4 outline-none">
+            <ActivitiesTab
+              activities={activities}
+              loading={activitiesLoading}
+              onNewActivity={activityActions.handleNewActivity}
+              onEditActivity={activityActions.handleEditActivity}
+              onDeleteActivity={activityActions.handleDeleteActivity}
+            />
+          </TabsContent>
+          
+          <TabsContent value="pipeline" className="space-y-4 mt-4 outline-none">
+            <PipelineBoard
+              onLeadClick={(lead) => navigate(`/crm/leads/${lead.id}`)}
+              onLeadEdit={leadActions.handleEditLead}
+              onLeadDelete={leadActions.handleDeleteLead}
+              onLeadConvert={leadActions.handleConvertToClient}
+              onScheduleActivity={(lead) => activityActions.handleNewActivity(lead.id)}
+              onAddLead={leadActions.handleNewLead}
+            />
+          </TabsContent>
 
-        <TabsContent value="reports" className="space-y-4">
-          <ReportsTab
-            leads={leads}
-            activities={activities}
-            loading={loading}
-            activitiesLoading={activitiesLoading}
-          />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="reports" className="space-y-4 mt-4 outline-none">
+            <ReportsTab
+              leads={leads}
+              activities={activities}
+              loading={loading}
+              activitiesLoading={activitiesLoading}
+            />
+          </TabsContent>
+        </Tabs>
+      </FloatingCard>
 
       <LeadFormDialog
         isOpen={leadActions.leadFormOpen}

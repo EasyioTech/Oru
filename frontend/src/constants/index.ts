@@ -8,7 +8,7 @@ export const ROUTES = {
   PROJECTS: '/projects',
   ANALYTICS: '/analytics',
   SETTINGS: '/settings',
-  MY_PROFILE: '/my-profile',
+
   MY_TEAM: '/my-team',
   MY_ATTENDANCE: '/my-attendance',
   MY_LEAVE: '/my-leave',

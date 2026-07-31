@@ -37,7 +37,7 @@ export default function AnalyticsPage() {
         <TremorCard>
           <Text>Total Revenue</Text>
           <Metric>
-            ${Object.values(metrics.revenueByPlan || {}).reduce((a, b) => a + b, 0).toLocaleString()}
+            ₹{Object.values(metrics.revenueByPlan || {}).reduce((a, b) => a + b, 0).toLocaleString('en-IN')}
           </Metric>
         </TremorCard>
       </Grid>

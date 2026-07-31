@@ -58,8 +58,8 @@ export const ProjectCard = ({
   };
 
   return (
-    <Card key={project.id} className="hover:shadow-md">
-      <CardHeader className="pb-4">
+    <Card key={project.id} className="group hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/40 bg-card overflow-hidden">
+      <CardHeader className="pb-4 border-b border-border/50 bg-muted/10">
         <div className="flex flex-col space-y-3 lg:flex-row lg:justify-between lg:items-start lg:space-y-0">
           <div className="flex-1 min-w-0">
             <CardTitle className="text-lg lg:text-xl break-words">{project.name}</CardTitle>
@@ -87,19 +87,19 @@ export const ProjectCard = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-6 text-sm text-muted-foreground">
             {project.start_date && (
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <Calendar className="h-4 w-4 flex-shrink-0 text-muted-foreground/70" />
                 <span className="truncate">Start: {new Date(project.start_date).toLocaleDateString()}</span>
               </div>
             )}
             {project.end_date && (
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <Calendar className="h-4 w-4 flex-shrink-0 text-muted-foreground/70" />
                 <span className="truncate">Due: {new Date(project.end_date).toLocaleDateString()}</span>
               </div>
             )}
             {project.client && (
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 flex-shrink-0" />
+                <Users className="h-4 w-4 flex-shrink-0 text-muted-foreground/70" />
                 <span className="truncate">
                   {project.client.company_name || project.client.name}
                 </span>

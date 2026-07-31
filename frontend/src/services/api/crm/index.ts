@@ -145,10 +145,11 @@ class CRMService {
       filterConditions.push({ column: 'created_at', operator: 'lte', value: filters.dateTo });
     }
 
-    let leads = await selectRecords<Lead>('leads', {
+    const leadsResult = await selectRecords<Lead>('leads', {
       filters: filterConditions,
       orderBy: 'created_at DESC'
     });
+    let leads = leadsResult.data || [];
 
     // Apply search filter in memory if provided (for text search across multiple fields)
     if (filters.search) {
@@ -174,7 +175,8 @@ class CRMService {
       throw new Error('Agency ID not found');
     }
 
-    return await selectOne<Lead>('leads', { id: leadId, agency_id: agencyId });
+    const result = await selectOne<Lead>('leads', { id: leadId, agency_id: agencyId });
+    return result.data;
   }
 
   /**
@@ -203,7 +205,8 @@ class CRMService {
       updateData.pipeline_stage = pipelineStage;
     }
 
-    return await updateRecord<Lead>('leads', updateData, { id: leadId, agency_id: agencyId }, userId);
+    const result = await updateRecord<Lead>('leads', updateData, { id: leadId, agency_id: agencyId }, userId);
+    return result.data;
   }
 
   /**
@@ -228,7 +231,9 @@ class CRMService {
         { id: leadId, agency_id: agencyId },
         userId
       );
-      updatedLeads.push(updated);
+      if (updated.data) {
+        updatedLeads.push(updated.data);
+      }
     }
 
     return updatedLeads;
@@ -243,13 +248,14 @@ class CRMService {
       throw new Error('Agency ID not found');
     }
 
-    const stages = await selectRecords<PipelineStage>('sales_pipeline', {
+    const stagesResult = await selectRecords<PipelineStage>('sales_pipeline', {
       filters: [
         { column: 'agency_id', operator: 'eq', value: agencyId },
         { column: 'is_active', operator: 'eq', value: true }
       ],
       orderBy: 'stage_order ASC'
     });
+    const stages = stagesResult.data || [];
 
     // If no custom stages exist, create default stages in database
     if (stages.length === 0) {
@@ -274,7 +280,9 @@ class CRMService {
             userId,
             agencyId
           );
-          createdStages.push(created);
+          if (created.data) {
+            createdStages.push(created.data);
+          }
         } catch (error) {
           // If stage already exists (race condition), fetch it
           console.warn(`Stage ${stage.stage_name} might already exist:`, error.message);
@@ -282,13 +290,14 @@ class CRMService {
       }
       
       // Fetch all stages again to get the created ones
-      const allStages = await selectRecords<PipelineStage>('sales_pipeline', {
+      const allStagesResult = await selectRecords<PipelineStage>('sales_pipeline', {
         filters: [
           { column: 'agency_id', operator: 'eq', value: agencyId },
           { column: 'is_active', operator: 'eq', value: true }
         ],
         orderBy: 'stage_order ASC'
       });
+      const allStages = allStagesResult.data || [];
       
       return allStages.length > 0 ? allStages : defaultStages;
     }
@@ -339,15 +348,16 @@ class CRMService {
 
     if (stage.id && !stage.id.startsWith('default-')) {
       // Update existing stage
-      return await updateRecord<PipelineStage>(
+      const result = await updateRecord<PipelineStage>(
         'sales_pipeline',
         { ...stage, updated_at: new Date().toISOString() },
         { id: stage.id, agency_id: agencyId },
         userId
       );
+      return result.data;
     } else {
       // Create new stage
-      return await insertRecord<PipelineStage>(
+      const result = await insertRecord<PipelineStage>(
         'sales_pipeline',
         {
           ...stage,
@@ -359,6 +369,7 @@ class CRMService {
         userId,
         agencyId
       );
+      return result.data;
     }
   }
 
@@ -392,13 +403,14 @@ class CRMService {
       throw new Error('Agency ID not found');
     }
 
-    return await selectRecords<Activity>('crm_activities', {
+    const result = await selectRecords<Activity>('crm_activities', {
       filters: [
         { column: 'lead_id', operator: 'eq', value: leadId },
         { column: 'agency_id', operator: 'eq', value: agencyId }
       ],
       orderBy: 'activity_date DESC'
     });
+    return result.data || [];
   }
 
   /**

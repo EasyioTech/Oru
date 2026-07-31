@@ -8,7 +8,8 @@ import {
   Search, Star, Plus, Share2, Upload, Settings, Monitor,
   Phone, Linkedin, Check, ChevronDown, Pen,
   MessageSquare, Briefcase, Users, Calendar, Activity,
-  FileText, Shield as ShieldIcon
+  FileText, Mail, MoreHorizontal, Shield as ShieldIcon,
+  RefreshCcw, BarChart3, DownloadCloud
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -66,7 +67,20 @@ const AgencyAdminDashboard = () => {
           </div>
           <div className="flex flex-wrap gap-2 items-center">
             <PillButton label="Generate Report" className="bg-white text-black hover:bg-gray-100 shadow-sm px-5 py-2 text-sm" />
-            <DashboardHeaderBar />
+            <div className="flex gap-1 ml-1">
+              <button onClick={() => window.location.reload()} title="Refresh Data" className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <RefreshCcw className="w-4 h-4" />
+              </button>
+              <button onClick={() => navigate('/analytics')} title="Analytics" className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <BarChart3 className="w-4 h-4" />
+              </button>
+              <button onClick={() => navigate('/calendar')} title="Calendar" className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <Calendar className="w-4 h-4" />
+              </button>
+              <button onClick={() => navigate('/reports')} title="Download Reports" className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <DownloadCloud className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </FloatingCard>

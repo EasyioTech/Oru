@@ -30,7 +30,7 @@ export function DatePickerField({
       name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className="text-gray-600 font-medium ml-1">{label}</FormLabel>
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <FormControl>
               <div className="relative">
@@ -54,19 +54,19 @@ export function DatePickerField({
                     if (!/^\d$/.test(e.key)) e.preventDefault();
                   }}
                   maxLength={10}
-                  className="pr-10"
+                  className="pr-10 bg-white/60 border-transparent rounded-xl focus-visible:ring-gray-200 shadow-sm transition-all h-11"
                 />
                 <PopoverTrigger asChild>
                   <Button type="button" variant="ghost" size="sm"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent rounded-r-xl"
                     onClick={(e) => { e.preventDefault(); setPopoverOpen(true); }}
                   >
-                    <CalendarIcon className="h-4 w-4 opacity-50" />
+                    <CalendarIcon className="h-4 w-4 text-gray-400" />
                   </Button>
                 </PopoverTrigger>
               </div>
             </FormControl>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 rounded-2xl border-gray-100 shadow-xl" align="start">
               <Calendar
                 mode="single" selected={field.value}
                 onSelect={(date) => { field.onChange(date); setInputValue(''); setPopoverOpen(false); }}
@@ -76,7 +76,7 @@ export function DatePickerField({
             </PopoverContent>
           </Popover>
           <FormMessage />
-          <p className="text-xs text-muted-foreground">DD/MM/YYYY or use calendar</p>
+          <p className="text-xs text-gray-400 ml-1">DD/MM/YYYY or use calendar</p>
         </FormItem>
       )}
     />

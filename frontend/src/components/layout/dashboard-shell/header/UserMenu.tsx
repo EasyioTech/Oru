@@ -84,90 +84,87 @@ export function UserMenu({ avatarSize = 'h-8 w-8' }: UserMenuProps) {
         <Button
           variant="ghost"
           className={cn(
-            'relative rounded-full p-0 flex-shrink-0',
-            'ring-offset-background transition-all',
-            'hover:ring-2 hover:ring-primary/30 hover:ring-offset-1',
-            'focus-visible:ring-2 focus-visible:ring-ring',
-            avatarSize
+            'bg-white rounded-full flex items-center gap-3 p-1 sm:pr-5 shadow-sm border border-gray-100/80',
+            'hover:bg-gray-50 transition-all flex-shrink-0 h-12'
           )}
         >
-          <Avatar className={avatarSize}>
+          <Avatar className="w-9 h-9 border border-gray-200 shadow-sm">
             <AvatarImageWithAuth src={avatarSrc} alt={userDisplayName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+            <AvatarFallback className="bg-black text-white text-sm font-bold">
               {userInitials}
             </AvatarFallback>
           </Avatar>
+          <div className="hidden sm:flex flex-col items-start min-w-0 text-left">
+            <span className="text-[13px] font-bold text-gray-900 leading-none truncate max-w-[120px]">{userDisplayName.split(' ')[0]}</span>
+            <span className="text-[11px] font-medium text-gray-500 mt-1 truncate max-w-[120px]">{getRoleLabel(userRole)}</span>
+          </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-10 w-10">
-                <AvatarImageWithAuth src={avatarSrc} alt={userDisplayName} />
-                <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-                  {userInitials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col flex-1 min-w-0">
-                <p className="text-sm font-medium leading-none truncate">{userDisplayName}</p>
-                <p className="text-xs text-muted-foreground truncate mt-1">{user?.email}</p>
-                {userRole && (
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'mt-1.5 w-fit text-[10px] px-1.5 py-0',
-                      getRoleBadgeColor(userRole)
-                    )}
-                  >
-                    {getRoleLabel(userRole)}
-                  </Badge>
-                )}
-              </div>
+      <DropdownMenuContent className="w-64 rounded-2xl p-1.5 shadow-xl border border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-[#1a1d24]/95 backdrop-blur-xl" align="end">
+        <DropdownMenuLabel className="font-normal p-2.5">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 border border-gray-100 shadow-sm">
+              <AvatarImageWithAuth src={avatarSrc} alt={userDisplayName} />
+              <AvatarFallback className="bg-black text-white text-sm font-bold">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col flex-1 min-w-0">
+              <p className="text-[14px] font-bold text-gray-900 dark:text-gray-100 leading-tight truncate">{userDisplayName}</p>
+              {user?.email !== userDisplayName && (
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate font-medium mt-0.5">{user?.email}</p>
+              )}
+              {userRole && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'mt-1 w-fit text-[9px] uppercase tracking-wider font-bold px-1.5 py-0 border-none shadow-sm',
+                    getRoleBadgeColor(userRole)
+                  )}
+                >
+                  {getRoleLabel(userRole)}
+                </Badge>
+              )}
             </div>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link to="/my-profile" className="cursor-pointer">
-              <User className="mr-2 h-4 w-4" />
-              <span>My Profile</span>
+        
+        <DropdownMenuSeparator className="mx-1 bg-gray-100/60 dark:bg-gray-800/60" />
+        
+        <DropdownMenuGroup className="p-0.5 space-y-0.5">
+          <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:bg-gray-50 dark:focus:bg-gray-800/50 py-2 px-2.5 transition-colors">
+            <Link to="/settings">
+              <Settings className="mr-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <span className="font-semibold text-[13px] text-gray-700 dark:text-gray-200">Settings</span>
+              <DropdownMenuShortcut className="text-gray-400 dark:text-gray-500 text-[10px]">⌘S</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to="/settings" className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-            </Link>
-          </DropdownMenuItem>
-          {userRole && (userRole === 'agency_admin' || userRole === 'super_admin') && (
-            <DropdownMenuItem asChild>
-              <Link to="/system-dashboard" className="cursor-pointer">
-                <Shield className="mr-2 h-4 w-4" />
-                <span>System Dashboard</span>
-              </Link>
-            </DropdownMenuItem>
-          )}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => window.open('https://docs.oru.app', '_blank')}
-        >
-          <HelpCircle className="mr-2 h-4 w-4" />
-          <span>Help & Support</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-          onClick={handleSignOut}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign Out</span>
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator className="mx-1 bg-gray-100/60 dark:bg-gray-800/60" />
+        
+        <div className="p-0.5">
+          <DropdownMenuItem
+            className="rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:bg-gray-50 dark:focus:bg-gray-800/50 py-2 px-2.5 transition-colors"
+            onClick={() => window.open('https://docs.oru.app', '_blank')}
+          >
+            <HelpCircle className="mr-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span className="font-semibold text-[13px] text-gray-700 dark:text-gray-200">Help & Support</span>
+          </DropdownMenuItem>
+        </div>
+        
+        <DropdownMenuSeparator className="mx-1 bg-gray-100/60 dark:bg-gray-800/60" />
+        
+        <div className="p-0.5">
+          <DropdownMenuItem
+            className="rounded-xl cursor-pointer text-red-600 dark:text-red-400 focus:text-red-700 dark:focus:text-red-300 focus:bg-red-50 dark:focus:bg-red-900/20 hover:bg-red-50 dark:hover:bg-red-900/20 py-2 px-2.5 transition-colors"
+            onClick={handleSignOut}
+          >
+            <LogOut className="mr-2.5 h-4 w-4" />
+            <span className="font-bold text-[13px]">Sign Out</span>
+            <DropdownMenuShortcut className="text-red-400 text-[10px]">⇧⌘Q</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

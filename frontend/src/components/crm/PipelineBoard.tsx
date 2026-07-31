@@ -295,26 +295,26 @@ export const PipelineBoard: React.FC<PipelineBoardProps> = ({
   return (
     <div className="space-y-4">
       {/* Simple Header with Search */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-2">
+        <div className="relative flex-1 w-full max-w-md">
+          <Search className="absolute left-4 top-3.5 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search leads..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-11 h-11 bg-white border-gray-200/60 rounded-2xl focus-visible:ring-gray-300 shadow-sm"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-colors"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3" />
             </button>
           )}
         </div>
         {onAddLead && (
-          <Button onClick={onAddLead}>
+          <Button onClick={onAddLead} className="h-11 rounded-full px-6 bg-black text-white hover:bg-gray-800 text-[13px] font-semibold w-full sm:w-auto shadow-md">
             <Plus className="h-4 w-4 mr-2" />
             Add Lead
           </Button>

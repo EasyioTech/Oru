@@ -170,7 +170,7 @@ const routeToIconName: Record<string, string> = {
   '/reports': 'FileText',
   '/analytics': 'BarChart3',
   '/settings': 'Settings',
-  '/my-profile': 'User',
+
   '/system-dashboard': 'Shield',
 };
 

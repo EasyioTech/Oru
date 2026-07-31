@@ -10,12 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, List, GanttChart, Download, Loader2, Building2, Users } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { DepartmentBreadcrumb } from "@/components/department-management";
 import { useDepartmentNavigation } from "@/hooks/useDepartmentNavigation";
-import ProjectFormDialog from "@/components/shared/ProjectFormDialog";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import ProjectDetailsDialog from "@/components/ProjectDetailsDialog";
 import { useProjects } from './hooks/useProjects';
@@ -44,6 +43,7 @@ const Projects = () => {
     navigateToPayroll,
   } = useDepartmentNavigation();
   
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const legacyDepartmentId = searchParams.get('department');
   const legacyDepartmentName = searchParams.get('name');
@@ -60,8 +60,6 @@ const Projects = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [projectFormOpen, setProjectFormOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
@@ -115,13 +113,11 @@ const Projects = () => {
 
   // Handlers
   const handleNewProject = () => {
-    setSelectedProject(null);
-    setProjectFormOpen(true);
+    navigate('/projects/create');
   };
 
   const handleEditProject = (project: Project) => {
-    setSelectedProject(project);
-    setProjectFormOpen(true);
+    navigate(`/projects/${project.id}/edit`);
   };
 
   const handleDeleteProject = (project: Project) => {
@@ -132,11 +128,6 @@ const Projects = () => {
   const handleViewProject = (project: Project) => {
     setProjectToView(project);
     setDetailsDialogOpen(true);
-  };
-
-  const handleProjectSaved = () => {
-    fetchProjects(statusFilter, priorityFilter, clientFilter, managerFilter, departmentFilter, searchTerm);
-    setSelectedProject(null);
   };
 
   const handleProjectDeleted = () => {
@@ -167,7 +158,7 @@ const Projects = () => {
   const displayEmployeeName = urlEmployeeName;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 lg:p-8 space-y-8 max-w-7xl">
       {/* Breadcrumb */}
       <DepartmentBreadcrumb currentPage="projects" />
       
@@ -363,12 +354,6 @@ const Projects = () => {
       </Tabs>
 
       {/* Dialogs */}
-      <ProjectFormDialog
-        isOpen={projectFormOpen}
-        onClose={() => setProjectFormOpen(false)}
-        project={selectedProject}
-        onProjectSaved={handleProjectSaved}
-      />
 
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
@@ -390,8 +375,7 @@ const Projects = () => {
         onEdit={() => {
           setDetailsDialogOpen(false);
           if (projectToView) {
-            setSelectedProject(projectToView);
-            setProjectFormOpen(true);
+            navigate(`/projects/${projectToView.id}/edit`);
           }
         }}
       />

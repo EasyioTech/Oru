@@ -81,17 +81,18 @@ export const EmployeeRoutes = () => [
       </ProtectedRoute>
     }
   />,
-  <Route
-    key="/my-profile"
-    path="/my-profile"
-    element={
-      <ProtectedRoute>
-        <DashboardLayout>
-          <SuspenseRoute><Pages.MyProfile /></SuspenseRoute>
-        </DashboardLayout>
-      </ProtectedRoute>
-    }
-  />,
+  // TODO: MyProfile page not yet created
+  // <Route
+  //   key="/my-profile"
+  //   path="/my-profile"
+  //   element={
+  //     <ProtectedRoute>
+  //       <DashboardLayout>
+  //         <SuspenseRoute><Pages.MyProfile /></SuspenseRoute>
+  //       </DashboardLayout>
+  //     </ProtectedRoute>
+  //   }
+  // />,
   <Route
     key="/my-attendance"
     path="/my-attendance"
@@ -127,6 +128,28 @@ export const ProjectRoutes = () => [
       <ProtectedRoute>
         <DashboardLayout>
           <SuspenseRoute><Pages.ProjectManagement /></SuspenseRoute>
+        </DashboardLayout>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key="/projects/create"
+    path="/projects/create"
+    element={
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
+        <DashboardLayout>
+          <SuspenseRoute><Pages.ProjectFormPage /></SuspenseRoute>
+        </DashboardLayout>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key="/projects/:id/edit"
+    path="/projects/:id/edit"
+    element={
+      <ProtectedRoute requiredRole={["agency_admin", "super_admin", "manager"]}>
+        <DashboardLayout>
+          <SuspenseRoute><Pages.ProjectFormPage /></SuspenseRoute>
         </DashboardLayout>
       </ProtectedRoute>
     }

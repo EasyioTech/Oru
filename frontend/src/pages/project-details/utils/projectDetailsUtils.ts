@@ -33,9 +33,9 @@ export const formatDate = (dateString: string | null): string => {
 /**
  * Format currency for display
  */
-export const formatCurrency = (amount: number | null, currency: string = 'USD'): string => {
+export const formatCurrency = (amount: number | null, currency: string = 'INR'): string => {
   if (!amount) return '0';
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency
   }).format(amount);

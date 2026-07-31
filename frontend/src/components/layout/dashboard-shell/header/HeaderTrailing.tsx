@@ -210,24 +210,7 @@ export function HeaderTrailing() {
         {/* Notifications */}
         <NotificationCenter />
 
-        {/* Help — md+ only */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <IconBtn
-              className="hidden md:flex"
-              onClick={() => window.open('https://docs.oru.app', '_blank')}
-              aria-label="Help & Support"
-            >
-              <HelpCircle className="h-4 w-4" />
-            </IconBtn>
-          </TooltipTrigger>
-          <TooltipContent side="bottom"><span>Help &amp; Support</span></TooltipContent>
-        </Tooltip>
-
-        {/* Divider before avatar */}
-        <Divider />
-
-        {/* User avatar */}
+        {/* User avatar pill */}
         <UserMenu />
 
       </div>

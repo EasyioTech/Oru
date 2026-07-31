@@ -177,7 +177,7 @@ export function ProjectListView({
                         </div>
                       </td>
                       <td className="p-4">
-                        {project.currency || 'USD'} {project.budget?.toLocaleString() || '0'}
+                        {project.currency || 'INR'} {project.budget?.toLocaleString('en-IN') || '0'}
                       </td>
                       <td className="p-4">
                         <TooltipProvider>

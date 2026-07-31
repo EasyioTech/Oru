@@ -8,15 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Eye, Trash2, Users, TrendingUp } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import DeleteConfirmDialog from '@/components/shared/DeleteConfirmDialog';
-
-const COLORS = {
-  lime: 'bg-lime-100 text-lime-800 dark:bg-lime-500/10 dark:text-lime-400',
-  teal: 'bg-teal-100 text-teal-800 dark:bg-teal-500/10 dark:text-teal-400',
-  pink: 'bg-pink-100 text-pink-800 dark:bg-pink-500/10 dark:text-pink-400',
-  sky: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
-};
+import { DisplayTitle, MicroLabel, FloatingCard } from '@/components/ui/design-tokens';
+import { EmployeeMetrics } from './components/EmployeeMetrics';
+import { EmployeeFilters } from './components/EmployeeFilters';
 
 export default function EmployeesPage() {
   const { employees, isLoading, deleteEmployee } = useEmployees();
@@ -75,75 +70,47 @@ export default function EmployeesPage() {
   return (
     <div className="space-y-6">
       {/* Hero Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team Engagement</h1>
-        <p className="text-gray-600 dark:text-gray-400">Monitor and manage your workforce</p>
+      <div className="space-y-1 mb-8">
+        <DisplayTitle>Team Engagement</DisplayTitle>
+        <MicroLabel className="text-gray-500">Monitor and manage your workforce</MicroLabel>
       </div>
 
-      {/* KPI Cards with Color Palette */}
+      {/* KPI Cards */}
       {!isLoading && employees.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className={`p-4 rounded-xl border border-transparent ${COLORS.lime}`}>
-            <p className="text-xs font-semibold mb-1">Total Team</p>
-            <p className="text-3xl font-bold">{totalEmployees}</p>
-          </div>
-          <div className={`p-4 rounded-xl border border-transparent ${COLORS.teal}`}>
-            <p className="text-xs font-semibold mb-1">Active Now</p>
-            <p className="text-3xl font-bold">{activeEmployees}</p>
-          </div>
-          <div className={`p-4 rounded-xl border border-transparent ${COLORS.pink}`}>
-            <p className="text-xs font-semibold mb-1">On Leave</p>
-            <p className="text-3xl font-bold">{onLeaveEmployees}</p>
-          </div>
-          <div className={`p-4 rounded-xl border border-transparent ${COLORS.sky}`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold mb-1">Engagement</p>
-                <p className="text-3xl font-bold">{engagementScore}%</p>
-              </div>
-              <TrendingUp className="w-8 h-8 opacity-80" />
-            </div>
-          </div>
-        </div>
+        <EmployeeMetrics 
+          stats={{
+            total: totalEmployees,
+            active: activeEmployees,
+            onLeave: onLeaveEmployees,
+            engagementScore: engagementScore
+          }} 
+        />
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-lg border border-gray-200">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input placeholder="Search by name or role..." className="pl-9 border-gray-300" value={search} onChange={(e) => setSearch(e.target.value)} />
-        </div>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-full sm:w-40 border-gray-300">
-            <SelectValue placeholder="Filter Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="on_leave">On Leave</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button className="bg-black text-white hover:bg-gray-800" onClick={() => navigate('/create-employee')}>
-          <Plus className="h-4 w-4 mr-2" /> Add Member
-        </Button>
-      </div>
+      <EmployeeFilters
+        searchTerm={search}
+        onSearchChange={setSearch}
+        statusFilter={status}
+        onStatusFilterChange={setStatus}
+        onAddMember={() => navigate('/create-employee')}
+      />
 
       {/* Table */}
       {isLoading ? (
         <div className="h-64 flex items-center justify-center">
-          <p className="text-gray-500 animate-pulse">Loading team...</p>
+          <p className="text-gray-500 animate-pulse font-medium">Loading team...</p>
         </div>
       ) : filteredEmployees.length > 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <FloatingCard className="overflow-hidden bg-white/60">
           <DataTable columns={columns} data={filteredEmployees} />
-        </div>
+        </FloatingCard>
       ) : (
-        <div className="h-56 flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+        <FloatingCard className="h-56 flex flex-col items-center justify-center bg-white/40 border-dashed border-gray-200">
           <Users className="h-10 w-10 text-gray-300 mb-3" />
-          <p className="text-gray-900 font-medium">No team members</p>
-          <p className="text-gray-500 text-sm mt-1">Add your first team member to get started</p>
-        </div>
+          <p className="text-gray-900 font-medium text-lg">No team members found</p>
+          <p className="text-gray-500 text-sm mt-1">Adjust your filters or add a new team member to get started.</p>
+        </FloatingCard>
       )}
 
       <DeleteConfirmDialog

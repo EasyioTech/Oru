@@ -149,133 +149,131 @@ export const NotificationCenter: React.FC = () => {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="relative">
-          <Bell className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="relative bg-white rounded-full w-12 h-12 flex-shrink-0 flex items-center justify-center shadow-sm border border-gray-100/80 hover:bg-gray-50 transition-colors">
+          <Bell className="h-5 w-5 text-slate-600" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Badge>
+            <span className="absolute top-3 right-3.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
           )}
         </Button>
       </PopoverTrigger>
       
-      <PopoverContent className="w-[90vw] sm:w-96 max-w-sm p-0" align="end">
-        <Card className="border-0 shadow-none">
-          <CardHeader className="pb-3">
+      <PopoverContent className="w-[90vw] sm:w-[340px] max-w-sm p-0 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-[#1a1d24]/95 backdrop-blur-xl" align="end">
+        <Card className="border-0 shadow-none bg-transparent">
+          <CardHeader className="pb-2 pt-3.5 px-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Notifications</CardTitle>
+              <CardTitle className="text-[15px] font-bold text-gray-900 dark:text-gray-100 tracking-tight">Notifications</CardTitle>
               {unreadCount > 0 && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
+                  className="rounded-full h-7 px-2 text-[10px] font-semibold text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                   onClick={handleMarkAllAsRead}
                   disabled={markingRead}
                 >
-                  <CheckCircle className="w-4 h-4 mr-1" />
+                  <CheckCircle className="w-3 h-3 mr-1.5" />
                   Mark all read
                 </Button>
               )}
             </div>
-            <CardDescription>
+            <CardDescription className="text-gray-500 font-medium text-[11px] mt-0.5">
               {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
             </CardDescription>
           </CardHeader>
           
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <div className="px-2 sm:px-3 pt-2 pb-2 border-b">
-                <TabsList className="grid grid-cols-4 w-full h-auto p-0.5 bg-muted/50 gap-0.5">
+              <div className="px-3 pb-2">
+                <TabsList className="grid grid-cols-4 w-full h-auto p-0.5 bg-gray-100/60 rounded-[1rem] gap-0.5">
                   <TabsTrigger 
                     value="all" 
-                    className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
+                    className="text-[10px] px-1.5 py-1.5 whitespace-nowrap truncate rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
                   >
                     All
                   </TabsTrigger>
                   <TabsTrigger 
                     value="unread" 
-                    className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
+                    className="text-[10px] px-1.5 py-1.5 whitespace-nowrap truncate rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
                   >
                     Unread
                   </TabsTrigger>
                   <TabsTrigger 
                     value="approval" 
-                    className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
+                    className="text-[10px] px-1.5 py-1.5 whitespace-nowrap truncate rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
                   >
                     Approval
                   </TabsTrigger>
                   <TabsTrigger 
                     value="alert" 
-                    className="text-[10px] sm:text-xs px-1 sm:px-2 py-1.5 whitespace-nowrap truncate"
+                    className="text-[10px] px-1.5 py-1.5 whitespace-nowrap truncate rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
                   >
                     Alerts
                   </TabsTrigger>
                 </TabsList>
               </div>
               
-              <ScrollArea className="h-96">
+              <ScrollArea className="h-80 px-1">
                 <TabsContent value={activeTab} className="mt-0">
                   {loadingNotifications ? (
-                    <div className="flex justify-center py-8">
-                      <LoadingSpinner size="md" text="Loading notifications..." />
+                    <div className="flex justify-center py-10">
+                      <LoadingSpinner size="sm" text="Loading notifications..." />
                     </div>
                   ) : filteredNotifications.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p>No notifications</p>
+                    <div className="text-center py-10 text-muted-foreground flex flex-col items-center">
+                      <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mb-2 border border-gray-100">
+                        <Bell className="w-5 h-5 text-gray-300" />
+                      </div>
+                      <p className="font-semibold text-[13px]">You're all caught up!</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">No new notifications here.</p>
                     </div>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-1 pb-2">
                       {filteredNotifications.map((notification, index) => (
-                        <div key={notification.id}>
+                        <div key={notification.id} className="px-1.5">
                           <div 
-                            className={`p-3 cursor-pointer hover:bg-muted/50 transition-colors ${
-                              !notification.read_at ? 'bg-blue-50/50' : ''
+                            className={`p-2.5 rounded-xl cursor-pointer transition-all border border-transparent ${
+                              !notification.read_at ? 'bg-blue-50/60 hover:bg-blue-50/80 border-blue-100/50' : 'hover:bg-gray-50/80 hover:border-gray-100'
                             }`}
                             onClick={() => handleNotificationClick(notification)}
                           >
-                            <div className="flex items-start space-x-3">
-                              <div className="flex-shrink-0 mt-1">
+                            <div className="flex items-start space-x-2.5">
+                              <div className="flex-shrink-0 mt-0.5 bg-white p-1.5 rounded-lg shadow-sm border border-gray-100/50">
                                 {getPriorityIcon(notification.priority)}
                               </div>
                               
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                  <h4 className="text-sm font-medium truncate">
+                                <div className="flex items-center justify-between mb-0.5">
+                                  <h4 className="text-[13px] font-bold text-gray-900 truncate pr-2">
                                     {notification.title}
                                   </h4>
-                                  <div className="flex items-center space-x-1">
+                                  <div className="flex items-center space-x-1.5 flex-shrink-0">
                                     <Badge 
                                       variant="secondary" 
-                                      className={`text-xs ${getCategoryColor(notification.category)}`}
+                                      className={`text-[9px] px-1.5 py-0 uppercase tracking-wider font-bold border-none ${getCategoryColor(notification.category)}`}
                                     >
                                       {notification.category}
                                     </Badge>
                                     {!notification.read_at && (
-                                      <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0 shadow-sm" />
                                     )}
                                   </div>
                                 </div>
                                 
-                                <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                                <p className="text-[12px] font-medium text-gray-600 mb-2 line-clamp-2 leading-snug">
                                   {notification.message}
                                 </p>
                                 
-                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <div className="flex items-center justify-between text-[10px] font-semibold text-gray-400">
                                   <div className="flex items-center">
                                     <Clock className="w-3 h-3 mr-1" />
-                                    {new Date(notification.created_at).toLocaleString()}
+                                    {new Date(notification.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                   </div>
                                   {notification.action_url && (
-                                    <ExternalLink className="w-3 h-3" />
+                                    <ExternalLink className="w-3 h-3 text-gray-400 hover:text-black transition-colors" />
                                   )}
                                 </div>
                               </div>
                             </div>
                           </div>
-                          {index < filteredNotifications.length - 1 && <Separator />}
                         </div>
                       ))}
                     </div>
@@ -284,11 +282,11 @@ export const NotificationCenter: React.FC = () => {
               </ScrollArea>
             </Tabs>
             
-            <div className="border-t p-3">
-              <Button variant="ghost" className="w-full" asChild>
+            <div className="border-t border-gray-100/80 p-2 bg-gray-50/50 rounded-b-2xl">
+              <Button variant="ghost" className="w-full rounded-xl font-bold text-[12px] hover:bg-white hover:shadow-sm transition-all py-4" asChild>
                 <Link to="/notifications">
                   View All Notifications
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Link>
               </Button>
             </div>

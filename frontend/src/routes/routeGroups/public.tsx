@@ -2,6 +2,7 @@ import { Route } from "react-router-dom";
 import { SuspenseRoute } from "../SuspenseRoute";
 import * as Pages from "../lazyImports";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { DashboardHeaderBar } from "@/modules/core/components";
 
 export const PublicRoutes = () => (
   <Route element={<PublicLayout />}>
@@ -18,6 +19,7 @@ export const NonLayoutPublicRoutes = () => [
   <Route key="/login" path="/login" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
   <Route key="/register" path="/register" element={<SuspenseRoute><Pages.Auth /></SuspenseRoute>} />,
   <Route key="/onboarding" path="/onboarding" element={<SuspenseRoute><Pages.OnboardingPage /></SuspenseRoute>} />,
+  <Route key="/test-header" path="/test-header" element={<div className="min-h-screen"><DashboardHeaderBar /></div>} />,
 ];
 
 export const StaticPageRoutes = () => null;

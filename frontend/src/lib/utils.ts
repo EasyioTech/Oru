@@ -29,7 +29,7 @@ export function uuidToHex(uuid: string): string {
   return uuid.replace(/-/g, '');
 }
 
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
+export function formatCurrency(amount: number, currency: string = 'INR'): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency,

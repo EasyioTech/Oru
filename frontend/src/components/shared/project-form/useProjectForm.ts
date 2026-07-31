@@ -10,7 +10,7 @@ const DEFAULT_FORM: Project = {
   name: '', description: '', project_code: null, project_type: null,
   status: 'planning', priority: 'medium',
   start_date: null, end_date: null, deadline: null,
-  budget: null, actual_cost: 0, allocated_budget: null, cost_center: null, currency: 'USD',
+  budget: null, actual_cost: 0, allocated_budget: null, cost_center: null, currency: 'INR',
   client_id: null, project_manager_id: null, account_manager_id: null,
   assigned_team: [], departments: [], tags: [], categories: [], progress: 0,
 };
@@ -98,7 +98,7 @@ export function useProjectForm(project: Project | null | undefined, isOpen: bool
         project_type: p.project_type || null, status: normalizeForDisplay(p.status), priority: p.priority || 'medium',
         start_date: formatDateForInput(p.start_date), end_date: formatDateForInput(p.end_date),
         deadline: formatDateForInput(p.deadline), budget: p.budget || null, actual_cost: p.actual_cost || 0,
-        allocated_budget: p.allocated_budget || null, cost_center: p.cost_center || null, currency: p.currency || 'USD',
+        allocated_budget: p.allocated_budget || null, cost_center: p.cost_center || null, currency: p.currency || 'INR',
         client_id: p.client_id || null, project_manager_id: p.project_manager_id || null,
         account_manager_id: p.account_manager_id || null, assigned_team: [],
         departments: Array.isArray(p.departments) ? p.departments : [],

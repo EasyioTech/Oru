@@ -132,11 +132,11 @@ export const calculateProjectStats = (projects: Project[]) => {
  * Pipeline stages configuration
  */
 export const PIPELINE_STAGES = [
-  { name: 'Planning', status: 'planning', color: 'bg-blue-500', icon: '📋' },
-  { name: 'In Progress', status: 'in-progress', color: 'bg-yellow-500', icon: '⚡' },
-  { name: 'On Hold', status: 'on-hold', color: 'bg-orange-500', icon: '⏸️' },
-  { name: 'Completed', status: 'completed', color: 'bg-green-500', icon: '✅' },
-  { name: 'Cancelled', status: 'cancelled', color: 'bg-red-500', icon: '❌' },
+  { name: 'Planning', status: 'planning', color: 'bg-blue-500' },
+  { name: 'In Progress', status: 'in-progress', color: 'bg-yellow-500' },
+  { name: 'On Hold', status: 'on-hold', color: 'bg-orange-500' },
+  { name: 'Completed', status: 'completed', color: 'bg-green-500' },
+  { name: 'Cancelled', status: 'cancelled', color: 'bg-red-500' },
 ];
 
 /**

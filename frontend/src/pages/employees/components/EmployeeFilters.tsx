@@ -1,103 +1,54 @@
-/**
- * Employee Filters Component
- * Search and filter controls for employees.
- * Department filter uses department id for URL/state consistency.
- */
-
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, X } from "lucide-react";
-import { ROLE_DISPLAY_NAMES, type AppRole } from "@/utils/roleUtils";
-
-const ALL_ROLES = Object.keys(ROLE_DISPLAY_NAMES) as AppRole[];
+import { Search, Plus } from "lucide-react";
+import { FloatingCard, PillButton } from "@/components/ui/design-tokens";
 
 interface EmployeeFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  roleFilter: string;
-  onRoleFilterChange: (value: string) => void;
-  departmentFilter: string;
-  onDepartmentFilterChange: (value: string) => void;
   statusFilter: string;
   onStatusFilterChange: (value: string) => void;
-  departments: { id: string; name: string }[];
-  hasActiveFilters: boolean;
-  onClearFilters: () => void;
+  onAddMember: () => void;
 }
 
 export const EmployeeFilters = ({
   searchTerm,
   onSearchChange,
-  roleFilter,
-  onRoleFilterChange,
-  departmentFilter,
-  onDepartmentFilterChange,
   statusFilter,
   onStatusFilterChange,
-  departments,
-  hasActiveFilters,
-  onClearFilters,
+  onAddMember,
 }: EmployeeFiltersProps) => {
   return (
-    <Card className="shadow-sm border-muted/60 bg-gradient-to-r from-card to-card/50">
-      <CardContent className="p-4 lg:p-5">
-        <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4 lg:items-center">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, email, ID, department, or position..."
-                className="pl-10 bg-background/50 border-muted-foreground/20 focus-visible:ring-primary/30 transition-all shadow-sm"
-                value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
-            />
-          </div>
-          <Select value={roleFilter} onValueChange={onRoleFilterChange}>
-            <SelectTrigger className="w-full lg:w-[180px] bg-background/50 border-muted-foreground/20 shadow-sm focus:ring-primary/30 transition-all">
-              <SelectValue placeholder="Filter by role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              {ALL_ROLES.map((role) => (
-                <SelectItem key={role} value={role}>
-                  {ROLE_DISPLAY_NAMES[role]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={departmentFilter} onValueChange={onDepartmentFilterChange}>
-            <SelectTrigger className="w-full lg:w-[180px] bg-background/50 border-muted-foreground/20 shadow-sm focus:ring-primary/30 transition-all">
-              <SelectValue placeholder="Filter by department" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              {departments.map((dept) => (
-                <SelectItem key={dept.id} value={dept.id}>
-                  {dept.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-            <SelectTrigger className="w-full lg:w-[180px] bg-background/50 border-muted-foreground/20 shadow-sm focus:ring-primary/30 transition-all">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Trash</SelectItem>
-            </SelectContent>
-          </Select>
-          {hasActiveFilters && (
-            <Button variant="outline" onClick={onClearFilters} className="w-full lg:w-auto">
-              <X className="h-4 w-4 mr-2" />
-              Clear
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <FloatingCard className="p-2 sm:p-3 bg-white/50 border border-gray-100 flex flex-col sm:flex-row gap-3 items-center">
+      <div className="relative flex-1 w-full">
+        <Search className="absolute left-4 top-3.5 h-4 w-4 text-gray-400" />
+        <Input
+          placeholder="Search by name or email..."
+          className="pl-11 h-11 bg-white border-transparent rounded-2xl focus-visible:ring-gray-200 shadow-sm transition-all"
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      </div>
+      
+      <div className="flex w-full sm:w-auto gap-3">
+        <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+          <SelectTrigger className="w-full sm:w-40 h-11 bg-white border-transparent rounded-2xl shadow-sm focus:ring-gray-200 transition-all">
+            <SelectValue placeholder="Filter Status" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+            <SelectItem value="all" className="rounded-lg cursor-pointer">All Status</SelectItem>
+            <SelectItem value="active" className="rounded-lg cursor-pointer">Active</SelectItem>
+            <SelectItem value="inactive" className="rounded-lg cursor-pointer">Inactive</SelectItem>
+            <SelectItem value="on_leave" className="rounded-lg cursor-pointer">On Leave</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <PillButton onClick={onAddMember} className="h-11 px-6 bg-black text-white hover:bg-gray-800 shadow-md flex-shrink-0">
+          <Plus className="h-4 w-4 mr-2" /> 
+          Add Member
+        </PillButton>
+      </div>
+    </FloatingCard>
   );
 };
 

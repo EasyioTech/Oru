@@ -22,7 +22,7 @@ const routeMap: Record<string, BreadcrumbItem[]> = {
   '/reports': [{ label: 'Reports', path: '/reports' }],
   '/analytics': [{ label: 'Analytics', path: '/analytics' }],
   '/department-management': [{ label: 'Department Management', path: '/department-management' }],
-  '/my-profile': [{ label: 'My Profile', path: '/my-profile' }],
+
   '/notifications': [{ label: 'Notifications', path: '/notifications' }],
   '/system-dashboard': [{ label: 'System Dashboard', path: '/system-dashboard' }],
 };

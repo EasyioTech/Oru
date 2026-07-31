@@ -61,7 +61,7 @@ const NAV_PAGES: PageConfig[] = [
 
   // Personal
   { path: '/calendar', title: 'Calendar', icon: 'Calendar', category: 'personal', exists: true },
-  { path: '/my-profile', title: 'My Profile', icon: 'User', category: 'personal', exists: true },
+
   { path: '/my-attendance', title: 'My Attendance', icon: 'Clock', category: 'personal', exists: true },
   { path: '/my-leave', title: 'My Leave', icon: 'CalendarDays', category: 'personal', exists: true },
   { path: '/notifications', title: 'Notifications', icon: 'Bell', category: 'personal', exists: true },

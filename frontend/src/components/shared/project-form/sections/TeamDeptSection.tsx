@@ -16,11 +16,11 @@ export function TeamDeptSection({ ctx }: TeamDeptSectionProps) {
   const { loadingEmployees, selectedTeamMembers, teamMemberSearchOpen, setTeamMemberSearchOpen, teamMemberSearchTerm, setTeamMemberSearchTerm, filteredEmployees, selectedTeamMemberObjects, toggleTeamMember, departments, loadingDepartments, selectedDepartments, selectedDepartmentObjects, toggleDepartment } = ctx;
   return (
     <>
-      <div className="space-y-2">
-        <Label>Team Members</Label>
+      <div className="space-y-2.5">
+        <Label className="text-sm font-medium">Team Members</Label>
         <Popover open={teamMemberSearchOpen} onOpenChange={setTeamMemberSearchOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" role="combobox" className="w-full justify-between" disabled={loadingEmployees}>
+            <Button variant="outline" role="combobox" className="w-full justify-between h-11" disabled={loadingEmployees}>
               {selectedTeamMemberObjects.length > 0 ? `${selectedTeamMemberObjects.length} member(s) selected` : "Select team members..."}
               <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -44,31 +44,31 @@ export function TeamDeptSection({ ctx }: TeamDeptSectionProps) {
           </PopoverContent>
         </Popover>
         {selectedTeamMemberObjects.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-3">
             {selectedTeamMemberObjects.map(emp => (
-              <Badge key={emp.id} variant="secondary" className="flex items-center gap-1">
+              <Badge key={emp.id} variant="secondary" className="flex items-center gap-1.5 px-3 py-1 text-sm font-medium">
                 {emp.full_name}
-                <button type="button" onClick={() => toggleTeamMember(emp.user_id)} className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"><X className="h-3 w-3" /></button>
+                <button type="button" onClick={() => toggleTeamMember(emp.user_id)} className="ml-1 hover:bg-destructive/20 text-muted-foreground hover:text-destructive rounded-full p-0.5 transition-colors"><X className="h-3 w-3" /></button>
               </Badge>
             ))}
           </div>
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label>Departments</Label>
-        <div className="border rounded-md p-2 max-h-48 overflow-y-auto">
+      <div className="space-y-2.5 pt-4">
+        <Label className="text-sm font-medium">Departments</Label>
+        <div className="border border-border/60 rounded-md p-3 max-h-52 overflow-y-auto bg-background/50">
           {loadingDepartments
-            ? <div className="flex items-center justify-center py-4"><Loader2 className="h-4 w-4 animate-spin" /></div>
+            ? <div className="flex items-center justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
             : departments.length === 0
-              ? <p className="text-sm text-muted-foreground py-2">No departments available</p>
-              : <div className="space-y-2">
+              ? <p className="text-sm text-muted-foreground py-4 text-center">No departments available</p>
+              : <div className="space-y-3">
                   {departments.map(dept => (
-                    <div key={dept.id} className="flex items-center space-x-2">
+                    <div key={dept.id} className="flex items-center space-x-3 p-1">
                       <Checkbox id={`dept-${dept.id}`} checked={selectedDepartments.includes(dept.id)} onCheckedChange={() => toggleDepartment(dept.id)} />
-                      <label htmlFor={`dept-${dept.id}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+                      <label htmlFor={`dept-${dept.id}`} className="text-sm font-medium leading-none cursor-pointer flex-1 select-none">
                         {dept.name}
-                        {dept.member_count !== undefined && <span className="text-xs text-muted-foreground ml-2">({dept.member_count} members)</span>}
+                        {dept.member_count !== undefined && <span className="text-xs text-muted-foreground ml-2 font-normal">({dept.member_count} members)</span>}
                       </label>
                     </div>
                   ))}
@@ -76,11 +76,11 @@ export function TeamDeptSection({ ctx }: TeamDeptSectionProps) {
           }
         </div>
         {selectedDepartmentObjects.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-3">
             {selectedDepartmentObjects.map(dept => (
-              <Badge key={dept.id} variant="outline" className="flex items-center gap-1">
+              <Badge key={dept.id} variant="outline" className="flex items-center gap-1.5 px-3 py-1 text-sm font-medium border-border/80 bg-background">
                 {dept.name}
-                <button type="button" onClick={() => toggleDepartment(dept.id)} className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"><X className="h-3 w-3" /></button>
+                <button type="button" onClick={() => toggleDepartment(dept.id)} className="ml-1 hover:bg-destructive/20 text-muted-foreground hover:text-destructive rounded-full p-0.5 transition-colors"><X className="h-3 w-3" /></button>
               </Badge>
             ))}
           </div>

@@ -6,9 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, DollarSign, Eye, Edit, Trash2, GripVertical } from "lucide-react";
+import { Calendar, Users, DollarSign, Eye, Edit, Trash2, GripVertical, ClipboardList, Zap, PauseCircle, CheckCircle, XCircle, FolderKanban } from "lucide-react";
 import { Project } from '../utils/projectUtils';
 import { PIPELINE_STAGES, getStatusColor, getStatusLabel, getStatusBorderColor, formatCurrency } from '../utils/projectUtils';
+
+const getStageIcon = (status: string) => {
+  switch (status) {
+    case 'planning': return <ClipboardList className="w-5 h-5 lg:w-6 lg:h-6 text-blue-500" />;
+    case 'in-progress': return <Zap className="w-5 h-5 lg:w-6 lg:h-6 text-yellow-500" />;
+    case 'on-hold': return <PauseCircle className="w-5 h-5 lg:w-6 lg:h-6 text-orange-500" />;
+    case 'completed': return <CheckCircle className="w-5 h-5 lg:w-6 lg:h-6 text-green-500" />;
+    case 'cancelled': return <XCircle className="w-5 h-5 lg:w-6 lg:h-6 text-red-500" />;
+    default: return <ClipboardList className="w-5 h-5 lg:w-6 lg:h-6 text-muted-foreground" />;
+  }
+};
 
 interface ProjectPipelineProps {
   projects: Project[];
@@ -86,11 +97,11 @@ export const ProjectPipeline = ({
                 onDragLeave={onDragLeave}
                 onDrop={(e) => onDrop(e, stage.status)}
               >
-                <div className="pipeline-column bg-card rounded-lg p-4 lg:p-5 h-[calc(100vh-300px)] min-h-[650px] sm:min-h-[700px] lg:min-h-[750px] max-h-[850px] border border-border flex flex-col shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
+                <div className="pipeline-column bg-card rounded-lg p-4 lg:p-5 h-[calc(100vh-300px)] min-h-[650px] sm:min-h-[700px] lg:min-h-[750px] max-h-[850px] border border-border flex flex-col shadow-sm hover:shadow-md transition-all">
                   {/* Stage Header */}
                   <div className="flex items-center justify-between mb-4 pb-4 border-b border-border flex-shrink-0">
                     <div className="flex items-center gap-2.5 lg:gap-3">
-                      <span className="text-xl lg:text-2xl">{stage.icon}</span>
+                      {getStageIcon(stage.status)}
                       <h3 className="font-semibold text-sm lg:text-base text-foreground">{stage.name}</h3>
                     </div>
                     <Badge 
@@ -102,18 +113,18 @@ export const ProjectPipeline = ({
                   </div>
 
                   {/* Stage Statistics */}
-                  <div className="space-y-3 mb-4 pb-4 border-b border-gray-200 bg-white/60 rounded-lg p-2.5 lg:p-3 flex-shrink-0">
+                  <div className="space-y-3 mb-4 pb-4 border-b border-border bg-muted/30 rounded-lg p-2.5 lg:p-3 flex-shrink-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs lg:text-sm font-medium text-gray-600">Total Budget</span>
-                      <span className="font-bold text-xs lg:text-sm text-gray-900">
+                      <span className="text-xs lg:text-sm font-medium text-muted-foreground">Total Budget</span>
+                      <span className="font-bold text-xs lg:text-sm text-foreground">
                         {formatCurrency(stageBudget)}
                       </span>
                     </div>
                     {stageProjects.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs lg:text-sm font-medium text-gray-600">Avg Progress</span>
-                          <span className="font-bold text-xs lg:text-sm text-gray-900">{avgProgress}%</span>
+                          <span className="text-xs lg:text-sm font-medium text-muted-foreground">Avg Progress</span>
+                          <span className="font-bold text-xs lg:text-sm text-foreground">{avgProgress}%</span>
                         </div>
                         <Progress value={avgProgress} className="h-2" />
                       </div>
@@ -123,10 +134,10 @@ export const ProjectPipeline = ({
                   {/* Projects List */}
                   <div className="space-y-3 flex-1 overflow-y-auto min-h-[350px] scrollbar-thin">
                     {stageProjects.length === 0 ? (
-                      <div className="text-center py-12 lg:py-16 text-muted-foreground border-2 border-dashed border-gray-300 rounded-xl bg-white/60 backdrop-blur-sm">
-                        <div className="text-3xl lg:text-4xl mb-2 lg:mb-3 opacity-40">📋</div>
-                        <div className="text-xs lg:text-sm font-medium">Drop projects here</div>
-                        <div className="text-[10px] lg:text-xs mt-1 opacity-70">Drag a project card to move it</div>
+                      <div className="flex flex-col items-center justify-center text-center py-12 lg:py-16 text-muted-foreground border-2 border-dashed border-border rounded-xl bg-muted/10">
+                        <FolderKanban className="h-10 w-10 lg:h-12 lg:w-12 mb-3 lg:mb-4 text-muted-foreground/40" />
+                        <div className="text-xs lg:text-sm font-medium text-muted-foreground">Drop projects here</div>
+                        <div className="text-[10px] lg:text-xs mt-1 text-muted-foreground/60">Drag a project card to move it</div>
                       </div>
                     ) : (
                       stageProjects.map((project) => {
@@ -141,33 +152,33 @@ export const ProjectPipeline = ({
                             onDragStart={(e) => onDragStart(e, project.id)}
                             onDragEnd={onDragEnd}
                             onClick={() => onView(project)}
-                            className={`relative p-3 lg:p-4 hover:shadow-xl cursor-pointer bg-white border-2 border-gray-200 border-l-4 ${getStatusBorderColor(project.status)} hover:border-blue-300 hover:shadow-2xl group ${
-                              isDragging ? 'opacity-40 scale-95 rotate-2' : 'hover:scale-[1.02] hover:-translate-y-1'
+                            className={`relative p-3 lg:p-4 cursor-pointer bg-card border border-border border-l-4 ${getStatusBorderColor(project.status)} hover:border-primary/40 shadow-sm hover:shadow-md transition-all group ${
+                              isDragging ? 'opacity-50 scale-95' : 'hover:-translate-y-0.5'
                             }`}
                           >
                             <div className="space-y-2.5 lg:space-y-3">
                               {/* Status Badge and Drag Handle */}
                               <div className="flex items-center justify-between">
-                                <Badge 
-                                  variant={getStatusColor(project.status)} 
-                                  className="text-[9px] lg:text-[10px] px-1.5 lg:px-2 py-0.5 font-semibold"
-                                >
-                                  {getStatusLabel(project.status)}
-                                </Badge>
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" onMouseDown={(e) => e.stopPropagation()}>
-                                  <GripVertical className="h-3 w-3 lg:h-3.5 lg:w-3.5 text-gray-400" />
-                                </div>
+                                  <Badge 
+                                    variant={getStatusColor(project.status)} 
+                                    className="text-[9px] lg:text-[10px] px-1.5 lg:px-2 py-0.5 font-semibold"
+                                  >
+                                    {getStatusLabel(project.status)}
+                                  </Badge>
+                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" onMouseDown={(e) => e.stopPropagation()}>
+                                    <GripVertical className="h-3 w-3 lg:h-3.5 lg:w-3.5 text-muted-foreground" />
+                                  </div>
                               </div>
                               
                               {/* Project Name */}
-                              <div className="font-bold text-xs lg:text-sm text-gray-900 line-clamp-2 min-h-[2.25rem] lg:min-h-[2.5rem] cursor-pointer hover:text-blue-600 transition-colors" title={project.name}>
+                              <div className="font-bold text-xs lg:text-sm text-foreground line-clamp-2 min-h-[2.25rem] lg:min-h-[2.5rem] hover:text-primary transition-colors" title={project.name}>
                                 {project.name}
                               </div>
                               
                               {/* Client Info */}
                               {project.client && (
-                                <div className="flex items-center gap-1.5 lg:gap-2 text-[10px] lg:text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1 lg:py-1.5">
-                                  <Users className="h-3 w-3 lg:h-3.5 lg:w-3.5 flex-shrink-0 text-blue-600" />
+                                <div className="flex items-center gap-1.5 lg:gap-2 text-[10px] lg:text-xs text-muted-foreground bg-muted/50 rounded-md px-2 py-1 lg:py-1.5">
+                                  <Users className="h-3 w-3 lg:h-3.5 lg:w-3.5 flex-shrink-0 text-muted-foreground" />
                                   <span className="truncate font-medium">
                                     {project.client.company_name || project.client.name}
                                   </span>
@@ -176,25 +187,25 @@ export const ProjectPipeline = ({
 
                               {/* Budget */}
                               {projectBudget > 0 && (
-                                <div className="flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm font-bold text-gray-900 bg-green-50 rounded-md px-2 py-1 lg:py-1.5">
+                                <div className="flex items-center gap-1.5 lg:gap-2 text-xs lg:text-sm font-bold text-foreground bg-muted/50 rounded-md px-2 py-1 lg:py-1.5">
                                   <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-green-600 flex-shrink-0" />
                                   <span className="truncate">{formatCurrency(projectBudget)}</span>
                                 </div>
                               )}
 
                               {/* Progress */}
-                              <div className="space-y-1.5 lg:space-y-2 bg-gray-50 rounded-md p-2 lg:p-2.5">
+                              <div className="space-y-1.5 lg:space-y-2 bg-muted/50 rounded-md p-2 lg:p-2.5">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-[10px] lg:text-xs font-medium text-gray-600">Progress</span>
-                                  <span className="font-bold text-xs lg:text-sm text-gray-900">{project.progress || 0}%</span>
+                                  <span className="text-[10px] lg:text-xs font-medium text-muted-foreground">Progress</span>
+                                  <span className="font-bold text-xs lg:text-sm text-foreground">{project.progress || 0}%</span>
                                 </div>
                                 <Progress value={project.progress || 0} className="h-1.5 lg:h-2" />
                               </div>
 
                               {/* Dates */}
                               {(project.start_date || project.end_date) && (
-                                <div className="flex items-center gap-1.5 lg:gap-2 text-[10px] lg:text-xs text-gray-600 bg-blue-50 rounded-md px-2 py-1 lg:py-1.5">
-                                  <Calendar className="h-3 w-3 lg:h-3.5 lg:w-3.5 flex-shrink-0 text-blue-600" />
+                                <div className="flex items-center gap-1.5 lg:gap-2 text-[10px] lg:text-xs text-muted-foreground bg-muted/50 rounded-md px-2 py-1 lg:py-1.5">
+                                  <Calendar className="h-3 w-3 lg:h-3.5 lg:w-3.5 flex-shrink-0 text-muted-foreground" />
                                   <span className="truncate font-medium">
                                     {project.start_date && new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                     {project.start_date && project.end_date && ' → '}
@@ -204,11 +215,11 @@ export const ProjectPipeline = ({
                               )}
 
                               {/* Quick Actions */}
-                              <div className="flex items-center gap-1 lg:gap-1.5 pt-2 border-t border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <div className="flex items-center gap-1 lg:gap-1.5 pt-2 border-t border-border opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 lg:h-7 px-2 lg:px-2.5 text-[10px] lg:text-xs flex-1 hover:bg-blue-50 hover:text-blue-700 rounded-md"
+                                  className="h-6 lg:h-7 px-2 lg:px-2.5 text-[10px] lg:text-xs flex-1 hover:bg-muted hover:text-foreground rounded-md"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onView(project);
@@ -219,7 +230,7 @@ export const ProjectPipeline = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 lg:h-7 px-2 lg:px-2.5 text-[10px] lg:text-xs flex-1 hover:bg-green-50 hover:text-green-700 rounded-md"
+                                  className="h-6 lg:h-7 px-2 lg:px-2.5 text-[10px] lg:text-xs flex-1 hover:bg-muted hover:text-foreground rounded-md"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onEdit(project);
@@ -230,7 +241,7 @@ export const ProjectPipeline = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 lg:h-7 px-2 lg:px-2.5 text-[10px] lg:text-xs hover:bg-red-50 hover:text-red-700 rounded-md"
+                                  className="h-6 lg:h-7 px-2 lg:px-2.5 text-[10px] lg:text-xs hover:bg-destructive/10 hover:text-destructive rounded-md"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onDelete(project);

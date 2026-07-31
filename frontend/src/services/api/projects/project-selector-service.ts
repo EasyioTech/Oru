@@ -176,7 +176,7 @@ export async function getProjectsForSelection(
           start_date: project.start_date,
           end_date: project.end_date,
           budget: project.budget,
-          currency: project.currency || 'USD',
+          currency: project.currency || 'INR',
           progress: project.progress || 0,
           is_active: true // Projects don't have is_active field, assume active if in results
         };
@@ -242,7 +242,7 @@ export async function getProjectById(
       start_date: project.start_date,
       end_date: project.end_date,
       budget: project.budget,
-      currency: project.currency || 'USD',
+      currency: project.currency || 'INR',
       progress: project.progress || 0,
       is_active: true
     };

@@ -119,7 +119,7 @@ export class ProjectCoreService extends BaseProjectService {
       actual_cost: data.actual_cost || 0,
       allocated_budget: data.allocated_budget || null,
       cost_center: data.cost_center || null,
-      currency: data.currency || 'USD',
+      currency: data.currency || 'INR',
       client_id: data.client_id || null,
       project_manager_id: data.project_manager_id || null,
       account_manager_id: data.account_manager_id || null,

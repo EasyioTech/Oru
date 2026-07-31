@@ -23,5 +23,5 @@ export const commandPaletteItems: CommandPaletteItem[] = [
   { id: 'reports', label: 'Reports', path: '/reports', iconName: 'FileText', shortcut: '⌘T' },
   { id: 'analytics', label: 'Analytics', path: '/analytics', iconName: 'BarChart3', shortcut: '⌘N' },
   { id: 'settings', label: 'Settings', path: '/settings', iconName: 'Settings', shortcut: '⌘S' },
-  { id: 'profile', label: 'My Profile', path: '/my-profile', iconName: 'User', shortcut: '⌘M' },
+
 ];

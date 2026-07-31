@@ -200,9 +200,9 @@ export const EmployeeViewDialog = ({
                               <span>Start: {new Date(project.start_date).toLocaleDateString()}</span>
                             )}
                             {project.budget && (
-                              <span>Budget: {new Intl.NumberFormat('en-US', {
+                              <span>Budget: {new Intl.NumberFormat('en-IN', {
                                 style: 'currency',
-                                currency: project.currency || 'USD'
+                                currency: project.currency || 'INR'
                               }).format(project.budget)}</span>
                             )}
                             <span>Progress: {project.progress}%</span>

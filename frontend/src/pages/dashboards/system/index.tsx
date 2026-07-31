@@ -185,13 +185,13 @@ const SystemDashboard = () => {
                   <div className="space-y-4">
                     <div>
                       <div className="text-2xl font-bold text-green-600">
-                        ${metrics.revenueMetrics.mrr.toLocaleString()}
+                        ₹{metrics.revenueMetrics.mrr.toLocaleString('en-IN')}
                       </div>
                       <div className="text-sm text-muted-foreground">Monthly Recurring Revenue</div>
                     </div>
                     <div>
                       <div className="text-xl font-semibold">
-                        ${metrics.revenueMetrics.arr.toLocaleString()}
+                        ₹{metrics.revenueMetrics.arr.toLocaleString('en-IN')}
                       </div>
                       <div className="text-sm text-muted-foreground">Annual Recurring Revenue</div>
                     </div>

@@ -44,12 +44,12 @@ export default function ReportingDashboard() {
       </div>
 
       <Grid numItemsSm={2} numItemsLg={4} className="gap-6">
-        <TremorCard><Text>Revenue</Text><Metric>${data.financial?.revenue?.toLocaleString() || '0'}</Metric></TremorCard>
-        <TremorCard><Text>Expenses</Text><Metric>${data.financial?.expenses?.toLocaleString() || '0'}</Metric></TremorCard>
-        <TremorCard><Text>Profit</Text><Metric>${data.financial?.profit?.toLocaleString() || '0'}</Metric></TremorCard>
-        <TremorCard><Text>Pending Revenue</Text><Metric>${data.financial?.pending_revenue?.toLocaleString() || '0'}</Metric></TremorCard>
+        <TremorCard><Text>Revenue</Text><Metric>₹{data.financial?.revenue?.toLocaleString('en-IN') || '0'}</Metric></TremorCard>
+        <TremorCard><Text>Expenses</Text><Metric>₹{data.financial?.expenses?.toLocaleString('en-IN') || '0'}</Metric></TremorCard>
+        <TremorCard><Text>Profit</Text><Metric>₹{data.financial?.profit?.toLocaleString('en-IN') || '0'}</Metric></TremorCard>
+        <TremorCard><Text>Pending Revenue</Text><Metric>₹{data.financial?.pending_revenue?.toLocaleString('en-IN') || '0'}</Metric></TremorCard>
         <TremorCard><Text>Total Products</Text><Metric>{data.inventory?.total_products?.toLocaleString() || '0'}</Metric></TremorCard>
-        <TremorCard><Text>Stock Value</Text><Metric>${data.inventory?.total_stock_value?.toLocaleString() || '0'}</Metric></TremorCard>
+        <TremorCard><Text>Stock Value</Text><Metric>₹{data.inventory?.total_stock_value?.toLocaleString('en-IN') || '0'}</Metric></TremorCard>
         <TremorCard><Text>Total Assets</Text><Metric>{data.assets?.total_assets?.toLocaleString() || '0'}</Metric></TremorCard>
         <TremorCard><Text>Employees</Text><Metric>{data.hr?.total_employees?.toLocaleString() || '0'}</Metric></TremorCard>
       </Grid>

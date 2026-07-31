@@ -30,12 +30,13 @@ export const CreateEmployee = React.lazy(() => import("../pages/employees/create
 export const AssignUserRoles = React.lazy(() => import("../pages/employees/assign-user-roles"));
 export const EmployeeProjects = React.lazy(() => import("../pages/employees/employee-projects"));
 export const EmployeePerformance = React.lazy(() => import("../pages/employees/employee-performance"));
-export const MyProfile = React.lazy(() => import("../pages/employees/my-profile"));
+
 export const MyAttendance = React.lazy(() => import("../pages/employees/my-attendance"));
 export const MyLeave = React.lazy(() => import("../pages/employees/my-leave"));
 
 // Project Management
 export const Projects = React.lazy(() => import("../pages/projects"));
+export const ProjectFormPage = React.lazy(() => import("../pages/projects/form-page"));
 export const ProjectManagement = React.lazy(() => import("../pages/project-management"));
 export const ProjectDetails = React.lazy(() => import("../pages/project-details"));
 export const TaskDetails = React.lazy(() => import("../pages/project-details/task-details"));

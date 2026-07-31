@@ -118,7 +118,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/calendar': { path: '/calendar', requiredRoles: [], allowHigherRoles: false },
 
   // Personal pages
-  '/my-profile': { path: '/my-profile', requiredRoles: [], allowHigherRoles: false },
+
   '/my-attendance': { path: '/my-attendance', requiredRoles: [], allowHigherRoles: false },
   '/my-leave': { path: '/my-leave', requiredRoles: [], allowHigherRoles: false },
   '/notifications': { path: '/notifications', requiredRoles: [], allowHigherRoles: false },

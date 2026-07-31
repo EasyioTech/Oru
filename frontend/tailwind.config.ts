@@ -92,13 +92,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				brand: {
+					lime: '#DFFBA1',
+					teal: '#96D8D0',
+					lavender: '#BEB9CC',
+					pink: '#F1B4B9',
+					sky: '#74D1FF',
+					black: '#000000'
 				}
 			},
-fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'],
-        serif: ['Instrument Serif', 'Georgia', 'serif'],
-      },
+			fontFamily: {
+				sans: ['Urbanist', 'Inter', 'system-ui', 'sans-serif'],
+				display: ['Urbanist', 'DM Sans', 'Inter', 'system-ui', 'sans-serif'],
+				serif: ['Instrument Serif', 'Georgia', 'serif'],
+			},
 			fontSize: {
 				xs: ['var(--text-xs)', { lineHeight: 'var(--leading-normal)' }],
 				sm: ['var(--text-sm)', { lineHeight: 'var(--leading-normal)' }],
@@ -108,7 +116,13 @@ fontFamily: {
 				'2xl': ['var(--text-2xl)', { lineHeight: 'var(--leading-tight)' }],
 				'3xl': ['var(--text-3xl)', { lineHeight: 'var(--leading-tight)' }],
 				'4xl': ['var(--text-4xl)', { lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tighter)' }],
-				'5xl': ['var(--text-5xl)', { lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tighter)' }]
+				'5xl': ['var(--text-5xl)', { lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tighter)' }],
+				
+				// Urbanist Editorial Specs
+				'heading': ['27px', { lineHeight: '1.2' }],
+				'body': ['18px', { lineHeight: '1.3' }],
+				'title': ['16px', { lineHeight: '1.2' }],
+				'subtitle': ['12px', { lineHeight: '1.3' }],
 			},
 			fontWeight: {
 				normal: 'var(--font-normal)',

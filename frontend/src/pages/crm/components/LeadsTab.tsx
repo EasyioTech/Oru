@@ -2,7 +2,6 @@
  * Leads Tab Component
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -46,16 +45,16 @@ export const LeadsTab = ({
   return (
     <div className="grid gap-4">
       {leads.map((lead) => (
-        <Card 
+        <div 
           key={lead.id} 
-          className="hover:shadow-md transition-shadow cursor-pointer" 
+          className="group relative bg-white/50 border border-gray-100 hover:border-gray-200 hover:bg-white rounded-3xl p-5 transition-all duration-300 cursor-pointer" 
           onClick={() => navigate(`/crm/leads/${lead.id}`)}
         >
-          <CardHeader className="pb-3">
-            <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:items-start sm:space-y-0">
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
               <div className="flex-1">
-                <CardTitle className="text-lg">{lead.company_name || lead.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-[17px] font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{lead.company_name || lead.name}</h3>
+                <p className="text-[13px] text-gray-500 font-medium mt-1">
                   {lead.lead_number} • {lead.contact_name || lead.name}
                 </p>
               </div>
@@ -68,67 +67,62 @@ export const LeadsTab = ({
                 </Badge>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 border-y border-gray-100/50">
               <div>
-                <p className="text-sm text-muted-foreground">Contact</p>
-                <p className="font-medium">{lead.email || 'No email'}</p>
-                <p className="text-sm">{lead.phone || 'No phone'}</p>
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-gray-400 block mb-1">Contact</span>
+                <p className="text-[13px] font-medium text-gray-900">{lead.email || 'No email'}</p>
+                <p className="text-[13px] text-gray-500">{lead.phone || 'No phone'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Estimated Value</p>
-                <p className="font-semibold">
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-gray-400 block mb-1">Estimated Value</span>
+                <p className="text-[14px] font-semibold text-gray-900">
                   {(lead.estimated_value || lead.value)
                     ? `₹${parseFloat((lead.estimated_value || lead.value || 0).toString()).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
                     : '₹0'
                   }
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[12px] text-gray-500">
                   Close: {lead.expected_close_date ? new Date(lead.expected_close_date).toLocaleDateString() : 'Not set'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Probability</p>
-                <div className="flex items-center gap-2">
-                  <Progress value={lead.probability || 0} className="flex-1" />
-                  <span className="text-sm font-medium">{lead.probability || 0}%</span>
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-gray-400 block mb-2">Probability</span>
+                <div className="flex items-center gap-3">
+                  <Progress value={lead.probability || 0} className="flex-1 h-1.5" />
+                  <span className="text-[12px] font-medium text-gray-700">{lead.probability || 0}%</span>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
-              <div className="text-sm text-muted-foreground">
+            
+            <div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:items-center">
+              <div className="text-[11px] font-medium text-gray-400">
                 Created: {new Date(lead.created_at).toLocaleDateString()}
               </div>
               <div className="flex flex-col space-y-2 sm:flex-row sm:gap-2 sm:space-y-0" onClick={(e) => e.stopPropagation()}>
-                <Button variant="outline" size="sm" onClick={() => onEditLead(lead)} className="w-full sm:w-auto">
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
+                <Button variant="ghost" size="sm" onClick={() => onEditLead(lead)} className="text-gray-500 hover:text-gray-900 h-8 rounded-full px-4 text-xs font-medium">
+                  <Edit className="h-3.5 w-3.5 mr-1.5" /> Edit
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => onNewActivity(lead.id)} className="w-full sm:w-auto">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Activity
+                <Button variant="ghost" size="sm" onClick={() => onNewActivity(lead.id)} className="text-gray-500 hover:text-gray-900 h-8 rounded-full px-4 text-xs font-medium">
+                  <Plus className="h-3.5 w-3.5 mr-1.5" /> Activity
                 </Button>
                 {lead.status !== 'won' && lead.status !== 'lost' && (
                   <>
-                    <Button variant="outline" size="sm" onClick={() => onConvertToClient(lead)} className="w-full sm:w-auto">
-                      <UserCheck className="h-4 w-4 mr-1" />
-                      Convert
+                    <Button variant="ghost" size="sm" onClick={() => onConvertToClient(lead)} className="text-gray-500 hover:text-gray-900 h-8 rounded-full px-4 text-xs font-medium">
+                      <UserCheck className="h-3.5 w-3.5 mr-1.5" /> Convert
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => onCreateQuotation(lead)} className="w-full sm:w-auto">
-                      <FileText className="h-4 w-4 mr-1" />
-                      Quote
+                    <Button variant="ghost" size="sm" onClick={() => onCreateQuotation(lead)} className="text-gray-500 hover:text-gray-900 h-8 rounded-full px-4 text-xs font-medium">
+                      <FileText className="h-3.5 w-3.5 mr-1.5" /> Quote
                     </Button>
                   </>
                 )}
-                <Button variant="outline" size="sm" onClick={() => onDeleteLead(lead)} className="w-full sm:w-auto">
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
+                <Button variant="ghost" size="sm" onClick={() => onDeleteLead(lead)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 rounded-full px-4 text-xs font-medium">
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   );

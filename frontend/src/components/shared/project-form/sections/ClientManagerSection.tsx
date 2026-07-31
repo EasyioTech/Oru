@@ -14,13 +14,13 @@ export function ClientManagerSection({ ctx }: ClientManagerSectionProps) {
   const { formData, setFormData, loadingClients, clientSearchOpen, setClientSearchOpen, clientSearchTerm, setClientSearchTerm, employees, loadingEmployees, filteredClients, selectedClient } = ctx;
   const set = (patch: Partial<typeof formData>) => setFormData(p => ({ ...p, ...patch }));
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Client</Label>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2.5">
+          <Label className="text-sm font-medium">Client</Label>
           <Popover open={clientSearchOpen} onOpenChange={setClientSearchOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" role="combobox" className="w-full justify-between" disabled={loadingClients}>
+              <Button variant="outline" role="combobox" className="w-full justify-between h-11" disabled={loadingClients}>
                 {selectedClient ? (selectedClient.company_name || selectedClient.name) : "Select client..."}
                 <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -44,10 +44,10 @@ export function ClientManagerSection({ ctx }: ClientManagerSectionProps) {
             </PopoverContent>
           </Popover>
         </div>
-        <div className="space-y-2">
-          <Label>Project Manager</Label>
+        <div className="space-y-2.5">
+          <Label className="text-sm font-medium">Project Manager</Label>
           <Select value={formData.project_manager_id || '__none__'} onValueChange={v => set({ project_manager_id: v === '__none__' ? null : v })} disabled={loadingEmployees}>
-            <SelectTrigger><SelectValue placeholder={loadingEmployees ? "Loading..." : "Select project manager"} /></SelectTrigger>
+            <SelectTrigger className="h-11"><SelectValue placeholder={loadingEmployees ? "Loading..." : "Select project manager"} /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__none__">No Project Manager</SelectItem>
               {employees.map(e => <SelectItem key={e.id} value={e.id}>{e.full_name} {e.department && `(${e.department})`}</SelectItem>)}
@@ -55,10 +55,10 @@ export function ClientManagerSection({ ctx }: ClientManagerSectionProps) {
           </Select>
         </div>
       </div>
-      <div className="space-y-2">
-        <Label>Account Manager</Label>
+      <div className="space-y-2.5">
+        <Label className="text-sm font-medium">Account Manager</Label>
         <Select value={formData.account_manager_id || '__none__'} onValueChange={v => set({ account_manager_id: v === '__none__' ? null : v })} disabled={loadingEmployees}>
-          <SelectTrigger><SelectValue placeholder={loadingEmployees ? "Loading..." : "Select account manager"} /></SelectTrigger>
+          <SelectTrigger className="h-11"><SelectValue placeholder={loadingEmployees ? "Loading..." : "Select account manager"} /></SelectTrigger>
           <SelectContent>
             <SelectItem value="__none__">No Account Manager</SelectItem>
             {employees.map(e => <SelectItem key={e.id} value={e.id}>{e.full_name} {e.department && `(${e.department})`}</SelectItem>)}

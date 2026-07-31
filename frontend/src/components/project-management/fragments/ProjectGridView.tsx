@@ -295,11 +295,11 @@ export function ProjectGridView({
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-xs text-muted-foreground">Budget</p>
-                  <p className="font-medium">{project.currency || 'USD'} {project.budget?.toLocaleString() || '0'}</p>
+                  <p className="font-medium">{project.currency || 'INR'} {project.budget?.toLocaleString('en-IN') || '0'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Spent</p>
-                  <p className="font-medium">{project.currency || 'USD'} {project.actual_cost?.toLocaleString() || '0'}</p>
+                  <p className="font-medium">{project.currency || 'INR'} {project.actual_cost?.toLocaleString('en-IN') || '0'}</p>
                 </div>
               </div>
 
