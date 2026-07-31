@@ -11,3 +11,5 @@ export { EmptyState, OnboardingGuide } from './EmptyStates';
 export { SearchCommand } from './SearchCommand';
 export { FavoritesDropdown } from './FavoritesDropdown';
 export { QuickCreateMenu } from './QuickCreateMenu';
+export { SettingsPanel } from './SettingsPanel';
+export { HealthAlert } from './HealthAlert';
