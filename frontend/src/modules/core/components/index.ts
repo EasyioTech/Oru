@@ -13,3 +13,4 @@ export { FavoritesDropdown } from './FavoritesDropdown';
 export { QuickCreateMenu } from './QuickCreateMenu';
 export { SettingsPanel } from './SettingsPanel';
 export { HealthAlert } from './HealthAlert';
+export { DashboardHeaderBar } from './DashboardHeaderBar';
