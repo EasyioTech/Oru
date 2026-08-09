@@ -11,7 +11,7 @@ export const AgencySelectSchema = z.object({
   maxUsers: z.number(),
   maxStorageGB: z.number(),
   features: z.array(z.any()).default([]),
-  settings: z.record(z.any()).default({}),
+  settings: z.record(z.string(), z.any()).default({}),
   contactEmail: z.string().email().nullable(),
   contactPhone: z.string().nullable(),
   isActive: z.boolean(),
