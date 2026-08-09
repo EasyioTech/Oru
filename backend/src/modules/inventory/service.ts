@@ -2,7 +2,6 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, and, ilike, or, SQL, sql, desc } from 'drizzle-orm';
 import { warehouses, products, inventory, inventoryTransactions } from './schema.js';
 import { ProductFilters, NewWarehouse, NewProduct, NewInventoryTransaction } from './types.js';
-import { v4 as uuidv4 } from 'uuid';
 
 export class InventoryService {
     constructor(
