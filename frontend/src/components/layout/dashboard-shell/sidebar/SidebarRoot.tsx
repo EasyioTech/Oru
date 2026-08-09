@@ -37,51 +37,65 @@ export function SidebarRoot() {
     <div className="w-full lg:w-[280px] shrink-0 flex flex-col h-screen hidden lg:flex pt-8 pb-4 px-4">
       
       {/* Brand Logo */}
-      <Link to="/dashboard" className="flex items-center gap-2 font-bold text-xl tracking-tighter hover:opacity-80 transition-opacity mb-10 px-1">
-        <div className="w-7 h-7 bg-black text-white rounded-[8px] flex items-center justify-center text-[12px]">or.</div>
-        <span className="text-gray-900 text-[22px]">Oru ERP.</span>
+      <Link to="/dashboard" className="flex items-center gap-2.5 font-bold tracking-tighter hover:opacity-80 transition-opacity mb-8 px-1">
+        <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-black text-white rounded-[10px] flex items-center justify-center text-[13px] shadow-lg shadow-black/10 border border-gray-800">
+          or.
+        </div>
+        <span className="text-gray-900 text-[24px]">Oru ERP.</span>
       </Link>
 
       {/* Header for Left Col */}
-      <div className="flex items-center justify-between px-1 shrink-0 mb-5">
-        <h1 className="text-[27px] font-medium tracking-tight text-gray-900 leading-[1.2]">Work Queue</h1>
+      <div className="flex items-center justify-between px-1 shrink-0 mb-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-[25px] font-semibold tracking-tight text-gray-900 leading-[1.2]">Work Queue</h1>
+          <div className="flex items-center justify-center px-1.5 py-0.5 rounded-md bg-black/5 text-gray-600 text-[10px] font-bold">
+            {corePages.length + otherPages.length}
+          </div>
+        </div>
       </div>
       
       {/* Queue Controls */}
-      <div className="flex items-center gap-3 shrink-0 mb-6">
-        <div className="flex-1 flex items-center bg-white/60 backdrop-blur-sm rounded-full px-4 py-2.5 border border-white shadow-sm">
-          <Search className="w-4 h-4 text-gray-400 mr-2" />
+      <div className="flex items-center gap-2 shrink-0 mb-5 px-1">
+        <div className="flex-1 flex items-center bg-white/70 backdrop-blur-md rounded-[12px] px-3.5 py-2.5 border border-white/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-all focus-within:shadow-[0_4px_15px_rgba(0,0,0,0.06)] focus-within:bg-white group hover:bg-white/90">
+          <Search className="w-4 h-4 text-gray-400 mr-2 group-focus-within:text-black transition-colors" />
           <input 
             type="text"
             placeholder="Search queue..." 
             className="text-xs font-medium text-gray-700 bg-transparent outline-none w-full placeholder:text-gray-400"
           />
+          <div className="hidden sm:flex items-center justify-center px-1.5 py-0.5 rounded-[4px] bg-gray-100/80 border border-gray-200/60 text-[9px] font-bold text-gray-400 tracking-wider">⌘K</div>
         </div>
         <button 
           onClick={() => navigate('/settings')}
-          className="w-10 h-10 bg-white/60 rounded-full flex items-center justify-center border border-white shadow-sm hover:bg-white transition-colors shrink-0"
+          className="w-[38px] h-[38px] bg-white/70 backdrop-blur-md rounded-[12px] flex items-center justify-center border border-white/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:bg-white hover:shadow-[0_4px_15px_rgba(0,0,0,0.06)] transition-all shrink-0 text-gray-500 hover:text-black group"
         >
-          <Settings className="w-4 h-4 text-gray-500" />
+          <Settings className="w-4 h-4 group-hover:rotate-45 transition-transform duration-300" />
         </button>
       </div>
 
-      <div className="flex gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold shrink-0 mb-6 px-1 overflow-x-auto no-scrollbar pb-1">
+      <div className="bg-black/[0.04] p-1 rounded-[12px] flex shrink-0 mb-6 mx-1 relative border border-black/[0.02]">
         <button 
           onClick={() => setActiveTab('modules')}
           className={cn(
-            "px-4 sm:px-5 py-1.5 sm:py-2 rounded-full transition-colors whitespace-nowrap flex-1 sm:flex-none",
-            activeTab === 'modules' ? "bg-black text-white" : "text-gray-500 hover:bg-white/60"
+            "relative z-10 flex-1 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold rounded-[10px] transition-colors duration-300",
+            activeTab === 'modules' ? "text-gray-900" : "text-gray-500 hover:text-gray-700"
           )}
         >
+          {activeTab === 'modules' && (
+            <motion.div layoutId="sidebar-tab-indicator" className="absolute inset-0 bg-white rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/[0.04]" style={{ zIndex: -1 }} />
+          )}
           Modules
         </button>
         <button 
           onClick={() => setActiveTab('feed')}
           className={cn(
-            "px-4 sm:px-5 py-1.5 sm:py-2 rounded-full transition-colors whitespace-nowrap flex-1 sm:flex-none",
-            activeTab === 'feed' ? "bg-black text-white" : "text-gray-500 hover:bg-white/60"
+            "relative z-10 flex-1 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold rounded-[10px] transition-colors duration-300",
+            activeTab === 'feed' ? "text-gray-900" : "text-gray-500 hover:text-gray-700"
           )}
         >
+          {activeTab === 'feed' && (
+            <motion.div layoutId="sidebar-tab-indicator" className="absolute inset-0 bg-white rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/[0.04]" style={{ zIndex: -1 }} />
+          )}
           My Feed
         </button>
       </div>

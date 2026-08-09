@@ -4,16 +4,18 @@ import { eq, desc } from 'drizzle-orm';
 import { FastifyBaseLogger } from 'fastify';
 import { AppError, NotFoundError } from '../../utils/errors.js';
 import { updateAgencySchema, UpdateAgencyInput } from './schemas.js';
+import { transformAgencyRow } from '../../infrastructure/transformers/agency.transformer.js';
 
 export class AgenciesService {
     constructor(private logger: FastifyBaseLogger) {}
 
     async listAgencies(limit = 50, offset = 0) {
         try {
-            return await db.select().from(agencies)
+            const results = await db.select().from(agencies)
                 .orderBy(desc(agencies.createdAt))
                 .limit(limit)
                 .offset(offset);
+            return results.map(transformAgencyRow);
         } catch (error) {
             this.logger.error({ error, context: 'listAgencies' });
             throw new AppError('Failed to fetch agencies');
@@ -24,7 +26,7 @@ export class AgenciesService {
         try {
             const [agency] = await db.select().from(agencies).where(eq(agencies.id, id));
             if (!agency) throw new NotFoundError('Agency not found');
-            return agency;
+            return transformAgencyRow(agency);
         } catch (error) {
             if (error instanceof NotFoundError) throw error;
             this.logger.error({ error, context: 'getAgency', id });
@@ -40,7 +42,7 @@ export class AgenciesService {
                 .where(eq(agencies.id, id))
                 .returning();
             if (!agency) throw new NotFoundError('Agency not found');
-            return agency;
+            return transformAgencyRow(agency);
         } catch (error) {
             if (error instanceof NotFoundError) throw error;
             this.logger.error({ error, context: 'updateAgency', id, input });
@@ -55,7 +57,7 @@ export class AgenciesService {
                 .where(eq(agencies.id, id))
                 .returning();
             if (!agency) throw new NotFoundError('Agency not found');
-            return agency;
+            return transformAgencyRow(agency);
         } catch (error) {
             if (error instanceof NotFoundError) throw error;
             this.logger.error({ error, context: 'deleteAgency', id });
