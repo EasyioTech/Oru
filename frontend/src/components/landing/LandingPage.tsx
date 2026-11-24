@@ -23,19 +23,19 @@ export default function LandingPage() {
         {/* Ambient Mesh Gradients & Lighting */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           {/* Subtle full-height ambient vertical tint */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.015] to-primary/[0.025] dark:from-transparent dark:via-primary/[0.015] dark:to-primary/[0.03]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-500/[0.01] to-slate-500/[0.02] dark:from-transparent dark:via-slate-800/[0.03] dark:to-transparent" />
 
-          {/* Top Hero / Header Aura */}
-          <div className="absolute -top-[180px] left-1/2 -translate-x-1/2 w-[1100px] h-[700px] rounded-full blur-[140px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.15),rgba(168,85,247,0.08),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.25),rgba(147,51,234,0.15),transparent_70%)]" />
+          {/* Top Hero / Header Aura (Cool Slate & Subtle Titanium Steel - Zero AI Purple) */}
+          <div className="absolute -top-[180px] left-1/2 -translate-x-1/2 w-[1100px] h-[700px] rounded-full blur-[140px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(148,163,184,0.10),rgba(203,213,225,0.05),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04),rgba(148,163,184,0.02),transparent_70%)]" />
 
-          {/* Mid-page Accent Glow (Emerald / Cyan on Right) */}
-          <div className="absolute top-[32%] -right-[150px] w-[650px] h-[650px] rounded-full blur-[150px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.09),rgba(20,184,166,0.05),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12),rgba(20,184,166,0.06),transparent_70%)]" />
+          {/* Mid-page Accent Glow (Deep Steel / Slate on Right) */}
+          <div className="absolute top-[32%] -right-[150px] w-[650px] h-[650px] rounded-full blur-[150px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(148,163,184,0.08),rgba(226,232,240,0.04),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(71,85,105,0.12),rgba(15,23,42,0.08),transparent_70%)]" />
 
-          {/* Mid-page Accent Glow (Indigo / Violet on Left) */}
-          <div className="absolute top-[56%] -left-[150px] w-[700px] h-[700px] rounded-full blur-[160px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.10),rgba(139,92,246,0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.15),rgba(99,102,241,0.10),transparent_70%)]" />
+          {/* Mid-page Accent Glow (Precision Charcoal / Neutral Slate on Left) */}
+          <div className="absolute top-[56%] -left-[150px] w-[700px] h-[700px] rounded-full blur-[160px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(148,163,184,0.08),rgba(203,213,225,0.04),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(51,65,85,0.14),rgba(30,41,59,0.08),transparent_70%)]" />
 
-          {/* Bottom Pricing & CTA Aura */}
-          <div className="absolute -bottom-[150px] left-1/2 -translate-x-1/2 w-[1000px] h-[650px] rounded-full blur-[140px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12),rgba(59,130,246,0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.20),rgba(59,130,246,0.10),transparent_70%)]" />
+          {/* Bottom Pricing & CTA Aura (Deep Obsidian / Minimal Slate) */}
+          <div className="absolute -bottom-[150px] left-1/2 -translate-x-1/2 w-[1000px] h-[650px] rounded-full blur-[140px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(148,163,184,0.10),rgba(226,232,240,0.05),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(71,85,105,0.10),rgba(15,23,42,0.05),transparent_70%)]" />
 
           {/* Fine geometric dot grid */}
           <div

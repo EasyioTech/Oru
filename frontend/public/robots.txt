@@ -1,0 +1,54 @@
+# Robots.txt for Oru ERP
+# Website: https://oruerp.com
+# Parent Organization: Easyio Technologies (https://easyio.tech)
+
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/*
+Allow: /pricing
+Allow: /agency-signup
+Allow: /auth
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /images/
+
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /functions/
+
+# Answer Engine Optimization (AEO) - Full Access for AI Agents & Search Bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+# Sitemap Index
+Sitemap: https://oruerp.com/sitemap.xml
