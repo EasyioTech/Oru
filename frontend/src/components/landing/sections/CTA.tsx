@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { ArrowRight, Zap, Shield, Clock } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
 import { Button, GlowOrb } from '../fragments';
 import { Link } from 'react-router-dom'; // Added Link import
 
@@ -9,7 +9,7 @@ export const CTA = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} id="pricing" className="relative py-24 lg:py-32 px-4 overflow-hidden bg-background">
+    <section ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden bg-transparent">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.05),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.8)_100%)] pointer-events-none" />
 
@@ -19,9 +19,9 @@ export const CTA = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-xs font-medium text-zinc-400 mb-6">
-            <Zap className="w-3 h-3 text-yellow-400" />
-            Get started — it's completely free
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-xs font-medium text-muted-foreground mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Zero setup fee — Full 14-day access
           </span>
         </motion.div>
 
@@ -82,9 +82,9 @@ export const CTA = () => {
           className="mt-10 flex items-center justify-center gap-8 flex-wrap"
         >
           {[
-            { icon: Clock, text: 'Free forever to start' },
-            { icon: Shield, text: 'No Credit Card. No Lock-in. Just Results.' },
-            { icon: Zap, text: 'Setup in 5 minutes' },
+            { icon: Clock, text: 'Free 14-day evaluation' },
+            { icon: ShieldCheck, text: 'No Credit Card. No Lock-in.' },
+            { icon: CheckCircle2, text: 'Fast migration support' },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
               <item.icon className="w-4 h-4 text-muted-foreground/60" />

@@ -206,7 +206,7 @@ export const Testimonials = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden bg-background">
+    <section ref={ref} className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden bg-transparent">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.05),transparent_50%)]" />
 

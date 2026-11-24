@@ -40,3 +40,6 @@ deploy-to-*.ps1
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch files
+scratch/

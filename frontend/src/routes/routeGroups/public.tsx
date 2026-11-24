@@ -7,6 +7,8 @@ import { DashboardHeaderBar } from "@/modules/core/components";
 export const PublicRoutes = () => (
   <Route element={<PublicLayout />}>
     <Route path="/" element={<SuspenseRoute><Pages.Landing /></SuspenseRoute>} />
+    <Route path="/blog" element={<SuspenseRoute><Pages.BlogList /></SuspenseRoute>} />
+    <Route path="/blog/:slug" element={<SuspenseRoute><Pages.BlogPostDetail /></SuspenseRoute>} />
   </Route>
 );
 

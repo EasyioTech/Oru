@@ -69,14 +69,22 @@ export const HRMSView = () => {
 
                     <div className="space-y-3">
                         {[
-                            { name: 'Burhan', time: '09:12 AM', status: 'On Time', avatar: 'BA' },
+                            { name: 'Burhan Ali', time: '09:12 AM', status: 'On Time', avatar: 'BA', image: '/images/Burhan-Ali.webp.jpg' },
                             { name: 'Sarah Wilson', time: '09:45 AM', status: 'Late', avatar: 'SW' },
                             { name: 'Anna Chen', time: '10:02 AM', status: 'Late', avatar: 'AC' },
                         ].map((person, i) => (
                             <div key={i} className="flex items-center mt-2 group first:mt-0">
-                                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground border border-border group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                    {person.avatar}
-                                </div>
+                                {person.image ? (
+                                    <img
+                                        src={person.image}
+                                        alt={person.name}
+                                        className="w-8 h-8 rounded-lg object-cover border border-border shrink-0"
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground border border-border group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                                        {person.avatar}
+                                    </div>
+                                )}
                                 <div className="flex-1 ml-3">
                                     <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">{person.name}</div>
                                     <div className="text-[9px] text-muted-foreground font-medium">{person.time}</div>

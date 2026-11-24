@@ -20,7 +20,7 @@ export default function LogoCloud() {
   }, []);
 
   return (
-    <section className="py-16 border-y border-border overflow-hidden bg-background">
+    <section className="py-16 border-y border-border/40 overflow-hidden bg-background/30 backdrop-blur-sm">
       <Container>
         <FadeIn isVisible={mounted} delay={100}>
           <p className="text-center text-[13px] text-muted-foreground mb-8 tracking-[0.02em] uppercase">
@@ -29,8 +29,8 @@ export default function LogoCloud() {
         </FadeIn>
 
         <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background/80 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background/80 to-transparent z-10 pointer-events-none" />
 
           <InfiniteScroll />
         </div>

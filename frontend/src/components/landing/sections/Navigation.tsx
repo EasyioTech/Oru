@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun, ArrowRight, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../fragments';
@@ -13,14 +13,18 @@ const NAV_LINKS = [
   { label: 'Pricing',      href: '#pricing' },
   { label: 'Testimonials', href: '#testimonials' },
   { label: 'FAQ',          href: '#faq' },
+  { label: 'Blog',         href: '/blog' },
 ];
 
 export default function Navigation() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled]     = useState(false);
   const [visible, setVisible]       = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted]       = useState(false);
   const lastScrollY = useRef(0);
+  const isNavigatingRef = useRef(false);
   const { scrollTo } = useSmoothScroll();
   const { theme, resolvedTheme, setTheme } = useThemeSync();
 
@@ -32,7 +36,9 @@ export default function Navigation() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const y = window.scrollY;
-          setVisible(!(y > lastScrollY.current && y > 100));
+          if (!isNavigatingRef.current) {
+            setVisible(!(y > lastScrollY.current && y > 100));
+          }
           setScrolled(y > 20);
           lastScrollY.current = y;
           ticking = false;
@@ -63,8 +69,30 @@ export default function Navigation() {
   };
 
   const handleNavClick = (href: string) => {
-    scrollTo(href);
     setMobileOpen(false);
+    document.body.style.overflow = '';
+
+    if (href.startsWith('#')) {
+      const targetId = href.replace(/^#/, '');
+      isNavigatingRef.current = true;
+      setVisible(true);
+
+      if (location.pathname === '/') {
+        setTimeout(() => {
+          scrollTo(targetId);
+          setTimeout(() => {
+            isNavigatingRef.current = false;
+          }, 800);
+        }, 50);
+      } else {
+        navigate(`/${href}`);
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 800);
+      }
+    } else {
+      navigate(href);
+    }
   };
 
   return (
@@ -83,7 +111,16 @@ export default function Navigation() {
           <Link
             to="/"
             className="flex items-center group"
-            onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileOpen(false); }}
+            onClick={() => {
+              isNavigatingRef.current = true;
+              setVisible(true);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setMobileOpen(false);
+              document.body.style.overflow = '';
+              setTimeout(() => {
+                isNavigatingRef.current = false;
+              }, 800);
+            }}
           >
             <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden">
               <ThemeLogo className="h-8 w-auto object-contain" />

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Search, Settings, Check, ChevronRight } from 'lucide-react';
 import * as Icons from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ThemeLogo } from '@/components/shared/ThemeLogo';
 import { motion } from 'framer-motion';
 import { useAuthWithViewAs } from '@/hooks/useAuthWithViewAs';
 import { useSidebarNav } from './useSidebarNav';
@@ -37,11 +37,8 @@ export function SidebarRoot() {
     <div className="w-full lg:w-[280px] shrink-0 flex flex-col h-screen hidden lg:flex pt-8 pb-4 px-4">
       
       {/* Brand Logo */}
-      <Link to="/dashboard" className="flex items-center gap-2.5 font-bold tracking-tighter hover:opacity-80 transition-opacity mb-8 px-1">
-        <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-black text-white rounded-[10px] flex items-center justify-center text-[13px] shadow-lg shadow-black/10 border border-gray-800">
-          or.
-        </div>
-        <span className="text-gray-900 text-[24px]">Oru ERP.</span>
+      <Link to="/dashboard" className="flex items-center hover:opacity-85 transition-opacity mb-8 px-1">
+        <ThemeLogo className="h-8 w-auto object-contain" />
       </Link>
 
       {/* Header for Left Col */}

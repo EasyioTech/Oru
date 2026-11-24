@@ -63,15 +63,16 @@ export function useCounter({
 }
 
 export function useSmoothScroll() {
-  const scrollTo = useCallback((elementId: string) => {
-    const element = document.getElementById(elementId);
+  const scrollTo = useCallback((target: string) => {
+    const id = target.replace(/^#/, '');
+    const element = document.getElementById(id) || document.querySelector(target);
     if (element) {
       const offset = 80;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - offset;
 
       window.scrollTo({
-        top: offsetPosition,
+        top: Math.max(0, offsetPosition),
         behavior: 'smooth',
       });
     }

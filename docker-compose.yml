@@ -1,22 +1,16 @@
-# Oru ERP Docker Compose
-
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: oru_erp
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -27,9 +21,6 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin123
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     volumes:
       - minio_data:/data
     restart: unless-stopped
@@ -44,8 +35,8 @@ services:
     environment:
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-meili-dev-master-key}
       MEILI_ENV: ${NODE_ENV:-development}
-    ports:
-      - "7700:7700"
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_UPGRADE_DB: "true"
     volumes:
       - meilisearch_data:/meili_data
     restart: unless-stopped
@@ -81,9 +72,9 @@ services:
         condition: service_started
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oru-backend.rule=(Host(`oruerp.com`) || Host(`www.oruerp.com`) || Host(`get-oru.com`) || Host(`www.get-oru.com`)) && (PathPrefix(`/api`) || PathPrefix(`/database`))"
-      - "traefik.http.routers.oru-backend.entrypoints=web,websecure"
-      - "traefik.http.routers.oru-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.oru-backend.rule=(Host(`oruerp.com`) || Host(`www.oruerp.com`) || HostRegexp(`^[a-z0-9-]+\\.oruerp\\.com$`)) && (PathPrefix(`/api`) || PathPrefix(`/database`))"
+      - "traefik.http.routers.oru-backend.entrypoints=websecure"
+      - "traefik.http.routers.oru-backend.tls.certresolver=cloudflare"
       - "traefik.http.services.oru-backend.loadbalancer.server.port=3000"
     restart: unless-stopped
 
@@ -93,9 +84,9 @@ services:
       dockerfile: frontend/Dockerfile
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oru-frontend.rule=(Host(`oruerp.com`) || Host(`www.oruerp.com`) || Host(`get-oru.com`) || Host(`www.get-oru.com`))"
-      - "traefik.http.routers.oru-frontend.entrypoints=web,websecure"
-      - "traefik.http.routers.oru-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.oru-frontend.rule=Host(`oruerp.com`) || Host(`www.oruerp.com`) || HostRegexp(`^[a-z0-9-]+\\.oruerp\\.com$`)"
+      - "traefik.http.routers.oru-frontend.entrypoints=websecure"
+      - "traefik.http.routers.oru-frontend.tls.certresolver=cloudflare"
       - "traefik.http.services.oru-frontend.loadbalancer.server.port=80"
     restart: unless-stopped
 

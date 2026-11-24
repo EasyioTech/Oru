@@ -17,7 +17,7 @@ export const SectionWrapper = ({ children, className, id, delay = 0 }: SectionWr
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6, delay, ease: "easeOut" }}
-            className={cn("w-full", className)}
+            className={cn("w-full scroll-mt-20", className)}
         >
             {children}
         </motion.div>

@@ -71,7 +71,7 @@ export const Pricing = () => {
   const [isYearly, setIsYearly] = useState(true);
 
   return (
-    <section ref={ref} id="pricing" className="relative py-24 lg:py-32 px-4 overflow-hidden bg-background">
+    <section ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden bg-transparent">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_50%)]" />
 
       <div className="relative z-10 max-w-6xl mx-auto">

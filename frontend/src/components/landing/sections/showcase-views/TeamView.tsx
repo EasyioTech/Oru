@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 
 export const TeamView = () => {
     const members = [
-        { name: 'Sarah Wilson', role: 'Creative Director', status: 'Active', avatar: 'SW', color: 'bg-indigo-500' },
-        { name: 'Burhan', role: 'Product Lead', status: 'In Meeting', avatar: 'BA', color: 'bg-primary' },
+        { name: 'Burhan Ali', role: 'Chief Technology Officer', status: 'Active', avatar: 'BA', image: '/images/Burhan-Ali.webp.jpg', color: 'bg-primary' },
+        { name: 'Sarah Wilson', role: 'Creative Director', status: 'Online', avatar: 'SW', color: 'bg-indigo-500' },
         { name: 'Anna Chen', role: 'UI/UX Designer', status: 'Online', avatar: 'AC', color: 'bg-purple-500' },
         { name: 'David Miller', role: 'Full Stack Dev', status: 'Offline', avatar: 'DM', color: 'bg-orange-500' },
         { name: 'Elena Rodriguez', role: 'Project Manager', status: 'Online', avatar: 'ER', color: 'bg-emerald-500' },
@@ -44,9 +44,17 @@ export const TeamView = () => {
                         className="p-3 rounded-2xl bg-card border border-border hover:border-primary/20 transition-all group cursor-pointer flex items-center gap-4"
                     >
                         <div className="relative">
-                            <div className={`w-12 h-12 rounded-2xl ${member.color} flex items-center justify-center text-white font-bold text-sm shadow-inner group-hover:scale-110 transition-transform`}>
-                                {member.avatar}
-                            </div>
+                            {member.image ? (
+                                <img
+                                    src={member.image}
+                                    alt={member.name}
+                                    className="w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-110 transition-transform"
+                                />
+                            ) : (
+                                <div className={`w-12 h-12 rounded-2xl ${member.color} flex items-center justify-center text-white font-bold text-sm shadow-inner group-hover:scale-110 transition-transform`}>
+                                    {member.avatar}
+                                </div>
+                            )}
                             <div className={cn(
                                 "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-4 border-card",
                                 member.status === 'Online' || member.status === 'Active' ? 'bg-success' :

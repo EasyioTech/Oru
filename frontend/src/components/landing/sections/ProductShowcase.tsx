@@ -85,7 +85,7 @@ export const ProductShowcase = () => {
   const ActiveView = views[activeTab];
 
   return (
-    <section className="relative py-24 md:py-32 bg-background overflow-hidden border-t border-border">
+    <section className="relative py-24 md:py-32 bg-transparent overflow-hidden border-t border-border/40">
       {/* Background Orbs */}
       <div className="absolute top-1/4 -left-20 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none opacity-40" />
       <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] bg-muted-foreground/5 rounded-full blur-[120px] pointer-events-none opacity-20" />
@@ -218,7 +218,7 @@ export const ProductShowcase = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar p-6">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeTab}

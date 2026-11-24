@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   Clock,
   Plus,
-  Zap,
+  Workflow,
   Shield,
   Search,
   IndianRupee
@@ -111,8 +111,8 @@ const FinancePreview = () => {
 
 const TeamPreview = () => {
   const members = [
+    { name: 'Burhan Ali', role: 'Architect & CTO', status: 'online', color: 'bg-primary', image: '/images/Burhan-Ali.webp.jpg' },
     { name: 'Sarah', role: 'Dev Lead', status: 'online', color: 'bg-blue-500' },
-    { name: 'Burhan', role: 'Architect', status: 'online', color: 'bg-primary' },
     { name: 'Anna', role: 'Creative', status: 'away', color: 'bg-purple-500' },
   ];
 
@@ -137,9 +137,17 @@ const TeamPreview = () => {
             viewport={{ once: true }}
           >
             <div className="relative">
-              <div className={`w-8 h-8 rounded-full ${member.color} flex items-center justify-center text-[11px] font-bold text-white shadow-inner`}>
-                {member.name[0]}
-              </div>
+              {member.image ? (
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-8 h-8 rounded-full object-cover border border-border shadow-inner"
+                />
+              ) : (
+                <div className={`w-8 h-8 rounded-full ${member.color} flex items-center justify-center text-[11px] font-bold text-white shadow-inner`}>
+                  {member.name[0]}
+                </div>
+              )}
               <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${member.status === 'online' ? 'bg-success' : 'bg-warning'
                 }`} />
             </div>
@@ -188,26 +196,26 @@ const SalesPreview = () => {
   );
 };
 
-const IntelligencePreview = () => {
+const WorkflowPreview = () => {
   return (
-    <div className="h-full p-4 flex flex-col items-center justify-center bg-muted/20 space-y-4">
-      <div className="relative w-20 h-20">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 border-4 border-dashed border-primary/20 rounded-full"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Zap className="w-8 h-8 text-primary fill-primary/10 shadow-[0_0_20px_rgba(59,130,246,0.3)]" />
-        </div>
+    <div className="h-full p-4 flex flex-col justify-center bg-muted/20 space-y-2.5">
+      <div className="flex items-center justify-between pb-2 border-b border-border/40">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Automated Rules</span>
+        <span className="px-1.5 py-0.5 rounded bg-success/10 text-success text-[9px] font-bold">12 Active</span>
       </div>
-      <div className="text-center">
-        <div className="text-[11px] font-bold text-foreground">AI Automations</div>
-        <div className="text-[9px] text-muted-foreground mt-1">12 automated flows active</div>
+      <div className="space-y-2 text-xs">
+        <div className="p-2 rounded-lg bg-card border border-border flex items-center justify-between">
+          <span className="text-[11px] font-medium text-foreground">Invoice Overdue</span>
+          <span className="text-[10px] text-muted-foreground font-mono">→ Auto WhatsApp</span>
+        </div>
+        <div className="p-2 rounded-lg bg-card border border-border flex items-center justify-between">
+          <span className="text-[11px] font-medium text-foreground">UT-GST Split</span>
+          <span className="text-[10px] text-muted-foreground font-mono">→ Auto Ledger</span>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 const features = [
   {
@@ -247,12 +255,12 @@ const features = [
     gridClass: 'md:col-span-1 md:row-span-2',
   },
   {
-    id: 'ai',
-    title: 'Auto-Pilot Mode',
-    description: 'Leverage AI for routine tasks, reporting, and resource forecasting.',
-    icon: Zap,
+    id: 'workflows',
+    title: 'Workflow Automation',
+    description: 'Custom trigger rules, automated invoice reminders, tax reconciliation, and approval routing.',
+    icon: Workflow,
     color: 'cyan',
-    preview: IntelligencePreview,
+    preview: WorkflowPreview,
     gridClass: 'md:col-span-1 md:row-span-2',
   },
 ];
@@ -296,7 +304,7 @@ const FeatureCard = ({ feature, index }: { feature: typeof features[0]; index: n
 
 export const BentoFeatures = () => {
   return (
-    <section id="features" className="relative py-24 lg:py-32 px-4 overflow-hidden bg-background">
+    <section className="relative py-24 lg:py-32 px-4 overflow-hidden bg-transparent">
       {/* Dynamic Grid Background Overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.03)_0%,transparent_70%)] pointer-events-none" />
 

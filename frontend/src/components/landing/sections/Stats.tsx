@@ -84,7 +84,7 @@ export const Stats = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden bg-background">
+    <section ref={ref} className="relative py-24 lg:py-32 px-4 overflow-hidden bg-transparent">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.02)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />

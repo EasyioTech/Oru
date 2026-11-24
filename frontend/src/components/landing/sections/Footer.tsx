@@ -15,7 +15,7 @@ const footerLinks = {
     title: 'Product',
     links: [
       { label: 'Features', href: '/#features' },
-      { label: 'Pricing', href: '/pricing' },
+      { label: 'Pricing', href: '/#pricing' },
       { label: 'Integrations', href: '/integrations-info' },
       { label: 'Changelog', href: '/changelog' },
       { label: 'Roadmap', href: '/roadmap' },
@@ -62,7 +62,7 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-border bg-background">
+    <footer className="relative border-t border-border/40 bg-background/50 backdrop-blur-md">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary)/0.03),transparent_50%)]" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 lg:py-20">

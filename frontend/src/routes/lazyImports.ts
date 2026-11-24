@@ -2,6 +2,8 @@ import React from "react";
 
 // Public/Unauthenticated Pages
 export const Landing = React.lazy(() => import("../pages/public"));
+export const BlogList = React.lazy(() => import("../pages/public/blog/BlogList"));
+export const BlogPostDetail = React.lazy(() => import("../pages/public/blog/BlogPostDetail"));
 export const Auth = React.lazy(() => import("../pages/auth"));
 export const SauthLogin = React.lazy(() => import("../pages/auth/sauth-login"));
 export const SignupSuccess = React.lazy(() => import("../pages/auth/signup-success"));
