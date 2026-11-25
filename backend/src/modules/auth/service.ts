@@ -1,5 +1,5 @@
 import { eq, sql } from 'drizzle-orm';
-import { users, profiles, userRoles, agencies, auditLogs } from '../../infrastructure/database/schema.js';
+import { users, profiles, userRoles, agencies, auditLogs, agencySettings, workspaceProfiles } from '../../infrastructure/database/schema.js';
 import { and } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../../utils/password.js';
 import { UnauthorizedError, ValidationError } from '../../utils/errors.js';
@@ -20,7 +20,7 @@ export class AuthService {
 
     async agencySignup(input: AgencySignupInput) {
         const { agencyName, industry, teamSize, name, email, password } = input;
-        const normalizedEmail = email.toLowerCase();
+        const normalizedEmail = email.toLowerCase().trim();
 
         const passwordHash = await hashPassword(password);
 
@@ -31,8 +31,8 @@ export class AuthService {
             });
             if (existing) throw new ValidationError('Email already registered');
 
-            // Generate domain slug with uniqueness check
-            let domain = agencyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            // Generate safe domain slug with uniqueness check
+            let domain = agencyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `agency-${Date.now().toString(36)}`;
             let domainCounter = 0;
             const baseDomain = domain;
 
@@ -44,28 +44,34 @@ export class AuthService {
                 domain = `${baseDomain}-${++domainCounter}`;
             }
 
-            // Create agency
-            const [agency] = await tx.insert(agencies).values({
-                name: agencyName,
-                domain,
-                subscriptionPlan: 'trial',
-                status: 'active',
-                isActive: true,
-                metadata: { industry, teamSize },
-            }).returning();
-
-            // Create user
+            // Create user first so we have the userId for agency ownership
             const [user] = await tx.insert(users).values({
                 email: normalizedEmail,
                 emailNormalized: normalizedEmail,
                 passwordHash,
                 status: 'active',
+                emailConfirmed: true,
+            }).returning();
+
+            // Create agency with owner linked directly
+            const [agency] = await tx.insert(agencies).values({
+                name: agencyName.trim(),
+                domain,
+                ownerUserId: user.id,
+                subscriptionPlan: 'trial',
+                status: 'active',
+                isActive: true,
+                contactEmail: normalizedEmail,
+                billingEmail: normalizedEmail,
+                country: 'India',
+                settings: { currency: 'INR', locale: 'en-IN' },
+                metadata: { industry, teamSize, provisionedAt: new Date().toISOString() },
             }).returning();
 
             // Create profile linked to agency
             await tx.insert(profiles).values({
                 userId: user.id,
-                fullName: name,
+                fullName: name.trim(),
                 agencyId: agency.id,
             });
 
@@ -74,8 +80,67 @@ export class AuthService {
                 userId: user.id,
                 agencyId: agency.id,
                 role: 'agency_admin',
+                permissions: ['*'],
                 isActive: true,
             });
+
+            // Seed default agency settings (Indian ERP conventions)
+            try {
+                await tx.insert(agencySettings).values({
+                    agencyId: agency.id,
+                    agencyName: agency.name,
+                    domain: agency.domain,
+                    timezone: 'Asia/Kolkata',
+                    dateFormat: 'DD/MM/YYYY',
+                    fiscalYearStart: '04-01',
+                    workingHoursStart: '09:30',
+                    workingHoursEnd: '18:30',
+                    workingDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
+                    primaryColor: '#0a6ed1',
+                    secondaryColor: '#0854a0',
+                });
+            } catch (err: any) {
+                this.log.warn({ error: err.message, agencyId: agency.id }, 'agencySettings seeding inside transaction skipped');
+            }
+
+            // Seed default workspace profile with all starter modules active
+            try {
+                const starterList = [
+                    { name: 'core', enabled: true },
+                    { name: 'dashboard', enabled: true },
+                    { name: 'crm', enabled: true },
+                    { name: 'projects', enabled: true },
+                    { name: 'finance', enabled: true },
+                    { name: 'hr', enabled: true },
+                    { name: 'inventory', enabled: true },
+                    { name: 'procurement', enabled: true },
+                    { name: 'reports', enabled: true },
+                ];
+                await tx.insert(workspaceProfiles).values({
+                    workspace_id: agency.id,
+                    modules_json: {
+                        active: starterList,
+                        available: starterList,
+                        disabled: [],
+                        core: { enabled: true },
+                        dashboard: { enabled: true },
+                        crm: { enabled: true },
+                        projects: { enabled: true },
+                        finance: { enabled: true },
+                        hr: { enabled: true },
+                        inventory: { enabled: true },
+                        procurement: { enabled: true },
+                        reports: { enabled: true },
+                    },
+                    collaboration_json: { members_count: 1, solo: false, email_verified: true },
+                    adoption_json: { features_used: [], days_active: 1, last_action: new Date().toISOString() },
+                    health_json: { score: 100, last_updated: new Date().toISOString() },
+                    recommendations_json: [],
+                    quick_wins_json: [],
+                });
+            } catch (err: any) {
+                this.log.warn({ error: err.message, agencyId: agency.id }, 'workspaceProfiles seeding inside transaction skipped');
+            }
 
             // Log audit trail for agency creation
             await tx.insert(auditLogs).values({
@@ -104,7 +169,7 @@ export class AuthService {
         });
         const refreshToken = this.jwt.sign({ id: result.user.id, type: 'refresh' }, { expiresIn: '7d' });
 
-        // Enqueue workspace initialization job (fire-and-forget)
+        // Enqueue background notification job (optional / non-blocking)
         try {
             const provisioningJob: AgencyProvisioningPayload = {
                 jobId: `${Date.now()}`,
@@ -119,15 +184,14 @@ export class AuthService {
                 plan: result.agency.subscriptionPlan,
             };
             await agencyProvisioningQueue.add('setup-workspace', provisioningJob, {
-                delay: 1000, // 1 second delay to ensure DB records are committed
+                delay: 1000,
                 priority: 10,
             });
         } catch (queueError) {
-            this.log.warn({ agencyId: result.agency.id, error: queueError }, 'Failed to enqueue workspace setup job');
-            // Continue despite queue error - user signup succeeded
+            this.log.warn({ agencyId: result.agency.id, error: queueError }, 'Background queue notification skipped');
         }
 
-        this.log.info({ userId: result.user.id, agencyId: result.agency.id }, 'Agency signup');
+        this.log.info({ userId: result.user.id, agencyId: result.agency.id }, 'Agency signup completed synchronously');
         return { user: result.user, agency: transformAgencyRow(result.agency), accessToken, refreshToken };
     }
 

@@ -23,6 +23,15 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         return { success: true, data };
     });
 
+    fastify.get('/agency-settings/:agencyId', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        const { agencyId } = request.params as { agencyId: string };
+        if (!agencyId) return reply.code(400).send({ success: false, message: 'agencyId is required' });
+        const { agencySettings } = await import('../../infrastructure/database/schema.js');
+        const { eq } = await import('drizzle-orm');
+        const [settings] = await fastify.db.select().from(agencySettings).where(eq(agencySettings.agencyId, agencyId)).limit(1);
+        return { success: true, data: { settings: mapToSnakeCase(settings || {}) } };
+    });
+
     fastify.get('/agencies/:id/data', { onRequest: [fastify.authenticate] }, async (request) => {
         const { id } = request.params as { id: string };
         if (!request.ability.can('read', 'System')) throw new ForbiddenError('Super Admin access required');
