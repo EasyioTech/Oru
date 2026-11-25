@@ -1,9 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { AdminService } from './service.js';
-import { AgencyProvisioningService } from '../agencies/services/provisioning.service.js';
 import { ForbiddenError } from '../../utils/errors.js';
-import { agencies } from '../../infrastructure/database/schema.js';
-import { eq } from 'drizzle-orm';
+import { provisionNewAgency } from '../agencies/provisioning/index.js';
 
 const svc = (fastify: any) => new AdminService(fastify.db);
 
@@ -18,27 +16,26 @@ const adminRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ success: false, error: 'Agency name and admin email are required' });
     }
 
-    const provisioning = new AgencyProvisioningService(fastify.log, fastify.db);
-    const domain = (body.domain || agencyName).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `agency-${Date.now().toString(36)}`;
-    
-    const result = await provisioning.completeAgencySetup({
-      companyName: agencyName,
-      domain,
-      adminEmail: email,
-      adminPhone: body.adminPhone || body.contactPhone,
-      firstName: (body.adminName || 'Admin').split(' ')[0],
-      lastName: (body.adminName || 'Admin').split(' ').slice(1).join(' ') || 'User',
-      password: body.adminPassword || 'OruAdmin123!',
-      plan: body.subscriptionPlan || body.plan || 'trial',
-      maxUsers: body.maxUsers || 50,
-      address: body.address || body.streetAddress,
-      city: body.city,
-      state: body.state,
-      country: body.country || 'India',
-    });
+    const result = await provisionNewAgency(
+      fastify.db,
+      {
+        agencyName,
+        adminEmail: email,
+        adminName: body.adminName || 'Admin',
+        adminPassword: body.adminPassword || 'OruAdmin123!',
+        adminPhone: body.adminPhone || body.contactPhone,
+        domain: body.domain,
+        subscriptionPlan: body.subscriptionPlan || body.plan || 'trial',
+        maxUsers: body.maxUsers || 50,
+        address: body.address || body.streetAddress,
+        city: body.city,
+        state: body.state,
+        country: body.country || 'India',
+      },
+      fastify.log
+    );
 
-    const [createdAgency] = await fastify.db.select().from(agencies).where(eq(agencies.id, result.agencyId)).limit(1);
-    return reply.code(201).send({ success: true, data: createdAgency });
+    return reply.code(201).send({ success: true, data: result.agency });
   });
   fastify.get('/stats', { onRequest: [fastify.authenticate] }, async (request) => {
     if (request.ability.cannot('manage', 'all')) throw new ForbiddenError();

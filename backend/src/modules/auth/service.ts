@@ -10,6 +10,7 @@ import type { FastifyBaseLogger } from 'fastify';
 import { agencyProvisioningQueue } from '../../jobs/queues.js';
 import type { AgencyProvisioningPayload } from '../../jobs/definitions.js';
 import { transformAgencyRow } from '../../infrastructure/transformers/agency.transformer.js';
+import { provisionNewAgency } from '../agencies/provisioning/index.js';
 
 export class AuthService {
     constructor(
@@ -20,166 +21,38 @@ export class AuthService {
 
     async agencySignup(input: AgencySignupInput) {
         const { agencyName, industry, teamSize, name, email, password } = input;
-        const normalizedEmail = email.toLowerCase().trim();
 
-        const passwordHash = await hashPassword(password);
-
-        const result = await this.db.transaction(async (tx: any) => {
-            // Check email uniqueness INSIDE transaction to prevent race condition
-            const existing = await tx.query.users.findFirst({
-                where: eq(users.email, normalizedEmail)
-            });
-            if (existing) throw new ValidationError('Email already registered');
-
-            // Generate safe domain slug with uniqueness check
-            let domain = agencyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `agency-${Date.now().toString(36)}`;
-            let domainCounter = 0;
-            const baseDomain = domain;
-
-            while (true) {
-                const domainExists = await tx.query.agencies.findFirst({
-                    where: eq(agencies.domain, domain)
-                });
-                if (!domainExists) break;
-                domain = `${baseDomain}-${++domainCounter}`;
-            }
-
-            // Create user first so we have the userId for agency ownership
-            const [user] = await tx.insert(users).values({
-                email: normalizedEmail,
-                emailNormalized: normalizedEmail,
-                passwordHash,
-                status: 'active',
-                emailConfirmed: true,
-            }).returning();
-
-            // Create agency with owner linked directly
-            const [agency] = await tx.insert(agencies).values({
-                name: agencyName.trim(),
-                domain,
-                ownerUserId: user.id,
-                subscriptionPlan: 'trial',
-                status: 'active',
-                isActive: true,
-                contactEmail: normalizedEmail,
-                billingEmail: normalizedEmail,
-                country: 'India',
-                settings: { currency: 'INR', locale: 'en-IN' },
-                metadata: { industry, teamSize, provisionedAt: new Date().toISOString() },
-            }).returning();
-
-            // Create profile linked to agency
-            await tx.insert(profiles).values({
-                userId: user.id,
-                fullName: name.trim(),
-                agencyId: agency.id,
-            });
-
-            // Assign agency_admin role
-            await tx.insert(userRoles).values({
-                userId: user.id,
-                agencyId: agency.id,
-                role: 'agency_admin',
-                permissions: ['*'],
-                isActive: true,
-            });
-
-            // Seed default agency settings (Indian ERP conventions)
-            try {
-                await tx.insert(agencySettings).values({
-                    agencyId: agency.id,
-                    agencyName: agency.name,
-                    domain: agency.domain,
-                    timezone: 'Asia/Kolkata',
-                    dateFormat: 'DD/MM/YYYY',
-                    fiscalYearStart: '04-01',
-                    workingHoursStart: '09:30',
-                    workingHoursEnd: '18:30',
-                    workingDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
-                    primaryColor: '#0a6ed1',
-                    secondaryColor: '#0854a0',
-                });
-            } catch (err: any) {
-                this.log.warn({ error: err.message, agencyId: agency.id }, 'agencySettings seeding inside transaction skipped');
-            }
-
-            // Seed default workspace profile with all starter modules active
-            try {
-                const starterList = [
-                    { name: 'core', enabled: true },
-                    { name: 'dashboard', enabled: true },
-                    { name: 'crm', enabled: true },
-                    { name: 'projects', enabled: true },
-                    { name: 'finance', enabled: true },
-                    { name: 'hr', enabled: true },
-                    { name: 'inventory', enabled: true },
-                    { name: 'procurement', enabled: true },
-                    { name: 'reports', enabled: true },
-                ];
-                await tx.insert(workspaceProfiles).values({
-                    workspace_id: agency.id,
-                    modules_json: {
-                        active: starterList,
-                        available: starterList,
-                        disabled: [],
-                        core: { enabled: true },
-                        dashboard: { enabled: true },
-                        crm: { enabled: true },
-                        projects: { enabled: true },
-                        finance: { enabled: true },
-                        hr: { enabled: true },
-                        inventory: { enabled: true },
-                        procurement: { enabled: true },
-                        reports: { enabled: true },
-                    },
-                    collaboration_json: { members_count: 1, solo: false, email_verified: true },
-                    adoption_json: { features_used: [], days_active: 1, last_action: new Date().toISOString() },
-                    health_json: { score: 100, last_updated: new Date().toISOString() },
-                    recommendations_json: [],
-                    quick_wins_json: [],
-                });
-            } catch (err: any) {
-                this.log.warn({ error: err.message, agencyId: agency.id }, 'workspaceProfiles seeding inside transaction skipped');
-            }
-
-            // Log audit trail for agency creation
-            await tx.insert(auditLogs).values({
-                agencyId: agency.id,
-                userId: user.id,
-                tableName: 'agencies',
-                recordId: agency.id,
-                action: 'create',
-                newValues: {
-                    name: agency.name,
-                    domain: agency.domain,
-                    subscriptionPlan: agency.subscriptionPlan,
-                    status: agency.status,
-                },
-                metadata: { source: 'agency_signup' },
-            });
-
-            return { user, agency };
+        // Check if email is already registered before beginning
+        const existing = await this.db.query.users.findFirst({
+            where: eq(users.email, email.toLowerCase().trim())
         });
+        if (existing) throw new ValidationError('Email already registered');
 
-        const accessToken = this.jwt.sign({
-            id: result.user.id,
-            email: result.user.email,
-            roles: ['agency_admin'],
-            agencyId: result.agency.id,
-        });
-        const refreshToken = this.jwt.sign({ id: result.user.id, type: 'refresh' }, { expiresIn: '7d' });
+        const result = await provisionNewAgency(
+            this.db,
+            {
+                agencyName,
+                adminEmail: email,
+                adminName: name,
+                adminPassword: password,
+                industry,
+                teamSize,
+                jwt: this.jwt,
+            },
+            this.log
+        );
 
-        // Enqueue background notification job (optional / non-blocking)
+        // Optional / non-blocking background notification
         try {
             const provisioningJob: AgencyProvisioningPayload = {
                 jobId: `${Date.now()}`,
-                agencyId: result.agency.id,
+                agencyId: result.agencyId,
                 dbName: result.agency.domain,
                 subdomain: result.agency.domain,
                 adminEmail: result.user.email,
                 adminPasswordHash: result.user.passwordHash,
-                adminFirstName: input.name.split(' ')[0],
-                adminLastName: input.name.split(' ').slice(1).join(' ') || input.name,
+                adminFirstName: name.split(' ')[0],
+                adminLastName: name.split(' ').slice(1).join(' ') || name,
                 userId: result.user.id,
                 plan: result.agency.subscriptionPlan,
             };
@@ -188,11 +61,16 @@ export class AuthService {
                 priority: 10,
             });
         } catch (queueError) {
-            this.log.warn({ agencyId: result.agency.id, error: queueError }, 'Background queue notification skipped');
+            this.log.warn({ agencyId: result.agencyId, error: queueError }, 'Background queue notification skipped');
         }
 
-        this.log.info({ userId: result.user.id, agencyId: result.agency.id }, 'Agency signup completed synchronously');
-        return { user: result.user, agency: transformAgencyRow(result.agency), accessToken, refreshToken };
+        this.log.info({ userId: result.user.id, agencyId: result.agencyId }, 'Agency signup completed');
+        return {
+            user: result.user,
+            agency: result.agency,
+            accessToken: result.accessToken!,
+            refreshToken: result.refreshToken!,
+        };
     }
 
     async register(input: RegisterInput) {
