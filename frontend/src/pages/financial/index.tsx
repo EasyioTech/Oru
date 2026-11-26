@@ -99,7 +99,7 @@ const FinancialManagement = () => {
         }
       />
 
-      <FinancialMetricsCards totalAssets={accountingStats.totalAssets} currentBalance={ledgerSummary.totalBalance} activeJobs={jobStats.activeJobs} netProfit={ledgerSummary.netProfit} />
+      <FinancialMetricsCards totalAssets={accountingStats?.totalAssets ?? 0} currentBalance={ledgerSummary?.totalBalance ?? 0} activeJobs={jobStats?.activeJobs ?? 0} netProfit={ledgerSummary?.netProfit ?? 0} />
       <FinancialFilters searchTerm={searchTerm} onSearchChange={setSearchTerm} dateRange={dateRange} onDateRangeChange={setDateRange} accountTypeFilter={accountTypeFilter} onAccountTypeFilterChange={setAccountTypeFilter} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} showFilters={showFilters} onToggleFilters={() => setShowFilters(!showFilters)} onClearFilters={handleClearFilters} />
 
       <Tabs defaultValue="accounting" className="space-y-4">
@@ -128,8 +128,8 @@ const FinancialManagement = () => {
         <TabsContent value="job-costing" className="space-y-4">
           <Tabs defaultValue="jobs" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="jobs">Jobs ({jobs.length})</TabsTrigger>
-              <TabsTrigger value="projects">Projects ({projects.length})</TabsTrigger>
+              <TabsTrigger value="jobs">Jobs ({(Array.isArray(jobs) ? jobs : []).length})</TabsTrigger>
+              <TabsTrigger value="projects">Projects ({(Array.isArray(projects) ? projects : []).length})</TabsTrigger>
             </TabsList>
             <TabsContent value="jobs" className="space-y-4 mt-4">
               <JobsTab jobs={jobs} loading={loading} searchTerm={debouncedSearchTerm} statusFilter={statusFilter} dateRange={dateRange} pageSize={pageSize} onNewJob={h.handleNewJob} onEditJob={h.handleEditJob} onDeleteJob={h.handleDeleteJob} onManageCosts={(job) => { h.setSelectedJobForCosts(job); h.setCostItemsDialogOpen(true); }} deleteLoading={h.deleteLoading} />

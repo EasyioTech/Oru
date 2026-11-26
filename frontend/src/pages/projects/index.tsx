@@ -1,11 +1,10 @@
 /**
  * Projects Page
  * Main orchestrator for project management functionality
- * Refactored from 1,417 lines to ~250 lines
+ * Designed for visual uniformity with CRM and core modules
  */
 
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,12 +16,19 @@ import { DepartmentBreadcrumb } from "@/components/department-management";
 import { useDepartmentNavigation } from "@/hooks/useDepartmentNavigation";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import ProjectDetailsDialog from "@/components/ProjectDetailsDialog";
+import { FloatingCard, PillButton, DisplayTitle, MicroLabel } from "@/components/ui/design-tokens";
+
+// Hooks
 import { useProjects } from './hooks/useProjects';
 import { useProjectFilters } from './hooks/useProjectFilters';
 import { useProjectPipeline } from './hooks/useProjectPipeline';
 import { useProjectFilterOptions } from './hooks/useProjectFilterOptions';
+
+// Utils
 import { calculateProjectStats, Project } from './utils/projectUtils';
 import { exportProjectsToCSV } from './utils/projectExport';
+
+// Components
 import { ProjectMetrics } from './components/ProjectMetrics';
 import { ProjectFilters } from './components/ProjectFilters';
 import { ProjectCard } from './components/ProjectCard';
@@ -145,11 +151,9 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex justify-center items-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2 text-muted-foreground">Loading projects...</span>
-        </div>
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <span className="ml-2 text-sm text-gray-500">Loading projects...</span>
       </div>
     );
   }
@@ -158,19 +162,21 @@ const Projects = () => {
   const displayEmployeeName = urlEmployeeName;
 
   return (
-    <div className="container mx-auto p-6 lg:p-8 space-y-8 max-w-7xl">
-      {/* Breadcrumb */}
-      <DepartmentBreadcrumb currentPage="projects" />
+    <div className="w-full flex-1 space-y-6 p-2 sm:p-6 bg-[#FAFAFA] dark:bg-[#0f1115] min-h-screen">
+      {/* Department/Employee Breadcrumb if present */}
+      {(urlDepartmentId || legacyDepartmentId || urlEmployeeId) && (
+        <DepartmentBreadcrumb currentPage="projects" />
+      )}
       
-      {/* Header */}
-      <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
+      {/* Unified Executive Header */}
+      <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0 px-2 pt-2">
         <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-2xl lg:text-3xl font-bold">Projects</h1>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <DisplayTitle>Project Management</DisplayTitle>
             {displayDepartmentName && (
               <Badge 
                 variant="secondary" 
-                className="text-sm cursor-pointer hover:bg-secondary/80 transition-colors"
+                className="text-xs cursor-pointer hover:bg-secondary/80 transition-colors rounded-full px-3 py-0.5"
                 onClick={() => navigateToDepartment(urlDepartmentId || legacyDepartmentId || undefined, displayDepartmentName || undefined)}
               >
                 <Building2 className="h-3 w-3 mr-1" />
@@ -180,7 +186,7 @@ const Projects = () => {
             {displayEmployeeName && (
               <Badge 
                 variant="outline" 
-                className="text-sm cursor-pointer hover:bg-accent transition-colors"
+                className="text-xs cursor-pointer hover:bg-accent transition-colors rounded-full px-3 py-0.5"
                 onClick={() => navigateToEmployees({ employeeId: urlEmployeeId || undefined, employeeName: displayEmployeeName || undefined })}
               >
                 <Users className="h-3 w-3 mr-1" />
@@ -188,30 +194,38 @@ const Projects = () => {
               </Badge>
             )}
           </div>
-          <p className="text-sm lg:text-base text-muted-foreground mt-1">
+          <MicroLabel className="mt-2">
             {displayEmployeeName 
-              ? `Projects for ${displayEmployeeName}`
+              ? `Projects assigned to ${displayEmployeeName}`
               : displayDepartmentName 
-              ? `Projects for ${displayDepartmentName} department`
-              : "Manage and track project progress"}
-          </p>
+              ? `Projects under ${displayDepartmentName} department`
+              : "Track milestones, deliverables, team workloads, and budgets"}
+          </MicroLabel>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportCSV} className="w-full sm:w-auto" disabled={filteredProjects.length === 0}>
-            <Download className="mr-2 h-4 w-4" />
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={handleExportCSV} 
+            disabled={filteredProjects.length === 0}
+            className="rounded-full px-5 h-11 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-semibold text-xs shadow-2xs hover:bg-gray-50 dark:hover:bg-slate-800"
+          >
+            <Download className="mr-2 h-4 w-4 text-gray-500" />
             Export CSV
           </Button>
-          <Button onClick={handleNewProject} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Button>
+          <PillButton 
+            onClick={handleNewProject} 
+            label="New Project" 
+            icon={Plus} 
+            className="w-full sm:w-auto justify-center" 
+          />
         </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Modern Statistics Cards */}
       <ProjectMetrics stats={projectStats} />
 
-      {/* Search and Filter Card */}
+      {/* Modern Search and Filter Card */}
       <ProjectFilters
         searchTerm={searchTerm}
         onSearchChange={(value) => {
@@ -252,71 +266,44 @@ const Projects = () => {
         departments={departments}
       />
 
-      {/* Projects Content with Tabs */}
-      <Tabs defaultValue="list" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="list">
-            <List className="h-4 w-4 mr-2" />
-            List View
-          </TabsTrigger>
-          <TabsTrigger value="pipeline">
-            <GanttChart className="h-4 w-4 mr-2" />
-            Pipeline View
-          </TabsTrigger>
-        </TabsList>
+      {/* Projects Content with Unified Tabs Frame */}
+      <FloatingCard className="p-4 sm:p-6 mt-4">
+        <Tabs defaultValue="list" className="space-y-6">
+          <TabsList className="bg-gray-100/60 dark:bg-slate-800/60 p-1 rounded-full border border-gray-200/80 dark:border-slate-700/80 shadow-inner">
+            <TabsTrigger 
+              value="list" 
+              className="rounded-full px-6 py-2 text-xs font-semibold data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm transition-all flex items-center gap-2"
+            >
+              <List className="h-4 w-4" />
+              <span>List View</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="pipeline" 
+              className="rounded-full px-6 py-2 text-xs font-semibold data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm transition-all flex items-center gap-2"
+            >
+              <GanttChart className="h-4 w-4" />
+              <span>Pipeline View</span>
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="list" className="space-y-4">
-          {filteredProjects.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    {searchTerm ? 'No projects found matching your search.' : 'No projects found.'}
-                  </p>
-                  {!searchTerm && (
-                    <Button 
-                      className="mt-4" 
-                      onClick={handleNewProject}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create First Project
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <ProjectPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                totalItems={filteredProjects.length}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
-              <div className="grid gap-4 lg:gap-6">
-                {paginatedProjects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    onView={handleViewProject}
-                    onEdit={handleEditProject}
-                    onDelete={handleDeleteProject}
-                    onNavigateToEmployees={navigateToEmployees}
-                    onNavigateToAttendance={navigateToAttendance}
-                    onNavigateToPayroll={navigateToPayroll}
-                    onNavigateToDepartment={navigateToDepartment}
-                    urlDepartmentId={urlDepartmentId}
-                    legacyDepartmentId={legacyDepartmentId}
-                    displayDepartmentName={displayDepartmentName}
-                  />
-                ))}
+          <TabsContent value="list" className="space-y-4 mt-4 outline-none">
+            {filteredProjects.length === 0 ? (
+              <div className="text-center py-16 px-4 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-2xl bg-white/40 dark:bg-slate-900/40">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {searchTerm ? 'No projects found matching your search criteria.' : 'No projects found in this workspace.'}
+                </p>
+                {!searchTerm && (
+                  <div className="mt-4">
+                    <PillButton 
+                      onClick={handleNewProject} 
+                      label="Create First Project" 
+                      icon={Plus} 
+                    />
+                  </div>
+                )}
               </div>
-              {totalPages > 1 && (
+            ) : (
+              <>
                 <ProjectPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
@@ -328,33 +315,65 @@ const Projects = () => {
                     setCurrentPage(1);
                   }}
                 />
-              )}
-            </>
-          )}
-        </TabsContent>
+                
+                <div className="grid gap-4">
+                  {paginatedProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      onView={handleViewProject}
+                      onEdit={handleEditProject}
+                      onDelete={handleDeleteProject}
+                      onNavigateToEmployees={navigateToEmployees}
+                      onNavigateToAttendance={navigateToAttendance}
+                      onNavigateToPayroll={navigateToPayroll}
+                      onNavigateToDepartment={navigateToDepartment}
+                      urlDepartmentId={urlDepartmentId}
+                      legacyDepartmentId={legacyDepartmentId}
+                      displayDepartmentName={displayDepartmentName}
+                    />
+                  ))}
+                </div>
 
-        <TabsContent value="pipeline" className="space-y-4">
-          <ProjectPipeline
-            projects={projects}
-            projectsByStatus={projectsByStatus}
-            draggedProject={draggedProject}
-            searchTerm={searchTerm}
-            statusFilter={statusFilter}
-            priorityFilter={priorityFilter}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-            onView={handleViewProject}
-            onEdit={handleEditProject}
-            onDelete={handleDeleteProject}
-          />
-        </TabsContent>
-      </Tabs>
+                {totalPages > 1 && (
+                  <ProjectPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    pageSize={pageSize}
+                    totalItems={filteredProjects.length}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={(size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="pipeline" className="space-y-4 mt-4 outline-none">
+            <ProjectPipeline
+              projects={projects}
+              projectsByStatus={projectsByStatus}
+              draggedProject={draggedProject}
+              searchTerm={searchTerm}
+              statusFilter={statusFilter}
+              priorityFilter={priorityFilter}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
+              onView={handleViewProject}
+              onEdit={handleEditProject}
+              onDelete={handleDeleteProject}
+            />
+          </TabsContent>
+        </Tabs>
+      </FloatingCard>
 
       {/* Dialogs */}
-
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -384,4 +403,3 @@ const Projects = () => {
 };
 
 export default Projects;
-

@@ -253,22 +253,26 @@ export async function fetchAgencySettings(agencyId: string): Promise<{ settings:
  * Update agency settings across normalized tables
  */
 export async function updateAgencySettingsApi(
-  agencyDatabase: string,
+  agencyIdOrDb: string,
   payload: Record<string, any>
-): Promise<void> {
+): Promise<any> {
   const endpoint = getApiEndpoint('/agencies/agency-settings');
   const headers: Record<string, string> = {
     ...authHeaders(),
     'Content-Type': 'application/json',
-    'X-Agency-Database': agencyDatabase,
   };
   const response = await fetch(endpoint, {
     method: 'PUT',
     headers,
-    body: JSON.stringify({ settings: payload, database: agencyDatabase }),
+    body: JSON.stringify({
+      agencyId: agencyIdOrDb,
+      settings: payload,
+      database: agencyIdOrDb,
+    }),
   });
   if (!response.ok) {
     const err = await response.json().catch(() => ({ error: 'Failed to update agency settings' }));
     throw new Error(err.error || err.message || 'Failed to update agency settings');
   }
+  return await response.json();
 }

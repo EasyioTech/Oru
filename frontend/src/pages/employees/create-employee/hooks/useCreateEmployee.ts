@@ -68,19 +68,32 @@ export function useCreateEmployee() {
     setIsSubmitting(true);
     try {
       if (!user?.id) throw new Error('You must be logged in to create an employee');
-      const agencyId = await getAgencyId(profile, user.id);
+      let agencyId = await getAgencyId(profile, user.id);
+      if (!agencyId && typeof window !== 'undefined') {
+        agencyId = localStorage.getItem('agency_id');
+      }
       if (!agencyId) throw new Error('Agency ID not found. Please ensure you are logged in to an agency account.');
 
       const emailNorm = values.email.toLowerCase().trim();
       const salaryValue = parseFloat(values.salary);
       if (Number.isNaN(salaryValue) || salaryValue <= 0) throw new Error('Salary must be a positive number.');
 
+      const normalizedEmploymentType = (values.employmentType || 'full-time').replace('-', '_');
+
       await fetchMutate('/hr/employees', 'POST', {
-        firstName: values.firstName, lastName: values.lastName, email: emailNorm,
-        phone: values.phone, departmentId: values.department && values.department !== '__no_departments__' ? values.department : null,
-        position: values.position, employmentType: values.employmentType, status: 'active',
+        agencyId,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: emailNorm,
+        phone: values.phone?.trim() || null,
+        departmentId: values.department && values.department !== '__no_departments__' ? values.department : null,
+        position: values.position?.trim() || null,
+        employmentType: normalizedEmploymentType,
+        status: 'active',
         hireDate: values.hireDate ? values.hireDate.toISOString().split('T')[0] : null,
-        salary: salaryValue, notes: values.notes || null, employeeCode: values.employeeId || null,
+        salary: salaryValue,
+        notes: values.notes?.trim() || null,
+        employeeCode: values.employeeId?.trim() || generatedEmployeeId || null,
       });
 
       toast({ title: 'Employee created', description: "Employee has been successfully created." });

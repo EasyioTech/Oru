@@ -8,13 +8,17 @@ export const api = {
   get: async (endpoint: string) => {
     const baseUrl = getApiBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-    const token = localStorage.getItem('auth_token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const agencyId = typeof window !== 'undefined' ? localStorage.getItem('agency_id') : null;
+    const agencyDb = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...(agencyId ? { 'X-Agency-Id': agencyId } : {}),
+        ...(agencyDb ? { 'X-Agency-Database': agencyDb } : {}),
       },
     });
 
@@ -29,13 +33,17 @@ export const api = {
   post: async (endpoint: string, body: any) => {
     const baseUrl = getApiBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-    const token = localStorage.getItem('auth_token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const agencyId = typeof window !== 'undefined' ? localStorage.getItem('agency_id') : null;
+    const agencyDb = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
     
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...(agencyId ? { 'X-Agency-Id': agencyId } : {}),
+        ...(agencyDb ? { 'X-Agency-Database': agencyDb } : {}),
       },
       body: JSON.stringify(body),
     });
@@ -51,13 +59,17 @@ export const api = {
   put: async (endpoint: string, body: any) => {
     const baseUrl = getApiBaseUrl();
     const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-    const token = localStorage.getItem('auth_token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const agencyId = typeof window !== 'undefined' ? localStorage.getItem('agency_id') : null;
+    const agencyDb = typeof window !== 'undefined' ? localStorage.getItem('agency_database') : null;
     
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...(agencyId ? { 'X-Agency-Id': agencyId } : {}),
+        ...(agencyDb ? { 'X-Agency-Database': agencyDb } : {}),
       },
       body: JSON.stringify(body),
     });

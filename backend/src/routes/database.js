@@ -116,12 +116,16 @@ async function handleDatabaseNotExist(agencyDatabase, req, res, sql, params, use
     const mainClient = await mainPool.connect();
     
     try {
-      // Create database
-      const validatedDbName = validateDatabaseName(agencyDatabase);
-      const quotedDbName = quoteIdentifier(validatedDbName);
-      
-      await mainClient.query(`CREATE DATABASE ${quotedDbName}`);
-      logger.info('Database created', { agencyDatabase });
+      try {
+        // Create database
+        const validatedDbName = validateDatabaseName(agencyDatabase);
+        const quotedDbName = quoteIdentifier(validatedDbName);
+        
+        await mainClient.query(`CREATE DATABASE ${quotedDbName}`);
+        logger.info('Database created', { agencyDatabase });
+      } catch (dbErr) {
+        logger.warn('CREATE DATABASE skipped or not permitted, continuing with shared database:', dbErr.message);
+      }
       
     } finally {
       mainClient.release();

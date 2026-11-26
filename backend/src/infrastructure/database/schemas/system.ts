@@ -160,3 +160,43 @@ export const systemStorageProviders = pgTable('system_storage_providers', {
 }, (table) => ({
     agencyIdIdx: index('idx_system_storage_providers_agency_id').on(table.agencyId),
 }));
+
+/**
+ * Document Folders Table
+ */
+export const documentFolders = pgTable('document_folders', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    description: text('description'),
+    parentFolderId: uuid('parent_folder_id'),
+    createdBy: uuid('created_by').notNull(),
+    agencyId: uuid('agency_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    agencyIdIdx: index('idx_document_folders_agency_id').on(table.agencyId),
+    parentFolderIdIdx: index('idx_document_folders_parent_folder_id').on(table.parentFolderId),
+}));
+
+/**
+ * Documents Metadata Table
+ */
+export const documents = pgTable('documents', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    description: text('description'),
+    filePath: text('file_path').notNull(),
+    fileSize: bigint('file_size', { mode: 'number' }).default(0).notNull(),
+    fileType: text('file_type').notNull(),
+    uploadedBy: uuid('uploaded_by').notNull(),
+    folderId: uuid('folder_id'),
+    agencyId: uuid('agency_id').notNull(),
+    tags: text('tags').array().default(sql`'{}'::text[]`),
+    isPublic: boolean('is_public').default(false).notNull(),
+    downloadCount: integer('download_count').default(0).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+    agencyIdIdx: index('idx_documents_agency_id').on(table.agencyId),
+    folderIdIdx: index('idx_documents_folder_id').on(table.folderId),
+}));

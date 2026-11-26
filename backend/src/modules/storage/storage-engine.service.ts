@@ -54,7 +54,8 @@ export class StorageEngineService {
    * 2. Canonical API streaming proxy URL: {baseUrl}/api/storage/files/{key}
    */
   buildPublicFileUrl(key: string, requestBaseUrl?: string): string {
-    const s3PublicUrl = process.env.AWS_S3_PUBLIC_URL || process.env.S3_PUBLIC_URL;
+    const rawPublicUrl = process.env.AWS_S3_PUBLIC_URL || process.env.S3_PUBLIC_URL || '';
+    const s3PublicUrl = rawPublicUrl.includes('yourdomain.com') ? '' : rawPublicUrl;
     if (s3PublicUrl) {
       return `${s3PublicUrl.replace(/\/$/, '')}/${key}`;
     }

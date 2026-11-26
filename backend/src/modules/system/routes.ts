@@ -44,10 +44,22 @@ const systemRoutes: FastifyPluginAsync = async (fastify) => {
         return { success: true, data: await service.getMetrics() };
     });
 
-    fastify.get('/settings', { onRequest: [fastify.authenticate] }, async (request) => {
-        if (!request.ability.can('read', 'System')) throw new ForbiddenError('Super Admin access required');
-        const rawData = await service.getSettings();
-        return { success: true, data: getSettingsResponseSchema.parse({ settings: rawData }) };
+    fastify.get('/settings', async (request) => {
+        let isSuperAdmin = false;
+        try {
+            await request.jwtVerify();
+            isSuperAdmin = request.ability?.can('read', 'System') || (request.user as any)?.roles?.includes('super_admin');
+        } catch {
+            // Unauthenticated or non-super-admin
+        }
+
+        if (isSuperAdmin) {
+            const rawData = await service.getSettings();
+            return { success: true, data: getSettingsResponseSchema.parse({ settings: rawData }) };
+        }
+
+        const publicData = await service.getBranding();
+        return { success: true, data: { settings: mapToSnakeCase(publicData) } };
     });
 
     fastify.put('/settings', { onRequest: [fastify.authenticate] }, async (request) => {

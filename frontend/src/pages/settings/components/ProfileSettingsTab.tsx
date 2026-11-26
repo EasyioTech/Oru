@@ -61,7 +61,7 @@ export const ProfileSettingsTab = () => {
   const inputStyle = "bg-white/60 border-transparent rounded-xl focus-visible:ring-gray-200 shadow-sm transition-all h-11";
 
   return (
-    <div className="space-y-6 w-full max-w-4xl">
+    <div className="space-y-6 w-full">
       <FloatingCard className="p-8">
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2 text-gray-900">
@@ -99,7 +99,7 @@ export const ProfileSettingsTab = () => {
                   </Button>
                 )}
               </div>
-              <div className="flex-1 max-w-sm">
+              <div className="flex-1 max-w-md">
                 <Input
                   type="file"
                   accept="image/*"
@@ -168,7 +168,7 @@ export const ProfileSettingsTab = () => {
           </div>
           <p className="text-gray-500 text-sm">Manage your email addresses</p>
         </div>
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label className="text-gray-600 font-medium ml-1">Work Email Address</Label>
             <Input

@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { IndianRupee, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { getTransactionColor, getCategoryColor } from '../utils/financialFormatters';
 import { formatCurrencySymbol } from '../utils/financialFormatters';
 import { selectRecords, selectOne } from '@/services/api/core';
@@ -48,8 +48,12 @@ export const TransactionsTab = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [activeSubTab, setActiveSubTab] = useState('all');
 
+  const safeTransactions = useMemo(() => {
+    return Array.isArray(transactions) ? transactions : ((transactions as any)?.data || []);
+  }, [transactions]);
+
   const filteredTransactions = useMemo(() => {
-    return transactions.filter(transaction => {
+    return safeTransactions.filter(transaction => {
       const matchesSearch = (transaction.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (transaction.reference || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (transaction.entry_number || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -57,7 +61,7 @@ export const TransactionsTab = ({
         (!dateRange.end || new Date(transaction.date) <= new Date(dateRange.end));
       return matchesSearch && matchesDateRange;
     });
-  }, [transactions, searchTerm, dateRange]);
+  }, [safeTransactions, searchTerm, dateRange]);
 
   const displayedTransactions = useMemo(() => {
     if (activeSubTab === 'credits') {
@@ -112,7 +116,7 @@ export const TransactionsTab = ({
               {filteredTransactions.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center text-muted-foreground">
-                    <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <IndianRupee className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-medium mb-2">No transactions found</p>
                     <p>Transactions will appear here once journal entries are posted.</p>
                   </CardContent>

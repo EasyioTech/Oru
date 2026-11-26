@@ -1,13 +1,26 @@
 import { getApiBaseUrl } from '@/config/api';
 
-const token = () => localStorage.getItem('auth_token') ?? '';
+const token = () => (typeof window !== 'undefined' ? localStorage.getItem('auth_token') ?? '' : '');
+const agencyId = () => (typeof window !== 'undefined' ? localStorage.getItem('agency_id') ?? '' : '');
+const agencyDb = () => (typeof window !== 'undefined' ? localStorage.getItem('agency_database') ?? '' : '');
 
 export const fetchJson = async (path: string, options?: RequestInit) => {
   const baseUrl = getApiBaseUrl();
   const url = path.startsWith('http') ? path : `${baseUrl}/api${path.startsWith('/') ? '' : '/'}${path}`;
   
   const headers = new Headers(options?.headers);
-  headers.set('Authorization', `Bearer ${token()}`);
+  const authToken = token();
+  if (authToken) {
+    headers.set('Authorization', `Bearer ${authToken}`);
+  }
+  const aid = agencyId();
+  if (aid && !headers.has('X-Agency-Id')) {
+    headers.set('X-Agency-Id', aid);
+  }
+  const adb = agencyDb();
+  if (adb && !headers.has('X-Agency-Database')) {
+    headers.set('X-Agency-Database', adb);
+  }
   if (!headers.has('Content-Type') && !(options?.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
   }
@@ -18,7 +31,16 @@ export const fetchJson = async (path: string, options?: RequestInit) => {
   });
 
   if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
+    let errorMessage = `HTTP ${res.status}`;
+    try {
+      const errJson = await res.json();
+      if (errJson?.message) {
+        errorMessage = errJson.message;
+      } else if (errJson?.error && typeof errJson.error === 'string') {
+        errorMessage = errJson.error;
+      }
+    } catch {}
+    throw new Error(errorMessage);
   }
   
   const responseData = await res.json();

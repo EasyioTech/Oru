@@ -2,6 +2,8 @@
  * Logo Upload Component
  */
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AvatarImageWithAuth } from "@/components/ui/AvatarImageWithAuth";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -49,30 +51,33 @@ export const LogoUpload = ({ logoPreview, onLogoChange, onRemove }: LogoUploadPr
 
   return (
     <div className="space-y-2">
-      <Label>Agency Logo</Label>
+      <Label className="text-gray-600 font-medium ml-1">Agency Logo</Label>
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <Input
             type="file"
             accept="image/*"
             onChange={handleLogoChange}
-            className="cursor-pointer"
+            className="cursor-pointer bg-white/60 dark:bg-slate-800/60 border-transparent rounded-xl focus-visible:ring-gray-200 shadow-sm transition-all h-11"
           />
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-gray-400 mt-1.5 ml-1">
             Upload a logo (PNG, JPG, SVG - Max 5MB)
           </p>
         </div>
         {logoPreview && (
           <div className="relative">
-            <img
-              src={logoPreview}
-              alt="Logo preview"
-              className="w-16 h-16 object-contain border rounded"
-            />
+            <Avatar className="w-16 h-16 rounded border bg-white flex items-center justify-center">
+              <AvatarImageWithAuth
+                src={logoPreview}
+                alt="Logo preview"
+                className="object-contain p-1"
+              />
+              <AvatarFallback className="text-xs">Logo</AvatarFallback>
+            </Avatar>
             <Button
               size="sm"
               variant="destructive"
-              className="absolute -top-2 -right-2 w-6 h-6 p-0"
+              className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
               onClick={onRemove}
             >
               <X className="h-3 w-3" />

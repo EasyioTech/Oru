@@ -50,7 +50,7 @@ export const SecuritySettingsTab = () => {
   const inputStyle = "bg-white/60 border-transparent rounded-xl focus-visible:ring-gray-200 shadow-sm transition-all h-11";
 
   return (
-    <div className="space-y-6 w-full max-w-4xl">
+    <div className="space-y-6 w-full">
       {/* Change Password */}
       <FloatingCard className="p-8">
         <div className="mb-8">
@@ -62,85 +62,90 @@ export const SecuritySettingsTab = () => {
         </div>
         
         <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="currentPassword" className="text-gray-600 font-medium ml-1">Current Password</Label>
-            <div className="relative">
-              <Input
-                id="currentPassword"
-                type={showCurrentPassword ? "text" : "password"}
-                value={securitySettings.current_password}
-                onChange={(e) => setSecuritySettings(prev => ({ ...prev, current_password: e.target.value }))}
-                placeholder="Enter your current password"
-                className={inputStyle}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-              >
-                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-gray-600 font-medium ml-1">New Password</Label>
-            <div className="relative">
-              <Input
-                id="newPassword"
-                type={showNewPassword ? "text" : "password"}
-                value={securitySettings.new_password}
-                onChange={(e) => setSecuritySettings(prev => ({ ...prev, new_password: e.target.value }))}
-                placeholder="Enter your new password"
-                className={inputStyle}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-              >
-                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            <p className="text-xs text-gray-400 ml-1">
-              At least 8 characters. Avoid sequences (e.g. 123, abc) and repeated characters (e.g. 1111).
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-gray-600 font-medium ml-1">Confirm New Password</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                value={securitySettings.confirm_password}
-                onChange={(e) => setSecuritySettings(prev => ({ ...prev, confirm_password: e.target.value }))}
-                placeholder="Confirm your new password"
-                className={inputStyle}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {securitySettings.new_password && securitySettings.confirm_password && (
-              <div className="flex items-center gap-2 mt-2 ml-1">
-                {securitySettings.new_password === securitySettings.confirm_password ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm font-medium text-green-600">Passwords match</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                    <span className="text-sm font-medium text-red-600">Passwords do not match</span>
-                  </>
-                )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword" className="text-gray-600 font-medium ml-1">Current Password</Label>
+              <div className="relative">
+                <Input
+                  id="currentPassword"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={securitySettings.current_password}
+                  onChange={(e) => setSecuritySettings(prev => ({ ...prev, current_password: e.target.value }))}
+                  placeholder="Enter your current password"
+                  className={inputStyle}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
-            )}
+            </div>
+            <div className="p-3.5 rounded-xl bg-gray-50/70 dark:bg-slate-800/40 border border-gray-100 dark:border-slate-800 text-xs text-gray-500 dark:text-gray-400 space-y-1 mt-1 md:mt-6">
+              <p className="font-semibold text-gray-700 dark:text-gray-300">Password Security Requirement</p>
+              <p>Minimum 8 characters. Avoid simple sequences (123, abc) and repeated characters.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword" className="text-gray-600 font-medium ml-1">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  value={securitySettings.new_password}
+                  onChange={(e) => setSecuritySettings(prev => ({ ...prev, new_password: e.target.value }))}
+                  placeholder="Enter your new password"
+                  className={inputStyle}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-gray-600 font-medium ml-1">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={securitySettings.confirm_password}
+                  onChange={(e) => setSecuritySettings(prev => ({ ...prev, confirm_password: e.target.value }))}
+                  placeholder="Confirm your new password"
+                  className={inputStyle}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {securitySettings.new_password && securitySettings.confirm_password && (
+                <div className="flex items-center gap-2 mt-1.5 ml-1">
+                  {securitySettings.new_password === securitySettings.confirm_password ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-medium text-green-600">Passwords match</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <span className="text-sm font-medium text-red-600">Passwords do not match</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-4">

@@ -100,7 +100,15 @@ export const useAgencySettingsExtended = () => {
           const pathWithinBucket = `agency_${Date.now()}.${fileExt}`;
           const fileBuffer = await logoFile.arrayBuffer();
           const uploadResult = await uploadFile('branding', pathWithinBucket, fileBuffer, user?.id ?? null, logoFile.type);
-          const logoUrl = (uploadResult as any).url || (uploadResult as any).data?.url || `${getApiRoot().replace(/\/$/, '')}/storage/files/${encodeURIComponent((uploadResult as any).file_path || pathWithinBucket)}`;
+          let logoUrl = (uploadResult as any).url || (uploadResult as any).data?.url;
+          if (logoUrl && (logoUrl.includes('subdomain.yourdomain.com') || logoUrl.includes('yourdomain.com'))) {
+            const key = (uploadResult as any).key || (uploadResult as any).data?.key || logoUrl.split('yourdomain.com/')[1];
+            logoUrl = `/api/storage/files/${key}`;
+          }
+          if (!logoUrl) {
+            const key = (uploadResult as any).key || (uploadResult as any).data?.key || pathWithinBucket;
+            logoUrl = `/api/storage/files/${key}`;
+          }
           settingsToSave.logo_url = logoUrl;
         } catch (uploadErr: any) {
           toast({
@@ -118,9 +126,13 @@ export const useAgencySettingsExtended = () => {
       const result = await saveAgencySettingsData(settingsToSave);
 
       if (result.success) {
-        if (logoFile && settingsToSave.logo_url) {
+        if (settingsToSave.logo_url) {
           setAgencySettings(prev => ({ ...prev, logo_url: settingsToSave.logo_url }));
           setLogoPreview(settingsToSave.logo_url);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('agency_logo', settingsToSave.logo_url);
+            window.dispatchEvent(new CustomEvent('agency-settings-updated', { detail: { ...agencySettings, ...settingsToSave } }));
+          }
         }
         setLogoFile(null);
 

@@ -111,54 +111,71 @@ async function createAgency(agencyData) {
       throw new Error(domainCheck.error || `Domain "${domain}" is already taken`);
     }
 
-    // Create the agency database
-    logger.info('[AgencyCreation] Creating database', { dbName });
-    postgresPool = new Pool({ host, port, user, password, database: 'postgres' });
-    postgresClient = await postgresPool.connect();
+    // Create or connect to the agency database
+    let isolatedDbCreated = false;
+    let validatedDbName = null;
 
-    const validatedDbName = validateDatabaseName(dbName);
-    const quotedDbName = quoteIdentifier(validatedDbName);
+    try {
+      validatedDbName = validateDatabaseName(dbName);
+      const quotedDbName = quoteIdentifier(validatedDbName);
 
-    // Drop if exists (for recovery from failed creations)
-    const dbExistsCheck = await postgresClient.query(
-      `SELECT EXISTS(SELECT FROM pg_database WHERE datname = $1)`,
-      [validatedDbName]
-    );
+      postgresPool = new Pool({ host, port, user, password, database: 'postgres' });
+      postgresClient = await postgresPool.connect();
 
-    if (dbExistsCheck.rows[0].exists) {
-      console.log(`[AgencyCreation] Database ${validatedDbName} exists, dropping...`);
-      await postgresClient.query(`
-        SELECT pg_terminate_backend(pid)
-        FROM pg_stat_activity
-        WHERE datname = $1 AND pid <> pg_backend_pid()
-      `, [validatedDbName]);
-      await postgresClient.query(`DROP DATABASE IF EXISTS ${quotedDbName}`);
+      // Drop if exists (for recovery from failed creations)
+      const dbExistsCheck = await postgresClient.query(
+        `SELECT EXISTS(SELECT FROM pg_database WHERE datname = $1)`,
+        [validatedDbName]
+      );
+
+      if (dbExistsCheck.rows[0].exists) {
+        console.log(`[AgencyCreation] Database ${validatedDbName} exists, dropping...`);
+        await postgresClient.query(`
+          SELECT pg_terminate_backend(pid)
+          FROM pg_stat_activity
+          WHERE datname = $1 AND pid <> pg_backend_pid()
+        `, [validatedDbName]);
+        await postgresClient.query(`DROP DATABASE IF EXISTS ${quotedDbName}`);
+      }
+
+      // Create the database
+      await postgresClient.query(`CREATE DATABASE ${quotedDbName}`);
+      logger.info('[AgencyCreation] Database created', { dbName });
+      isolatedDbCreated = true;
+    } catch (dbErr) {
+      logger.warn('[AgencyCreation] Separate database creation failed or not supported in this environment, falling back to shared multi-tenant database:', dbErr.message);
+      isolatedDbCreated = false;
+    } finally {
+      if (postgresClient) {
+        try { postgresClient.release(); } catch (_) {}
+      }
+      if (postgresPool) {
+        try { await postgresPool.end(); } catch (_) {}
+      }
     }
 
-    // Create the database
-    await postgresClient.query(`CREATE DATABASE ${quotedDbName}`);
-    logger.info('[AgencyCreation] Database created', { dbName });
-
-    // Release postgres connection
-    postgresClient.release();
-    await postgresPool.end();
-
-    // Connect to the new agency database
-    agencyPool = getAgencyPool(validatedDbName);
-    agencyDbClient = await agencyPool.connect();
-
-    // Verify connection
-    const dbCheck = await agencyDbClient.query('SELECT current_database()');
-    if (dbCheck.rows[0].current_database !== dbName) {
-      throw new Error(`Database isolation error: expected ${dbName}, got ${dbCheck.rows[0].current_database}`);
+    if (isolatedDbCreated && validatedDbName) {
+      try {
+        agencyPool = getAgencyPool(validatedDbName);
+        agencyDbClient = await agencyPool.connect();
+      } catch (poolErr) {
+        logger.warn('[AgencyCreation] Failed to connect to isolated pool, using main db:', poolErr.message);
+        agencyDbClient = mainClient;
+        isolatedDbCreated = false;
+      }
+    } else {
+      agencyDbClient = mainClient;
     }
 
-    // Create schema (skip auto-sync in provisioning path to avoid runtime DDL)
-    logger.info('[AgencyCreation] Creating schema', { dbName });
-    await createAgencySchema(agencyDbClient, { skipAutoSync: true });
+    // Create schema only if in isolated database (main database schema is already migrated)
+    if (isolatedDbCreated && agencyDbClient !== mainClient) {
+      logger.info('[AgencyCreation] Creating schema in isolated db', { dbName });
+      await createAgencySchema(agencyDbClient, { skipAutoSync: true });
+    }
 
     // Initialize agency settings
     await initializeAgencySettings(agencyDbClient, {
+      agencyId,
       agencyName,
       domain,
       industry,
@@ -209,15 +226,23 @@ async function createAgency(agencyData) {
     };
   } catch (error) {
     logger.error('[AgencyCreation] Failed', { error: error.message });
-    // Cleanup: remove agency from main DB if already registered, then drop agency DB
-    await cleanupFailedCreation(dbName, { host, port, user, password }, agencyDbClient, agencyPool, mainClient, agencyId);
+    // Cleanup: remove agency from main DB if already registered, then drop agency DB if isolated
+    if (isolatedDbCreated) {
+      await cleanupFailedCreation(dbName, { host, port, user, password }, agencyDbClient, agencyPool, mainClient, agencyId);
+    } else if (mainClient && agencyId) {
+      try {
+        await mainClient.query('DELETE FROM public.agencies WHERE id = $1', [agencyId]);
+      } catch (_) {}
+    }
     throw error;
   } finally {
-    // Release connections
-    if (agencyDbClient) try { agencyDbClient.release(); } catch {}
-    if (postgresClient) try { postgresClient.release(); } catch {}
-    if (postgresPool) try { await postgresPool.end(); } catch {}
-    if (mainClient) try { mainClient.release(); } catch {}
+    // Release connections safely
+    if (agencyDbClient && agencyDbClient !== mainClient) {
+      try { agencyDbClient.release(); } catch {}
+    }
+    if (mainClient) {
+      try { mainClient.release(); } catch {}
+    }
   }
 }
 
@@ -225,31 +250,61 @@ async function createAgency(agencyData) {
  * Initialize agency settings in the agency database
  */
 async function initializeAgencySettings(client, data) {
-  const { agencyName, domain, industry, companySize } = data;
+  const { agencyId, agencyName, domain, industry, companySize } = data;
 
-  // Check if row exists
-  const existing = await client.query('SELECT id FROM public.agency_settings LIMIT 1');
-  
-  if (existing.rows.length > 0) {
-    await client.query(
-      `UPDATE public.agency_settings SET
-        agency_name = COALESCE($1, agency_name),
-        domain = COALESCE($2, domain),
-        industry = COALESCE($3, industry),
-        company_size = COALESCE($4, company_size),
-        updated_at = NOW()
-      WHERE id = $5`,
-      [agencyName, domain, industry, companySize, existing.rows[0].id]
-    );
-  } else {
-    await client.query(
-      `INSERT INTO public.agency_settings (agency_name, domain, industry, company_size, setup_complete)
-       VALUES ($1, $2, $3, $4, false)`,
-      [agencyName || 'My Agency', domain, industry, companySize]
-    );
+  try {
+    const colCheck = await client.query(`
+      SELECT column_name FROM information_schema.columns 
+      WHERE table_schema = 'public' AND table_name = 'agency_settings' AND column_name = 'agency_id'
+    `);
+
+    if (colCheck.rows.length > 0 && agencyId) {
+      const existing = await client.query('SELECT id FROM public.agency_settings WHERE agency_id = $1 LIMIT 1', [agencyId]);
+      if (existing.rows.length > 0) {
+        await client.query(
+          `UPDATE public.agency_settings SET
+            agency_name = COALESCE($1, agency_name),
+            domain = COALESCE($2, domain),
+            industry = COALESCE($3, industry),
+            company_size = COALESCE($4, company_size),
+            updated_at = NOW()
+          WHERE agency_id = $5`,
+          [agencyName, domain, industry, companySize, agencyId]
+        );
+      } else {
+        await client.query(
+          `INSERT INTO public.agency_settings (agency_id, agency_name, domain, industry, company_size, setup_complete)
+           VALUES ($1, $2, $3, $4, $5, false)`,
+          [agencyId, agencyName || 'My Agency', domain, industry, companySize]
+        );
+      }
+    } else {
+      // Check if row exists
+      const existing = await client.query('SELECT id FROM public.agency_settings LIMIT 1');
+      
+      if (existing.rows.length > 0) {
+        await client.query(
+          `UPDATE public.agency_settings SET
+            agency_name = COALESCE($1, agency_name),
+            domain = COALESCE($2, domain),
+            industry = COALESCE($3, industry),
+            company_size = COALESCE($4, company_size),
+            updated_at = NOW()
+          WHERE id = $5`,
+          [agencyName, domain, industry, companySize, existing.rows[0].id]
+        );
+      } else {
+        await client.query(
+          `INSERT INTO public.agency_settings (agency_name, domain, industry, company_size, setup_complete)
+           VALUES ($1, $2, $3, $4, false)`,
+          [agencyName || 'My Agency', domain, industry, companySize]
+        );
+      }
+    }
+    logger.info('[AgencyCreation] Agency settings initialized');
+  } catch (err) {
+    logger.warn('[AgencyCreation] Non-fatal agency settings initialization error:', err.message);
   }
-
-  logger.info('[AgencyCreation] Agency settings initialized');
 }
 
 /**

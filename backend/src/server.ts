@@ -234,7 +234,13 @@ import { ZodError } from 'zod';
 // Global Error Handler
 server.setErrorHandler((error: any, request, reply) => {
     if (error instanceof ZodError || error.name === 'ZodError') {
-        return reply.status(400).send({ error: true, message: 'Validation Error', details: error.issues || JSON.parse(error.message), code: 'VALIDATION_ERROR' });
+        let issues = error.issues;
+        if (!issues && typeof error.message === 'string' && error.message.trim().startsWith('[')) {
+            try { issues = JSON.parse(error.message); } catch {}
+        }
+        const firstIssueMsg = issues?.[0]?.message;
+        const msg = firstIssueMsg || error.message || 'Validation Error';
+        return reply.status(400).send({ error: true, message: msg, details: issues || [], code: 'VALIDATION_ERROR' });
     }
     server.log.error(error);
     reply.status(error.statusCode || 500).send({

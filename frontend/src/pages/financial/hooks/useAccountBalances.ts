@@ -12,10 +12,13 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const toArray = (val: any): any[] => Array.isArray(val) ? val : (Array.isArray(val?.data) ? val.data : []);
+    const accountsList = toArray(chartOfAccounts);
+
     const calculateBalances = async () => {
       const effectiveAgencyId = agencyId;
-      if (!effectiveAgencyId || chartOfAccounts.length === 0) {
-        if (chartOfAccounts.length === 0) {
+      if (!effectiveAgencyId || accountsList.length === 0) {
+        if (accountsList.length === 0) {
           setAccountBalances({});
         }
         return;
@@ -44,7 +47,8 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
         
         let balancesData: any[] = [];
         try {
-          balancesData = await rawQuery(query, [effectiveAgencyId]);
+          const res = await rawQuery(query, [effectiveAgencyId]);
+          balancesData = toArray(res);
           logDebug(`Calculated account balances for ${balancesData.length} accounts`);
         } catch (err: any) {
           const message = String(err?.message || '');
@@ -64,7 +68,8 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
               GROUP BY coa.id, coa.account_type
             `;
             try {
-              balancesData = await rawQuery(query, [effectiveAgencyId]);
+              const res = await rawQuery(query, [effectiveAgencyId]);
+              balancesData = toArray(res);
               logDebug(`Calculated account balances (fallback 1) for ${balancesData.length} accounts`);
             } catch (err2: any) {
               logWarn('Using final fallback - no agency filtering for balances');
@@ -80,7 +85,8 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
                   AND je.status = 'posted'
                 GROUP BY coa.id, coa.account_type
               `;
-              balancesData = await rawQuery(query, []);
+              const res = await rawQuery(query, []);
+              balancesData = toArray(res);
               logDebug(`Calculated account balances (fallback 2) for ${balancesData.length} accounts`);
             }
           } else {
@@ -96,14 +102,14 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
         
         balancesData.forEach((row: any) => {
           const { account_type } = row;
-          const balance = balances[row.account_id] || 0;
+          const balance = (balances && balances[row.account_id]) || 0;
           if (account_type === 'asset') totalAssets += balance;
           else if (account_type === 'liability') totalLiabilities += balance;
           else if (account_type === 'equity') totalEquity += balance;
         });
         
-        logDebug(`Account balances calculated - Assets: ₹${totalAssets.toLocaleString()}, Liabilities: ₹${totalLiabilities.toLocaleString()}, Equity: ₹${totalEquity.toLocaleString()}`);
-        setAccountBalances(balances);
+        logDebug(`Account balances calculated - Assets: ₹${totalAssets.toLocaleString('en-IN')}, Liabilities: ₹${totalLiabilities.toLocaleString('en-IN')}, Equity: ₹${totalEquity.toLocaleString('en-IN')}`);
+        setAccountBalances(balances || {});
       } catch (error) {
         logError('Error calculating account balances:', error);
         setAccountBalances({});
@@ -112,12 +118,12 @@ export const useAccountBalances = (chartOfAccounts: any[], agencyId: string | nu
       }
     };
 
-    if (chartOfAccounts.length > 0 && agencyId && !loading) {
+    if (accountsList.length > 0 && agencyId && !loading) {
       calculateBalances();
-    } else if (chartOfAccounts.length === 0) {
+    } else if (accountsList.length === 0) {
       setAccountBalances({});
     }
-  }, [chartOfAccounts.length, agencyId, loading]);
+  }, [Array.isArray(chartOfAccounts) ? chartOfAccounts.length : 0, agencyId, loading]);
 
   return {
     accountBalances,

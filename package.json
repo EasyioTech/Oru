@@ -4,7 +4,10 @@
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "node scripts/ensure-tunnel.cjs && turbo dev",
+    "dev:clean": "pnpm kill-ports && node scripts/ensure-tunnel.cjs && turbo dev",
+    "tunnel": "node scripts/ensure-tunnel.cjs",
+    "kill-ports": "node scripts/kill-ports.cjs",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "lint": "turbo lint",

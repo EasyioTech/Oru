@@ -13,6 +13,7 @@ export const useJournalEntries = (agencyId: string | null) => {
   const [loading, setLoading] = useState(false);
 
   const fetchJournalEntries = async (agencyIdParam?: string | null) => {
+    const toArray = (val: any): any[] => Array.isArray(val) ? val : (Array.isArray(val?.data) ? val.data : []);
     const effectiveAgencyId = agencyIdParam || agencyId;
     setLoading(true);
     try {
@@ -20,19 +21,21 @@ export const useJournalEntries = (agencyId: string | null) => {
       
       if (effectiveAgencyId && effectiveAgencyId !== '00000000-0000-0000-0000-000000000000') {
         try {
-          entries = await selectRecords('journal_entries', {
+          const res = await selectRecords('journal_entries', {
             where: { agency_id: effectiveAgencyId },
             orderBy: 'entry_date DESC, created_at DESC',
           });
+          entries = toArray(res);
           logDebug(`Fetched journal entries with agency_id filter: ${entries?.length || 0} entries`);
         } catch (err: any) {
           if (err?.code === '42703' || String(err?.message || '').includes('agency_id') || String(err?.message || '').includes('does not exist')) {
             logWarn('journal_entries has no agency_id column, trying fallback strategies');
             try {
-              const allEntries = await selectRecords('journal_entries', {
+              const allRes = await selectRecords('journal_entries', {
                 orderBy: 'entry_date DESC, created_at DESC',
               });
-              entries = (allEntries || []).filter((e: any) => 
+              const allEntries = toArray(allRes);
+              entries = allEntries.filter((e: any) => 
                 !e.agency_id || e.agency_id === effectiveAgencyId
               );
               logDebug(`Fetched journal entries (fallback): ${entries?.length || 0} entries from ${allEntries?.length || 0} total`);
@@ -46,9 +49,10 @@ export const useJournalEntries = (agencyId: string | null) => {
         }
       } else {
         try {
-          entries = await selectRecords('journal_entries', {
+          const res = await selectRecords('journal_entries', {
             orderBy: 'entry_date DESC, created_at DESC',
           });
+          entries = toArray(res);
           logDebug(`Fetched journal entries (no agency filter): ${entries?.length || 0} entries`);
         } catch (err: any) {
           logError('Error fetching journal entries without agency filter:', err);
@@ -56,9 +60,9 @@ export const useJournalEntries = (agencyId: string | null) => {
         }
       }
       
-      setJournalEntries(entries || []);
+      setJournalEntries(entries);
       
-      if ((entries || []).length === 0) {
+      if (entries.length === 0) {
         logWarn('No journal entries found. This may be normal if no entries have been created yet.');
       }
     } catch (error: any) {

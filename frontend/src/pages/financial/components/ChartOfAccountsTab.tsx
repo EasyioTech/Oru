@@ -38,14 +38,18 @@ export const ChartOfAccountsTab = ({
 }: ChartOfAccountsTabProps) => {
   const [currentPage, setCurrentPage] = useState(1);
 
+  const safeAccounts = useMemo(() => {
+    return Array.isArray(chartOfAccounts) ? chartOfAccounts : ((chartOfAccounts as any)?.data || []);
+  }, [chartOfAccounts]);
+
   const filteredAccounts = useMemo(() => {
-    return chartOfAccounts.filter(account => {
+    return safeAccounts.filter(account => {
       const matchesSearch = (account.account_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (account.account_code || '').toLowerCase().includes(searchTerm.toLowerCase());
       const matchesType = accountTypeFilter === 'all' || account.account_type === accountTypeFilter;
       return matchesSearch && matchesType;
     });
-  }, [chartOfAccounts, searchTerm, accountTypeFilter]);
+  }, [safeAccounts, searchTerm, accountTypeFilter]);
 
   const paginatedAccounts = useMemo(() => {
     return filteredAccounts.slice(

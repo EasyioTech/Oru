@@ -13,6 +13,7 @@ export const useTransactions = (agencyId: string | null) => {
   const [loading, setLoading] = useState(false);
 
   const fetchTransactions = async (agencyIdParam?: string | null) => {
+    const toArray = (val: any): any[] => Array.isArray(val) ? val : (Array.isArray(val?.data) ? val.data : []);
     const effectiveAgencyId = agencyIdParam || agencyId;
     setLoading(true);
     try {
@@ -62,7 +63,8 @@ export const useTransactions = (agencyId: string | null) => {
       
       let txnData: any[] = [];
       try {
-        txnData = await rawQuery(query, params);
+        const res = await rawQuery(query, params);
+        txnData = toArray(res);
       } catch (err: any) {
         const message = String(err?.message || '');
         if (err?.code === '42703' || message.includes('column')) {
@@ -86,7 +88,8 @@ export const useTransactions = (agencyId: string | null) => {
               WHERE je.status = 'posted'
               ORDER BY je.entry_date DESC, COALESCE(jel.line_number, 1), jel.id ASC
             `;
-            txnData = await rawQuery(query, []);
+            const res = await rawQuery(query, []);
+            txnData = toArray(res);
           } else if (message.includes('line_number')) {
             logWarn('journal_entry_lines has no line_number column, falling back to ordering by id');
             if (effectiveAgencyId) {
@@ -108,7 +111,8 @@ export const useTransactions = (agencyId: string | null) => {
                 WHERE je.status = 'posted' AND je.agency_id = $1
                 ORDER BY je.entry_date DESC, jel.id ASC
               `;
-              txnData = await rawQuery(query, [effectiveAgencyId]);
+              const res = await rawQuery(query, [effectiveAgencyId]);
+              txnData = toArray(res);
             } else {
               query = `
                 SELECT 
@@ -128,7 +132,8 @@ export const useTransactions = (agencyId: string | null) => {
                 WHERE je.status = 'posted'
                 ORDER BY je.entry_date DESC, jel.id ASC
               `;
-              txnData = await rawQuery(query, []);
+              const res = await rawQuery(query, []);
+              txnData = toArray(res);
             }
           } else {
             throw err;
@@ -137,10 +142,10 @@ export const useTransactions = (agencyId: string | null) => {
           throw err;
         }
       }
-      setTransactions(txnData || []);
-      logDebug(`Fetched transactions: ${txnData?.length || 0} transactions`);
+      setTransactions(txnData);
+      logDebug(`Fetched transactions: ${txnData.length} transactions`);
       
-      if ((txnData || []).length === 0) {
+      if (txnData.length === 0) {
         logWarn('No transactions found. This may be normal if no journal entries have been posted yet.');
       }
     } catch (error: any) {

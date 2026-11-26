@@ -14,7 +14,8 @@ export const useProjects = (agencyId: string | null, profile: any, userId: strin
     const effectiveAgencyId = agencyIdParam || agencyId;
     setLoading(true);
     try {
-      const projectsData = await projectService.getProjects({}, profile, userId);
+      const rawProjects = await projectService.getProjects({}, profile, userId);
+      const projectsData = Array.isArray(rawProjects) ? rawProjects : (Array.isArray(rawProjects?.data) ? rawProjects.data : []);
       
       const projectsWithFinancials = await Promise.all(
         projectsData.map(async (project: any) => {

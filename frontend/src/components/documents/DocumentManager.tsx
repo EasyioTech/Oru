@@ -6,7 +6,11 @@ import { FoldersGrid } from './FoldersGrid';
 import { DocumentsGrid } from './DocumentsGrid';
 import { DocumentSettingsDialog, CreateFolderDialog, DocumentPermissionsDialog } from './DocumentDialogs';
 
-export function DocumentManager() {
+interface DocumentManagerProps {
+  embedded?: boolean;
+}
+
+export function DocumentManager({ embedded = false }: DocumentManagerProps = {}) {
   const {
     filteredDocuments, subFolders, currentFolder, setCurrentFolder,
     currentFolderData, loading, searchTerm, setSearchTerm, viewMode, setViewMode,
@@ -21,10 +25,14 @@ export function DocumentManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Document Management</h1>
-          <p className="text-muted-foreground">Organize and manage your files with version control</p>
+          {embedded ? (
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Document Management</h2>
+          ) : (
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Document Management</h1>
+          )}
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Organize and manage your files with version control</p>
         </div>
         <div className="flex space-x-2">
           <Button onClick={() => setShowFolderDialog(true)}><Plus className="h-4 w-4 mr-2" />New Folder</Button>

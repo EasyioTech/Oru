@@ -100,8 +100,8 @@ export class BusinessSettingsService {
             maxUsers: agency.maxUsers,
             trialEndsAt: agency.trialEndsAt ?? null,
             subscriptionEndsAt: agency.subscriptionEndsAt ?? null,
-            logoUrl: settings?.logoUrl ?? null,
-            logo_url: settings?.logoUrl ?? null,
+            logoUrl: settings?.logoUrl ?? (agency?.settings as any)?.logoUrl ?? null,
+            logo_url: settings?.logoUrl ?? (agency?.settings as any)?.logoUrl ?? null,
           }
         : null,
       metrics: {
@@ -229,6 +229,7 @@ export class BusinessSettingsService {
       // Also synchronize master agency row for consistent business profile
       const masterAgencyUpdates: Record<string, any> = { updatedAt: new Date() };
       if (updateData.agencyName) masterAgencyUpdates.name = updateData.agencyName;
+      if (updateData.logoUrl !== undefined) masterAgencyUpdates.settings = { logoUrl: updateData.logoUrl };
       if (updateData.domain) masterAgencyUpdates.domain = updateData.domain;
       if (updateData.address !== undefined) masterAgencyUpdates.address = updateData.address;
       if (updateData.city !== undefined) masterAgencyUpdates.city = updateData.city;

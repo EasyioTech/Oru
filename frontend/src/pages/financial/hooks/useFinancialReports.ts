@@ -25,55 +25,61 @@ export const useFinancialReports = (
   const handleGenerateReport = async (reportType: string) => {
     setReportGenerating(reportType);
     try {
+      const safeAccounts = Array.isArray(chartOfAccounts) ? chartOfAccounts : ((chartOfAccounts as any)?.data || []);
+      const safeJobs = Array.isArray(jobs) ? jobs : ((jobs as any)?.data || []);
+      const safeBalances = accountBalances || {};
+      const safeAccounting = accountingStats || { totalAssets: 0, totalLiabilities: 0, totalEquity: 0 };
+      const safeLedger = ledgerSummary || { monthlyIncome: 0, monthlyExpenses: 0, netProfit: 0, totalBalance: 0 };
+
       let reportData: any = {};
       let reportTitle = '';
 
       switch (reportType) {
         case 'balance-sheet': {
           reportTitle = 'Balance Sheet';
-          const assets = chartOfAccounts
+          const assets = safeAccounts
             .filter(acc => acc.account_type === 'asset')
             .map(acc => ({
               account: `${acc.account_code} - ${acc.account_name}`,
-              balance: accountBalances[acc.id] || 0
+              balance: safeBalances[acc.id] || 0
             }));
-          const liabilities = chartOfAccounts
+          const liabilities = safeAccounts
             .filter(acc => acc.account_type === 'liability')
             .map(acc => ({
               account: `${acc.account_code} - ${acc.account_name}`,
-              balance: accountBalances[acc.id] || 0
+              balance: safeBalances[acc.id] || 0
             }));
-          const equity = chartOfAccounts
+          const equity = safeAccounts
             .filter(acc => acc.account_type === 'equity')
             .map(acc => ({
               account: `${acc.account_code} - ${acc.account_name}`,
-              balance: accountBalances[acc.id] || 0
+              balance: safeBalances[acc.id] || 0
             }));
           
           reportData = {
             assets,
             liabilities,
             equity,
-            totalAssets: accountingStats.totalAssets,
-            totalLiabilities: accountingStats.totalLiabilities,
-            totalEquity: accountingStats.totalEquity,
+            totalAssets: safeAccounting.totalAssets ?? 0,
+            totalLiabilities: safeAccounting.totalLiabilities ?? 0,
+            totalEquity: safeAccounting.totalEquity ?? 0,
           };
           break;
         }
 
         case 'profit-loss': {
           reportTitle = 'Profit & Loss Statement';
-          const revenue = chartOfAccounts
+          const revenue = safeAccounts
             .filter(acc => acc.account_type === 'revenue')
             .map(acc => ({
               account: `${acc.account_code} - ${acc.account_name}`,
-              balance: accountBalances[acc.id] || 0
+              balance: safeBalances[acc.id] || 0
             }));
-          const expenses = chartOfAccounts
+          const expenses = safeAccounts
             .filter(acc => acc.account_type === 'expense')
             .map(acc => ({
               account: `${acc.account_code} - ${acc.account_name}`,
-              balance: accountBalances[acc.id] || 0
+              balance: safeBalances[acc.id] || 0
             }));
           
           reportData = {
@@ -88,17 +94,17 @@ export const useFinancialReports = (
 
         case 'trial-balance':
           reportTitle = 'Trial Balance';
-          reportData = chartOfAccounts.map(acc => ({
+          reportData = safeAccounts.map(acc => ({
             account_code: acc.account_code,
             account_name: acc.account_name,
             account_type: acc.account_type,
-            balance: accountBalances[acc.id] || 0,
+            balance: safeBalances[acc.id] || 0,
           }));
           break;
 
         case 'job-profitability':
           reportTitle = 'Job Profitability Report';
-          reportData = jobs.map(job => ({
+          reportData = safeJobs.map(job => ({
             job_number: job.job_number,
             title: job.title,
             budget: parseFloat(job.budget || 0),
@@ -111,16 +117,16 @@ export const useFinancialReports = (
 
         case 'cash-flow': {
           reportTitle = 'Cash Flow Statement';
-          const cashAccounts = chartOfAccounts.filter(acc => 
+          const cashAccounts = safeAccounts.filter(acc => 
             acc.account_type === 'asset' && 
-            (acc.account_name.toLowerCase().includes('cash') || acc.account_name.toLowerCase().includes('bank'))
+            ((acc.account_name || '').toLowerCase().includes('cash') || (acc.account_name || '').toLowerCase().includes('bank'))
           );
           reportData = {
             cashAccounts: cashAccounts.map(acc => ({
               account: `${acc.account_code} - ${acc.account_name}`,
-              balance: accountBalances[acc.id] || 0
+              balance: safeBalances[acc.id] || 0
             })),
-            totalCash: cashAccounts.reduce((sum, acc) => sum + (accountBalances[acc.id] || 0), 0),
+            totalCash: cashAccounts.reduce((sum, acc) => sum + (safeBalances[acc.id] || 0), 0),
           };
           break;
         }
@@ -128,10 +134,10 @@ export const useFinancialReports = (
         case 'monthly-summary':
           reportTitle = 'Monthly Summary';
           reportData = {
-            monthlyIncome: ledgerSummary.monthlyIncome,
-            monthlyExpenses: ledgerSummary.monthlyExpenses,
-            netProfit: ledgerSummary.netProfit,
-            totalBalance: ledgerSummary.totalBalance,
+            monthlyIncome: safeLedger.monthlyIncome ?? 0,
+            monthlyExpenses: safeLedger.monthlyExpenses ?? 0,
+            netProfit: safeLedger.netProfit ?? 0,
+            totalBalance: safeLedger.totalBalance ?? 0,
           };
           break;
 

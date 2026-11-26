@@ -7,25 +7,38 @@ import * as React from 'react';
 import { AvatarImage } from '@/components/ui/avatar';
 import { getApiRoot, getApiBaseUrl } from '@/config/api';
 
+function normalizeAvatarUrl(src: string): string {
+  if (!src) return '';
+  if (src.includes('subdomain.yourdomain.com') || src.includes('yourdomain.com')) {
+    const parts = src.split('yourdomain.com/');
+    const key = parts[1] || src.replace(/^https?:\/\/[^\/]+\//, '');
+    return `/api/storage/files/${key}`;
+  }
+  return src;
+}
+
 function isApiAvatarUrl(src: string | undefined): boolean {
   if (!src || typeof src !== 'string') return false;
+  const normalized = normalizeAvatarUrl(src);
   const apiRoot = getApiRoot().replace(/\/$/, '');
   return (
-    src.startsWith(apiRoot) ||
-    src.includes('/api/files/') ||
-    src.includes('/api/storage/files/') ||
-    src.includes('/storage/files/') ||
-    src.includes('/files/')
+    normalized.startsWith(apiRoot) ||
+    normalized.includes('/api/files/') ||
+    normalized.includes('/api/storage/files/') ||
+    normalized.includes('/storage/files/') ||
+    normalized.includes('/files/') ||
+    (!normalized.startsWith('http://') && !normalized.startsWith('https://') && !normalized.startsWith('data:'))
   );
 }
 
 /** Resolve relative API URLs to absolute so fetch hits the correct backend. */
 function toAbsoluteApiUrl(src: string): string {
-  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-    return src;
+  const normalized = normalizeAvatarUrl(src);
+  if (normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('data:')) {
+    return normalized;
   }
   const base = getApiBaseUrl();
-  return src.startsWith('/') ? `${base}${src}` : `${base}/${src}`;
+  return normalized.startsWith('/') ? `${base}${normalized}` : `${base}/${normalized}`;
 }
 
 interface AvatarImageWithAuthProps extends React.ComponentPropsWithoutRef<typeof AvatarImage> {
@@ -36,10 +49,7 @@ export const AvatarImageWithAuth = React.forwardRef<
   React.ElementRef<typeof AvatarImage>,
   AvatarImageWithAuthProps
 >(({ src, ...props }, ref) => {
-  const [resolvedSrc, setResolvedSrc] = React.useState<string | undefined>(
-    src && !isApiAvatarUrl(src) ? src : undefined
-  );
-
+  const [resolvedSrc, setResolvedSrc] = React.useState<string | undefined>(undefined);
   const blobUrlRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
@@ -47,31 +57,35 @@ export const AvatarImageWithAuth = React.forwardRef<
       setResolvedSrc(undefined);
       return;
     }
-    // Data URLs and non-API URLs work directly
-    if (src.startsWith('data:') || !isApiAvatarUrl(src)) {
-      setResolvedSrc(src);
+    const cleanSrc = normalizeAvatarUrl(src);
+    // Data URLs work directly
+    if (cleanSrc.startsWith('data:')) {
+      setResolvedSrc(cleanSrc);
       return;
     }
-    // Fetch API URL with auth token (use absolute URL so fetch hits correct backend)
+
     const token = typeof window !== 'undefined' ? window.localStorage.getItem('auth_token') : null;
-    if (!token) {
-      setResolvedSrc(undefined);
-      return;
-    }
-    const fetchUrl = toAbsoluteApiUrl(src);
+    const fetchUrl = toAbsoluteApiUrl(cleanSrc);
     let cancelled = false;
+
     fetch(fetchUrl, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       credentials: 'same-origin',
     })
       .then((res) => (res.ok ? res.blob() : null))
       .then((blob) => {
-        if (cancelled || !blob) return;
+        if (cancelled || !blob) {
+          if (!cancelled) setResolvedSrc(fetchUrl);
+          return;
+        }
         const url = URL.createObjectURL(blob);
         blobUrlRef.current = url;
         setResolvedSrc(url);
       })
-      .catch(() => setResolvedSrc(undefined));
+      .catch(() => {
+        if (!cancelled) setResolvedSrc(fetchUrl);
+      });
+
     return () => {
       cancelled = true;
       if (blobUrlRef.current) {

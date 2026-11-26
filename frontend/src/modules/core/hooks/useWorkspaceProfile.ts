@@ -27,7 +27,7 @@ export function useWorkspaceProfile(workspaceId?: string) {
       return res.data.data as WorkspaceProfile;
 
     },
-    enabled: !!id,
+    enabled: !!id && !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

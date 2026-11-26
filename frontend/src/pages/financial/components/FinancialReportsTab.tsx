@@ -4,7 +4,7 @@
  */
 
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, TrendingUp, FileText, Calculator, DollarSign, Calendar } from "lucide-react";
+import { BookOpen, TrendingUp, FileText, Calculator, IndianRupee, Calendar } from "lucide-react";
 
 interface FinancialReportsTabProps {
   reportGenerating: string | null;
@@ -48,7 +48,7 @@ export const FinancialReportsTab = ({
       id: 'cash-flow',
       title: 'Cash Flow',
       description: 'Cash receipts and payments',
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'text-indigo-600',
     },
     {

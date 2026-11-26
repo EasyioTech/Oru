@@ -91,6 +91,11 @@ export class EmployeeService {
   }
 
   async createEmployee(input: CreateEmployeeInput) {
+    const effectiveAgencyId = input.agencyId || this.agencyId;
+    if (!effectiveAgencyId) {
+      throw new ValidationError('Agency context is required to create an employee');
+    }
+
     const normalizedEmail = input.email.toLowerCase().trim();
 
     // Check duplicate email within this agency
@@ -99,7 +104,7 @@ export class EmployeeService {
       .from(employees)
       .where(
         and(
-          eq(employees.agencyId, this.agencyId),
+          eq(employees.agencyId, effectiveAgencyId),
           eq(employees.email, normalizedEmail),
           isNull(employees.deletedAt)
         )
@@ -107,45 +112,136 @@ export class EmployeeService {
       .limit(1);
 
     if (existingEmail) {
-      throw new ValidationError(`An employee with email "${normalizedEmail}" already exists`);
+      throw new ValidationError(`An employee with email "${normalizedEmail}" already exists in this agency`);
     }
 
-    // Auto-generate employee code if missing
+    // Auto-generate employee code if missing or ensure uniqueness
     let code = input.employeeCode?.trim();
     if (!code) {
       const [empCount] = await this.db
         .select({ count: count() })
         .from(employees)
-        .where(eq(employees.agencyId, this.agencyId));
+        .where(eq(employees.agencyId, effectiveAgencyId));
       const nextNum = (Number(empCount?.count ?? 0) + 1).toString().padStart(4, '0');
       code = `EMP-${nextNum}`;
     }
 
-    const [emp] = await this.db
-      .insert(employees)
-      .values({
-        agencyId: this.agencyId,
-        firstName: input.firstName.trim(),
-        lastName: input.lastName.trim(),
-        email: normalizedEmail,
-        phone: input.phone?.trim() || null,
-        departmentId: input.departmentId || null,
-        position: input.position?.trim() || null,
-        employmentType: input.employmentType || 'full_time',
-        status: input.status || 'active',
-        hireDate: input.hireDate || null,
-        salary: input.salary != null ? String(input.salary) : null,
-        employeeCode: code,
-        address: input.address?.trim() || null,
-        emergencyContactName: input.emergencyContactName?.trim() || null,
-        emergencyContactPhone: input.emergencyContactPhone?.trim() || null,
-        avatarUrl: input.avatarUrl || null,
-        notes: input.notes?.trim() || null,
-      })
-      .returning();
+    // Check if code is already taken in this agency; if so, generate a unique suffix
+    const [codeConflict] = await this.db
+      .select({ id: employees.id })
+      .from(employees)
+      .where(
+        and(
+          eq(employees.agencyId, effectiveAgencyId),
+          eq(employees.employeeCode, code),
+          isNull(employees.deletedAt)
+        )
+      )
+      .limit(1);
+
+    if (codeConflict) {
+      code = `EMP-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
+    }
+
+    // Validate departmentId exists if provided to prevent foreign key violation
+    let validDepartmentId: string | null = null;
+    if (input.departmentId) {
+      try {
+        const [dept] = await this.db
+          .select({ id: departments.id })
+          .from(departments)
+          .where(
+            and(
+              eq(departments.id, input.departmentId),
+              isNull(departments.deletedAt)
+            )
+          )
+          .limit(1);
+        if (dept) {
+          validDepartmentId = dept.id;
+        }
+      } catch {
+        validDepartmentId = null;
+      }
+    }
+
+    // Check if user/profile already exists with this email to link them
+    let linkedUserId: string | null = null;
+    let linkedProfileId: string | null = null;
+    try {
+      const { users, profiles } = await import('../../../infrastructure/database/schema.js');
+      const [existingUser] = await this.db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, normalizedEmail))
+        .limit(1);
+      if (existingUser) {
+        linkedUserId = existingUser.id;
+        const [existingProfile] = await this.db
+          .select({ id: profiles.id })
+          .from(profiles)
+          .where(eq(profiles.userId, existingUser.id))
+          .limit(1);
+        if (existingProfile) {
+          linkedProfileId = existingProfile.id;
+        }
+      }
+    } catch {}
+
+    let emp: any;
+    try {
+      const [created] = await this.db
+        .insert(employees)
+        .values({
+          agencyId: effectiveAgencyId,
+          userId: linkedUserId,
+          profileId: linkedProfileId,
+          firstName: input.firstName.trim(),
+          lastName: input.lastName.trim(),
+          email: normalizedEmail,
+          phone: input.phone?.trim() || null,
+          departmentId: validDepartmentId,
+          position: input.position?.trim() || null,
+          employmentType: input.employmentType || 'full_time',
+          status: input.status || 'active',
+          hireDate: input.hireDate || null,
+          salary: input.salary != null ? String(input.salary) : null,
+          employeeCode: code,
+          address: input.address?.trim() || null,
+          emergencyContactName: input.emergencyContactName?.trim() || null,
+          emergencyContactPhone: input.emergencyContactPhone?.trim() || null,
+          avatarUrl: input.avatarUrl || null,
+          notes: input.notes?.trim() || null,
+        })
+        .returning();
+      emp = created;
+    } catch (dbError: any) {
+      if (dbError?.code === '23505') {
+        throw new ValidationError(`An employee with this email or employee code already exists.`);
+      }
+      if (dbError?.code === '23503') {
+        throw new ValidationError(`Referenced entity (e.g. department) does not exist.`);
+      }
+      throw dbError;
+    }
+
+    // Sync into legacy employee_details if table exists (for attendance, payroll compatibility)
+    try {
+      const { sql } = await import('drizzle-orm');
+      await this.db.execute(sql`
+        INSERT INTO public.employee_details (
+          id, employee_id, agency_id, first_name, last_name, employment_type, is_active, created_at, updated_at
+        ) VALUES (
+          ${emp.id}, ${emp.employeeCode || emp.id}, ${effectiveAgencyId}, ${emp.firstName}, ${emp.lastName}, ${emp.employmentType || 'full_time'}, true, NOW(), NOW()
+        ) ON CONFLICT (id) DO UPDATE SET
+          first_name = EXCLUDED.first_name,
+          last_name = EXCLUDED.last_name,
+          updated_at = NOW();
+      `).catch(() => {});
+    } catch {}
 
     // Index in Meilisearch asynchronously
-    Promise.resolve().then(() => indexEmployees(this.agencyId, [emp]).catch(() => {}));
+    Promise.resolve().then(() => indexEmployees(effectiveAgencyId, [emp]).catch(() => {}));
 
     return emp;
   }

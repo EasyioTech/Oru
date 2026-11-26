@@ -38,8 +38,12 @@ export const JournalEntriesTab = ({
 }: JournalEntriesTabProps) => {
   const [currentPage, setCurrentPage] = useState(1);
 
+  const safeEntries = useMemo(() => {
+    return Array.isArray(journalEntries) ? journalEntries : ((journalEntries as any)?.data || []);
+  }, [journalEntries]);
+
   const filteredEntries = useMemo(() => {
-    return journalEntries.filter(entry => {
+    return safeEntries.filter(entry => {
       const matchesSearch = (entry.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (entry.entry_number || '').toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || entry.status === statusFilter;
@@ -47,7 +51,7 @@ export const JournalEntriesTab = ({
         (!dateRange.end || new Date(entry.entry_date) <= new Date(dateRange.end));
       return matchesSearch && matchesStatus && matchesDateRange;
     });
-  }, [journalEntries, searchTerm, statusFilter, dateRange]);
+  }, [safeEntries, searchTerm, statusFilter, dateRange]);
 
   const paginatedEntries = useMemo(() => {
     return filteredEntries.slice(

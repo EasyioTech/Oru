@@ -18,7 +18,10 @@ export const getS3Client = async () => {
         forcePathStyle: true
     });
 
-    return { client, bucket, region, endpoint, publicUrl: process.env.AWS_S3_PUBLIC_URL };
+    const rawPublicUrl = process.env.AWS_S3_PUBLIC_URL || process.env.S3_PUBLIC_URL || '';
+    const publicUrl = rawPublicUrl.includes('yourdomain.com') ? undefined : (rawPublicUrl || undefined);
+
+    return { client, bucket, region, endpoint, publicUrl };
 };
 
 export const uploadFileToS3 = async (fileStream: any, key: string, mimeType: string) => {

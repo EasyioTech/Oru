@@ -13,35 +13,38 @@ export const useChartOfAccounts = (agencyId: string | null) => {
   const [loading, setLoading] = useState(false);
 
   const fetchChartOfAccounts = async (agencyIdParam?: string | null) => {
+    const toArray = (val: any): any[] => Array.isArray(val) ? val : (Array.isArray(val?.data) ? val.data : []);
     const effectiveAgencyId = agencyIdParam || agencyId;
     setLoading(true);
     try {
       if (!effectiveAgencyId) {
-        const accounts = await selectRecords('chart_of_accounts', {
+        const res = await selectRecords('chart_of_accounts', {
           where: { is_active: true },
           orderBy: 'account_code ASC',
         });
-        setChartOfAccounts(accounts || []);
+        setChartOfAccounts(toArray(res));
         return;
       }
       let accounts: any[] = [];
       try {
-        accounts = await selectRecords('chart_of_accounts', {
+        const res = await selectRecords('chart_of_accounts', {
           where: { agency_id: effectiveAgencyId },
           orderBy: 'account_code ASC',
         });
+        accounts = toArray(res);
       } catch (err: any) {
         if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
           logWarn('chart_of_accounts has no agency_id column, falling back to global accounts');
-          accounts = await selectRecords('chart_of_accounts', {
+          const res = await selectRecords('chart_of_accounts', {
             where: { is_active: true },
             orderBy: 'account_code ASC',
           });
+          accounts = toArray(res);
         } else {
           throw err;
         }
       }
-      setChartOfAccounts(accounts || []);
+      setChartOfAccounts(accounts);
     } catch (error) {
       logError('Error fetching chart of accounts:', error);
       toast({

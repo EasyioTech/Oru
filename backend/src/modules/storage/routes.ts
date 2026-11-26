@@ -1,6 +1,10 @@
 import { FastifyPluginAsync } from 'fastify';
 import { StorageEngineService } from './storage-engine.service.js';
 import { AppError, ForbiddenError } from '../../utils/errors.js';
+import { db } from '../../infrastructure/database/index.js';
+import { documentFolders, documents } from '../../infrastructure/database/schema.js';
+import { eq, and, isNull, desc } from 'drizzle-orm';
+import { mapToSnakeCase } from '../../utils/case-transform.js';
 
 const storageRoutes: FastifyPluginAsync = async (fastify) => {
   const storageEngine = new StorageEngineService(fastify.log);
@@ -77,6 +81,143 @@ const storageRoutes: FastifyPluginAsync = async (fastify) => {
    * Primary file streaming CDN proxy route
    */
   fastify.get('/files/*', handleStream);
+
+  /**
+   * Document Folders Management
+   */
+  fastify.get('/folders', { onRequest: [fastify.authenticate] }, async (request) => {
+    const agencyId = (request as any).user?.agencyId;
+    if (!agencyId) return { success: true, data: [] };
+    const rows = await db
+      .select()
+      .from(documentFolders)
+      .where(eq(documentFolders.agencyId, agencyId))
+      .orderBy(documentFolders.name);
+    return { success: true, data: rows.map(mapToSnakeCase) };
+  });
+
+  fastify.post('/folders', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+    const user = (request as any).user;
+    const agencyId = user?.agencyId;
+    const body = (request.body as any) || {};
+    if (!agencyId) throw new AppError('Agency ID is required', 400, 'BAD_REQUEST');
+    if (!body?.name?.trim()) throw new AppError('Folder name is required', 400, 'BAD_REQUEST');
+
+    const [created] = await db
+      .insert(documentFolders)
+      .values({
+        name: body.name.trim(),
+        description: body.description?.trim() || null,
+        parentFolderId: body.parent_folder_id || body.parentFolderId || null,
+        createdBy: user.id,
+        agencyId,
+      })
+      .returning();
+    return reply.code(201).send({ success: true, data: mapToSnakeCase(created) });
+  });
+
+  fastify.delete('/folders/:id', { onRequest: [fastify.authenticate] }, async (request) => {
+    const agencyId = (request as any).user?.agencyId;
+    const { id } = request.params as any;
+    if (!agencyId || !id) throw new AppError('ID and Agency are required', 400, 'BAD_REQUEST');
+
+    await db
+      .delete(documentFolders)
+      .where(and(eq(documentFolders.id, id), eq(documentFolders.agencyId, agencyId)));
+    return { success: true, message: 'Folder deleted successfully' };
+  });
+
+  /**
+   * Documents Management
+   */
+  fastify.get('/documents', { onRequest: [fastify.authenticate] }, async (request) => {
+    const agencyId = (request as any).user?.agencyId;
+    if (!agencyId) return { success: true, data: [] };
+    const { folder } = (request.query as any) || {};
+    const conditions = [eq(documents.agencyId, agencyId)];
+    if (folder) {
+      conditions.push(eq(documents.folderId, folder));
+    } else {
+      conditions.push(isNull(documents.folderId));
+    }
+
+    const rows = await db
+      .select()
+      .from(documents)
+      .where(and(...conditions))
+      .orderBy(desc(documents.createdAt));
+    return { success: true, data: rows.map(mapToSnakeCase) };
+  });
+
+  fastify.post('/documents', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+    const user = (request as any).user;
+    const agencyId = user?.agencyId;
+    const body = (request.body as any) || {};
+    if (!agencyId) throw new AppError('Agency ID is required', 400, 'BAD_REQUEST');
+    if (!body?.name || !body?.file_path) {
+      throw new AppError('Document name and file_path are required', 400, 'BAD_REQUEST');
+    }
+
+    const [created] = await db
+      .insert(documents)
+      .values({
+        name: body.name.trim(),
+        description: body.description?.trim() || null,
+        filePath: body.file_path,
+        fileSize: Number(body.file_size || 0),
+        fileType: body.file_type || 'application/octet-stream',
+        uploadedBy: user.id,
+        folderId: body.folder_id || body.folderId || null,
+        agencyId,
+        isPublic: Boolean(body.is_public ?? body.isPublic ?? false),
+        tags: Array.isArray(body.tags) ? body.tags : [],
+      })
+      .returning();
+    return reply.code(201).send({ success: true, data: mapToSnakeCase(created) });
+  });
+
+  fastify.patch('/documents/:id', { onRequest: [fastify.authenticate] }, async (request) => {
+    const agencyId = (request as any).user?.agencyId;
+    const { id } = request.params as any;
+    const body = (request.body as any) || {};
+    if (!agencyId || !id) throw new AppError('ID and Agency are required', 400, 'BAD_REQUEST');
+
+    const updateData: Record<string, any> = { updatedAt: new Date() };
+    if (body.name !== undefined) updateData.name = body.name.trim();
+    if (body.description !== undefined) updateData.description = body.description ? body.description.trim() : null;
+    if (body.is_public !== undefined || body.isPublic !== undefined) {
+      updateData.isPublic = Boolean(body.is_public ?? body.isPublic);
+    }
+    if (body.folder_id !== undefined || body.folderId !== undefined) {
+      updateData.folderId = body.folder_id ?? body.folderId ?? null;
+    }
+    if (body.tags !== undefined) {
+      updateData.tags = Array.isArray(body.tags) ? body.tags : [];
+    }
+
+    const [updated] = await db
+      .update(documents)
+      .set(updateData)
+      .where(and(eq(documents.id, id), eq(documents.agencyId, agencyId)))
+      .returning();
+
+    if (!updated) {
+      throw new AppError('Document not found', 404, 'NOT_FOUND');
+    }
+
+    return { success: true, data: mapToSnakeCase(updated) };
+  });
+
+  fastify.delete('/documents/:id', { onRequest: [fastify.authenticate] }, async (request) => {
+    const agencyId = (request as any).user?.agencyId;
+    const { id } = request.params as any;
+    if (!agencyId || !id) throw new AppError('ID and Agency are required', 400, 'BAD_REQUEST');
+
+    await db
+      .delete(documents)
+      .where(and(eq(documents.id, id), eq(documents.agencyId, agencyId)));
+    return { success: true, message: 'Document deleted successfully' };
+  });
 
   /**
    * Generates a signed download URL (for private documents)

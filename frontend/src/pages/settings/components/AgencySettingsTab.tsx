@@ -59,7 +59,7 @@ export const AgencySettingsTab = () => {
   const selectTriggerStyle = "bg-white/60 border-transparent rounded-xl focus:ring-gray-200 shadow-sm transition-all h-11";
 
   return (
-    <div className="space-y-6 w-full max-w-4xl">
+    <div className="space-y-6 w-full">
       {/* Basic Agency Info */}
       <FloatingCard className="p-8">
         <div className="mb-8">

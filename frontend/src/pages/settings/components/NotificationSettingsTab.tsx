@@ -29,7 +29,7 @@ export const NotificationSettingsTab = () => {
   const switchContainerStyle = "flex items-center justify-between p-5 rounded-2xl bg-white/40 border border-gray-100/50 hover:bg-white/60 transition-colors shadow-sm";
 
   return (
-    <div className="space-y-6 w-full max-w-4xl">
+    <div className="space-y-6 w-full">
       <FloatingCard className="p-8">
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2 text-gray-900">
@@ -45,7 +45,7 @@ export const NotificationSettingsTab = () => {
             Delivery Methods
           </h3>
           
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={switchContainerStyle}>
               <div className="space-y-1">
                 <Label htmlFor="emailNotifications" className="font-medium text-gray-700">Email Notifications</Label>

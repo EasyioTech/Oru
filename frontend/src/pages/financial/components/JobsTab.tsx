@@ -42,8 +42,12 @@ export const JobsTab = ({
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
 
+  const safeJobs = useMemo(() => {
+    return Array.isArray(jobs) ? jobs : ((jobs as any)?.data || []);
+  }, [jobs]);
+
   const filteredJobs = useMemo(() => {
-    return jobs.filter(job => {
+    return safeJobs.filter(job => {
       const matchesSearch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.job_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.client_id?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -53,7 +57,7 @@ export const JobsTab = ({
          (job.start_date && new Date(job.start_date) <= new Date(dateRange.end)));
       return matchesSearch && matchesStatus && matchesDateRange;
     });
-  }, [jobs, searchTerm, statusFilter, dateRange]);
+  }, [safeJobs, searchTerm, statusFilter, dateRange]);
 
   const paginatedJobs = useMemo(() => {
     return filteredJobs.slice(

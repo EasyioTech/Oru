@@ -250,25 +250,34 @@ export const useAgencySettings = () => {
       }
 
       // Final safety check: explicitly remove agency_id if it somehow got into settingsToSave
-      // agency_settings table doesn't have this column - each agency has its own database
       delete settingsToSave.agency_id;
-      
-      if (agencyDatabase) {
-        // Use agencies API (normalized tables)
-        await updateAgencySettingsApi(agencyDatabase, settingsToSave);
-        setSettings((prev) => (prev ? { ...prev, ...settingsToSave } : null));
-      } else if (settings?.id) {
-        // Fallback: update via core API
-        const updated = await updateRecord<AgencySettings>(
-          'agency_settings',
-          settingsToSave,
-          { id: settings.id }
-        );
-        setSettings(updated);
-      } else {
-        // Insert new settings
-        const inserted = await insertRecord<AgencySettings>('agency_settings', settingsToSave);
-        setSettings(inserted);
+
+      const resolvedAgencyId =
+        agencyDatabase ||
+        (typeof window !== 'undefined' ? localStorage.getItem('agency_id') : null) ||
+        profile?.agency_id ||
+        (user as any)?.agencyId ||
+        (user as any)?.id;
+
+      if (!resolvedAgencyId) {
+        throw new Error('No active agency ID found to save settings');
+      }
+
+      // Save via official agencies API
+      await updateAgencySettingsApi(resolvedAgencyId, settingsToSave);
+
+      const merged = {
+        ...(settings || (DEFAULT_SETTINGS as AgencySettings)),
+        ...settingsToSave,
+      };
+      setSettings(merged);
+
+      // Notify other components (Sidebar, Dashboard Banner) immediately
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('agency-settings-updated', { detail: merged }));
+        if (settingsToSave.agency_name) {
+          localStorage.setItem('agency_name', settingsToSave.agency_name);
+        }
       }
 
       // Apply theme colors immediately
@@ -306,6 +315,16 @@ export const useAgencySettings = () => {
     if (profile || user) {
       fetchSettings();
     }
+
+    const handleSettingsUpdated = (e: any) => {
+      if (e?.detail) {
+        setSettings((prev) => ({ ...(prev || (DEFAULT_SETTINGS as AgencySettings)), ...e.detail }));
+      }
+    };
+    window.addEventListener('agency-settings-updated', handleSettingsUpdated);
+    return () => {
+      window.removeEventListener('agency-settings-updated', handleSettingsUpdated);
+    };
   }, [profile?.agency_id, userRole, profile, user, fetchSettings]);
 
   return {

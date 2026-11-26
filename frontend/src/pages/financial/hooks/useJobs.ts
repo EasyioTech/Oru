@@ -13,32 +13,36 @@ export const useJobs = (agencyId: string | null) => {
   const [loading, setLoading] = useState(false);
 
   const fetchJobs = async (agencyIdParam?: string | null) => {
+    const toArray = (val: any): any[] => Array.isArray(val) ? val : (Array.isArray(val?.data) ? val.data : []);
     const effectiveAgencyId = agencyIdParam || agencyId;
     setLoading(true);
     try {
       let jobsData: any[] = [];
       if (effectiveAgencyId) {
         try {
-          jobsData = await selectRecords('jobs', {
+          const res = await selectRecords('jobs', {
             where: { agency_id: effectiveAgencyId },
             orderBy: 'created_at DESC',
           });
+          jobsData = toArray(res);
         } catch (err: any) {
           if (err?.code === '42703' || String(err?.message || '').includes('agency_id')) {
             logWarn('jobs has no agency_id column, falling back to all jobs');
-            jobsData = await selectRecords('jobs', {
+            const res = await selectRecords('jobs', {
               orderBy: 'created_at DESC',
             });
+            jobsData = toArray(res);
           } else {
             throw err;
           }
         }
       } else {
-        jobsData = await selectRecords('jobs', {
+        const res = await selectRecords('jobs', {
           orderBy: 'created_at DESC',
         });
+        jobsData = toArray(res);
       }
-      setJobs(jobsData || []);
+      setJobs(jobsData);
     } catch (error: any) {
       logError('Error fetching jobs:', error);
       if (error?.code !== '42703') {

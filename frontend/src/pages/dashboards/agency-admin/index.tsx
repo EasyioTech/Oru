@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAgencyAnalytics } from '@/hooks/useAgencyAnalytics';
+import { useAgencySettings } from '@/hooks/useAgencySettings';
 import { useToast } from '@/hooks/use-toast';
 import {
   Search, Star, Plus, Share2, Upload, Settings, Monitor,
@@ -13,7 +14,8 @@ import {
   CheckCircle2, Clock, Layers, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { AvatarImageWithAuth } from '@/components/ui/AvatarImageWithAuth';
 import { Progress } from '@/components/ui/progress';
 import { FloatingCard, PillButton, NavIconButton, DisplayTitle, MicroLabel } from '@/components/ui/design-tokens';
 
@@ -55,9 +57,11 @@ const AgencyAdminDashboard = () => {
   const navigate = useNavigate();
   const { user, userRole, profile } = useAuth();
   const { agency, metrics, loading, error, refreshMetrics } = useAgencyAnalytics();
+  const { settings: agencySettings } = useAgencySettings();
   const { toast } = useToast();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
   const [newTaskInput, setNewTaskInput] = useState('');
   const [showAddTask, setShowAddTask] = useState(false);
 
@@ -124,11 +128,34 @@ const AgencyAdminDashboard = () => {
     }
   };
 
+  const handleResendVerification = async () => {
+    setResendingEmail(true);
+    toast({
+      title: 'Verification Link Sent',
+      description: `We've sent a new verification link to ${user?.email}. Please check your inbox and spam folder.`,
+    });
+    setTimeout(() => setResendingEmail(false), 4000);
+  };
+
   if (userRole === 'super_admin') {
     return <Navigate to="/super-admin" replace />;
   }
 
-  const agencyName = agency?.name || (profile as any)?.agency_name || 'Your Agency';
+  const agencyName = agency?.name || (profile as any)?.agency_name || agencySettings?.agency_name || 'Your Agency';
+  const rawLogo =
+    agency?.logoUrl ||
+    agency?.logo_url ||
+    agencySettings?.logo_url ||
+    (typeof window !== 'undefined' ? localStorage.getItem('agency_logo') : null);
+
+  const displayLogo = React.useMemo(() => {
+    if (!rawLogo) return null;
+    if (rawLogo.includes('subdomain.yourdomain.com') || rawLogo.includes('yourdomain.com')) {
+      const parts = rawLogo.split('yourdomain.com/');
+      return `/api/storage/files/${parts[1] || ''}`;
+    }
+    return rawLogo;
+  }, [rawLogo]);
   const completedPrioritiesCount = priorities.filter((t) => t.done).length;
   const recentActivities = metrics?.recentActivities || [];
 
@@ -149,74 +176,72 @@ const AgencyAdminDashboard = () => {
     <div className="w-full flex-1 space-y-6 pb-12 animate-in fade-in duration-700">
       
       {/* =====================================================================
-          EXECUTIVE HERO BANNER (Clean, High-Tech B2B ERP Aesthetic)
+          EXECUTIVE HERO BANNER (Natural Organic ERP Aesthetic)
           ===================================================================== */}
-      <FloatingCard delay={0.05} className="relative overflow-hidden p-0 border border-slate-800/80 shadow-2xl mb-2 rounded-[2rem] bg-slate-950 text-white">
-        {/* Subtle Obsidian Gradient Base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 z-0" />
-        
-        {/* Ambient Radial Lighting Effects */}
-        <div 
-          className="absolute inset-0 z-0 opacity-25 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(circle at 10% 40%, rgba(99, 102, 241, 0.4) 0%, transparent 45%),
-                              radial-gradient(circle at 85% 20%, rgba(14, 165, 233, 0.3) 0%, transparent 40%),
-                              radial-gradient(circle at 50% 100%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)`,
-          }}
-        />
-
-        {/* Micro-Grid Texture */}
-        <div 
-          className="absolute inset-0 z-0 opacity-[0.07] pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-            backgroundSize: '28px 28px',
-          }}
-        />
-        
-        <div className="relative z-20 p-5 md:p-7 flex flex-col md:flex-row md:items-center justify-between gap-5">
+      <FloatingCard delay={0.05} className="relative overflow-hidden p-6 sm:p-7 border border-white/80 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.03)] mb-2 rounded-[2rem] bg-gradient-to-r from-white via-slate-50/60 to-indigo-50/20 dark:from-[#1a1d24] dark:via-[#1a1d24] dark:to-indigo-950/20">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           {/* Left: Branding & Status */}
           <div className="flex items-center gap-4 sm:gap-5">
             <div className="relative flex-shrink-0">
-              <Avatar className="w-16 h-16 shadow-xl border-2 border-white/20 bg-white/10 backdrop-blur-md rounded-2xl">
-                {(agency?.logoUrl || agency?.logo_url) && (
-                  <AvatarImage
-                    src={agency.logoUrl || agency.logo_url || ''}
+              <Avatar className="w-14 h-14 sm:w-16 sm:h-16 shadow-md border-2 border-white dark:border-slate-700 bg-white dark:bg-slate-800 rounded-2xl">
+                {displayLogo ? (
+                  <AvatarImageWithAuth
+                    src={displayLogo}
                     alt={agencyName}
                     className="object-contain p-1.5"
                   />
-                )}
-                <AvatarFallback className="bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 text-white font-extrabold text-2xl rounded-2xl">
-                  {agencyName.charAt(0).toUpperCase()}
+                ) : null}
+                <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold text-lg rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-2xs flex items-center justify-center tracking-wider">
+                  {agencyName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-950" title="Active Agency" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" title="Active Agency" />
             </div>
 
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                   {agencyName}
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 backdrop-blur-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {agency?.subscriptionPlan ? `${agency.subscriptionPlan.toUpperCase()} TIER` : 'OPERATIONAL'}
-                </span>
+                {user && !user.email_confirmed ? (
+                  <span 
+                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300/80 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-700/50"
+                    title={`Email verification pending for ${user.email}`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    EMAIL VERIFICATION PENDING
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {agency?.subscriptionPlan ? `${agency.subscriptionPlan.toUpperCase()} TIER` : 'OPERATIONAL'}
+                  </span>
+                )}
+                {user && !user.email_confirmed && (
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resendingEmail}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 underline underline-offset-2 transition-colors disabled:opacity-50 cursor-pointer ml-1"
+                  >
+                    {resendingEmail ? 'Sending...' : 'Resend Link'}
+                  </button>
+                )}
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300/80">
-                <span className="flex items-center gap-1 text-slate-200 font-medium">
-                  <ShieldIcon className="w-3.5 h-3.5 text-indigo-400" /> Agency Workspace
+              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                <span className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                  <ShieldIcon className="w-3.5 h-3.5 text-indigo-500" /> Agency Workspace
                 </span>
                 {agency?.domain && (
                   <>
-                    <span className="text-slate-600">•</span>
-                    <span className="font-mono text-slate-400">{agency.domain}</span>
+                    <span className="text-gray-300 dark:text-gray-600">•</span>
+                    <span className="font-mono text-gray-600 dark:text-gray-400">{agency.domain}</span>
                   </>
                 )}
                 {agency?.maxUsers && (
                   <>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-slate-400">{totalUsers} / {agency.maxUsers} Seats Used</span>
+                    <span className="text-gray-300 dark:text-gray-600">•</span>
+                    <span className="text-gray-500">{totalUsers} / {agency.maxUsers} Seats Used</span>
                   </>
                 )}
               </div>
@@ -227,39 +252,39 @@ const AgencyAdminDashboard = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => navigate('/project-management')}
-              className="flex items-center gap-1.5 bg-white text-slate-950 hover:bg-slate-100 font-semibold px-4 py-2 rounded-xl text-xs shadow-md transition-all active:scale-95"
+              className="flex items-center gap-1.5 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 font-semibold px-4 py-2 rounded-xl text-xs shadow-md transition-all active:scale-95"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               New Project
             </button>
             <button
               onClick={() => navigate('/department-management')}
-              className="flex items-center gap-1.5 bg-slate-800/90 text-white hover:bg-slate-700/90 font-medium px-3.5 py-2 rounded-xl text-xs border border-white/10 shadow-sm transition-all active:scale-95"
+              className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium px-3.5 py-2 rounded-xl text-xs transition-colors active:scale-95 border border-transparent dark:border-gray-700"
             >
-              <Users className="w-3.5 h-3.5 text-indigo-400" />
+              <Users className="w-3.5 h-3.5 text-indigo-500" />
               Manage Team
             </button>
 
-            <div className="flex items-center gap-1 pl-1 border-l border-white/10">
+            <div className="flex items-center gap-1 pl-1 border-l border-gray-200 dark:border-gray-700">
               <button
                 onClick={handleManualRefresh}
                 disabled={isRefreshing || loading}
                 title="Refresh Metrics"
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-300 hover:text-white transition-colors disabled:opacity-50"
+                className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors disabled:opacity-50"
               >
-                <RefreshCcw className={cn("w-3.5 h-3.5", (isRefreshing || loading) && "animate-spin text-indigo-400")} />
+                <RefreshCcw className={cn("w-3.5 h-3.5", (isRefreshing || loading) && "animate-spin text-indigo-500")} />
               </button>
               <button
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/settings?tab=agency')}
                 title="Agency Settings"
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+                className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors"
               >
                 <Settings className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => navigate('/crm')}
                 title="Client CRM"
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+                className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors"
               >
                 <BarChart3 className="w-3.5 h-3.5" />
               </button>
