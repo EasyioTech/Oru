@@ -99,8 +99,8 @@ export const useAgencySettingsExtended = () => {
           const fileExt = logoFile.name.split('.').pop() || 'png';
           const pathWithinBucket = `agency_${Date.now()}.${fileExt}`;
           const fileBuffer = await logoFile.arrayBuffer();
-          await uploadFile('logos', pathWithinBucket, fileBuffer, user?.id ?? null, logoFile.type);
-          const logoUrl = `${getApiRoot().replace(/\/$/, '')}/files/logos/${encodeURIComponent(pathWithinBucket)}`;
+          const uploadResult = await uploadFile('branding', pathWithinBucket, fileBuffer, user?.id ?? null, logoFile.type);
+          const logoUrl = (uploadResult as any).url || (uploadResult as any).data?.url || `${getApiRoot().replace(/\/$/, '')}/storage/files/${encodeURIComponent((uploadResult as any).file_path || pathWithinBucket)}`;
           settingsToSave.logo_url = logoUrl;
         } catch (uploadErr: any) {
           toast({

@@ -11,7 +11,8 @@ export const businessSettingsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // Agency Dashboard Metrics
   fastify.get('/me/dashboard', { onRequest: [fastify.authenticate] }, async (request, reply) => {
-    const agencyId = (request as any).user?.agencyId;
+    const user = request.user as any;
+    const agencyId = user?.agencyId;
     if (!agencyId) {
       return reply.status(400).send({ success: false, error: 'No agency context in token' });
     }
@@ -27,7 +28,8 @@ export const businessSettingsRoutes: FastifyPluginAsync = async (fastify) => {
   // Agency Users List
   fastify.get('/:id/users', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    if (!request.ability.can('read', 'Agency')) {
+    const user = request.user as any;
+    if (user.agencyId !== id && !user.roles?.includes('super_admin')) {
       throw new ForbiddenError('Insufficient permissions to view agency users');
     }
     const agencyUsers = await settingsService.getAgencyUsers(id);
@@ -37,7 +39,8 @@ export const businessSettingsRoutes: FastifyPluginAsync = async (fastify) => {
   // Agency Resource Usage
   fastify.get('/:id/usage', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    if (!request.ability.can('read', 'Agency')) {
+    const user = request.user as any;
+    if (user.agencyId !== id && !user.roles?.includes('super_admin')) {
       throw new ForbiddenError('Insufficient permissions to view agency usage');
     }
     const usage = await settingsService.getAgencyUsage(id);
@@ -53,11 +56,12 @@ export const businessSettingsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // Get Agency Settings
   fastify.get('/agency-settings', { onRequest: [fastify.authenticate] }, async (request, reply) => {
-    const { agencyId } = request.query as { agencyId: string };
+    const user = request.user as any;
+    const agencyId = (request.query as any)?.agencyId || user?.agencyId;
     if (!agencyId) {
       return reply.code(400).send({ success: false, message: 'agencyId is required' });
     }
-    if (request.user.agencyId !== agencyId && !request.user.roles.includes('super_admin')) {
+    if (user.agencyId !== agencyId && !user.roles?.includes('super_admin')) {
       throw new ForbiddenError('Insufficient permissions');
     }
     const settings = await settingsService.getAgencySettings(agencyId);
@@ -66,17 +70,17 @@ export const businessSettingsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // Update Agency Settings
   fastify.put('/agency-settings', { onRequest: [fastify.authenticate] }, async (request, reply) => {
-    const { agencyId, settings } = request.body as { agencyId: string; settings: any };
+    const user = request.user as any;
+    const body = (request.body as any) || {};
+    const agencyId = body.agencyId || (request.query as any)?.agencyId || user?.agencyId;
+    const settingsPayload = body.settings || body;
     if (!agencyId) {
       return reply.code(400).send({ success: false, message: 'agencyId is required' });
     }
-    if (request.user.agencyId !== agencyId && !request.user.roles.includes('super_admin')) {
+    if (user.agencyId !== agencyId && !user.roles?.includes('super_admin')) {
       throw new ForbiddenError('Insufficient permissions');
     }
-    if (!request.ability.can('update', 'Agency')) {
-      throw new ForbiddenError('Insufficient permissions to update settings');
-    }
-    const result = await settingsService.updateAgencySettings(agencyId, settings);
+    const result = await settingsService.updateAgencySettings(agencyId, settingsPayload);
     return { success: true, data: { settings: mapToSnakeCase(result) } };
   });
 };

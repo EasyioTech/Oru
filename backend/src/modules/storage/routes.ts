@@ -5,11 +5,7 @@ import { AppError, ForbiddenError } from '../../utils/errors.js';
 const storageRoutes: FastifyPluginAsync = async (fastify) => {
   const storageEngine = new StorageEngineService(fastify.log);
 
-  /**
-   * Upload an asset into tenant-isolated storage
-   * Supports ?context=branding|avatar|general|documents query param
-   */
-  fastify.post('/upload', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+  const handleUpload = async (request: any, reply: any) => {
     const data = await request.file();
     if (!data) {
       throw new AppError('No file provided in request', 400, 'BAD_REQUEST');
@@ -17,7 +13,7 @@ const storageRoutes: FastifyPluginAsync = async (fastify) => {
 
     const agencyId = (request as any).user?.agencyId || 'shared';
     const queryContext = (request.query as any)?.context;
-    const formContext = (data.fields?.resource as any)?.value || (data.fields?.context as any)?.value;
+    const formContext = (data.fields?.resource as any)?.value || (data.fields?.context as any)?.value || (data.fields?.bucket as any)?.value;
     const context = queryContext || formContext || 'general';
 
     const buffer = await data.toBuffer();
@@ -38,14 +34,9 @@ const storageRoutes: FastifyPluginAsync = async (fastify) => {
       success: true,
       data: result,
     });
-  });
+  };
 
-  /**
-   * Stream a stored asset publicly through the API gateway.
-   * This guarantees that Traefik /api routing delivers assets reliably
-   * regardless of whether S3/MinIO or local disk is active.
-   */
-  fastify.get('/files/*', async (request, reply) => {
+  const handleStream = async (request: any, reply: any) => {
     const params = request.params as any;
     const rawKey = params['*'];
     if (!rawKey) {
@@ -74,7 +65,18 @@ const storageRoutes: FastifyPluginAsync = async (fastify) => {
     reply.header('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400');
 
     return reply.send(file.stream);
-  });
+  };
+
+  /**
+   * Primary and alias upload endpoints
+   */
+  fastify.post('/upload', { onRequest: [fastify.authenticate] }, handleUpload);
+  fastify.post('/files/upload', { onRequest: [fastify.authenticate] }, handleUpload);
+
+  /**
+   * Primary file streaming CDN proxy route
+   */
+  fastify.get('/files/*', handleStream);
 
   /**
    * Generates a signed download URL (for private documents)

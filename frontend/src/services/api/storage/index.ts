@@ -72,19 +72,42 @@ export async function uploadFile(
     headers['X-Agency-Database'] = agencyDatabase;
   }
 
-  const response = await fetch(`${baseUrl}/files/upload`, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
+  const uploadUrl = `${baseUrl.replace(/\/$/, '')}/storage/upload?context=${encodeURIComponent(bucket)}`;
+  let response: Response;
+  try {
+    response = await fetch(uploadUrl, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+  } catch {
+    response = await fetch(`${baseUrl.replace(/\/$/, '')}/files/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
-    throw new Error(errorData.error?.message || errorData.message || 'Failed to upload file');
+    throw new Error(errorData.error?.message || errorData.error || errorData.message || 'Failed to upload file');
   }
 
   const result = await response.json();
   
+  if (result.data?.url || result.data?.key) {
+    return {
+      id: result.data.key,
+      bucket_name: bucket,
+      file_path: result.data.key,
+      file_name: result.data.originalName || fileName,
+      file_size: result.data.sizeBytes || fileSize,
+      mime_type: result.data.mimeType || mimeType,
+      url: result.data.url,
+      data: result.data,
+    } as any;
+  }
+
   // Return the file_storage record from the API response with data property
   if (result.data?.file_storage) {
     return {
@@ -182,5 +205,13 @@ export async function listFiles(
  * Get file URL (for serving files)
  */
 export function getFileUrl(bucket: string, filePath: string): string {
-  return `/api/files/${bucket}/${filePath}`;
+  if (!filePath) return '';
+  if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+    return filePath;
+  }
+  const cleanPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+  if (cleanPath.startsWith('api/storage/files/')) {
+    return `/${cleanPath}`;
+  }
+  return `/api/storage/files/${cleanPath}`;
 }
