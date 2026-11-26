@@ -6,6 +6,7 @@ import { ThemeLogo } from '@/components/shared/ThemeLogo';
 import { motion } from 'framer-motion';
 import { useAuthWithViewAs } from '@/hooks/useAuthWithViewAs';
 import { useSidebarNav } from './useSidebarNav';
+import { cn } from '@/lib/utils';
 
 const PASTEL_COLORS = [
   { bg: 'bg-[#E1F7C5]', shadow: 'shadow-[#D0F0A3]/30' },
