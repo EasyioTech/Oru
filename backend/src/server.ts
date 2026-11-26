@@ -6,6 +6,7 @@ import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { db, closeAllPools } from './infrastructure/database/index.js';
 import autoLoad from '@fastify/autoload';
 import { fileURLToPath } from 'url';
@@ -165,12 +166,16 @@ const seoMetaTags: Record<string, { title: string; description: string; keywords
   },
 };
 
-// Register static for frontend dist (assets, images, etc.)
-await server.register(fastifyStatic, {
-    root: frontendDist,
-    prefix: '/',
-    wildcard: false,  // Don't wildcard catch all
-});
+// Register static for frontend dist in production only if dist exists
+if (process.env.NODE_ENV === 'production' && fs.existsSync(frontendDist)) {
+    await server.register(fastifyStatic, {
+        root: frontendDist,
+        prefix: '/',
+        wildcard: false,
+        decorateReply: false,
+        allowedPath: (pathname) => pathname !== '/sitemap.xml' && pathname !== '/robots.txt',
+    });
+}
 
 // Generate minimal HTML template with injected meta tags
 function generateSPAHtml(title: string, description: string, keywords: string): string {
@@ -242,8 +247,14 @@ server.setErrorHandler((error: any, request, reply) => {
 const start = async () => {
     try {
         const port = parseInt(process.env.PORT || '5001');
-        await ensureBucketExists();
-        (global as any).workers = startWorkers(db, redisConnection);
+        await ensureBucketExists().catch(() => {});
+        try {
+            await redisConnection.ping();
+            (global as any).workers = startWorkers(db, redisConnection);
+            server.log.info('[Workers] Background queue workers initialized');
+        } catch (err) {
+            server.log.warn('[Workers] Redis is offline or not reachable. Workers disabled for this session.');
+        }
         await server.listen({ port, host: '0.0.0.0' });
         server.log.info(`🚀 Oru High-Tech ERP is soaring on port ${port}`);
     } catch (err) {

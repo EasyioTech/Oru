@@ -8,12 +8,22 @@ import { startAgencyProvisioningWorker } from '../modules/system/jobs.js';
 import { startCoreWorker } from '../modules/core/jobs.js';
 
 export function startWorkers(db: NodePgDatabase<any>, redis: Redis) {
-  const notificationsWorker = startNotificationsWorker(redis, db);
-  const hrWorker = startHrWorker(redis, db);
-  const reportsWorker = startReportsWorker(redis, db);
-  const financeWorker = startFinanceWorker(redis, db);
-  const provisioningWorker = startAgencyProvisioningWorker(redis, db);
-  const coreWorker = startCoreWorker(redis, db);
+  try {
+    const notificationsWorker = startNotificationsWorker(redis, db);
+    const hrWorker = startHrWorker(redis, db);
+    const reportsWorker = startReportsWorker(redis, db);
+    const financeWorker = startFinanceWorker(redis, db);
+    const provisioningWorker = startAgencyProvisioningWorker(redis, db);
+    const coreWorker = startCoreWorker(redis, db);
 
-  return [notificationsWorker, hrWorker, reportsWorker, financeWorker, provisioningWorker, coreWorker];
+    const workers = [notificationsWorker, hrWorker, reportsWorker, financeWorker, provisioningWorker, coreWorker];
+    workers.forEach((w) => {
+      w.on('error', (err) => {
+        // Suppress unhandled error crashes when Redis connection is lost
+      });
+    });
+    return workers;
+  } catch (err) {
+    return [];
+  }
 }

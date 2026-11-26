@@ -43,8 +43,12 @@ export const schedulerPlugin = fp(async (fastify: FastifyInstance) => {
       }
 
       fastify.log.info(`Scheduler: Configured ${workspaces.length} workspace recalculation jobs`);
-    } catch (err) {
-      fastify.log.error({ err }, 'Scheduler: Failed to set up recurring jobs');
+    } catch (err: any) {
+      if (err?.code === 'ECONNREFUSED' || String(err).includes('ECONNREFUSED')) {
+        fastify.log.warn('Scheduler: Database or Redis connection refused, skipping recurring jobs');
+      } else {
+        fastify.log.error({ err }, 'Scheduler: Failed to set up recurring jobs');
+      }
     }
   });
 });
