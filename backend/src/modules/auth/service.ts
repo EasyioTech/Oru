@@ -10,7 +10,7 @@ import type { FastifyBaseLogger } from 'fastify';
 import { agencyProvisioningQueue } from '../../jobs/queues.js';
 import type { AgencyProvisioningPayload } from '../../jobs/definitions.js';
 import { transformAgencyRow } from '../../infrastructure/transformers/agency.transformer.js';
-import { provisionNewAgency } from '../agencies/provisioning/index.js';
+import { provisionNewAgency } from '../agencies/index.js';
 
 export class AuthService {
     constructor(

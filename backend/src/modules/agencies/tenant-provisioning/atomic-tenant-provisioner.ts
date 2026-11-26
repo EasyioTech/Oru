@@ -8,15 +8,19 @@ import {
   agencySettings,
   workspaceProfiles,
   auditLogs,
+  notifications,
 } from '../../../infrastructure/database/schema.js';
 import { hashPassword } from '../../../utils/password.js';
 import { AppError } from '../../../utils/errors.js';
 import { transformAgencyRow } from '../../../infrastructure/transformers/agency.transformer.js';
-import { INDIAN_ERP_DEFAULTS } from './default-settings.js';
-import { buildStarterModulesPayload } from './starter-modules.js';
-import { resolveUniqueDomainSlug } from './domain-slug.js';
+import { INDIAN_ERP_DEFAULTS } from './indian-erp-defaults.js';
+import { buildStarterModulesPayload } from './starter-modules-catalog.js';
+import { resolveUniqueDomainSlug } from './domain-slug-resolver.js';
+import { seedInitialCurrenciesIfMissing } from './initial-currencies-seeder.js';
+import { seedInitialDepartments } from './initial-departments-seeder.js';
+import { seedInitialLeaveTypes } from './initial-leave-types-seeder.js';
 
-export interface ProvisionAgencyInput {
+export interface TenantProvisioningParams {
   agencyName: string;
   adminEmail: string;
   adminName?: string;
@@ -57,13 +61,15 @@ export interface ProvisionAgencyResult {
 }
 
 /**
- * Concrete, atomic tenant provisioner.
- * Guarantees every new agency has an active status, owner linkage,
- * Indian ERP business settings, and a fully enabled starter workspace.
+ * Enterprise-grade Atomic Tenant Provisioner.
+ * Guarantees that every new agency has an active status, owner linkage,
+ * Indian ERP business settings with linked INR base currency,
+ * standard operational departments, statutory leave types,
+ * a welcome notification, and a fully enabled starter workspace.
  */
 export async function provisionNewAgency(
   db: NodePgDatabase<any>,
-  input: ProvisionAgencyInput,
+  input: TenantProvisioningParams,
   logger?: any
 ): Promise<ProvisionAgencyResult> {
   const normalizedEmail = (input.adminEmail || '').toLowerCase().trim();
@@ -80,14 +86,17 @@ export async function provisionNewAgency(
   const hashedPassword = await hashPassword(rawPassword);
 
   const result = await db.transaction(async (tx) => {
-    // 1. Resolve unique domain slug
+    // 1. Resolve unique URL-safe domain slug with reserved name protection
     const finalDomain = await resolveUniqueDomainSlug(
       tx,
       input.domain || companyName,
       input.existingAgencyId
     );
 
-    // 2. Resolve or create user account
+    // 2. Ensure system base currency (INR) and reference currencies are initialized
+    const { inrCurrencyId } = await seedInitialCurrenciesIfMissing(tx, logger);
+
+    // 3. Resolve or create user account
     let userId: string;
     let userRow: any;
     const [existingUser] = await tx
@@ -108,13 +117,15 @@ export async function provisionNewAgency(
           passwordHash: hashedPassword,
           status: 'active',
           emailConfirmed: true,
+          termsAcceptedAt: new Date(),
+          privacyAcceptedAt: new Date(),
         })
         .returning();
       userId = newUser.id;
       userRow = newUser;
     }
 
-    // 3. Create or update agency
+    // 4. Create or update agency tenant
     let agencyId = input.existingAgencyId;
     let agencyRow: any;
 
@@ -129,6 +140,7 @@ export async function provisionNewAgency(
 
     const baseSettings = {
       currency: INDIAN_ERP_DEFAULTS.currency,
+      currencySymbol: INDIAN_ERP_DEFAULTS.currencySymbol,
       locale: INDIAN_ERP_DEFAULTS.locale,
       timezone: input.timezone || INDIAN_ERP_DEFAULTS.timezone,
       enableGST: input.enableGST !== undefined ? input.enableGST : true,
@@ -185,7 +197,7 @@ export async function provisionNewAgency(
       agencyRow = created;
     }
 
-    // 4. Assign agency_admin role
+    // 5. Assign agency_admin role
     const [existingRole] = await tx
       .select()
       .from(userRoles)
@@ -213,7 +225,7 @@ export async function provisionNewAgency(
         .where(eq(userRoles.id, existingRole.id));
     }
 
-    // 5. Create or update profile
+    // 6. Create or update profile
     const [existingProfile] = await tx
       .select()
       .from(profiles)
@@ -224,17 +236,24 @@ export async function provisionNewAgency(
     if (existingProfile) {
       await tx
         .update(profiles)
-        .set({ agencyId, updatedAt: new Date() })
+        .set({
+          agencyId,
+          timezone: input.timezone || INDIAN_ERP_DEFAULTS.timezone,
+          dateFormat: INDIAN_ERP_DEFAULTS.dateFormat,
+          updatedAt: new Date(),
+        })
         .where(eq(profiles.userId, userId));
     } else {
       await tx.insert(profiles).values({
         userId,
         agencyId,
         fullName: displayName,
+        timezone: input.timezone || INDIAN_ERP_DEFAULTS.timezone,
+        dateFormat: INDIAN_ERP_DEFAULTS.dateFormat,
       });
     }
 
-    // 6. Seed Indian ERP agency settings
+    // 7. Seed Indian ERP agency settings with default currency link
     const [existingSettings] = await tx
       .select()
       .from(agencySettings)
@@ -246,6 +265,7 @@ export async function provisionNewAgency(
         agencyId,
         agencyName: companyName,
         domain: finalDomain,
+        defaultCurrencyId: inrCurrencyId,
         timezone: input.timezone || INDIAN_ERP_DEFAULTS.timezone,
         dateFormat: INDIAN_ERP_DEFAULTS.dateFormat,
         fiscalYearStart: INDIAN_ERP_DEFAULTS.fiscalYearStart,
@@ -254,10 +274,20 @@ export async function provisionNewAgency(
         workingDays: INDIAN_ERP_DEFAULTS.workingDays,
         primaryColor: INDIAN_ERP_DEFAULTS.primaryColor,
         secondaryColor: INDIAN_ERP_DEFAULTS.secondaryColor,
+        country: input.country || 'India',
+        state: input.state || undefined,
+        city: input.city || undefined,
+        address: input.streetAddress || input.address || undefined,
+        postalCode: input.postalCode || undefined,
       });
+    } else if (!existingSettings.defaultCurrencyId && inrCurrencyId) {
+      await tx
+        .update(agencySettings)
+        .set({ defaultCurrencyId: inrCurrencyId })
+        .where(eq(agencySettings.agencyId, agencyId));
     }
 
-    // 7. Seed workspace profile with valid UUID workspace_id
+    // 8. Seed workspace profile with valid UUID workspace_id matching agencyId
     const [existingWorkspace] = await tx
       .select()
       .from(workspaceProfiles)
@@ -276,7 +306,24 @@ export async function provisionNewAgency(
       });
     }
 
-    // 8. Audit log
+    // 9. Seed core operational departments for employee and HR workflows
+    await seedInitialDepartments(tx, agencyId, logger);
+
+    // 10. Seed statutory leave types for Indian leave management
+    await seedInitialLeaveTypes(tx, agencyId, logger);
+
+    // 11. Seed initial welcome notification for the new tenant
+    await tx.insert(notifications).values({
+      agencyId,
+      userId,
+      title: 'Welcome to Oru ERP',
+      message: `${companyName} workspace is ready with Indian GST compliance, INR currency, and 9 active ERP modules.`,
+      type: 'info',
+      priority: 'normal',
+      isRead: false,
+    });
+
+    // 12. Audit log entry
     await tx.insert(auditLogs).values({
       agencyId,
       userId,
@@ -289,7 +336,7 @@ export async function provisionNewAgency(
         subscriptionPlan: input.subscriptionPlan || 'trial',
         status: 'active',
       },
-      metadata: { source: 'agency_provisioner' },
+      metadata: { source: 'atomic_tenant_provisioner' },
     });
 
     return {
@@ -300,7 +347,7 @@ export async function provisionNewAgency(
     };
   });
 
-  // Optional: generate JWT auth tokens if JWT instance was passed (e.g. signup flow)
+  // Optional JWT token creation for instant client authentication
   let accessToken: string | undefined;
   let refreshToken: string | undefined;
 
@@ -320,7 +367,7 @@ export async function provisionNewAgency(
   if (logger) {
     logger.info(
       { agencyId: result.agencyId, domain: result.agency.domain },
-      'Agency provisioned successfully with settings and workspace'
+      'Agency provisioned successfully with all operational subsystems initialized'
     );
   }
 

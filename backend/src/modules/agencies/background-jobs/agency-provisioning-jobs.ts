@@ -1,6 +1,5 @@
 import { Queue, Worker } from 'bullmq';
 
-
 export type AgencyJobName =
   | 'provision-agency-db'
   | 'send-welcome-email'

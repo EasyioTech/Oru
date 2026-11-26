@@ -19,8 +19,15 @@ interface WorkspaceProviderProps {
 }
 
 export const WorkspaceProvider = ({ children }: WorkspaceProviderProps) => {
-  const { profile: userProfile } = useAuth();
-  const workspaceId = (userProfile as any)?.workspaceId || (userProfile as any)?.agency_id || null;
+  const { profile: userProfile, user } = useAuth();
+  const workspaceId =
+    (userProfile as any)?.agencyId ||
+    (userProfile as any)?.agency_id ||
+    (userProfile as any)?.workspaceId ||
+    (user as any)?.agency?.id ||
+    (user as any)?.agencyId ||
+    localStorage.getItem('agency_id') ||
+    null;
   const { data: profile, isPending: isLoading, error } = useWorkspaceProfile(workspaceId || '');
 
   const value = useMemo<WorkspaceContextType>(

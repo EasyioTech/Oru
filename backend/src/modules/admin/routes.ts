@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { AdminService } from './service.js';
 import { ForbiddenError } from '../../utils/errors.js';
-import { provisionNewAgency } from '../agencies/provisioning/index.js';
+import { provisionNewAgency } from '../agencies/index.js';
 
 const svc = (fastify: any) => new AdminService(fastify.db);
 
