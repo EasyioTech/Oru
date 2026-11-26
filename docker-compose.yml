@@ -70,6 +70,8 @@ services:
         condition: service_healthy
       meilisearch:
         condition: service_started
+    volumes:
+      - storage_data:/app/storage
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.oru-backend.rule=(Host(`oruerp.com`) || Host(`www.oruerp.com`) || HostRegexp(`^[a-z0-9-]+\\.oruerp\\.com$`)) && (PathPrefix(`/api`) || PathPrefix(`/database`))"
@@ -95,3 +97,4 @@ volumes:
   redis_data:
   minio_data:
   meilisearch_data:
+  storage_data:

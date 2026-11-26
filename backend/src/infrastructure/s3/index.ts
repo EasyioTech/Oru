@@ -39,12 +39,17 @@ export const uploadFileToS3 = async (fileStream: any, key: string, mimeType: str
 
         // Return structured URL based on config
         if (publicUrl) {
-            return `${publicUrl}/${key}`;
+            return `${publicUrl.replace(/\/$/, '')}/${key}`;
         }
+
+        // When internal MinIO or localhost is used, route through the streaming API proxy
+        if (endpoint && (endpoint.includes('minio') || endpoint.includes('127.0.0.1') || endpoint.includes('localhost'))) {
+            const apiBase = process.env.API_URL ? process.env.API_URL.replace(/\/api\/?$/, '') : 'https://oruerp.com';
+            return `${apiBase}/api/storage/files/${key}`;
+        }
+
         // Fallback logic
         if (endpoint && endpoint.includes('r2.cloudflarestorage.com')) {
-            // R2 usually doesn't have a standard public S3-style URL without a custom domain or .r2.dev
-            // If and only if we don't have a publicUrl, we try to guess or use the endpoint as a base
             return `${endpoint}/${bucket}/${key}`;
         }
 
@@ -56,6 +61,29 @@ export const uploadFileToS3 = async (fileStream: any, key: string, mimeType: str
     } catch (e) {
         console.error('S3 Upload Error', e);
         throw new AppError('File upload failed', 500, 'UPLOAD_ERROR');
+    }
+};
+
+export const getFileStreamFromS3 = async (key: string) => {
+    try {
+        const { client, bucket } = await getS3Client();
+        const command = new GetObjectCommand({
+            Bucket: bucket,
+            Key: key,
+        });
+        const response = await client.send(command);
+        return {
+            stream: response.Body,
+            contentType: response.ContentType,
+            contentLength: response.ContentLength,
+            eTag: response.ETag,
+            lastModified: response.LastModified,
+        };
+    } catch (e: any) {
+        if (e?.name === 'NoSuchKey' || e?.$metadata?.httpStatusCode === 404) {
+            return null;
+        }
+        throw e;
     }
 };
 
