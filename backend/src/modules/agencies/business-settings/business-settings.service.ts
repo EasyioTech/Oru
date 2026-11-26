@@ -8,7 +8,7 @@ import {
   leaveRequests,
   employees,
 } from '../../../infrastructure/database/schema.js';
-import { eq, and, count, isNull, gte } from 'drizzle-orm';
+import { eq, and, count, isNull, gte, desc } from 'drizzle-orm';
 import { FastifyBaseLogger } from 'fastify';
 import { AppError } from '../../../utils/errors.js';
 import { mapToCamelCase } from '../../../utils/case-transform.js';
@@ -34,6 +34,8 @@ export class BusinessSettingsService {
       approvedLeavesResult,
       totalLeavesResult,
       settingsRows,
+      recentProjectsList,
+      recentEmployeesList,
     ] = await Promise.all([
       db.select().from(agencies).where(eq(agencies.id, agencyId)).limit(1),
       db.select({ count: count() }).from(profiles).where(and(eq(profiles.agencyId, agencyId), isNull(profiles.deletedAt))),
@@ -49,10 +51,42 @@ export class BusinessSettingsService {
       db.select({ count: count() }).from(leaveRequests).where(and(eq(leaveRequests.agencyId, agencyId), eq(leaveRequests.status, 'approved'), isNull(leaveRequests.deletedAt))),
       db.select({ count: count() }).from(leaveRequests).where(and(eq(leaveRequests.agencyId, agencyId), isNull(leaveRequests.deletedAt))),
       db.select().from(agencySettings).where(eq(agencySettings.agencyId, agencyId)).limit(1),
+      db.select({
+        id: projects.id,
+        name: projects.name,
+        status: projects.status,
+        createdAt: projects.createdAt,
+      }).from(projects).where(and(eq(projects.agencyId, agencyId), isNull(projects.deletedAt))).orderBy(desc(projects.createdAt)).limit(5),
+      db.select({
+        id: employees.id,
+        firstName: employees.firstName,
+        lastName: employees.lastName,
+        position: employees.position,
+        createdAt: employees.createdAt,
+      }).from(employees).where(and(eq(employees.agencyId, agencyId), isNull(employees.deletedAt))).orderBy(desc(employees.createdAt)).limit(5),
     ]);
 
     const agency = agencyRows[0] ?? null;
     const settings = settingsRows[0] ?? null;
+
+    const realActivities = [
+      ...recentProjectsList.map((p) => ({
+        id: p.id,
+        title: p.name,
+        type: 'project' as const,
+        description: `Project · ${p.status ? p.status.toUpperCase() : 'ACTIVE'}`,
+        timestamp: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
+        status: p.status || 'Active',
+      })),
+      ...recentEmployeesList.map((e) => ({
+        id: e.id,
+        title: `${e.firstName} ${e.lastName}`,
+        type: 'employee' as const,
+        description: e.position ? `Role: ${e.position}` : 'New team member',
+        timestamp: e.createdAt ? new Date(e.createdAt).toISOString() : new Date().toISOString(),
+        status: 'Active',
+      })),
+    ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 5);
 
     return {
       agency: agency
@@ -89,6 +123,7 @@ export class BusinessSettingsService {
           newUsers: recentUsersResult[0]?.count ?? 0,
           newProjects: recentProjectsResult[0]?.count ?? 0,
         },
+        recentActivities: realActivities,
       },
     };
   }

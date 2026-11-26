@@ -36,6 +36,14 @@ export interface AgencyMetrics {
     newProjects: number;
     newInvoices: number;
   };
+  recentActivities?: Array<{
+    id: string;
+    title: string;
+    type: 'project' | 'employee' | 'leave' | 'invoice';
+    description: string;
+    timestamp: string;
+    status: string;
+  }>;
 }
 
 const DEFAULT_METRICS: AgencyMetrics = {
