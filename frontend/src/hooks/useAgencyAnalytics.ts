@@ -12,6 +12,8 @@ export interface AgencyInfo {
   maxUsers: number | null;
   trialEndsAt: string | null;
   subscriptionEndsAt: string | null;
+  logoUrl?: string | null;
+  logo_url?: string | null;
 }
 
 export interface AgencyMetrics {

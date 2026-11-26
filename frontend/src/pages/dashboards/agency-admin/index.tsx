@@ -51,7 +51,14 @@ const AgencyAdminDashboard = () => {
         
         <div className="relative z-20 p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Avatar className="w-14 h-14 shadow-md border-2 border-white/20">
+            <Avatar className="w-14 h-14 shadow-md border-2 border-white/20 bg-white/10">
+              {(agency?.logoUrl || agency?.logo_url) && (
+                <AvatarImage
+                  src={agency.logoUrl || agency.logo_url || ''}
+                  alt={agencyName}
+                  className="object-contain p-1"
+                />
+              )}
               <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-xl">
                 {agencyName.charAt(0)}
               </AvatarFallback>

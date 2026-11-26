@@ -24,6 +24,7 @@ import { queuesPlugin } from './fastify/plugins/queues.js';
 import { schedulerPlugin } from './fastify/plugins/scheduler.js';
 import { startWorkers } from './jobs/workers.js';
 import { redisConnection } from './infrastructure/redis/index.js';
+import { StorageEngineService } from './modules/storage/storage-engine.service.js';
 
 dotenv.config({ path: path.join(process.cwd(), '..', '.env') });
 
@@ -116,6 +117,25 @@ server.get('/sitemap.xml', async (request, reply) => {
 
 server.get('/robots.txt', async (request, reply) => {
     return reply.type('text/plain').send('User-agent: *\nAllow: /\nSitemap: https://oruerp.com/sitemap.xml\n');
+});
+
+// Primary fallback for legacy and direct file streaming via Traefik /api routing
+server.get('/api/files/*', async (request, reply) => {
+    const rawKey = (request.params as any)['*'];
+    if (!rawKey) {
+        return reply.code(400).send({ success: false, error: 'Storage key required' });
+    }
+    const storageEngine = new StorageEngineService(server.log);
+    const file = await storageEngine.getFileStream(rawKey);
+    if (!file || !file.stream) {
+        return reply.code(404).send({ success: false, error: 'Asset not found' });
+    }
+    if (file.contentType) reply.header('Content-Type', file.contentType);
+    if (file.contentLength) reply.header('Content-Length', file.contentLength);
+    if (file.eTag) reply.header('ETag', file.eTag);
+    if (file.lastModified) reply.header('Last-Modified', new Date(file.lastModified).toUTCString());
+    reply.header('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400');
+    return reply.send(file.stream);
 });
 
 // --- 5. Register Static and Autoload ---

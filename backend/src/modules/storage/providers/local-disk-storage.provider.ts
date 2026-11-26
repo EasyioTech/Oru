@@ -59,10 +59,29 @@ export class LocalDiskStorageProvider {
   }
 
   async getFileStream(key: string): Promise<RetrievedFileStream | null> {
-    const filePath = this.resolvePath(key);
+    let filePath = this.resolvePath(key);
 
     if (!fs.existsSync(filePath)) {
-      return null;
+      // Fallback 1: Legacy uploads folder
+      const legacyPath = path.join(process.cwd(), 'uploads', key.replace(/^uploads\//, ''));
+      if (fs.existsSync(legacyPath)) {
+        filePath = legacyPath;
+      } else {
+        // Fallback 2: Stripped prefixes inside storage baseDir
+        const stripped = key.replace(/^(?:api\/)?(?:storage\/)?(?:files\/)?/, '');
+        const strippedPath = path.join(this.baseDir, stripped);
+        if (fs.existsSync(strippedPath)) {
+          filePath = strippedPath;
+        } else {
+          // Fallback 3: Basename search in storage
+          const basenamePath = path.join(this.baseDir, path.basename(key));
+          if (fs.existsSync(basenamePath)) {
+            filePath = basenamePath;
+          } else {
+            return null;
+          }
+        }
+      }
     }
 
     try {

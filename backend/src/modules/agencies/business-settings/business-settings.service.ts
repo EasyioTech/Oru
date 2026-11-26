@@ -33,6 +33,7 @@ export class BusinessSettingsService {
       pendingLeavesResult,
       approvedLeavesResult,
       totalLeavesResult,
+      settingsRows,
     ] = await Promise.all([
       db.select().from(agencies).where(eq(agencies.id, agencyId)).limit(1),
       db.select({ count: count() }).from(profiles).where(and(eq(profiles.agencyId, agencyId), isNull(profiles.deletedAt))),
@@ -47,9 +48,11 @@ export class BusinessSettingsService {
       db.select({ count: count() }).from(leaveRequests).where(and(eq(leaveRequests.agencyId, agencyId), eq(leaveRequests.status, 'pending'), isNull(leaveRequests.deletedAt))),
       db.select({ count: count() }).from(leaveRequests).where(and(eq(leaveRequests.agencyId, agencyId), eq(leaveRequests.status, 'approved'), isNull(leaveRequests.deletedAt))),
       db.select({ count: count() }).from(leaveRequests).where(and(eq(leaveRequests.agencyId, agencyId), isNull(leaveRequests.deletedAt))),
+      db.select().from(agencySettings).where(eq(agencySettings.agencyId, agencyId)).limit(1),
     ]);
 
     const agency = agencyRows[0] ?? null;
+    const settings = settingsRows[0] ?? null;
 
     return {
       agency: agency
@@ -63,6 +66,8 @@ export class BusinessSettingsService {
             maxUsers: agency.maxUsers,
             trialEndsAt: agency.trialEndsAt ?? null,
             subscriptionEndsAt: agency.subscriptionEndsAt ?? null,
+            logoUrl: settings?.logoUrl ?? null,
+            logo_url: settings?.logoUrl ?? null,
           }
         : null,
       metrics: {

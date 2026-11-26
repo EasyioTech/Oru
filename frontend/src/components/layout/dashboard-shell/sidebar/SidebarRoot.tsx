@@ -6,6 +6,7 @@ import { ThemeLogo } from '@/components/shared/ThemeLogo';
 import { motion } from 'framer-motion';
 import { useAuthWithViewAs } from '@/hooks/useAuthWithViewAs';
 import { useSidebarNav } from './useSidebarNav';
+import { useAgencySettings } from '@/hooks/useAgencySettings';
 import { cn } from '@/lib/utils';
 
 const PASTEL_COLORS = [
@@ -24,6 +25,7 @@ export function SidebarRoot() {
   const location = useLocation();
   const auth = useAuthWithViewAs();
   const navResult = useSidebarNav(auth.userRole ?? null, auth.loading);
+  const { settings: agencySettings } = useAgencySettings();
 
   if (auth.loading || !auth.userRole) {
     return <div className="w-full lg:w-[280px] shrink-0 pt-8 px-6 hidden lg:block animate-pulse" />;
@@ -37,9 +39,25 @@ export function SidebarRoot() {
   return (
     <div className="w-full lg:w-[280px] shrink-0 flex flex-col h-screen hidden lg:flex pt-8 pb-4 px-4">
       
-      {/* Brand Logo */}
-      <Link to="/dashboard" className="flex items-center hover:opacity-85 transition-opacity mb-8 px-1">
-        <ThemeLogo className="h-8 w-auto object-contain" />
+      {/* Brand Logo & Name */}
+      <Link to="/dashboard" className="flex items-center gap-3 hover:opacity-85 transition-opacity mb-8 px-1 min-h-[32px]">
+        {agencySettings?.logo_url ? (
+          <img
+            src={agencySettings.logo_url}
+            alt={agencySettings.agency_name || 'Agency Logo'}
+            className="h-8 w-8 object-contain rounded-lg border border-gray-100 shadow-sm shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <ThemeLogo className="h-8 w-auto object-contain shrink-0" />
+        )}
+        {agencySettings?.agency_name && (
+          <span className="text-[15px] font-bold text-gray-900 tracking-tight truncate max-w-[170px]">
+            {agencySettings.agency_name}
+          </span>
+        )}
       </Link>
 
       {/* Header for Left Col */}

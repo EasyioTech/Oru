@@ -10,7 +10,13 @@ import { getApiRoot, getApiBaseUrl } from '@/config/api';
 function isApiAvatarUrl(src: string | undefined): boolean {
   if (!src || typeof src !== 'string') return false;
   const apiRoot = getApiRoot().replace(/\/$/, '');
-  return src.startsWith(apiRoot) || src.includes('/api/files/');
+  return (
+    src.startsWith(apiRoot) ||
+    src.includes('/api/files/') ||
+    src.includes('/api/storage/files/') ||
+    src.includes('/storage/files/') ||
+    src.includes('/files/')
+  );
 }
 
 /** Resolve relative API URLs to absolute so fetch hits the correct backend. */

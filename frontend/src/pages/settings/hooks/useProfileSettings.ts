@@ -90,8 +90,8 @@ export const useProfileSettings = () => {
           const fileExt = avatarFile.name.split('.').pop() || 'jpg';
           const pathWithinBucket = `${user.id}_${Date.now()}.${fileExt}`;
           const fileBuffer = await avatarFile.arrayBuffer();
-          await uploadFile('avatars', pathWithinBucket, fileBuffer, user.id, avatarFile.type);
-          avatarUrl = `${getApiRoot().replace(/\/$/, '')}/files/avatars/${encodeURIComponent(pathWithinBucket)}`;
+          const uploadResult = await uploadFile('avatars', pathWithinBucket, fileBuffer, user.id, avatarFile.type);
+          avatarUrl = (uploadResult as any).url || (uploadResult as any).data?.url || `${getApiRoot().replace(/\/$/, '')}/storage/files/${encodeURIComponent((uploadResult as any).file_path || pathWithinBucket)}`;
         } catch (uploadError: any) {
           console.error('Error uploading avatar:', uploadError);
           avatarUrl = avatarPreview;
